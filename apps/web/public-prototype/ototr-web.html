@@ -1244,22 +1244,22 @@
     .comparison-wrap {
       margin-top: 22px;
       overflow-x: auto;
-      border: 1px solid rgba(255,255,255,.16);
+      border: 1px solid var(--line-light);
       border-radius: 22px;
-      background: rgba(255,255,255,.08);
-      box-shadow: var(--shadow);
+      background: #fff;
+      box-shadow: var(--soft-shadow);
     }
 
     .comparison-table {
       width: 100%;
       min-width: 760px;
       border-collapse: collapse;
-      color: #fff;
+      color: var(--ink);
     }
 
     .comparison-table th,
     .comparison-table td {
-      border-bottom: 1px solid rgba(255,255,255,.12);
+      border-bottom: 1px solid var(--line-light);
       padding: 13px 14px;
       text-align: left;
       font-size: 13px;
@@ -1268,10 +1268,15 @@
     }
 
     .comparison-table th {
-      color: #fff;
-      background: rgba(255,255,255,.08);
+      color: var(--ink);
+      background: #f8fafc;
       font-size: 12px;
       text-transform: uppercase;
+    }
+
+    .comparison-table td {
+      color: #334155;
+      background: #fff;
     }
 
     .comparison-table td:first-child,
