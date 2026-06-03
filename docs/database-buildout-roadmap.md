@@ -180,14 +180,21 @@ Review summary:
 ## Next 5 Baseline Work Items After 11-15
 
 16. Install/verify Supabase CLI and Docker, then validate `supabase/config.toml`.
+   - Partial: Supabase CLI works through `npx.cmd` as `2.104.0`.
+   - Partial: Docker Desktop `4.76.0` installed and Docker CLI `29.5.2` exists.
+   - Blocked: Docker Desktop Linux engine cannot start because WSL is not installed.
 
 17. Run local migration reset and capture exact SQL errors, if any.
+   - Blocked until Docker engine is healthy.
 
 18. Fix only local migration syntax/dependency errors found by reset.
+   - Pending; no migration SQL runtime error has been reached yet.
 
 19. Create local auth users and run the smoke seed template with local UUIDs.
+   - Pending; requires local Supabase stack.
 
 20. Run RLS/app smoke verification with branch manager and technician sessions.
+   - Pending; requires local Supabase stack and local auth sessions.
 
 ## Later Stages
 

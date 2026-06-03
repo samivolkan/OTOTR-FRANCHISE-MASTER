@@ -69,12 +69,17 @@
 - Updated public web source and clean dist package to call Supabase staging API at `https://bsjkohwbtrfwrqcyhsfz.supabase.co/functions/v1/public-api`.
 - Applied staging Supabase migrations `public_web_form_backend` and `public_complaints_location_fields` to project `ototr-staging`.
 - Deployed Supabase Edge Function `public-api` version 2 with `verify_jwt=false` and internal CORS/input validation controls.
+- Attempted local validation work items 16-20.
+- Verified Supabase CLI via `npx.cmd supabase --version` as `2.104.0`.
+- Installed Docker Desktop via winget; Docker Desktop `4.76.0` is listed and Docker CLI `29.5.2` exists.
+- Local Supabase validation remains blocked because Docker Desktop Linux engine is unhealthy and Windows Subsystem for Linux is not installed in this Windows environment.
+- No local migration reset, seed execution or RLS/RPC smoke test was run.
 
 ## Pending
 
 - Verify live Supabase env/runtime config in a local/staging target after Supabase CLI/Docker and approved credentials are available.
 - Configure GitHub repository secrets for automated deploy: `SUPABASE_ACCESS_TOKEN`, `SUPABASE_DB_PASSWORD`, `SUPABASE_PROJECT_ID`.
 - Convert raw database migrations into a reviewed executable local Supabase migration chain.
-- Install/verify Supabase CLI and Docker before local DB reset or migration validation.
+- Install/enable WSL, restart Windows/Docker Desktop, then rerun local DB reset or migration validation.
 - Refactor large admin prototype only after smoke tests.
 - Decide long-term mobile technology strategy.

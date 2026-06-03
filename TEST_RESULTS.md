@@ -115,6 +115,16 @@ Reviewed baseline 011-015 on 2026-06-03:
 - Static review only; no database command was run.
 - Local validation remains blocked by missing Supabase CLI and Docker.
 
+Reviewed baseline 016-020 attempt on 2026-06-03:
+
+- `npx.cmd supabase --version`: passed, Supabase CLI resolved to `2.104.0`.
+- `winget install --id Docker.DockerDesktop --source winget --accept-package-agreements --accept-source-agreements --silent`: completed; `winget list` reports Docker Desktop `4.76.0`.
+- Docker CLI exists at `C:\Program Files\Docker\Docker\resources\bin\docker.exe` and reports Docker version `29.5.2`.
+- Docker daemon is not healthy: `docker info` / `docker version` returns `500 Internal Server Error` for `dockerDesktopLinuxEngine`.
+- `wsl --status` reports Windows Subsystem for Linux is not installed.
+- `wsl --install --no-distribution` could not proceed from this session and returned the same WSL-not-installed system message.
+- `supabase start`, `supabase migration list`, `supabase db reset`, local smoke seed execution and RLS/RPC smoke tests were not run because Docker engine is unavailable.
+
 ## Latest Full Validation
 
 Passed on 2026-06-03:
