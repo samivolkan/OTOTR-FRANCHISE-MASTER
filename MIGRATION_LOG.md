@@ -69,10 +69,16 @@
 - Updated public web source and clean dist package to call Supabase staging API at `https://bsjkohwbtrfwrqcyhsfz.supabase.co/functions/v1/public-api`.
 - Applied staging Supabase migrations `public_web_form_backend` and `public_complaints_location_fields` to project `ototr-staging`.
 - Deployed Supabase Edge Function `public-api` version 2 with `verify_jwt=false` and internal CORS/input validation controls.
+- Live preview QA found complaint frontend/backend contract mismatch: public complaint form does not collect province/district while Edge Function required them through the shared lead validator.
+- Updated `supabase/functions/public-api/index.ts` so complaint records use contact validation plus complaint-specific required fields.
+- Deployed Supabase Edge Function `public-api` version 3.
+- Live preview retest passed for quick appointment, franchise application, complaint submission, report lookup, branch rendering and desktop/mobile overflow checks.
 - Attempted local validation work items 16-20.
 - Verified Supabase CLI via `npx.cmd supabase --version` as `2.104.0`.
 - Installed Docker Desktop via winget; Docker Desktop `4.76.0` is listed and Docker CLI `29.5.2` exists.
 - Local Supabase validation remains blocked because Docker Desktop Linux engine is unhealthy and Windows Subsystem for Linux is not installed in this Windows environment.
+- Attempted WSL installation from the current shell and an elevated PowerShell launch; completion still requires an admin/UAC flow outside this automation session.
+- Re-tested WSL, Docker and `npx.cmd supabase start`; WSL still reports the optional component / Virtual Machine Platform blocker, and Supabase start still fails before migrations on Docker engine inspection.
 - No local migration reset, seed execution or RLS/RPC smoke test was run.
 
 ## Pending

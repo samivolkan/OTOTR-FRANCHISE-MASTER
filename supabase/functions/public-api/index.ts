@@ -101,6 +101,16 @@ function validateLead(payload: ReturnType<typeof commonPayload>): string | null 
   return null;
 }
 
+function validateContact(payload: ReturnType<typeof commonPayload>): string | null {
+  if (!payload.full_name || !payload.phone) {
+    return "Ad soyad ve telefon zorunludur.";
+  }
+  if (!payload.kvkk_consent || !payload.contact_consent) {
+    return "KVKK ve iletişim onayı zorunludur.";
+  }
+  return null;
+}
+
 async function body(req: Request): Promise<Record<string, unknown>> {
   const parsed = await req.json().catch(() => null);
   return parsed && typeof parsed === "object" && !Array.isArray(parsed) ? parsed as Record<string, unknown> : {};
@@ -110,7 +120,7 @@ async function createAppointment(req: Request): Promise<Response> {
   const payload = await body(req);
   if (cleanText(payload.companyWebsite, 120)) return json(req, { ok: true, referenceNo: "WEB-FILTERED" }, 202);
   const common = commonPayload(payload, req);
-  const error = validateLead(common);
+  const error = validateContact(common);
   if (error) return json(req, { ok: false, error }, 400);
 
   const { data, error: insertError } = await supabase
@@ -163,7 +173,7 @@ async function createComplaint(req: Request): Promise<Response> {
   const payload = await body(req);
   if (cleanText(payload.companyWebsite, 120)) return json(req, { ok: true, referenceNo: "WEB-FILTERED" }, 202);
   const common = commonPayload(payload, req);
-  const error = validateLead(common);
+  const error = validateContact(common);
   if (error) return json(req, { ok: false, error }, 400);
 
   const reportNo = cleanText(payload.reportNo, 80);

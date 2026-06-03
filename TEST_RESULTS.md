@@ -123,6 +123,13 @@ Reviewed baseline 016-020 attempt on 2026-06-03:
 - Docker daemon is not healthy: `docker info` / `docker version` returns `500 Internal Server Error` for `dockerDesktopLinuxEngine`.
 - `wsl --status` reports Windows Subsystem for Linux is not installed.
 - `wsl --install --no-distribution` could not proceed from this session and returned the same WSL-not-installed system message.
+- Direct WSL feature inspection with DISM failed with `Error: 740` because the current shell is not elevated.
+- A separate elevated PowerShell window was launched for `wsl --install`, but the current automation session cannot complete or inspect the UAC/admin flow.
+- Re-tested after the user's request:
+  - `wsl --status` now reports default WSL version 2, but still says the WSL optional component / Virtual Machine Platform is not enabled and no Linux distribution is installed.
+  - `systeminfo` reports virtualization-based security is running and a hypervisor is detected.
+  - `npx.cmd supabase start` failed before migrations with Docker engine inspection error against `dockerDesktopLinuxEngine`.
+  - A second elevated PowerShell window was launched to enable `Microsoft-Windows-Subsystem-Linux` and `VirtualMachinePlatform` with DISM and run `wsl --install --no-distribution`; current non-elevated checks still show the same WSL/Docker blocker.
 - `supabase start`, `supabase migration list`, `supabase db reset`, local smoke seed execution and RLS/RPC smoke tests were not run because Docker engine is unavailable.
 
 ## Latest Full Validation
@@ -174,3 +181,30 @@ Direct database count verification:
 - `public_complaints`: 1
 - `public_branches`: 8 active
 - `public_report_records`: 1 public staging test record
+
+## Public Web Live Preview QA
+
+Validated on 2026-06-03 against:
+
+`https://samivolkan.github.io/OTOTR-WEB-PREVIEW/ototr-web.html`
+
+- Live page: HTTP 200.
+- Desktop title/canonical: passed.
+- Mobile layout horizontal overflow check: passed.
+- Desktop layout horizontal overflow check: passed.
+- Missing hash anchors: 0.
+- Empty visible form message boxes: 0.
+- Branch API: passed, rendered 8 `.branch-item` records.
+- Report verification: passed for `OTR-2026-1842` + `1842`.
+- Quick appointment form: passed, API returned HTTP 201.
+- Franchise application form: passed, API returned HTTP 201.
+- Complaint form: initially failed because the frontend form does not collect province/district while the Edge Function required them for all contact flows.
+- Complaint backend validation was fixed to require only contact identity, consent and complaint-specific fields.
+- Complaint form retest: passed, API returned HTTP 201.
+- Supabase count after live QA: appointments 3, franchise applications 3, complaints 3, active branches 8, public reports 1.
+
+QA screenshots:
+
+- `apps/web/live-preview-desktop-qa.png`
+- `apps/web/live-preview-mobile-qa.png`
+- `apps/web/live-preview-form-qa.png`
