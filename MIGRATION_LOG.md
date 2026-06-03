@@ -89,3 +89,13 @@
 - Install/enable WSL, restart Windows/Docker Desktop, then rerun local DB reset or migration validation.
 - Refactor large admin prototype only after smoke tests.
 - Decide long-term mobile technology strategy.
+
+## Bayi Portal Redesign Expansion - 2026-06-03
+
+- Expanded `apps/admin/prototype/bayi-portal/index.html` into a full dealer portal surface covering branch operations plus commercial self-service.
+- Added screens for listings/vehicles, offers, orders, payments, invoices, shipments, warranty, technical documents and analytics.
+- Grouped the portal menu into Operasyon, Ticari Self-Servis and Y?netim sections while preserving role-scoped access.
+- Generated desktop, commerce and mobile QA screenshots under `apps/admin/prototype/bayi-portal/`.
+- Validation: Playwright smoke test passed for 24 route navigation checks, role switching, grouped menu labels and mobile horizontal overflow.
+- No old project file was deleted or moved.
+- No secret, token, live credential, database migration or production command was used.

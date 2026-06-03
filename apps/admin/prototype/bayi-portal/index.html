@@ -3,27 +3,772 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>OTOTR Bayi Portali</title>
+  <title>OTOTR Bayi Portalı</title>
   <link rel="icon" type="image/svg+xml" href="../docs/ototr-favicon.svg">
   <style>
-    html,body{margin:0;width:100%;height:100%;background:#eef1f5;font-family:Inter,system-ui,-apple-system,Segoe UI,sans-serif}
-    body{display:grid;place-items:center;color:#111827}
-    p{max-width:460px;margin:0;padding:24px;text-align:center;line-height:1.5}
-    a{color:#d71920;font-weight:800}
+    :root {
+      --bg: #f4f6f8;
+      --panel: #ffffff;
+      --panel-2: #f9fafb;
+      --ink: #14181f;
+      --muted: #667085;
+      --line: #d9dee7;
+      --brand: #c9161d;
+      --brand-2: #8f1117;
+      --good: #12715b;
+      --warn: #ad6a00;
+      --bad: #b42318;
+      --info: #185c99;
+      --radius: 8px;
+      --shadow: 0 16px 38px rgba(20, 24, 31, .08);
+      --sidebar: 268px;
+      --topbar: 76px;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { margin: 0; min-height: 100%; background: var(--bg); color: var(--ink); font-family: Inter, "Segoe UI", system-ui, -apple-system, sans-serif; }
+    body { overflow-x: hidden; }
+    button, input, select, textarea { font: inherit; }
+    button { cursor: pointer; }
+    .app { min-height: 100vh; display: grid; grid-template-columns: var(--sidebar) 1fr; }
+    .sidebar { position: sticky; top: 0; height: 100vh; background: #11151b; color: #f7f7f8; display: flex; flex-direction: column; border-right: 1px solid #252b35; }
+    .brand { height: var(--topbar); display: flex; align-items: center; gap: 12px; padding: 0 18px; border-bottom: 1px solid #252b35; }
+    .brand-mark { width: 38px; height: 38px; border-radius: 7px; background: var(--brand); display: grid; place-items: center; font-weight: 900; letter-spacing: 0; }
+    .brand strong { display: block; font-size: 15px; line-height: 1.1; }
+    .brand span { display: block; color: #aeb6c2; font-size: 12px; margin-top: 3px; }
+    .scope { padding: 16px 18px; border-bottom: 1px solid #252b35; }
+    .scope label { color: #aeb6c2; font-size: 12px; display: block; margin-bottom: 7px; }
+    .scope select { width: 100%; background: #191f28; color: #fff; border: 1px solid #303846; border-radius: 7px; padding: 10px 11px; outline: none; }
+    .nav { padding: 10px; overflow: auto; }
+    .nav button { width: 100%; border: 0; background: transparent; color: #d7dde6; display: grid; grid-template-columns: 28px 1fr auto; align-items: center; gap: 8px; padding: 10px 9px; border-radius: 7px; text-align: left; margin: 2px 0; }
+    .nav button:hover { background: #1a2029; color: #fff; }
+    .nav button.active { background: #f4f6f8; color: #11151b; }
+    .nav .ico { width: 24px; height: 24px; border-radius: 6px; display: grid; place-items: center; background: rgba(255,255,255,.08); font-size: 13px; font-weight: 800; }
+    .nav button.active .ico { background: #e3e7ed; color: var(--brand); }
+    .nav .count { color: inherit; font-size: 11px; padding: 2px 6px; background: rgba(255,255,255,.08); border-radius: 999px; }
+    .nav-separator { color: #7f8997; font-size: 10px; font-weight: 900; letter-spacing: .08em; text-transform: uppercase; padding: 14px 8px 5px; }
+    .main { min-width: 0; }
+    .topbar { position: sticky; top: 0; z-index: 5; min-height: var(--topbar); display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 14px 24px; background: rgba(244,246,248,.93); backdrop-filter: blur(12px); border-bottom: 1px solid var(--line); }
+    .title h1 { margin: 0; font-size: 22px; line-height: 1.2; letter-spacing: 0; }
+    .title p { margin: 4px 0 0; color: var(--muted); font-size: 13px; }
+    .actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; justify-content: flex-end; }
+    .btn { border: 1px solid var(--line); background: var(--panel); color: var(--ink); border-radius: 7px; padding: 9px 12px; min-height: 38px; display: inline-flex; align-items: center; gap: 8px; font-weight: 700; }
+    .btn.primary { background: var(--brand); border-color: var(--brand); color: #fff; }
+    .btn.dark { background: #151a21; border-color: #151a21; color: #fff; }
+    .btn.icon { width: 38px; padding: 0; justify-content: center; }
+    .content { padding: 22px 24px 36px; }
+    .screen { display: none; }
+    .screen.active { display: block; }
+    .grid { display: grid; gap: 14px; }
+    .grid.kpi { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    .grid.two { grid-template-columns: minmax(0, 1.3fr) minmax(320px, .7fr); }
+    .grid.three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .panel { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); overflow-x: auto; }
+    .panel.pad { padding: 16px; }
+    .panel-head { display: flex; justify-content: space-between; gap: 14px; align-items: center; padding: 15px 16px; border-bottom: 1px solid var(--line); }
+    .panel-head h2 { margin: 0; font-size: 15px; letter-spacing: 0; }
+    .panel-head p { margin: 3px 0 0; color: var(--muted); font-size: 12px; }
+    .metric { padding: 15px; min-height: 124px; display: flex; flex-direction: column; justify-content: space-between; }
+    .metric small { color: var(--muted); font-weight: 700; }
+    .metric strong { display: block; font-size: 27px; margin-top: 8px; letter-spacing: 0; }
+    .metric .delta { margin-top: 12px; color: var(--muted); font-size: 12px; }
+    .delta.good, .tone.good { color: var(--good); }
+    .delta.warn, .tone.warn { color: var(--warn); }
+    .delta.bad, .tone.bad { color: var(--bad); }
+    .delta.info, .tone.info { color: var(--info); }
+    .filters { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+    .filters input, .filters select { border: 1px solid var(--line); background: #fff; border-radius: 7px; min-height: 38px; padding: 8px 10px; min-width: 160px; }
+    table { width: 100%; min-width: 680px; border-collapse: collapse; }
+    th, td { text-align: left; padding: 12px 14px; border-bottom: 1px solid #edf0f4; vertical-align: middle; font-size: 13px; }
+    th { color: #475467; font-size: 12px; background: #fafbfc; }
+    tr:last-child td { border-bottom: 0; }
+    .plate { display: inline-flex; align-items: center; height: 27px; border: 2px solid #111827; border-radius: 5px; padding: 0 9px; background: #fff; font-weight: 900; white-space: nowrap; }
+    .badge { display: inline-flex; align-items: center; border-radius: 999px; padding: 4px 8px; font-size: 12px; font-weight: 800; border: 1px solid transparent; white-space: nowrap; }
+    .badge.good { color: var(--good); background: #e9f7f3; border-color: #c3e8dd; }
+    .badge.warn { color: var(--warn); background: #fff4df; border-color: #ffdca3; }
+    .badge.bad { color: var(--bad); background: #feeceb; border-color: #fac5c0; }
+    .badge.info { color: var(--info); background: #e8f2fc; border-color: #c5def6; }
+    .timeline { display: grid; gap: 10px; padding: 16px; }
+    .step { display: grid; grid-template-columns: 34px 1fr auto; gap: 10px; align-items: start; padding-bottom: 10px; border-bottom: 1px solid #edf0f4; }
+    .step:last-child { border-bottom: 0; padding-bottom: 0; }
+    .dot { width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; color: #fff; font-size: 12px; font-weight: 900; background: var(--muted); }
+    .dot.good { background: var(--good); }
+    .dot.warn { background: var(--warn); }
+    .dot.bad { background: var(--bad); }
+    .step strong { display: block; font-size: 13px; }
+    .step span { display: block; color: var(--muted); font-size: 12px; margin-top: 3px; }
+    .board { display: grid; grid-template-columns: repeat(4, minmax(220px, 1fr)); gap: 12px; overflow-x: auto; padding-bottom: 4px; }
+    .lane { background: #eef1f5; border: 1px solid var(--line); border-radius: var(--radius); min-height: 280px; }
+    .lane h3 { margin: 0; padding: 12px; font-size: 13px; display: flex; justify-content: space-between; }
+    .ticket { margin: 0 10px 10px; padding: 12px; background: #fff; border: 1px solid var(--line); border-radius: 7px; }
+    .ticket strong { display: block; font-size: 13px; }
+    .ticket p { margin: 6px 0 10px; color: var(--muted); font-size: 12px; line-height: 1.35; }
+    .progress { height: 8px; background: #e6eaf0; border-radius: 999px; overflow: hidden; }
+    .progress span { display: block; height: 100%; background: var(--brand); border-radius: 999px; }
+    .split-list { display: grid; gap: 10px; padding: 16px; }
+    .list-row { display: grid; grid-template-columns: 1fr auto; gap: 12px; align-items: center; padding: 12px; border: 1px solid var(--line); border-radius: 7px; background: #fff; }
+    .list-row strong { display: block; font-size: 13px; }
+    .list-row span { display: block; color: var(--muted); font-size: 12px; margin-top: 3px; }
+    .form { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; padding: 16px; }
+    .field label { display: block; color: #475467; font-size: 12px; font-weight: 800; margin-bottom: 6px; }
+    .field input, .field select, .field textarea { width: 100%; border: 1px solid var(--line); background: #fff; border-radius: 7px; padding: 10px 11px; min-height: 40px; outline: none; }
+    .field textarea { min-height: 92px; resize: vertical; }
+    .field.full { grid-column: 1 / -1; }
+    .role-strip { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; margin-bottom: 14px; }
+    .role-card { border: 1px solid var(--line); border-radius: 7px; background: #fff; padding: 11px; text-align: left; }
+    .role-card.active { border-color: var(--brand); box-shadow: inset 0 0 0 1px var(--brand); }
+    .role-card strong { display: block; font-size: 13px; }
+    .role-card span { color: var(--muted); font-size: 12px; display: block; margin-top: 4px; }
+    .mobile-menu { display: none; }
+
+    @media (max-width: 1180px) {
+      .grid.kpi { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .grid.two, .grid.three { grid-template-columns: 1fr; }
+      .role-strip { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+    @media (max-width: 760px) {
+      :root { --topbar: auto; }
+      .app { grid-template-columns: 1fr; }
+      .sidebar { position: fixed; z-index: 20; inset: 0 auto 0 0; width: 286px; transform: translateX(-105%); transition: transform .18s ease; }
+      .sidebar.open { transform: translateX(0); }
+      .mobile-menu { display: inline-flex; }
+      .topbar { display: grid; grid-template-columns: 38px minmax(0, 1fr); align-items: start; padding: 14px; }
+      .title { min-width: 0; }
+      .title h1 { font-size: 21px; }
+      .title p { max-width: 100%; }
+      .actions { grid-column: 1 / -1; padding-left: 52px; }
+      .content { padding: 14px; }
+      .grid.kpi { grid-template-columns: 1fr; }
+      .actions { width: 100%; justify-content: flex-start; }
+      .form { grid-template-columns: 1fr; }
+      .role-strip { grid-template-columns: 1fr; }
+      th, td { padding: 10px; }
+      .panel { box-shadow: none; }
+      table { min-width: 620px; }
+    }
   </style>
 </head>
 <body>
-  <p>OTOTR Bayi Portali aciliyor. Acilmazsa <a id="dealerLink" href="../index.html?portal=dealer#dealer">buradan devam edin</a>.</p>
+  <div class="app">
+    <aside class="sidebar" id="sidebar">
+      <div class="brand">
+        <div class="brand-mark">OT</div>
+        <div><strong>OTOTR Bayi Portalı</strong><span>Kadıköy Şube Operasyon</span></div>
+      </div>
+      <div class="scope">
+        <label>Aktif kullanıcı rolü</label>
+        <select id="roleSelect" aria-label="Aktif kullanıcı rolü">
+          <option value="owner">Bayi Sahibi</option>
+          <option value="manager">Şube Müdürü</option>
+          <option value="reception">Müşteri Kabul</option>
+          <option value="technician">Usta / Teknisyen</option>
+          <option value="cashier">Kasa / Muhasebe</option>
+        </select>
+      </div>
+      <nav class="nav" id="nav" aria-label="Bayi portal menüsü"></nav>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <button class="btn icon mobile-menu" id="menuButton" aria-label="Menüyü aç">☰</button>
+        <div class="title">
+          <h1 id="pageTitle">Günlük Kokpit</h1>
+          <p id="pageSubtitle">Şube operasyonu, para, rapor kalitesi ve bekleyen işler tek ekranda.</p>
+        </div>
+        <div class="actions">
+          <button class="btn">🔎 Ara</button>
+          <button class="btn">🔔 7 Alarm</button>
+          <button class="btn primary" data-route="work-orders">＋ İş Emri Aç</button>
+        </div>
+      </header>
+
+      <section class="content">
+        <section class="screen active" id="screen-dashboard"></section>
+        <section class="screen" id="screen-appointments"></section>
+        <section class="screen" id="screen-work-orders"></section>
+        <section class="screen" id="screen-technician"></section>
+        <section class="screen" id="screen-approvals"></section>
+        <section class="screen" id="screen-reports"></section>
+        <section class="screen" id="screen-delivery"></section>
+        <section class="screen" id="screen-customers"></section>
+        <section class="screen" id="screen-listings"></section>
+        <section class="screen" id="screen-offers"></section>
+        <section class="screen" id="screen-orders"></section>
+        <section class="screen" id="screen-payments"></section>
+        <section class="screen" id="screen-invoices"></section>
+        <section class="screen" id="screen-shipments"></section>
+        <section class="screen" id="screen-warranty"></section>
+        <section class="screen" id="screen-documents"></section>
+        <section class="screen" id="screen-analytics"></section>
+        <section class="screen" id="screen-staff"></section>
+        <section class="screen" id="screen-academy"></section>
+        <section class="screen" id="screen-finance"></section>
+        <section class="screen" id="screen-assets"></section>
+        <section class="screen" id="screen-quality"></section>
+        <section class="screen" id="screen-support"></section>
+        <section class="screen" id="screen-settings"></section>
+      </section>
+    </main>
+  </div>
+
   <script>
-    (function(){
-      const params = new URLSearchParams(window.location.search);
-      params.set('portal','dealer');
-      ['email','password','passwd','token','access_token','refresh_token'].forEach(function(key){ params.delete(key); });
-      const hash = window.location.hash || '#dealer';
-      const target = '../index.html?' + params.toString() + hash;
-      document.getElementById('dealerLink').href = target;
-      window.location.replace(target);
-    })();
+    const state = {
+      role: "owner",
+      route: "dashboard",
+      roles: {
+        owner: "Bayi Sahibi",
+        manager: "Şube Müdürü",
+        reception: "Müşteri Kabul",
+        technician: "Usta / Teknisyen",
+        cashier: "Kasa / Muhasebe"
+      },
+      routes: [
+        ["dashboard", "Kokpit", "KP", "Şube sağlığı", ["owner","manager","reception","technician","cashier"], 7],
+        ["appointments", "Randevular", "RD", "Teyit ve kabul kuyruğu", ["owner","manager","reception"], 12],
+        ["work-orders", "İş Emirleri", "İE", "Kabulden teslimata akış", ["owner","manager","reception"], 18],
+        ["technician", "Usta Görevleri", "UG", "Atanan teknik işler", ["owner","manager","technician"], 9],
+        ["approvals", "Müdür Onayı", "MO", "Rapor kalite kapıları", ["owner","manager"], 4],
+        ["reports", "Rapor Merkezi", "RM", "PDF, QR, revizyon ve arşiv", ["owner","manager","reception","technician"], 36],
+        ["delivery", "Teslim / QR", "TQ", "Basım ve müşteri teslimi", ["owner","manager","reception","cashier"], 6],
+        ["customers", "Müşteriler", "CR", "Şube CRM ve notlar", ["owner","manager","reception"], 24],
+        ["listings", "İlanlar / Araçlar", "İL", "Şube bazlı araç ve ilan yönetimi", ["owner","manager","reception"], 14],
+        ["offers", "Teklifler", "TF", "Fiyatlandırma, PDF ve onay", ["owner","manager","reception"], 9],
+        ["orders", "Siparişler", "SP", "Onaylı tekliften sipariş akışı", ["owner","manager","reception","cashier"], 7],
+        ["payments", "Ödemeler", "ÖD", "Güvenli ödeme ve tahsilat takibi", ["owner","manager","cashier"], 5],
+        ["invoices", "Faturalar", "FT", "Fatura görüntüleme ve mutabakat", ["owner","manager","cashier"], 8],
+        ["shipments", "Sevkiyat", "SV", "Kargo takip ve teslimat süreci", ["owner","manager","reception"], 4],
+        ["warranty", "Garanti", "GR", "Kurulum aktivasyonu ve garanti kayıtları", ["owner","manager","reception"], 6],
+        ["documents", "Dokümanlar", "DK", "Teknik çizim, kılavuz ve materyal", ["owner","manager","reception","technician"], 18],
+        ["analytics", "Analitik", "AN", "Teklif, sipariş ve ilan performansı", ["owner","manager"], 6],
+        ["staff", "Personel & Roller", "PR", "Yetki, görev ve vardiya", ["owner","manager"], 11],
+        ["academy", "Academy", "AC", "Eğitim ve sertifika kilitleri", ["owner","manager","technician"], 8],
+        ["finance", "Finans / Kasa", "FK", "Tahsilat, kapanış, royalty", ["owner","manager","reception","cashier"], 5],
+        ["assets", "Stok & Cihaz", "SC", "Kalibrasyon ve sarf", ["owner","manager","technician"], 3],
+        ["quality", "Kalite & Şikayet", "KŞ", "İtiraz, CAPA, eksik kanıt", ["owner","manager"], 5],
+        ["support", "Merkez Talepleri", "MT", "SLA takipli destek", ["owner","manager","reception","technician","cashier"], 4],
+        ["settings", "Şube Ayarları", "SA", "Politika ve kapsam", ["owner","manager"], 2]
+      ],
+      kpis: [
+        ["Bugünkü ekspertiz", "28", "+4 araç", "good"],
+        ["Açık iş emri", "18", "4 tanesi gecikti", "warn"],
+        ["Onay bekleyen rapor", "4", "2 eksik kanıt", "bad"],
+        ["Günlük tahsilat", "₺286.400", "Kasa %82 kapandı", "good"],
+        ["Ortalama teslim süresi", "93 dk", "Hedef 85 dk", "warn"],
+        ["Rapor kalite skoru", "91/100", "2 CAPA açık", "good"],
+        ["Academy uyumu", "%78", "3 yetki kilidi", "warn"],
+        ["Royalty durumu", "Stabil", "Gecikme yok", "good"],
+        ["Yayındaki ilan", "8", "2 merkez onayı", "info"],
+        ["Açık teklif", "9", "%62 dönüşüm", "good"],
+        ["Sipariş hacmi", "₺170.700", "4 açık sipariş", "good"],
+        ["Ödeme kilidi", "₺32.000", "1 sipariş bekliyor", "warn"]
+      ],
+      appointments: [
+        ["09:20", "34 KDY 528", "Mert Arslan", "Standart", "Teyit edildi", "good"],
+        ["10:00", "34 EKS 190", "Derya Uslu", "Premium", "Kapora bekliyor", "warn"],
+        ["10:45", "34 OTO 775", "Kadıköy Galeri", "Full", "Filo müşterisi", "info"],
+        ["11:30", "34 NRM 482", "Selin Koç", "Mini", "No-show riski", "bad"]
+      ],
+      workOrders: [
+        ["WO-1048", "34 KDY 528", "Standart", "Usta girişinde", "Mekanik + Kaporta", "warn"],
+        ["WO-1049", "34 EKS 190", "Premium", "Eksik kanıt", "OBD ekran fotoğrafı", "bad"],
+        ["WO-1050", "34 OTO 775", "Full", "Müdür onayında", "4 görev tamamlandı", "info"],
+        ["WO-1051", "34 NRM 482", "Mini", "Sekreterya basımında", "Ödeme tamam", "good"]
+      ],
+      technicians: [
+        ["Kaporta/Boya 59 nokta", "Ahmet Usta", "34 KDY 528", 72, "Devam ediyor", "warn"],
+        ["Motor üst mekanik", "Murat Usta", "34 EKS 190", 46, "Eksik foto", "bad"],
+        ["OBD modül taraması", "Ece Usta", "34 OTO 775", 100, "Tamamlandı", "good"],
+        ["Fren & süspansiyon", "Deniz Operatör", "34 NRM 482", 88, "Cihaz çıktısı bekliyor", "warn"]
+      ],
+      staff: [
+        ["Serkan Yıldız", "Şube Müdürü", "Tam yetki", "%96", "Aktif", "good"],
+        ["Aylin Demir", "Müşteri Kabul", "KVKK tamam", "%88", "Aktif", "good"],
+        ["Ahmet Kaya", "Kaporta Ustası", "AC-16 yenileme", "%62", "Kilitli", "warn"],
+        ["Murat Şahin", "Mekanik Usta", "Evrak eksik", "%54", "Sınırlı", "bad"]
+      ],
+      assets: [
+        ["Mikron-03", "Kaporta", "Kalibrasyon 12 gün", "Ahmet Kaya", "good"],
+        ["OBD Maxisys", "Elektronik", "Servis kaydı açık", "Ece Usta", "warn"],
+        ["Fren Test Cihazı", "Test hattı", "Kalibrasyon geçti", "Deniz", "bad"],
+        ["Rapor Yazıcı", "Sekreterya", "Toner %18", "Aylin Demir", "warn"]
+      ],
+      listings: [
+        ["ILN-2041", "34 KDY 528", "BMW 320i M Sport", "Yayında", "₺1.680.000", "12 görüntülenme", "good"],
+        ["ILN-2042", "34 EKS 190", "Mercedes C200 AMG", "Taslak", "₺2.140.000", "Fotoğraf bekliyor", "warn"],
+        ["ILN-2043", "34 OTO 775", "Toyota Corolla Hybrid", "Onayda", "₺1.225.000", "Merkez kalite kontrol", "info"],
+        ["ILN-2044", "34 NRM 482", "Volkswagen Passat", "Pasif", "₺1.390.000", "Garanti aktivasyonu eksik", "bad"]
+      ],
+      offers: [
+        ["TEK-1180", "Kadıköy Galeri", "3 araç paket teklif", "Bayi Plus", "₺42.800", "Onay bekliyor", "warn"],
+        ["TEK-1181", "Mert Arslan", "Premium + garanti", "Perakende", "₺18.500", "PDF hazır", "good"],
+        ["TEK-1182", "FiloNet", "Aylık 20 araç anlaşması", "Kurumsal", "₺286.000", "Revizyon", "info"],
+        ["TEK-1183", "Selin Koç", "Standart ekspertiz", "Perakende", "₺9.750", "Süresi doluyor", "bad"]
+      ],
+      orders: [
+        ["SIP-0912", "TEK-1181", "Premium ekspertiz + garanti", "Hazırlanıyor", "₺18.500", "Bugün 16:00", "info"],
+        ["SIP-0913", "TEK-1176", "Rapor paketi ve doküman", "Ödeme bekliyor", "₺32.000", "Kilitli", "warn"],
+        ["SIP-0914", "TEK-1172", "Filo kurulum paketi", "Sevkiyatta", "₺112.400", "Yarın", "good"],
+        ["SIP-0915", "TEK-1168", "Cihaz sarf yenileme", "İade inceleme", "₺7.800", "Merkez onayı", "bad"]
+      ],
+      payments: [
+        ["PAY-7001", "SIP-0912", "POS", "₺18.500", "Başarılı", "Dekont hazır", "good"],
+        ["PAY-7002", "SIP-0913", "Havale", "₺32.000", "Bekliyor", "Rapor teslim kilitli", "warn"],
+        ["PAY-7003", "Royalty", "Otomatik çekim", "₺28.640", "Planlandı", "Bugün 18:00", "info"],
+        ["PAY-7004", "İade", "POS iade", "₺4.200", "İnceleme", "Finans onayı", "bad"]
+      ],
+      invoices: [
+        ["FAT-5001", "SIP-0912", "Mert Arslan", "E-fatura", "₺18.500", "Kesildi", "good"],
+        ["FAT-5002", "SIP-0913", "Kadıköy Galeri", "E-arşiv", "₺32.000", "Ödeme bekliyor", "warn"],
+        ["FAT-5003", "ROY-2026-06", "OTOTR Merkez", "Royalty", "₺28.640", "Taslak", "info"],
+        ["FAT-5004", "İade", "Selin Koç", "İade faturası", "₺4.200", "Kontrol", "bad"]
+      ],
+      shipments: [
+        ["SVK-3301", "Cihaz sarf paketi", "Yurtiçi Kargo", "Dağıtımda", "TRK-882190", "Bugün", "good"],
+        ["SVK-3302", "Rapor kağıdı ve baskı seti", "MNG", "Hazırlanıyor", "TRK-882191", "Yarın", "info"],
+        ["SVK-3303", "OBD servis cihazı", "Merkez teknik", "Serviste", "SRV-1044", "3 gün", "warn"],
+        ["SVK-3304", "Tabela materyali", "Horoz", "Gecikti", "TRK-882192", "SLA dışı", "bad"]
+      ],
+      warranties: [
+        ["GAR-8801", "34 KDY 528", "Premium 1000 km", "Aktif", "24.06.2026", "Müşteri bilgilendi", "good"],
+        ["GAR-8802", "34 EKS 190", "Kurulum aktivasyonu", "Form bekliyor", "-", "Montaj fotoğrafı eksik", "warn"],
+        ["GAR-8803", "34 OTO 775", "Filo garanti", "Onayda", "30.06.2026", "Merkez kontrolü", "info"],
+        ["GAR-8804", "34 NRM 482", "Garanti itirazı", "Riskli", "Açık", "Kalite inceleme", "bad"]
+      ],
+      documents: [
+        ["DOC-001", "Premium ekspertiz satış föyü", "Pazarlama", "PDF", "Güncel", "good"],
+        ["DOC-002", "OBD cihaz kurulum kılavuzu", "Teknik", "PDF", "Yeni sürüm", "info"],
+        ["DOC-003", "Garanti aktivasyon formu", "Garanti", "Form", "Zorunlu", "warn"],
+        ["DOC-004", "Marka kullanım standardı", "Kurumsal", "PDF", "Revizyon", "bad"]
+      ],
+      tickets: [
+        ["P0", "Eksik cihaz çıktısı ile teslim riski", "Müdür onayı", "35 dk", "bad"],
+        ["P1", "Bursa örnek rapor revizyon standardı", "Kalite", "2 sa", "warn"],
+        ["P2", "Google yorum isteği otomasyonu", "Pazarlama", "1 gün", "info"],
+        ["P2", "Royalty mutabakat fişi", "Finans", "Bugün", "good"]
+      ]
+    };
+
+    const titleMap = Object.fromEntries(state.routes.map(([id, title, ico, subtitle]) => [id, [title, subtitle]]));
+    const screen = id => document.getElementById("screen-" + id);
+    const toneBadge = tone => tone === "bad" ? "bad" : tone === "warn" ? "warn" : tone === "info" ? "info" : "good";
+    const escapeHtml = value => String(value).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
+
+    function metricCards(rows = state.kpis) {
+      return `<div class="grid kpi">${rows.map(([label, value, delta, tone]) => `
+        <article class="panel metric">
+          <div><small>${label}</small><strong>${value}</strong></div>
+          <div class="delta ${tone}">${delta}</div>
+        </article>`).join("")}</div>`;
+    }
+
+    function table(headers, rows) {
+      return `<div class="panel"><table><thead><tr>${headers.map(h => `<th>${h}</th>`).join("")}</tr></thead><tbody>${rows.join("")}</tbody></table></div>`;
+    }
+
+    function workOrderRows(rows = state.workOrders) {
+      return rows.map(([id, plate, pack, status, note, tone]) => `
+        <tr><td><strong>${id}</strong></td><td><span class="plate">${plate}</span></td><td>${pack}</td><td><span class="badge ${toneBadge(tone)}">${status}</span></td><td>${note}</td><td><button class="btn">Aç</button></td></tr>
+      `);
+    }
+
+    function renderDashboard() {
+      screen("dashboard").innerHTML = `
+        <div class="role-strip">
+          ${Object.entries(state.roles).map(([key, label]) => `<button class="role-card ${state.role === key ? "active" : ""}" data-role-card="${key}"><strong>${label}</strong><span>${roleHint(key)}</span></button>`).join("")}
+        </div>
+        ${metricCards(roleMetrics())}
+        <div class="grid two" style="margin-top:14px">
+          ${table(["İş emri", "Plaka", "Paket", "Durum", "Kilit", "Aksiyon"], workOrderRows())}
+          <div class="panel">
+            <div class="panel-head"><div><h2>Canlı operasyon hattı</h2><p>Kabulden teslimata kritik kapılar</p></div><span class="badge warn">4 risk</span></div>
+            <div class="timeline">
+              <div class="step"><span class="dot good">1</span><div><strong>Randevu ve kabul</strong><span>12 randevu, 3 walk-in, 1 no-show riski</span></div><span class="badge good">Açık</span></div>
+              <div class="step"><span class="dot warn">2</span><div><strong>Usta görevleri</strong><span>9 görev aktif, 2 cihaz çıktısı bekliyor</span></div><span class="badge warn">Yoğun</span></div>
+              <div class="step"><span class="dot bad">3</span><div><strong>Rapor kalite kapısı</strong><span>OBD fotoğrafı ve kaporta kanıtı eksik</span></div><span class="badge bad">Kilit</span></div>
+              <div class="step"><span class="dot good">4</span><div><strong>Teslim ve QR</strong><span>6 rapor basım/QR kuyruğunda</span></div><span class="badge info">Sırada</span></div>
+            </div>
+          </div>
+        </div>`;
+    }
+
+    function renderAppointments() {
+      screen("appointments").innerHTML = `
+        <div class="panel">
+          <div class="panel-head"><div><h2>Randevu masası</h2><p>Telefon, WhatsApp, web ve walk-in girişleri</p></div><button class="btn primary">＋ Randevu Ekle</button></div>
+          <div class="filters" style="padding:14px 16px"><input placeholder="Plaka, müşteri, telefon ara"><select><option>Bugün</option><option>Yarın</option><option>Bu hafta</option></select><select><option>Tüm durumlar</option><option>Teyit edildi</option><option>No-show riski</option></select></div>
+          <table><thead><tr><th>Saat</th><th>Plaka</th><th>Müşteri</th><th>Paket</th><th>Durum</th><th>Aksiyon</th></tr></thead><tbody>
+          ${state.appointments.map(([time, plate, customer, pack, status, tone]) => `<tr><td>${time}</td><td><span class="plate">${plate}</span></td><td>${customer}</td><td>${pack}</td><td><span class="badge ${toneBadge(tone)}">${status}</span></td><td><button class="btn">İş emrine çevir</button></td></tr>`).join("")}
+          </tbody></table>
+        </div>`;
+    }
+
+    function renderWorkOrders() {
+      screen("work-orders").innerHTML = `
+        <div class="grid two">
+          <div class="panel">
+            <div class="panel-head"><div><h2>Yeni iş emri</h2><p>Paket seçimi görev kapsamını otomatik kilitler</p></div><span class="badge info">Taslak</span></div>
+            <div class="form">
+              ${field("Müşteri", "text", "Mert Arslan")}
+              ${field("Telefon", "text", "05xx xxx xx xx")}
+              ${field("Plaka", "text", "34 KDY 528")}
+              ${field("Şasi / VIN", "text", "WVWZZZ...")}
+              ${selectField("Paket", ["Standart", "Premium", "Full Ekspertiz"])}
+              ${selectField("Ödeme", ["Tahsil edildi", "Kapora alındı", "Bekliyor"])}
+              <div class="field full"><label>Rıza ve kilitler</label><div class="list-row"><div><strong>KVKK, yol testi, ruhsat fotoğrafı</strong><span>Eksik alan varsa görev oluşturulmaz.</span></div><span class="badge warn">1 eksik</span></div></div>
+              <div class="field full"><button class="btn primary">İş emri ve görevleri oluştur</button></div>
+            </div>
+          </div>
+          <div class="panel">
+            <div class="panel-head"><div><h2>İş emri durum makinesi</h2><p>Silme yok; iptal, revizyon ve arşiv var</p></div></div>
+            <div class="timeline">
+              ${["Taslak","Kabul bekliyor","Usta girişinde","Eksik kanıt","Müdür onayı","Sekreterya basımı","Teslim edildi"].map((s, i) => `<div class="step"><span class="dot ${i < 3 ? "good" : i === 3 ? "bad" : "warn"}">${i+1}</span><div><strong>${s}</strong><span>${i === 3 ? "Kanıt tamamlanmadan rapor yayınlanmaz" : "Sistem kapısı kayıt altına alınır"}</span></div></div>`).join("")}
+            </div>
+          </div>
+        </div>
+        <div style="margin-top:14px">${table(["İş emri", "Plaka", "Paket", "Durum", "Kilit", "Aksiyon"], workOrderRows())}</div>`;
+    }
+
+    function renderTechnician() {
+      screen("technician").innerHTML = `
+        <div class="board">
+          ${["Bekliyor","Devam ediyor","Eksik kanıt","Tamamlandı"].map((lane, idx) => `
+          <div class="lane"><h3>${lane}<span>${idx + 2}</span></h3>
+            ${state.technicians.slice(0, idx === 3 ? 1 : 2).map(([task, owner, plate, pct, status, tone]) => `
+            <div class="ticket"><strong>${task}</strong><p><span class="plate">${plate}</span><br>${owner} · ${status}</p><div class="progress"><span style="width:${pct}%"></span></div></div>`).join("")}
+          </div>`).join("")}
+        </div>`;
+    }
+
+    function renderApprovals() {
+      screen("approvals").innerHTML = `
+        ${metricCards([["Onay kuyruğu","4","2 kritik", "bad"],["Eksik fotoğraf","7","Kaporta ağırlıklı","warn"],["Riskli ifade","3","Müşteri dili bekliyor","warn"],["Revizyon","2","Müdür iadesi","info"]])}
+        <div class="grid two" style="margin-top:14px">
+          ${table(["Rapor", "Plaka", "Paket", "Kalite kapısı", "Durum", "Aksiyon"], [
+            `<tr><td>RP-7751</td><td><span class="plate">34 EKS 190</span></td><td>Premium</td><td>OBD ekran kanıtı</td><td><span class="badge bad">Kilitli</span></td><td><button class="btn">Ustaya iade</button></td></tr>`,
+            `<tr><td>RP-7752</td><td><span class="plate">34 OTO 775</span></td><td>Full</td><td>Müşteri dili</td><td><span class="badge warn">Kontrol</span></td><td><button class="btn primary">Onayla</button></td></tr>`
+          ])}
+          <div class="panel pad"><h2 style="font-size:15px;margin:0 0 12px">Yayın kilitleri</h2>${lockList(["Paket kapsamı tamamlanmalı","İşlemli kaporta satırında fotoğraf zorunlu","Cihaz ölçümü cihaz çıktısıyla bağlanmalı","Şasi/plaka/motor uyumsuzsa rapor kilitlenmeli"])}</div>
+        </div>`;
+    }
+
+    function renderReports() {
+      screen("reports").innerHTML = `
+        <div class="panel">
+          <div class="panel-head"><div><h2>Rapor arşivi</h2><p>Plaka, şasi, müşteri, paket, itiraz ve revizyon filtreleri</p></div><button class="btn">CSV</button></div>
+          <div class="filters" style="padding:14px 16px"><input placeholder="Rapor no / plaka / müşteri"><select><option>Tüm raporlar</option><option>İtirazlı</option><option>Revize</option></select><select><option>Son 30 gün</option></select></div>
+          <table><thead><tr><th>Rapor</th><th>Plaka</th><th>Müşteri</th><th>Durum</th><th>QR</th><th>Aksiyon</th></tr></thead><tbody>
+            <tr><td>RP-7751</td><td><span class="plate">34 EKS 190</span></td><td>Derya Uslu</td><td><span class="badge warn">Revizyon</span></td><td>Hazır</td><td><button class="btn">Aç</button></td></tr>
+            <tr><td>RP-7750</td><td><span class="plate">34 KDY 528</span></td><td>Mert Arslan</td><td><span class="badge good">Teslim</span></td><td>Gönderildi</td><td><button class="btn">PDF</button></td></tr>
+          </tbody></table>
+        </div>`;
+    }
+
+    function renderDelivery() {
+      screen("delivery").innerHTML = `
+        <div class="grid two">
+          <div class="panel">
+            <div class="panel-head"><div><h2>Basım ve QR kuyruğu</h2><p>Teknik veriye dokunmadan teslim süreci</p></div></div>
+            <div class="split-list">
+              ${["RP-7752 · QR hazır · imza bekliyor","RP-7753 · ödeme bekliyor · teslim kilitli","RP-7754 · müşteri nüshası basıldı","RP-7755 · Google yorum isteği sırada"].map((x, i) => `<div class="list-row"><div><strong>${x}</strong><span>${i === 1 ? "Ödeme politikası nedeniyle teslim kapanmaz" : "Sekreterya aksiyonu bekleniyor"}</span></div><button class="btn">${i === 1 ? "Tahsilat" : "Teslim"}</button></div>`).join("")}
+            </div>
+          </div>
+          <div class="panel pad"><h2 style="font-size:15px;margin:0 0 12px">Teslim kilitleri</h2>${lockList(["Müdür onayı yoksa teslim kapanmaz","PDF veya QR üretilmeli","Ödeme politikaya uygun olmalı","Teslim imzası ya da kanal kaydı alınmalı"])}</div>
+        </div>`;
+    }
+
+    function renderCustomers() {
+      screen("customers").innerHTML = table(["Müşteri", "Segment", "Son plaka", "Durum", "Not", "Aksiyon"], [
+        `<tr><td>Mert Arslan</td><td>Bireysel</td><td><span class="plate">34 KDY 528</span></td><td><span class="badge good">Randevulu</span></td><td>Tekrar kontrol ister</td><td><button class="btn">Not ekle</button></td></tr>`,
+        `<tr><td>Kadıköy Galeri</td><td>Filo / Galeri</td><td><span class="plate">34 OTO 775</span></td><td><span class="badge info">VIP</span></td><td>Ayda 20 araç hedefi</td><td><button class="btn">Ara</button></td></tr>`
+      ]);
+    }
+
+    function renderListings() {
+      screen("listings").innerHTML = `
+        ${metricCards([["Yayındaki ilan","8","+2 bu hafta","good"],["Taslak ilan","3","Fotoğraf bekliyor","warn"],["Merkez onayı","2","Kalite kontrol","info"],["Garanti kilidi","1","Aktivasyon eksik","bad"]])}
+        <div class="grid two" style="margin-top:14px">
+          <div class="panel">
+            <div class="panel-head"><div><h2>Şube araç / ilan listesi</h2><p>Eklenir, düzenlenir, yayınlanır; silme yerine pasife alma kullanılır.</p></div><button class="btn primary">＋ İlan ekle</button></div>
+            <div class="filters" style="padding:14px 16px"><input placeholder="Plaka, marka, ilan no ara"><select><option>Tüm durumlar</option><option>Yayında</option><option>Taslak</option><option>Onayda</option></select><select><option>Kadıköy Şube</option></select></div>
+            <table><thead><tr><th>İlan</th><th>Plaka</th><th>Araç</th><th>Durum</th><th>Fiyat</th><th>Sinyal</th><th>Aksiyon</th></tr></thead><tbody>
+            ${state.listings.map(([id, plate, vehicle, status, price, signal, tone]) => `<tr><td><strong>${id}</strong></td><td><span class="plate">${plate}</span></td><td>${vehicle}</td><td><span class="badge ${toneBadge(tone)}">${status}</span></td><td>${price}</td><td>${signal}</td><td><button class="btn">Düzenle</button></td></tr>`).join("")}
+            </tbody></table>
+          </div>
+          <div class="panel pad"><h2 style="font-size:15px;margin:0 0 12px">Yayın kapıları</h2>${lockList(["Ekspertiz raporu bağlanmalı","Araç fotoğrafları minimum kaliteyi geçmeli","Fiyat bölge ve bayi tipi kuralına uymalı","Garanti/aktivasyon eksikse yayında uyarı gösterilmeli"])}</div>
+        </div>`;
+    }
+
+    function renderOffers() {
+      screen("offers").innerHTML = `
+        ${metricCards([["Açık teklif","9","4 onay bekliyor","warn"],["Onay oranı","%62","+%8 aylık","good"],["Ortalama teklif","₺71.300","Kurumsal dahil","info"],["Süresi dolan","1","Bugün kapanmalı","bad"]])}
+        <div class="grid two" style="margin-top:14px">
+          <div class="panel">
+            <div class="panel-head"><div><h2>Teklif merkezi</h2><p>Bayi tipi, bölge ve hacme göre fiyatlandırma; PDF/e-posta çıktısı hazır.</p></div><button class="btn primary">＋ Teklif oluştur</button></div>
+            <table><thead><tr><th>Teklif</th><th>Müşteri</th><th>Kapsam</th><th>Fiyat seviyesi</th><th>Tutar</th><th>Durum</th><th>Aksiyon</th></tr></thead><tbody>
+            ${state.offers.map(([id, customer, scope, tier, amount, status, tone]) => `<tr><td><strong>${id}</strong></td><td>${customer}</td><td>${scope}</td><td>${tier}</td><td>${amount}</td><td><span class="badge ${toneBadge(tone)}">${status}</span></td><td><button class="btn">PDF</button></td></tr>`).join("")}
+            </tbody></table>
+          </div>
+          <div class="panel">
+            <div class="panel-head"><div><h2>Akıllı fiyat önerisi</h2><p>AI opsiyonel konsept; MVP'de kural bazlı öneri gösterilir.</p></div><span class="badge info">Konsept</span></div>
+            <div class="split-list">
+              ${["Kadıköy Galeri için filo indirimi %8 üst limite yakın","Premium + garanti paketi teklif kapanışını artırır","Süresi dolan teklif için bugün WhatsApp hatırlatma aç","Kurumsal teklifte ödeme vadesi merkez onayı gerektirir"].map((x, i) => `<div class="list-row"><div><strong>${x}</strong><span>${i === 0 ? "Fiyat kuralı dealer_price_tiers üzerinden çalışmalı." : "Canlıda audit event bırakır."}</span></div><button class="btn">${i === 1 ? "Ekle" : "Görev"}</button></div>`).join("")}
+            </div>
+          </div>
+        </div>`;
+    }
+
+    function renderOrders() {
+      screen("orders").innerHTML = `
+        <div class="panel">
+          <div class="panel-head"><div><h2>Siparişler</h2><p>Onaylanan tekliften siparişe, ödemeden sevkiyata tek durum makinesi.</p></div><button class="btn primary">Tekliften sipariş aç</button></div>
+          <table><thead><tr><th>Sipariş</th><th>Teklif</th><th>Kapsam</th><th>Durum</th><th>Tutar</th><th>Hedef</th><th>Aksiyon</th></tr></thead><tbody>
+          ${state.orders.map(([id, offer, scope, status, amount, target, tone]) => `<tr><td><strong>${id}</strong></td><td>${offer}</td><td>${scope}</td><td><span class="badge ${toneBadge(tone)}">${status}</span></td><td>${amount}</td><td>${target}</td><td><button class="btn">Detay</button></td></tr>`).join("")}
+          </tbody></table>
+        </div>
+        <div class="board" style="margin-top:14px">
+          ${["Teklif onaylandı","Ödeme bekliyor","Hazırlanıyor","Sevkiyat / teslim"].map((lane, idx) => `<div class="lane"><h3>${lane}<span>${idx + 1}</span></h3>${state.orders.slice(idx, idx + 2).map(([id, offer, scope, status, amount]) => `<div class="ticket"><strong>${id}</strong><p>${scope}<br>${amount} · ${status}</p><div class="progress"><span style="width:${55 + idx * 12}%"></span></div></div>`).join("")}</div>`).join("")}
+        </div>`;
+    }
+
+    function renderPayments() {
+      screen("payments").innerHTML = `
+        ${metricCards([["Başarılı ödeme","₺18.500","Bugün","good"],["Bekleyen","₺32.000","1 sipariş kilitli","warn"],["Royalty çekimi","₺28.640","18:00 planlı","info"],["İade inceleme","₺4.200","Finans onayı","bad"]])}
+        <div style="margin-top:14px">${table(["Ödeme", "Bağlı kayıt", "Kanal", "Tutar", "Durum", "Not", "Aksiyon"], state.payments.map(([id, ref, channel, amount, status, note, tone]) => `<tr><td><strong>${id}</strong></td><td>${ref}</td><td>${channel}</td><td>${amount}</td><td><span class="badge ${toneBadge(tone)}">${status}</span></td><td>${note}</td><td><button class="btn">Görüntüle</button></td></tr>`))}</div>
+        <div class="panel pad" style="margin-top:14px"><h2 style="font-size:15px;margin:0 0 12px">Güvenli ödeme sınırı</h2>${lockList(["Ödeme sağlayıcı secret bilgisi browser tarafına konmaz","Tahsilat sonucu server-only endpoint ile doğrulanır","Başarılı ödeme sipariş ve fatura durumunu atomik günceller","İade ve chargeback merkezi finans onayı gerektirir"])}</div>`;
+    }
+
+    function renderInvoices() {
+      screen("invoices").innerHTML = `
+        <div class="grid two">
+          ${table(["Fatura", "Bağlı kayıt", "Cari", "Tip", "Tutar", "Durum", "Aksiyon"], state.invoices.map(([id, ref, account, type, amount, status, tone]) => `<tr><td><strong>${id}</strong></td><td>${ref}</td><td>${account}</td><td>${type}</td><td>${amount}</td><td><span class="badge ${toneBadge(tone)}">${status}</span></td><td><button class="btn">PDF</button></td></tr>`))}
+          <div class="panel pad"><h2 style="font-size:15px;margin:0 0 12px">Fatura otomasyonu</h2>${lockList(["Otomatik fatura kesimi konseptte; MVP'de fatura kaydı ve görüntüleme","Cari/vergisel bilgiler eksikse fatura taslağı kilitlenir","Royalty faturası merkez mutabakatına bağlanır","Fatura revizyonu audit log bırakır"])}</div>
+        </div>`;
+    }
+
+    function renderShipments() {
+      screen("shipments").innerHTML = `
+        <div class="grid two">
+          <div class="panel">
+            <div class="panel-head"><div><h2>Sevkiyat takibi</h2><p>Kargo, servis ve merkez teslim süreçleri aynı listede.</p></div><button class="btn">Takip no ekle</button></div>
+            <table><thead><tr><th>Sevk</th><th>İçerik</th><th>Taşıyıcı</th><th>Durum</th><th>Takip</th><th>Hedef</th><th>Aksiyon</th></tr></thead><tbody>
+            ${state.shipments.map(([id, content, carrier, status, tracking, target, tone]) => `<tr><td><strong>${id}</strong></td><td>${content}</td><td>${carrier}</td><td><span class="badge ${toneBadge(tone)}">${status}</span></td><td>${tracking}</td><td>${target}</td><td><button class="btn">İzle</button></td></tr>`).join("")}
+            </tbody></table>
+          </div>
+          <div class="panel pad"><h2 style="font-size:15px;margin:0 0 12px">Teslimat olayları</h2>${lockList(["Hazırlanıyor","Kargoya verildi","Dağıtımda","Teslim edildi / hasarlı teslim tutanağı"])}</div>
+        </div>`;
+    }
+
+    function renderWarranty() {
+      screen("warranty").innerHTML = `
+        ${metricCards([["Aktif garanti","14","+3 bu hafta","good"],["Aktivasyon bekleyen","2","Montaj kanıtı eksik","warn"],["Onayda","1","Merkez kontrolü","info"],["Riskli talep","1","Kalite inceleme","bad"]])}
+        <div class="grid two" style="margin-top:14px">
+          ${table(["Garanti", "Plaka", "Paket", "Durum", "Bitiş", "Not", "Aksiyon"], state.warranties.map(([id, plate, pack, status, end, note, tone]) => `<tr><td><strong>${id}</strong></td><td><span class="plate">${plate}</span></td><td>${pack}</td><td><span class="badge ${toneBadge(tone)}">${status}</span></td><td>${end}</td><td>${note}</td><td><button class="btn">Aktive et</button></td></tr>`))}
+          <div class="panel pad"><h2 style="font-size:15px;margin:0 0 12px">Garanti aktivasyon kapıları</h2>${lockList(["Ekspertiz raporu kapalı olmalı","Montaj/teslim fotoğrafı yüklenmeli","Müşteri bilgilendirme kaydı alınmalı","Aktivasyon sonrası otomatik bildirim konseptte kalır"])}</div>
+        </div>`;
+    }
+
+    function renderDocuments() {
+      screen("documents").innerHTML = `
+        <div class="panel">
+          <div class="panel-head"><div><h2>Teknik doküman kütüphanesi</h2><p>Kurulum kılavuzları, teknik çizimler ve pazarlama materyalleri.</p></div><button class="btn">Kategori yönet</button></div>
+          <div class="filters" style="padding:14px 16px"><input placeholder="Doküman ara"><select><option>Tüm kategoriler</option><option>Teknik</option><option>Pazarlama</option><option>Garanti</option></select></div>
+          <table><thead><tr><th>Kod</th><th>Doküman</th><th>Kategori</th><th>Tip</th><th>Durum</th><th>Aksiyon</th></tr></thead><tbody>
+          ${state.documents.map(([id, title, category, type, status, tone]) => `<tr><td><strong>${id}</strong></td><td>${title}</td><td>${category}</td><td>${type}</td><td><span class="badge ${toneBadge(tone)}">${status}</span></td><td><button class="btn">İndir</button></td></tr>`).join("")}
+          </tbody></table>
+        </div>`;
+    }
+
+    function renderAnalytics() {
+      screen("analytics").innerHTML = `
+        ${metricCards([["Teklif dönüşümü","%62","+%8 aylık","good"],["İlan görüntülenme","186","+34 bugün","info"],["Sipariş hacmi","₺170.700","4 açık sipariş","good"],["Ödeme gecikmesi","₺32.000","1 kilit","warn"]])}
+        <div class="grid three" style="margin-top:14px">
+          <div class="panel pad"><h2 style="font-size:15px;margin:0 0 8px">Teklif hunisi</h2><div class="progress"><span style="width:82%"></span></div><p style="color:var(--muted)">Oluşturulan 14 teklifin 9'u açık, 5'i onaylandı.</p></div>
+          <div class="panel pad"><h2 style="font-size:15px;margin:0 0 8px">Bölgesel trend</h2><div class="progress"><span style="width:68%"></span></div><p style="color:var(--muted)">Kadıköy premium paket ve garanti ek satışında güçlü.</p></div>
+          <div class="panel pad"><h2 style="font-size:15px;margin:0 0 8px">ERP aktarım kuyruğu</h2><div class="progress"><span style="width:44%"></span></div><p style="color:var(--muted)">Sipariş, fatura ve stok değişimleri outbox ile aktarılmalı.</p></div>
+        </div>
+        <div class="panel pad" style="margin-top:14px"><h2 style="font-size:15px;margin:0 0 12px">AI analitik konseptleri</h2>${lockList(["Talep tahmini","Bölgesel satış trendi","Benzer ilan/teklif önerisi","Stok yenileme önerisi"])}</div>`;
+    }
+
+    function renderStaff() {
+      screen("staff").innerHTML = `
+        <div class="grid two">
+          ${table(["Personel", "Rol", "Yetki", "Academy", "Durum", "Aksiyon"], state.staff.map(([name, role, auth, academy, status, tone]) => `<tr><td>${name}</td><td>${role}</td><td>${auth}</td><td>${academy}</td><td><span class="badge ${toneBadge(tone)}">${status}</span></td><td><button class="btn">Detay</button></td></tr>`))}
+          <div class="panel pad"><h2 style="font-size:15px;margin:0 0 12px">Rol kapıları</h2>${lockList(["Evrak eksikse tam yetki açılmaz","Teknik görev için sertifika gerekir","Personel çıkışında erişim anında kapanır","Tamamlanan görevler müdür onayına düşebilir"])}</div>
+        </div>`;
+    }
+
+    function renderAcademy() {
+      screen("academy").innerHTML = `
+        ${metricCards([["Zorunlu eğitim","38","8 eksik", "warn"],["Sertifika kilidi","3","Operasyonu etkiliyor","bad"],["Tamamlanma","%78","+%6 bu hafta","good"],["Yeniden eğitim","2","Kalite tetikledi","info"]])}
+        <div style="margin-top:14px">${table(["Rol", "Zorunlu paket", "Eksik ders", "Yetki etkisi", "Aksiyon"], [
+          `<tr><td>Şube Müdürü</td><td>AC-01, AC-04, AC-31, AC-34</td><td>AC-34</td><td><span class="badge warn">Onay sınırlı</span></td><td><button class="btn">Ata</button></td></tr>`,
+          `<tr><td>Kaporta Ustası</td><td>AC-16</td><td>Yenileme</td><td><span class="badge bad">Görev kapanışı kilitli</span></td><td><button class="btn">Planla</button></td></tr>`
+        ])}</div>`;
+    }
+
+    function renderFinance() {
+      screen("finance").innerHTML = `
+        ${metricCards([["Tahsilat","₺286.400","POS %61", "good"],["Açık ödeme","₺42.000","2 rapor kilitli", "warn"],["Gider","₺68.200","Günlük", "info"],["Royalty","₺28.640","Otomatik çekim normal", "good"]])}
+        <div class="grid two" style="margin-top:14px">
+          ${table(["Kalem", "POS", "Nakit", "Havale", "Durum"], [
+            `<tr><td>Standart Paket</td><td>₺96.000</td><td>₺18.000</td><td>₺24.000</td><td><span class="badge good">Tam</span></td></tr>`,
+            `<tr><td>Premium Paket</td><td>₺72.000</td><td>₺12.000</td><td>₺21.000</td><td><span class="badge warn">Mutabakat</span></td></tr>`
+          ])}
+          <div class="panel pad"><h2 style="font-size:15px;margin:0 0 12px">Gün sonu kapanış</h2>${lockList(["POS mutabakatı","Nakit kasa sayımı","Fatura/makbuz kontrolü","Royalty matrah onayı"])}</div>
+        </div>`;
+    }
+
+    function renderAssets() {
+      screen("assets").innerHTML = table(["Cihaz / stok", "Alan", "Durum", "Sorumlu", "Aksiyon"], state.assets.map(([name, area, status, owner, tone]) => `<tr><td>${name}</td><td>${area}</td><td><span class="badge ${toneBadge(tone)}">${status}</span></td><td>${owner}</td><td><button class="btn">Servis kaydı</button></td></tr>`));
+    }
+
+    function renderQuality() {
+      screen("quality").innerHTML = `
+        <div class="grid three">
+          <div class="panel pad"><h2 style="font-size:15px;margin:0 0 8px">Eksik kanıt</h2><strong style="font-size:32px">7</strong><p style="color:var(--muted)">OBD, kaporta ve fren çıktısı ağırlıklı</p></div>
+          <div class="panel pad"><h2 style="font-size:15px;margin:0 0 8px">İtirazlı rapor</h2><strong style="font-size:32px">2</strong><p style="color:var(--muted)">Biri P1 merkez eskalasyonunda</p></div>
+          <div class="panel pad"><h2 style="font-size:15px;margin:0 0 8px">CAPA</h2><strong style="font-size:32px">5</strong><p style="color:var(--muted)">2 aksiyon gecikmiş</p></div>
+        </div>
+        <div style="margin-top:14px">${table(["Öncelik", "Konu", "Sahip", "SLA", "Durum"], state.tickets.map(([p, title, owner, sla, tone]) => `<tr><td><span class="badge ${toneBadge(tone)}">${p}</span></td><td>${title}</td><td>${owner}</td><td>${sla}</td><td><button class="btn">Aksiyon aç</button></td></tr>`))}</div>`;
+    }
+
+    function renderSupport() {
+      screen("support").innerHTML = `
+        <div class="grid two">
+          <div class="panel">
+            <div class="panel-head"><div><h2>Merkez talebi aç</h2><p>Teknik destek, cihaz, finans, hukuk, pazarlama ve eğitim</p></div></div>
+            <div class="form">
+              ${selectField("Kategori", ["Teknik destek", "Cihaz arıza", "Finans itirazı", "Pazarlama destek", "Academy"])}
+              ${selectField("Öncelik", ["P2 Normal", "P1 Yüksek", "P0 Kritik"])}
+              ${field("Konu", "text", "OBD cihaz servis talebi")}
+              ${field("SLA", "text", "24 saat")}
+              <div class="field full"><label>Açıklama</label><textarea>Talep açıklaması ve kapanış kanıtı beklentisi.</textarea></div>
+              <div class="field full"><button class="btn primary">Talep oluştur</button></div>
+            </div>
+          </div>
+          <div class="panel">${table(["Talep", "Departman", "SLA", "Durum"], [
+            `<tr><td>Cihaz kalibrasyon</td><td>Teknik</td><td>6 sa</td><td><span class="badge warn">Açık</span></td></tr>`,
+            `<tr><td>Royalty fişi</td><td>Finans</td><td>Bugün</td><td><span class="badge good">Yanıtlandı</span></td></tr>`
+          ])}</div>
+        </div>`;
+    }
+
+    function renderSettings() {
+      screen("settings").innerHTML = `
+        <div class="grid two">
+          <div class="panel pad"><h2 style="font-size:15px;margin:0 0 12px">Şube politikaları</h2>${lockList(["Ödeme tamamlanmadan rapor teslim edilmez","Bayi sahibi teknik sonucu değiştiremez","Kritik cihaz kalibrasyonu geçerse ilgili paket kilitlenir","İtiraz P1/P0 ise merkeze eskale edilir"])}</div>
+          <div class="panel pad"><h2 style="font-size:15px;margin:0 0 12px">Kapsam</h2><p style="color:var(--muted);line-height:1.55">Bu portal yalnızca Kadıköy şubesinin günlük operasyonunu gösterir. Genel merkez ağı, franchise stratejisi ve diğer şube verileri bu yüzeyde açılmaz.</p></div>
+        </div>`;
+    }
+
+    function field(label, type, value) {
+      return `<div class="field"><label>${label}</label><input type="${type}" value="${escapeHtml(value)}"></div>`;
+    }
+
+    function selectField(label, options) {
+      return `<div class="field"><label>${label}</label><select>${options.map(o => `<option>${o}</option>`).join("")}</select></div>`;
+    }
+
+    function lockList(items) {
+      return `<div class="split-list" style="padding:0">${items.map((item, i) => `<div class="list-row"><div><strong>${item}</strong><span>${i % 2 ? "Rol ve şube kapsamı ile denetlenir." : "Canlı sistemde audit log bırakır."}</span></div><span class="badge ${i === 0 ? "bad" : "warn"}">Kilit</span></div>`).join("")}</div>`;
+    }
+
+    function roleHint(key) {
+      return {
+        owner: "Para, kalite, risk ve personel",
+        manager: "Operasyon, onay ve kapasite",
+        reception: "Randevu, kabul ve teslim",
+        technician: "Kendi görevleri ve kanıt",
+        cashier: "Tahsilat ve gün sonu"
+      }[key];
+    }
+
+    function roleMetrics() {
+      const map = {
+        owner: state.kpis,
+        manager: [["Açık iş emri","18","4 gecikmiş","warn"],["Usta kuyruğu","9","2 eksik kanıt","bad"],["Onay bekleyen","4","Bugün kapanmalı","warn"],["Kapasite","%86","Yoğun","info"]],
+        reception: [["Randevu","12","3 teyit bekliyor","warn"],["İş emri taslağı","5","KVKK kontrol","info"],["Basım kuyruğu","6","2 ödeme bekler","warn"],["Teslim","9","QR hazır","good"]],
+        technician: [["Bana atanan","6","2 kritik","warn"],["Aktif araç","34 KDY 528","Kaporta hattı","info"],["Eksik kanıt","2","Fotoğraf gerekli","bad"],["Tamamlanan","11","Bugün","good"]],
+        cashier: [["Tahsilat","₺286.400","POS %61","good"],["Açık ödeme","₺42.000","2 rapor kilitli","warn"],["Fatura","19","3 bekliyor","info"],["Kasa kapanış","%82","Saat 18:00","warn"]]
+      };
+      return map[state.role] || state.kpis;
+    }
+
+    function renderNav() {
+      const nav = document.getElementById("nav");
+      const visible = state.routes.filter(route => route[4].includes(state.role));
+      if (!visible.some(route => route[0] === state.route)) state.route = visible[0][0];
+      const commerceStart = new Set(["listings"]);
+      const managementStart = new Set(["staff"]);
+      let lastGroup = "";
+      nav.innerHTML = visible.map(([id, title, ico, subtitle, roles, count]) => {
+        const group = commerceStart.has(id) ? "Ticari Self-Servis" : managementStart.has(id) ? "Yönetim" : lastGroup || "Operasyon";
+        const label = group !== lastGroup ? `<div class="nav-separator">${group}</div>` : "";
+        lastGroup = group;
+        return `${label}<button class="${state.route === id ? "active" : ""}" data-route="${id}" title="${subtitle}">
+          <span class="ico">${ico}</span><span>${title}</span><span class="count">${count}</span>
+        </button>`;
+      }).join("");
+    }
+
+    function renderAll() {
+      renderDashboard();
+      renderAppointments();
+      renderWorkOrders();
+      renderTechnician();
+      renderApprovals();
+      renderReports();
+      renderDelivery();
+      renderCustomers();
+      renderListings();
+      renderOffers();
+      renderOrders();
+      renderPayments();
+      renderInvoices();
+      renderShipments();
+      renderWarranty();
+      renderDocuments();
+      renderAnalytics();
+      renderStaff();
+      renderAcademy();
+      renderFinance();
+      renderAssets();
+      renderQuality();
+      renderSupport();
+      renderSettings();
+      renderNav();
+      setRoute(state.route);
+    }
+
+    function setRoute(route) {
+      state.route = route;
+      document.querySelectorAll(".screen").forEach(el => el.classList.remove("active"));
+      screen(route).classList.add("active");
+      document.querySelectorAll("[data-route]").forEach(btn => btn.classList.toggle("active", btn.dataset.route === route));
+      const [title, subtitle] = titleMap[route] || titleMap.dashboard;
+      document.getElementById("pageTitle").textContent = title;
+      document.getElementById("pageSubtitle").textContent = subtitle;
+      document.getElementById("sidebar").classList.remove("open");
+    }
+
+    document.addEventListener("click", event => {
+      const route = event.target.closest("[data-route]")?.dataset.route;
+      if (route) setRoute(route);
+      const role = event.target.closest("[data-role-card]")?.dataset.roleCard;
+      if (role) {
+        state.role = role;
+        document.getElementById("roleSelect").value = role;
+        renderAll();
+      }
+    });
+
+    document.getElementById("roleSelect").addEventListener("change", event => {
+      state.role = event.target.value;
+      renderAll();
+    });
+    document.getElementById("menuButton").addEventListener("click", () => document.getElementById("sidebar").classList.add("open"));
+
+    renderAll();
   </script>
 </body>
 </html>

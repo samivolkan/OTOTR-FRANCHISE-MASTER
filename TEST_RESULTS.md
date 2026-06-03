@@ -208,3 +208,16 @@ QA screenshots:
 - `apps/web/live-preview-desktop-qa.png`
 - `apps/web/live-preview-mobile-qa.png`
 - `apps/web/live-preview-form-qa.png`
+
+## Bayi Portal Redesign Prototype QA
+
+Validated on 2026-06-03 for `apps/admin/prototype/bayi-portal/index.html`:
+
+- Replaced the old redirect-only bayi portal entry with a standalone branch operations portal prototype.
+- Expanded the prototype into a full dealer portal surface with operations, listings/vehicles, offers, orders, payments, invoices, shipments, warranty, documents and analytics screens.
+- Playwright smoke test passed: page loads, 24 owner-scope routes navigate, grouped menu separators render, technician and cashier role menus render with scoped routes.
+- Mobile smoke test passed: no document-level horizontal overflow at 390px viewport.
+- Desktop, commerce and mobile QA screenshots generated:
+  - `apps/admin/prototype/bayi-portal/bayi-portal-desktop-qa.png`
+  - `apps/admin/prototype/bayi-portal/bayi-portal-commerce-qa.png`
+  - `apps/admin/prototype/bayi-portal/bayi-portal-mobile-qa.png`
