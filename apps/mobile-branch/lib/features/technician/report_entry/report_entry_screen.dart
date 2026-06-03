@@ -9,6 +9,7 @@ import '../../../core/navigation/app_routes.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/widgets/ototr_app_bar.dart';
 import '../../../core/widgets/ototr_card.dart';
+import '../../../core/widgets/ototr_empty_state.dart';
 import '../../../core/widgets/ototr_primary_button.dart';
 import '../../../core/widgets/ototr_secondary_button.dart';
 import '../../../data/models/report_template_model.dart';
@@ -20,6 +21,14 @@ import '../../../data/repositories/work_order_report_repository.dart';
 import '../../../data/services/photo_upload_service.dart';
 import '../../../data/services/work_order_report_service.dart';
 import '../widgets/technician_vehicle_header.dart';
+
+enum _BodyPaintFilter { all, missing, completed, measurement, evidence }
+
+enum _MotorFilter { all, missing, completed, measurement, risk }
+
+enum _MechanicalFilter { all, missing, completed, evidence, risk }
+
+enum _FocusedTestFilter { all, missing, completed, measurement, evidence, risk }
 
 class ReportEntryScreen extends StatefulWidget {
   const ReportEntryScreen({super.key, required this.workOrderId});
@@ -35,6 +44,13 @@ class _ReportEntryScreenState extends State<ReportEntryScreen> {
   String? _selectedGroupId;
   final TextEditingController _bodyPaintMicronController =
       TextEditingController();
+  final TextEditingController _motorAntifreezeController =
+      TextEditingController();
+  final TextEditingController _motorBatteryController = TextEditingController();
+  _BodyPaintFilter _bodyPaintFilter = _BodyPaintFilter.all;
+  _MotorFilter _motorFilter = _MotorFilter.all;
+  _MechanicalFilter _mechanicalFilter = _MechanicalFilter.all;
+  _FocusedTestFilter _focusedTestFilter = _FocusedTestFilter.all;
   bool _isSubmittingGroup = false;
 
   WorkOrderReportService get _service => WorkOrderReportService(
@@ -57,6 +73,8 @@ class _ReportEntryScreenState extends State<ReportEntryScreen> {
   @override
   void dispose() {
     _bodyPaintMicronController.dispose();
+    _motorAntifreezeController.dispose();
+    _motorBatteryController.dispose();
     super.dispose();
   }
 
@@ -155,6 +173,11 @@ class _ReportEntryScreenState extends State<ReportEntryScreen> {
             .where((item) => answersByItem[item.id]?.isCompleted == true)
             .length;
     final isGroupComplete = total > 0 && completed >= total;
+    final isBodyPaintGroup = isBodyPaintReportGroup(group);
+    final isMotorGroup = isMotorReportGroup(group);
+    final isMechanicalGroup = isMechanicalReportGroup(group);
+    final isFocusedTestGroup =
+        isDiagnosticReportGroup(group) || isRoadTestReportGroup(group);
 
     return ListView(
       padding: const EdgeInsets.all(AppSizes.lg),
@@ -169,17 +192,44 @@ class _ReportEntryScreenState extends State<ReportEntryScreen> {
           progress: progress,
           onTap: () {},
         ),
-        for (final item in group.items)
-          _ReportItemCard(
-            item: item,
-            answer: answersByItem[item.id],
-            onTap: () => _openItemForm(data, group, item),
-          ),
-        if (isBodyPaintReportGroup(group) && reportGroupHasMicronInputs(group))
+        if (isBodyPaintGroup && reportGroupHasMicronInputs(group))
           _BodyPaintQuickInputCard(
             group: group,
             controller: _bodyPaintMicronController,
           ),
+        if (isMotorGroup)
+          _MotorQuickInputCard(
+            group: group,
+            antifreezeController: _motorAntifreezeController,
+            batteryController: _motorBatteryController,
+          ),
+        if (isMechanicalGroup) _MechanicalQuickInfoCard(group: group),
+        if (isFocusedTestGroup) _FocusedTestQuickInfoCard(group: group),
+        if (isBodyPaintGroup)
+          _BodyPaintFilterCard(
+            selected: _bodyPaintFilter,
+            counts: _bodyPaintFilterCounts(group, answersByItem),
+            onChanged: (filter) => setState(() => _bodyPaintFilter = filter),
+          ),
+        if (isMotorGroup)
+          _MotorFilterCard(
+            selected: _motorFilter,
+            counts: _motorFilterCounts(group, answersByItem),
+            onChanged: (filter) => setState(() => _motorFilter = filter),
+          ),
+        if (isMechanicalGroup)
+          _MechanicalFilterCard(
+            selected: _mechanicalFilter,
+            counts: _mechanicalFilterCounts(group, answersByItem),
+            onChanged: (filter) => setState(() => _mechanicalFilter = filter),
+          ),
+        if (isFocusedTestGroup)
+          _FocusedTestFilterCard(
+            selected: _focusedTestFilter,
+            counts: _focusedTestFilterCounts(group, answersByItem),
+            onChanged: (filter) => setState(() => _focusedTestFilter = filter),
+          ),
+        ..._buildReportItemCards(data, group, answersByItem),
         OtotrCard(
           child: SizedBox(
             width: double.infinity,
@@ -209,6 +259,458 @@ class _ReportEntryScreenState extends State<ReportEntryScreen> {
           onSubmit: _isSubmittingGroup ? null : () => _submitGroup(data, group),
         ),
       ],
+    );
+  }
+
+  List<Widget> _buildReportItemCards(
+    _ReportEntryData data,
+    ReportTemplateGroup group,
+    Map<String, WorkOrderReportAnswer> answersByItem,
+  ) {
+    final isBodyPaintGroup = isBodyPaintReportGroup(group);
+    final isMotorGroup = isMotorReportGroup(group);
+    final isMechanicalGroup = isMechanicalReportGroup(group);
+    final isFocusedTestGroup =
+        isDiagnosticReportGroup(group) || isRoadTestReportGroup(group);
+    if (!isBodyPaintGroup &&
+        !isMotorGroup &&
+        !isMechanicalGroup &&
+        !isFocusedTestGroup) {
+      return [
+        for (final item in group.items)
+          _ReportItemCard(
+            item: item,
+            answer: answersByItem[item.id],
+            onTap: () => _openItemForm(data, group, item),
+          ),
+      ];
+    }
+
+    if (isMotorGroup) {
+      final visibleItems = [
+        for (final item in group.items)
+          if (_motorFilterAllows(item, answersByItem[item.id])) item,
+      ];
+      if (visibleItems.isEmpty) {
+        return [
+          const OtotrEmptyState(
+            title: 'Bu filtrede motor noktasi yok',
+            message: 'Motor filtrelerini degistirerek diger noktalari gorun.',
+            icon: Icons.filter_alt_off,
+          ),
+          OtotrSecondaryButton(
+            label: 'Tumunu Goster',
+            icon: Icons.filter_alt_off,
+            onPressed: () => setState(
+              () => _motorFilter = _MotorFilter.all,
+            ),
+          ),
+        ];
+      }
+
+      final widgets = <Widget>[];
+      String? currentSection;
+      for (final item in visibleItems) {
+        final section = motorSectionForItem(item);
+        if (section != currentSection) {
+          currentSection = section;
+          final sectionItems = visibleItems
+              .where((item) => motorSectionForItem(item) == section)
+              .toList(growable: false);
+          final completedItems = sectionItems
+              .where((item) => answersByItem[item.id]?.isCompleted == true)
+              .length;
+          widgets.add(
+            _ReportSectionHeader(
+              title: section,
+              completed: completedItems,
+              total: sectionItems.length,
+              color: AppColors.info,
+            ),
+          );
+        }
+        widgets.add(
+          _ReportItemCard(
+            item: item,
+            answer: answersByItem[item.id],
+            onTap: () => _openItemForm(data, group, item),
+            quickOptions: _motorQuickOptions(item),
+            onQuickOptionSelected: (option) => _saveQuickOption(
+              data: data,
+              group: group,
+              item: item,
+              option: option,
+            ),
+          ),
+        );
+      }
+      return widgets;
+    }
+
+    if (isMechanicalGroup) {
+      final visibleItems = [
+        for (final item in group.items)
+          if (_mechanicalFilterAllows(item, answersByItem[item.id])) item,
+      ];
+      if (visibleItems.isEmpty) {
+        return [
+          const OtotrEmptyState(
+            title: 'Bu filtrede mekanik noktasi yok',
+            message: 'Mekanik filtrelerini degistirerek diger noktalari gorun.',
+            icon: Icons.filter_alt_off,
+          ),
+          OtotrSecondaryButton(
+            label: 'Tumunu Goster',
+            icon: Icons.filter_alt_off,
+            onPressed: () => setState(
+              () => _mechanicalFilter = _MechanicalFilter.all,
+            ),
+          ),
+        ];
+      }
+
+      final widgets = <Widget>[];
+      String? currentSection;
+      for (final item in visibleItems) {
+        final section = mechanicalSectionForItem(item);
+        if (section != currentSection) {
+          currentSection = section;
+          final sectionItems = visibleItems
+              .where((item) => mechanicalSectionForItem(item) == section)
+              .toList(growable: false);
+          final completedItems = sectionItems
+              .where((item) => answersByItem[item.id]?.isCompleted == true)
+              .length;
+          widgets.add(
+            _ReportSectionHeader(
+              title: section,
+              completed: completedItems,
+              total: sectionItems.length,
+              color: AppColors.warning,
+            ),
+          );
+        }
+        widgets.add(
+          _ReportItemCard(
+            item: item,
+            answer: answersByItem[item.id],
+            onTap: () => _openItemForm(data, group, item),
+            quickOptions: _technicalQuickOptions(item),
+            onQuickOptionSelected: (option) => _saveQuickOption(
+              data: data,
+              group: group,
+              item: item,
+              option: option,
+            ),
+          ),
+        );
+      }
+      return widgets;
+    }
+
+    if (isFocusedTestGroup) {
+      final visibleItems = [
+        for (final item in group.items)
+          if (_focusedTestFilterAllows(item, answersByItem[item.id])) item,
+      ];
+      if (visibleItems.isEmpty) {
+        return [
+          const OtotrEmptyState(
+            title: 'Bu filtrede test noktasi yok',
+            message: 'Test filtrelerini degistirerek diger noktalari gorun.',
+            icon: Icons.filter_alt_off,
+          ),
+          OtotrSecondaryButton(
+            label: 'Tumunu Goster',
+            icon: Icons.filter_alt_off,
+            onPressed: () => setState(
+              () => _focusedTestFilter = _FocusedTestFilter.all,
+            ),
+          ),
+        ];
+      }
+
+      final widgets = <Widget>[];
+      String? currentSection;
+      for (final item in visibleItems) {
+        final section = focusedTestSectionForItem(group, item);
+        if (section != currentSection) {
+          currentSection = section;
+          final sectionItems = visibleItems
+              .where(
+                  (item) => focusedTestSectionForItem(group, item) == section)
+              .toList(growable: false);
+          final completedItems = sectionItems
+              .where((item) => answersByItem[item.id]?.isCompleted == true)
+              .length;
+          widgets.add(
+            _ReportSectionHeader(
+              title: section,
+              completed: completedItems,
+              total: sectionItems.length,
+              color: AppColors.info,
+            ),
+          );
+        }
+        widgets.add(
+          _ReportItemCard(
+            item: item,
+            answer: answersByItem[item.id],
+            onTap: () => _openItemForm(data, group, item),
+            quickOptions: _technicalQuickOptions(item),
+            onQuickOptionSelected: (option) => _saveQuickOption(
+              data: data,
+              group: group,
+              item: item,
+              option: option,
+            ),
+          ),
+        );
+      }
+      return widgets;
+    }
+
+    final visibleItems = [
+      for (final item in group.items)
+        if (_bodyPaintFilterAllows(item, answersByItem[item.id])) item,
+    ];
+    final widgets = <Widget>[];
+    if (visibleItems.isEmpty) {
+      return [
+        const OtotrEmptyState(
+          title: 'Bu filtrede nokta yok',
+          message: 'Kaporta filtrelerini değiştirerek diğer noktaları görün.',
+          icon: Icons.filter_alt_off,
+        ),
+        OtotrSecondaryButton(
+          label: 'Tümünü Göster',
+          icon: Icons.filter_alt_off,
+          onPressed: () => setState(
+            () => _bodyPaintFilter = _BodyPaintFilter.all,
+          ),
+        ),
+      ];
+    }
+    String? currentSection;
+    for (final item in visibleItems) {
+      final section = bodyPaintSectionForItem(item);
+      if (section != currentSection) {
+        currentSection = section;
+        final sectionItems = visibleItems
+            .where((item) => bodyPaintSectionForItem(item) == section)
+            .toList(growable: false);
+        final completedItems = sectionItems
+            .where((item) => answersByItem[item.id]?.isCompleted == true)
+            .length;
+        widgets.add(
+          _ReportSectionHeader(
+            title: section,
+            completed: completedItems,
+            total: sectionItems.length,
+            color: AppColors.red,
+          ),
+        );
+      }
+      widgets.add(
+        _ReportItemCard(
+          item: item,
+          answer: answersByItem[item.id],
+          onTap: () => _openItemForm(data, group, item),
+          quickOptions: _bodyPaintQuickOptions(item),
+          onQuickOptionSelected: (option) => _saveQuickOption(
+            data: data,
+            group: group,
+            item: item,
+            option: option,
+          ),
+        ),
+      );
+    }
+    return widgets;
+  }
+
+  Map<_BodyPaintFilter, int> _bodyPaintFilterCounts(
+    ReportTemplateGroup group,
+    Map<String, WorkOrderReportAnswer> answersByItem,
+  ) {
+    return {
+      for (final filter in _BodyPaintFilter.values)
+        filter: group.items
+            .where((item) => _bodyPaintFilterAllowsWith(
+                  filter,
+                  item,
+                  answersByItem[item.id],
+                ))
+            .length,
+    };
+  }
+
+  Map<_MotorFilter, int> _motorFilterCounts(
+    ReportTemplateGroup group,
+    Map<String, WorkOrderReportAnswer> answersByItem,
+  ) {
+    return {
+      for (final filter in _MotorFilter.values)
+        filter: group.items
+            .where((item) => _motorFilterAllowsWith(
+                  filter,
+                  item,
+                  answersByItem[item.id],
+                ))
+            .length,
+    };
+  }
+
+  Map<_MechanicalFilter, int> _mechanicalFilterCounts(
+    ReportTemplateGroup group,
+    Map<String, WorkOrderReportAnswer> answersByItem,
+  ) {
+    return {
+      for (final filter in _MechanicalFilter.values)
+        filter: group.items
+            .where((item) => _mechanicalFilterAllowsWith(
+                  filter,
+                  item,
+                  answersByItem[item.id],
+                ))
+            .length,
+    };
+  }
+
+  Map<_FocusedTestFilter, int> _focusedTestFilterCounts(
+    ReportTemplateGroup group,
+    Map<String, WorkOrderReportAnswer> answersByItem,
+  ) {
+    return {
+      for (final filter in _FocusedTestFilter.values)
+        filter: group.items
+            .where((item) => _focusedTestFilterAllowsWith(
+                  filter,
+                  item,
+                  answersByItem[item.id],
+                ))
+            .length,
+    };
+  }
+
+  bool _bodyPaintFilterAllows(
+    ReportTemplateItem item,
+    WorkOrderReportAnswer? answer,
+  ) {
+    return _bodyPaintFilterAllowsWith(_bodyPaintFilter, item, answer);
+  }
+
+  bool _motorFilterAllows(
+    ReportTemplateItem item,
+    WorkOrderReportAnswer? answer,
+  ) {
+    return _motorFilterAllowsWith(_motorFilter, item, answer);
+  }
+
+  bool _mechanicalFilterAllows(
+    ReportTemplateItem item,
+    WorkOrderReportAnswer? answer,
+  ) {
+    return _mechanicalFilterAllowsWith(_mechanicalFilter, item, answer);
+  }
+
+  bool _focusedTestFilterAllows(
+    ReportTemplateItem item,
+    WorkOrderReportAnswer? answer,
+  ) {
+    return _focusedTestFilterAllowsWith(_focusedTestFilter, item, answer);
+  }
+
+  bool _bodyPaintFilterAllowsWith(
+    _BodyPaintFilter filter,
+    ReportTemplateItem item,
+    WorkOrderReportAnswer? answer,
+  ) {
+    switch (filter) {
+      case _BodyPaintFilter.all:
+        return true;
+      case _BodyPaintFilter.missing:
+        return answer?.isCompleted != true;
+      case _BodyPaintFilter.completed:
+        return answer?.isCompleted == true;
+      case _BodyPaintFilter.measurement:
+        return item.inputFields.isNotEmpty;
+      case _BodyPaintFilter.evidence:
+        return item.hasImages;
+    }
+  }
+
+  bool _motorFilterAllowsWith(
+    _MotorFilter filter,
+    ReportTemplateItem item,
+    WorkOrderReportAnswer? answer,
+  ) {
+    switch (filter) {
+      case _MotorFilter.all:
+        return true;
+      case _MotorFilter.missing:
+        return answer?.isCompleted != true;
+      case _MotorFilter.completed:
+        return answer?.isCompleted == true;
+      case _MotorFilter.measurement:
+        return item.inputFields.isNotEmpty;
+      case _MotorFilter.risk:
+        return _answerHasRiskSelection(item, answer);
+    }
+  }
+
+  bool _mechanicalFilterAllowsWith(
+    _MechanicalFilter filter,
+    ReportTemplateItem item,
+    WorkOrderReportAnswer? answer,
+  ) {
+    switch (filter) {
+      case _MechanicalFilter.all:
+        return true;
+      case _MechanicalFilter.missing:
+        return answer?.isCompleted != true;
+      case _MechanicalFilter.completed:
+        return answer?.isCompleted == true;
+      case _MechanicalFilter.evidence:
+        return item.hasImages;
+      case _MechanicalFilter.risk:
+        return _answerHasRiskSelection(item, answer);
+    }
+  }
+
+  bool _focusedTestFilterAllowsWith(
+    _FocusedTestFilter filter,
+    ReportTemplateItem item,
+    WorkOrderReportAnswer? answer,
+  ) {
+    switch (filter) {
+      case _FocusedTestFilter.all:
+        return true;
+      case _FocusedTestFilter.missing:
+        return answer?.isCompleted != true;
+      case _FocusedTestFilter.completed:
+        return answer?.isCompleted == true;
+      case _FocusedTestFilter.measurement:
+        return item.inputFields.isNotEmpty;
+      case _FocusedTestFilter.evidence:
+        return item.hasImages;
+      case _FocusedTestFilter.risk:
+        return _answerHasRiskSelection(item, answer);
+    }
+  }
+
+  bool _answerHasRiskSelection(
+    ReportTemplateItem item,
+    WorkOrderReportAnswer? answer,
+  ) {
+    if (answer == null) {
+      return false;
+    }
+    final selectedIds = answer.selectedOptionIds.toSet();
+    return item.options.any(
+      (option) =>
+          selectedIds.contains(option.id) &&
+          option.scoreType == ReportOptionScoreType.negative,
     );
   }
 
@@ -309,9 +811,18 @@ class _ReportEntryScreenState extends State<ReportEntryScreen> {
     _ReportEntryData data,
     ReportTemplateGroup group,
   ) async {
-    final quickInputValues = sharedMicronInputValuesForGroup(
-      group,
-      isBodyPaintReportGroup(group) ? _bodyPaintMicronController.text : '',
+    final quickInputValues = mergeReportInputValuesByItem(
+      sharedMicronInputValuesForGroup(
+        group,
+        isBodyPaintReportGroup(group) ? _bodyPaintMicronController.text : '',
+      ),
+      _sharedMotorInputValuesForGroup(
+        group,
+        antifreezeValue:
+            isMotorReportGroup(group) ? _motorAntifreezeController.text : '',
+        batteryValue:
+            isMotorReportGroup(group) ? _motorBatteryController.text : '',
+      ),
     );
     final requiredInputs = await _service.getRequiredInputsForGroupAllGood(
       workOrderId: widget.workOrderId,
@@ -347,6 +858,116 @@ class _ReportEntryScreenState extends State<ReportEntryScreen> {
         group: group,
         user: data.currentUser,
         inputValuesByItem: inputValuesByItem,
+      );
+      _refresh();
+    } catch (error) {
+      if (!mounted) {
+        return;
+      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(error.toString().replaceFirst('Bad state: ', '')),
+        ),
+      );
+    }
+  }
+
+  List<ReportTemplateOption> _bodyPaintQuickOptions(ReportTemplateItem item) {
+    const preferredLabels = {
+      'Orijinal',
+      'Boyalı',
+      'Lokal Boyalı',
+      'Değişim',
+      'İşlemli',
+      'Hasarlı',
+    };
+    return [
+      for (final option in item.options)
+        if (!option.disabled && preferredLabels.contains(option.label)) option,
+    ];
+  }
+
+  List<ReportTemplateOption> _motorQuickOptions(ReportTemplateItem item) {
+    return _technicalQuickOptions(item);
+  }
+
+  List<ReportTemplateOption> _technicalQuickOptions(ReportTemplateItem item) {
+    final optionsByScore = <ReportOptionScoreType, ReportTemplateOption>{};
+    for (final option in item.options) {
+      if (option.disabled) {
+        continue;
+      }
+      optionsByScore.putIfAbsent(option.scoreType, () => option);
+    }
+    return [
+      if (optionsByScore[ReportOptionScoreType.positive] != null)
+        optionsByScore[ReportOptionScoreType.positive]!,
+      if (optionsByScore[ReportOptionScoreType.warning] != null)
+        optionsByScore[ReportOptionScoreType.warning]!,
+      if (optionsByScore[ReportOptionScoreType.negative] != null)
+        optionsByScore[ReportOptionScoreType.negative]!,
+      if (optionsByScore[ReportOptionScoreType.neutral] != null)
+        optionsByScore[ReportOptionScoreType.neutral]!,
+    ];
+  }
+
+  Map<String, Map<String, String>> _sharedMotorInputValuesForGroup(
+    ReportTemplateGroup group, {
+    required String antifreezeValue,
+    required String batteryValue,
+  }) {
+    final valuesByItem = <String, Map<String, String>>{};
+    final normalizedAntifreeze = antifreezeValue.trim();
+    final normalizedBattery = batteryValue.trim();
+    if (normalizedAntifreeze.isEmpty && normalizedBattery.isEmpty) {
+      return const {};
+    }
+
+    for (final item in group.items) {
+      final text = _normalizeMotorText('${item.id} ${item.title}');
+      final value = text.contains('ANTIFIRIZ')
+          ? normalizedAntifreeze
+          : text.contains('AKU')
+              ? normalizedBattery
+              : '';
+      if (value.isEmpty) {
+        continue;
+      }
+      final inputValues = {
+        for (final input in item.inputFields) input.id: value,
+      };
+      if (inputValues.isNotEmpty) {
+        valuesByItem[item.id] = inputValues;
+      }
+    }
+
+    return valuesByItem;
+  }
+
+  Future<void> _saveQuickOption({
+    required _ReportEntryData data,
+    required ReportTemplateGroup group,
+    required ReportTemplateItem item,
+    required ReportTemplateOption option,
+  }) async {
+    try {
+      final existing = await _reportRepository.getItemAnswer(
+        widget.workOrderId,
+        item.id,
+      );
+      await _service.saveItemAnswer(
+        workOrderId: widget.workOrderId,
+        template: data.template,
+        group: group,
+        item: item,
+        user: data.currentUser,
+        selectedOptionIds: [option.id],
+        inputValues: existing?.inputValues ?? const {},
+        description: existing?.description ?? '',
+        imageUrls: existing?.imageUrls ?? const [],
+        complete: option.scoreType != ReportOptionScoreType.negative &&
+            item.inputFields.isEmpty &&
+            item.requiredImageCount == 0,
       );
       _refresh();
     } catch (error) {
@@ -524,6 +1145,306 @@ bool _isTechnicianVisibleGroup(ReportTemplateGroup group) {
       !secretaryCodes.contains(group.code);
 }
 
+String bodyPaintSectionForItem(ReportTemplateItem item) {
+  final text = _normalizeBodyPaintText('${item.title} ${item.id}');
+  if (text.contains('ARACTA') ||
+      text.contains('ARAC_GENEL') ||
+      text.contains('KIRLI') ||
+      text.contains('KARALAMA') ||
+      text.contains('KENDINIZE')) {
+    return 'Genel Kontroller';
+  }
+  if (text.contains('TAVAN') || text.contains('SUNROOF')) {
+    return 'Tavan ve Camlar';
+  }
+  if (text.contains('SASI') ||
+      text.contains('PODYE') ||
+      text.contains('KULE') ||
+      text.contains('DIREK') ||
+      text.contains('ALT_TABAN') ||
+      text.contains('ALT_')) {
+    return 'Şasi ve İç Yapı';
+  }
+  if (text.contains('ON_') ||
+      text.startsWith('ON ') ||
+      text.contains(' ON ') ||
+      text.contains('PANJUR') ||
+      text.contains('KAPUT') ||
+      text.contains('ON CAM')) {
+    return 'Ön Bölüm';
+  }
+  if (text.contains('SOL_') ||
+      text.startsWith('SOL ') ||
+      text.contains(' SOL ')) {
+    return 'Sol Yan';
+  }
+  if (text.contains('SAG_') ||
+      text.startsWith('SAG ') ||
+      text.contains(' SAG ')) {
+    return 'Sağ Yan';
+  }
+  if (text.contains('ARKA_') ||
+      text.startsWith('ARKA ') ||
+      text.contains(' ARKA ') ||
+      text.contains('BAGAJ')) {
+    return 'Arka Bölüm';
+  }
+  return 'Diğer Kaporta Noktaları';
+}
+
+String motorSectionForItem(ReportTemplateItem item) {
+  final text = _normalizeMotorText('${item.id} ${item.title}');
+  if (text.contains('ANTIFIRIZ') ||
+      text.contains('AKU') ||
+      text.contains('HIDROLIGI') ||
+      text.contains('MOTOR_YAG_SEVIYESI') ||
+      text.contains('YAKIT_SISTEMI') ||
+      text.contains('MOTOR_SUYUNDA') ||
+      text.contains('SOGUTMA_SUYU')) {
+    return 'Sivi ve Bakim';
+  }
+  if (text.contains('V_KAYISI') ||
+      text.contains('TRIGER') ||
+      text.contains('RULMANI') ||
+      text.contains('UFLEME') ||
+      text.contains('VURUNTULU')) {
+    return 'Ses ve Calisma';
+  }
+  if (text.contains('RADYATOR') ||
+      text.contains('INTERCOOLER') ||
+      text.contains('SOGUTMA_FAN') ||
+      text.contains('KLIMA')) {
+    return 'Sogutma ve Klima';
+  }
+  if (text.contains('SIZDIRMAZ') ||
+      text.contains('KACAGI') ||
+      text.contains('TURBO') ||
+      text.contains('POMPASI')) {
+    return 'Sizdirmazlik ve Turbo';
+  }
+  if (text.contains('EGZOZ') ||
+      text.contains('KOMPRESOR') ||
+      text.contains('CONTA')) {
+    return 'Egzoz ve Kompresyon';
+  }
+  if (text.contains('KULE') ||
+      text.contains('ACIL_SERVIS') ||
+      text.contains('ISLEM') ||
+      text.contains('KENDINIZE') ||
+      text.contains('EMME_MANIFOLDU')) {
+    return 'Servis Karari';
+  }
+  return 'Motor Genel';
+}
+
+String mechanicalSectionForItem(ReportTemplateItem item) {
+  final text = _normalizeMechanicalText('${item.id} ${item.title}');
+  if (text.contains('ARAC_ALT') ||
+      text.contains('MOTOR_MUHAFAZA') ||
+      text.contains('TABAN_PLASTIK') ||
+      text.contains('BAKALIT')) {
+    return 'Alt Govde ve Muhafaza';
+  }
+  if (text.contains('SIZDIRMAZ') ||
+      text.contains('YAG_') ||
+      text.contains('KARTER') ||
+      text.contains('KECESI') ||
+      text.contains('TURBO_ALT') ||
+      text.contains('YAKIT_DEPOSU') ||
+      text.contains('YAKIT_HORTUM')) {
+    return 'Yag ve Sizdirmazlik';
+  }
+  if (text.contains('FREN') ||
+      text.contains('BALATA') ||
+      text.contains('DISK') ||
+      text.contains('KALIPER') ||
+      text.contains('HORTUM') ||
+      text.contains('EL_FRENI')) {
+    return 'Fren Sistemi';
+  }
+  if (text.contains('ON_AKS') ||
+      text.contains('SOL_ON') ||
+      text.contains('SAG_ON') ||
+      text.contains('ON_ROT') ||
+      text.contains('ROTI') ||
+      text.contains('ROT_') ||
+      text.contains('SALINCAK') ||
+      text.contains('ON_AMORTISOR') ||
+      text.contains('DIREKSIYON') ||
+      text.contains('ROT_BALANS') ||
+      text.contains('LASTIK')) {
+    return 'On Takim ve Direksiyon';
+  }
+  if (text.contains('FREN') ||
+      text.contains('BALATA') ||
+      text.contains('DISK') ||
+      text.contains('KALIPER') ||
+      text.contains('HORTUM') ||
+      text.contains('EL_FRENI')) {
+    return 'Fren Sistemi';
+  }
+  if (text.contains('ARKA_AKS') ||
+      text.contains('SOL_ARKA') ||
+      text.contains('SAG_ARKA') ||
+      text.contains('ARKA_AMORTISOR') ||
+      text.contains('HELEZON') ||
+      text.contains('TORSIYON') ||
+      text.contains('AIRMATIK')) {
+    return 'Arka Takim ve Suspansiyon';
+  }
+  if (text.contains('SANZIMAN') ||
+      text.contains('DIFERANSIYEL') ||
+      text.contains('TRANMISYON') ||
+      text.contains('DEBRIYAJ') ||
+      text.contains('KAVRAMA') ||
+      text.contains('ARAZI_SAFTI')) {
+    return 'Aktarma ve Diferansiyel';
+  }
+  if (text.contains('EGZOZ') ||
+      text.contains('SUSTURUCU') ||
+      text.contains('TAKOZ')) {
+    return 'Egzoz ve Takozlar';
+  }
+  return 'Mekanik Genel';
+}
+
+String focusedTestSectionForItem(
+  ReportTemplateGroup group,
+  ReportTemplateItem item,
+) {
+  final code = group.code.toUpperCase();
+  final text = _normalizeFocusedTestText('${item.id} ${item.title}');
+  if (code == 'OBD_ECU_TEST') {
+    if (text.contains('MOTOR') || text.contains('SANZIMAN')) {
+      return 'Aktarma Elektronigi';
+    }
+    if (text.contains('ABS') ||
+        text.contains('ESP') ||
+        text.contains('DIREKSIYON') ||
+        text.contains('LASTIK')) {
+      return 'Guvenlik ve Surus Elektronigi';
+    }
+    if (text.contains('OBD_TEST_CIKTISI')) {
+      return 'OBD Ciktisi';
+    }
+    return 'Govde ve Konfor Elektronigi';
+  }
+  if (code == 'AIRBAG_CHECK') {
+    if (text.contains('ISIGI') || text.contains('IZIN_FORMU')) {
+      return 'Airbag On Kosul';
+    }
+    if (text.contains('EMNIYET_KEMER')) {
+      return 'Emniyet Kemeri';
+    }
+    return 'Airbag Noktalari';
+  }
+  if (code == 'BRAKE_SUSPENSION_TEST') {
+    if (text.contains('CIKTISI')) {
+      return 'Test Ciktisi';
+    }
+    if (text.contains('FREN')) {
+      return 'Fren Testi';
+    }
+    if (text.contains('SUSPANSIYON')) {
+      return 'Suspansiyon Testi';
+    }
+    return 'Fren / Suspansiyon Genel';
+  }
+  if (code == 'DYNO_ROAD_TEST') {
+    if (text.contains('GUC') || text.contains('TORK')) {
+      return 'Dyno Olcumleri';
+    }
+    if (text.contains('CIKTISI')) {
+      return 'Dyno Ciktisi';
+    }
+    return 'Yol Testi';
+  }
+  if (code == 'HEAD_GASKET_LEAK_TEST') {
+    return 'Conta Kacak Testi';
+  }
+  return 'Test Noktalari';
+}
+
+String _normalizeBodyPaintText(String value) {
+  return value
+      .trim()
+      .toUpperCase()
+      .replaceAll('İ', 'I')
+      .replaceAll('İ', 'I')
+      .replaceAll('Ğ', 'G')
+      .replaceAll('Ü', 'U')
+      .replaceAll('Ş', 'S')
+      .replaceAll('Ö', 'O')
+      .replaceAll('Ç', 'C')
+      .replaceAll('ı', 'I')
+      .replaceAll('ğ', 'G')
+      .replaceAll('ü', 'U')
+      .replaceAll('ş', 'S')
+      .replaceAll('ö', 'O')
+      .replaceAll('ç', 'C')
+      .replaceAll(RegExp(r'[^A-Z0-9]+'), '_');
+}
+
+String _normalizeFocusedTestText(String value) {
+  return value
+      .trim()
+      .toUpperCase()
+      .replaceAll('Ä°', 'I')
+      .replaceAll('IÌ‡', 'I')
+      .replaceAll('Ä', 'G')
+      .replaceAll('Ãœ', 'U')
+      .replaceAll('Å', 'S')
+      .replaceAll('Ã–', 'O')
+      .replaceAll('Ã‡', 'C')
+      .replaceAll('Ä±', 'I')
+      .replaceAll('ÄŸ', 'G')
+      .replaceAll('Ã¼', 'U')
+      .replaceAll('ÅŸ', 'S')
+      .replaceAll('Ã¶', 'O')
+      .replaceAll('Ã§', 'C')
+      .replaceAll(RegExp(r'[^A-Z0-9]+'), '_');
+}
+
+String _normalizeMechanicalText(String value) {
+  return value
+      .trim()
+      .toUpperCase()
+      .replaceAll('Ä°', 'I')
+      .replaceAll('IÌ‡', 'I')
+      .replaceAll('Ä', 'G')
+      .replaceAll('Ãœ', 'U')
+      .replaceAll('Å', 'S')
+      .replaceAll('Ã–', 'O')
+      .replaceAll('Ã‡', 'C')
+      .replaceAll('Ä±', 'I')
+      .replaceAll('ÄŸ', 'G')
+      .replaceAll('Ã¼', 'U')
+      .replaceAll('ÅŸ', 'S')
+      .replaceAll('Ã¶', 'O')
+      .replaceAll('Ã§', 'C')
+      .replaceAll(RegExp(r'[^A-Z0-9]+'), '_');
+}
+
+String _normalizeMotorText(String value) {
+  return value
+      .trim()
+      .toUpperCase()
+      .replaceAll('Ä°', 'I')
+      .replaceAll('IÌ‡', 'I')
+      .replaceAll('Ä', 'G')
+      .replaceAll('Ãœ', 'U')
+      .replaceAll('Å', 'S')
+      .replaceAll('Ã–', 'O')
+      .replaceAll('Ã‡', 'C')
+      .replaceAll('Ä±', 'I')
+      .replaceAll('ÄŸ', 'G')
+      .replaceAll('Ã¼', 'U')
+      .replaceAll('ÅŸ', 'S')
+      .replaceAll('Ã¶', 'O')
+      .replaceAll('Ã§', 'C')
+      .replaceAll(RegExp(r'[^A-Z0-9]+'), '_');
+}
+
 int _overallPercentForGroups(
   List<ReportTemplateGroup> groups,
   List<WorkOrderReportAnswer> answers,
@@ -666,6 +1587,550 @@ class _BodyPaintQuickInputCard extends StatelessWidget {
               prefixIcon: Icon(Icons.speed),
               helperText:
                   'Tüm noktaları iyiye çekerken mikron alanlarına uygulanır.',
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _MotorQuickInputCard extends StatelessWidget {
+  const _MotorQuickInputCard({
+    required this.group,
+    required this.antifreezeController,
+    required this.batteryController,
+  });
+
+  final ReportTemplateGroup group;
+  final TextEditingController antifreezeController;
+  final TextEditingController batteryController;
+
+  @override
+  Widget build(BuildContext context) {
+    final measurementCount =
+        group.items.where((item) => item.inputFields.isNotEmpty).length;
+    final riskOptionCount = group.items
+        .where(
+          (item) => item.options.any(
+            (option) => option.scoreType == ReportOptionScoreType.negative,
+          ),
+        )
+        .length;
+
+    return OtotrCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Row(
+            children: [
+              Icon(Icons.settings, color: AppColors.info),
+              SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  'Motor Hizli Olcum Girisi',
+                  style: TextStyle(
+                    color: AppColors.navy,
+                    fontWeight: FontWeight.w900,
+                    fontSize: 17,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Text(
+            '${group.items.length} motor noktasi, '
+            '$measurementCount olcum alani, '
+            '$riskOptionCount risk secenekli kontrol',
+            style: const TextStyle(
+              color: AppColors.grayText,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              Expanded(
+                child: TextField(
+                  controller: antifreezeController,
+                  keyboardType: TextInputType.text,
+                  textInputAction: TextInputAction.next,
+                  decoration: const InputDecoration(
+                    labelText: 'Antifriz',
+                    hintText: 'Orn. -25',
+                    prefixIcon: Icon(Icons.water_drop),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: TextField(
+                  controller: batteryController,
+                  keyboardType:
+                      const TextInputType.numberWithOptions(decimal: true),
+                  textInputAction: TextInputAction.done,
+                  decoration: const InputDecoration(
+                    labelText: 'Aku (%)',
+                    hintText: 'Orn. 82',
+                    prefixIcon: Icon(Icons.battery_full),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _MechanicalQuickInfoCard extends StatelessWidget {
+  const _MechanicalQuickInfoCard({required this.group});
+
+  final ReportTemplateGroup group;
+
+  @override
+  Widget build(BuildContext context) {
+    final evidencePointCount =
+        group.items.where((item) => item.hasImages).length;
+    final riskOptionCount = group.items
+        .where(
+          (item) => item.options.any(
+            (option) => option.scoreType == ReportOptionScoreType.negative,
+          ),
+        )
+        .length;
+
+    return OtotrCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Row(
+            children: [
+              Icon(Icons.car_repair, color: AppColors.warning),
+              SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  'Mekanik Hizli Kontrol',
+                  style: TextStyle(
+                    color: AppColors.navy,
+                    fontWeight: FontWeight.w900,
+                    fontSize: 17,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Text(
+            '${group.items.length} mekanik noktasi, '
+            '$evidencePointCount fotograf alani, '
+            '$riskOptionCount risk secenekli kontrol',
+            style: const TextStyle(
+              color: AppColors.grayText,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _FocusedTestQuickInfoCard extends StatelessWidget {
+  const _FocusedTestQuickInfoCard({required this.group});
+
+  final ReportTemplateGroup group;
+
+  @override
+  Widget build(BuildContext context) {
+    final measurementCount =
+        group.items.where((item) => item.inputFields.isNotEmpty).length;
+    final evidencePointCount =
+        group.items.where((item) => item.hasImages).length;
+    final requiredEvidenceCount =
+        group.items.where((item) => item.requiredImageCount > 0).length;
+    final riskOptionCount = group.items
+        .where(
+          (item) => item.options.any(
+            (option) => option.scoreType == ReportOptionScoreType.negative,
+          ),
+        )
+        .length;
+
+    return OtotrCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(_iconFor(group), color: AppColors.info),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  _titleFor(group),
+                  style: const TextStyle(
+                    color: AppColors.navy,
+                    fontWeight: FontWeight.w900,
+                    fontSize: 17,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Text(
+            '${group.items.length} test noktasi, '
+            '$measurementCount olcum, '
+            '$evidencePointCount fotograf alani, '
+            '$requiredEvidenceCount zorunlu kanit, '
+            '$riskOptionCount risk secenekli kontrol',
+            style: const TextStyle(
+              color: AppColors.grayText,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  IconData _iconFor(ReportTemplateGroup group) {
+    switch (group.code.toUpperCase()) {
+      case 'OBD_ECU_TEST':
+        return Icons.memory;
+      case 'AIRBAG_CHECK':
+        return Icons.airline_seat_recline_normal;
+      case 'BRAKE_SUSPENSION_TEST':
+        return Icons.speed;
+      case 'DYNO_ROAD_TEST':
+        return Icons.route;
+      case 'HEAD_GASKET_LEAK_TEST':
+        return Icons.science;
+      default:
+        return Icons.fact_check;
+    }
+  }
+
+  String _titleFor(ReportTemplateGroup group) {
+    switch (group.code.toUpperCase()) {
+      case 'OBD_ECU_TEST':
+        return 'OBD / Beyin Hizli Kontrol';
+      case 'AIRBAG_CHECK':
+        return 'Airbag Hizli Kontrol';
+      case 'BRAKE_SUSPENSION_TEST':
+        return 'Fren ve Suspansiyon Test Kontrolu';
+      case 'DYNO_ROAD_TEST':
+        return 'Dyno ve Yol Test Kontrolu';
+      case 'HEAD_GASKET_LEAK_TEST':
+        return 'Conta Kacak Test Kontrolu';
+      default:
+        return 'Test Hizli Kontrol';
+    }
+  }
+}
+
+class _BodyPaintFilterCard extends StatelessWidget {
+  const _BodyPaintFilterCard({
+    required this.selected,
+    required this.counts,
+    required this.onChanged,
+  });
+
+  final _BodyPaintFilter selected;
+  final Map<_BodyPaintFilter, int> counts;
+  final ValueChanged<_BodyPaintFilter> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    return OtotrCard(
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: Row(
+          children: [
+            for (final filter in _BodyPaintFilter.values) ...[
+              ChoiceChip(
+                label: Text('${_labelFor(filter)} ${counts[filter] ?? 0}'),
+                selected: selected == filter,
+                selectedColor: AppColors.navy.withAlpha(32),
+                backgroundColor: AppColors.white,
+                side: BorderSide(
+                  color: selected == filter
+                      ? AppColors.navy
+                      : AppColors.grayBorder,
+                ),
+                labelStyle: TextStyle(
+                  color:
+                      selected == filter ? AppColors.navy : AppColors.grayText,
+                  fontWeight: FontWeight.w900,
+                ),
+                onSelected: (_) => onChanged(filter),
+              ),
+              const SizedBox(width: 8),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+
+  String _labelFor(_BodyPaintFilter filter) {
+    switch (filter) {
+      case _BodyPaintFilter.all:
+        return 'Tümü';
+      case _BodyPaintFilter.missing:
+        return 'Eksik';
+      case _BodyPaintFilter.completed:
+        return 'Tamamlanan';
+      case _BodyPaintFilter.measurement:
+        return 'Ölçüm';
+      case _BodyPaintFilter.evidence:
+        return 'Kanıt';
+    }
+  }
+}
+
+class _MotorFilterCard extends StatelessWidget {
+  const _MotorFilterCard({
+    required this.selected,
+    required this.counts,
+    required this.onChanged,
+  });
+
+  final _MotorFilter selected;
+  final Map<_MotorFilter, int> counts;
+  final ValueChanged<_MotorFilter> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    return OtotrCard(
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: Row(
+          children: [
+            for (final filter in _MotorFilter.values) ...[
+              ChoiceChip(
+                label: Text('${_labelFor(filter)} ${counts[filter] ?? 0}'),
+                selected: selected == filter,
+                selectedColor: AppColors.info.withAlpha(32),
+                backgroundColor: AppColors.white,
+                side: BorderSide(
+                  color: selected == filter
+                      ? AppColors.info
+                      : AppColors.grayBorder,
+                ),
+                labelStyle: TextStyle(
+                  color:
+                      selected == filter ? AppColors.info : AppColors.grayText,
+                  fontWeight: FontWeight.w900,
+                ),
+                onSelected: (_) => onChanged(filter),
+              ),
+              const SizedBox(width: 8),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+
+  String _labelFor(_MotorFilter filter) {
+    switch (filter) {
+      case _MotorFilter.all:
+        return 'Tumu';
+      case _MotorFilter.missing:
+        return 'Eksik';
+      case _MotorFilter.completed:
+        return 'Tamamlanan';
+      case _MotorFilter.measurement:
+        return 'Olcum';
+      case _MotorFilter.risk:
+        return 'Risk';
+    }
+  }
+}
+
+class _MechanicalFilterCard extends StatelessWidget {
+  const _MechanicalFilterCard({
+    required this.selected,
+    required this.counts,
+    required this.onChanged,
+  });
+
+  final _MechanicalFilter selected;
+  final Map<_MechanicalFilter, int> counts;
+  final ValueChanged<_MechanicalFilter> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    return OtotrCard(
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: Row(
+          children: [
+            for (final filter in _MechanicalFilter.values) ...[
+              ChoiceChip(
+                label: Text('${_labelFor(filter)} ${counts[filter] ?? 0}'),
+                selected: selected == filter,
+                selectedColor: AppColors.warning.withAlpha(32),
+                backgroundColor: AppColors.white,
+                side: BorderSide(
+                  color: selected == filter
+                      ? AppColors.warning
+                      : AppColors.grayBorder,
+                ),
+                labelStyle: TextStyle(
+                  color: selected == filter
+                      ? AppColors.warning
+                      : AppColors.grayText,
+                  fontWeight: FontWeight.w900,
+                ),
+                onSelected: (_) => onChanged(filter),
+              ),
+              const SizedBox(width: 8),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+
+  String _labelFor(_MechanicalFilter filter) {
+    switch (filter) {
+      case _MechanicalFilter.all:
+        return 'Tumu';
+      case _MechanicalFilter.missing:
+        return 'Eksik';
+      case _MechanicalFilter.completed:
+        return 'Tamamlanan';
+      case _MechanicalFilter.evidence:
+        return 'Kanit';
+      case _MechanicalFilter.risk:
+        return 'Risk';
+    }
+  }
+}
+
+class _FocusedTestFilterCard extends StatelessWidget {
+  const _FocusedTestFilterCard({
+    required this.selected,
+    required this.counts,
+    required this.onChanged,
+  });
+
+  final _FocusedTestFilter selected;
+  final Map<_FocusedTestFilter, int> counts;
+  final ValueChanged<_FocusedTestFilter> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    return OtotrCard(
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: Row(
+          children: [
+            for (final filter in _FocusedTestFilter.values) ...[
+              ChoiceChip(
+                label: Text('${_labelFor(filter)} ${counts[filter] ?? 0}'),
+                selected: selected == filter,
+                selectedColor: AppColors.info.withAlpha(32),
+                backgroundColor: AppColors.white,
+                side: BorderSide(
+                  color: selected == filter
+                      ? AppColors.info
+                      : AppColors.grayBorder,
+                ),
+                labelStyle: TextStyle(
+                  color:
+                      selected == filter ? AppColors.info : AppColors.grayText,
+                  fontWeight: FontWeight.w900,
+                ),
+                onSelected: (_) => onChanged(filter),
+              ),
+              const SizedBox(width: 8),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+
+  String _labelFor(_FocusedTestFilter filter) {
+    switch (filter) {
+      case _FocusedTestFilter.all:
+        return 'Tumu';
+      case _FocusedTestFilter.missing:
+        return 'Eksik';
+      case _FocusedTestFilter.completed:
+        return 'Tamamlanan';
+      case _FocusedTestFilter.measurement:
+        return 'Olcum';
+      case _FocusedTestFilter.evidence:
+        return 'Kanit';
+      case _FocusedTestFilter.risk:
+        return 'Risk';
+    }
+  }
+}
+
+class _ReportSectionHeader extends StatelessWidget {
+  const _ReportSectionHeader({
+    required this.title,
+    required this.completed,
+    required this.total,
+    required this.color,
+  });
+
+  final String title;
+  final int completed;
+  final int total;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    final isComplete = total > 0 && completed >= total;
+    return Padding(
+      padding: const EdgeInsets.only(top: 6, bottom: 4),
+      child: Row(
+        children: [
+          Container(
+            width: 4,
+            height: 22,
+            decoration: BoxDecoration(
+              color: color,
+              borderRadius: BorderRadius.circular(999),
+            ),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              title,
+              style: const TextStyle(
+                color: AppColors.navy,
+                fontWeight: FontWeight.w900,
+                fontSize: 16,
+              ),
+            ),
+          ),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+            decoration: BoxDecoration(
+              color: (isComplete ? AppColors.success : AppColors.warning)
+                  .withAlpha(28),
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(
+                color: (isComplete ? AppColors.success : AppColors.warning)
+                    .withAlpha(76),
+              ),
+            ),
+            child: Text(
+              '$completed/$total',
+              style: TextStyle(
+                color: isComplete ? AppColors.success : AppColors.warning,
+                fontWeight: FontWeight.w900,
+                fontSize: 12,
+              ),
             ),
           ),
         ],
@@ -885,11 +2350,15 @@ class _ReportItemCard extends StatelessWidget {
     required this.item,
     required this.answer,
     required this.onTap,
+    this.quickOptions = const [],
+    this.onQuickOptionSelected,
   });
 
   final ReportTemplateItem item;
   final WorkOrderReportAnswer? answer;
   final VoidCallback onTap;
+  final List<ReportTemplateOption> quickOptions;
+  final ValueChanged<ReportTemplateOption>? onQuickOptionSelected;
 
   @override
   Widget build(BuildContext context) {
@@ -903,6 +2372,7 @@ class _ReportItemCard extends StatelessWidget {
     final summary = answer == null
         ? 'Bekliyor'
         : [
+            if (!completed) 'Taslak',
             if (optionSummary.isNotEmpty) optionSummary,
             if (inputSummary != null && inputSummary.isNotEmpty) inputSummary,
           ].join(' · ');
@@ -938,6 +2408,45 @@ class _ReportItemCard extends StatelessWidget {
                     fontWeight: FontWeight.w700,
                   ),
                 ),
+                if (item.inputFields.isNotEmpty ||
+                    item.requiredImageCount > 0) ...[
+                  const SizedBox(height: 8),
+                  Wrap(
+                    spacing: 6,
+                    runSpacing: 6,
+                    children: [
+                      if (item.inputFields.isNotEmpty)
+                        const _RequirementPill(
+                          icon: Icons.speed,
+                          label: 'Ölçüm gerekli',
+                        ),
+                      if (item.requiredImageCount > 0)
+                        _RequirementPill(
+                          icon: Icons.photo_camera,
+                          label: '${item.requiredImageCount} kanıt gerekli',
+                        ),
+                    ],
+                  ),
+                ],
+                if (quickOptions.isNotEmpty) ...[
+                  const SizedBox(height: 10),
+                  Wrap(
+                    spacing: 6,
+                    runSpacing: 6,
+                    children: [
+                      for (final option in quickOptions)
+                        _QuickOptionChip(
+                          option: option,
+                          selected:
+                              answer?.selectedOptionIds.contains(option.id) ??
+                                  false,
+                          onTap: onQuickOptionSelected == null
+                              ? null
+                              : () => onQuickOptionSelected!(option),
+                        ),
+                    ],
+                  ),
+                ],
               ],
             ),
           ),
@@ -952,6 +2461,93 @@ class _ReportItemCard extends StatelessWidget {
             hasPhoto ? Icons.photo_camera : Icons.photo_camera_outlined,
             color: hasPhoto ? AppColors.success : AppColors.grayText,
             size: 20,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _QuickOptionChip extends StatelessWidget {
+  const _QuickOptionChip({
+    required this.option,
+    required this.selected,
+    required this.onTap,
+  });
+
+  final ReportTemplateOption option;
+  final bool selected;
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final color = _tone(option.colorType);
+    return ActionChip(
+      avatar: Icon(
+        selected ? Icons.check_circle : Icons.touch_app,
+        color: color,
+        size: 16,
+      ),
+      label: Text(option.label),
+      labelStyle: TextStyle(
+        color: selected ? color : AppColors.darkText,
+        fontWeight: FontWeight.w900,
+        fontSize: 12,
+      ),
+      backgroundColor: selected ? color.withAlpha(36) : AppColors.white,
+      side: BorderSide(color: selected ? color : AppColors.grayBorder),
+      onPressed: onTap,
+      padding: const EdgeInsets.symmetric(horizontal: 4),
+    );
+  }
+
+  Color _tone(ReportOptionColorType type) {
+    switch (type) {
+      case ReportOptionColorType.green:
+        return AppColors.success;
+      case ReportOptionColorType.red:
+        return AppColors.red;
+      case ReportOptionColorType.orange:
+        return AppColors.warning;
+      case ReportOptionColorType.blue:
+        return AppColors.info;
+      case ReportOptionColorType.gray:
+      case ReportOptionColorType.neutral:
+        return AppColors.grayText;
+    }
+  }
+}
+
+class _RequirementPill extends StatelessWidget {
+  const _RequirementPill({
+    required this.icon,
+    required this.label,
+  });
+
+  final IconData icon;
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+      decoration: BoxDecoration(
+        color: AppColors.warning.withAlpha(24),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: AppColors.warning.withAlpha(72)),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, color: AppColors.warning, size: 14),
+          const SizedBox(width: 5),
+          Text(
+            label,
+            style: const TextStyle(
+              color: AppColors.warning,
+              fontWeight: FontWeight.w900,
+              fontSize: 11,
+            ),
           ),
         ],
       ),

@@ -27,3 +27,4 @@ Each decision note should include:
 ## Decision Notes
 
 - `2026-06-03-master-source-of-truth.md`
+- `2026-06-03-first-mvp-slice.md`

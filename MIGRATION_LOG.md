@@ -80,6 +80,58 @@
 - Attempted WSL installation from the current shell and an elevated PowerShell launch; completion still requires an admin/UAC flow outside this automation session.
 - Re-tested WSL, Docker and `npx.cmd supabase start`; WSL still reports the optional component / Virtual Machine Platform blocker, and Supabase start still fails before migrations on Docker engine inspection.
 - No local migration reset, seed execution or RLS/RPC smoke test was run.
+- Rebuilt `apps/admin/prototype/bayi-portal/index.html` from a redirect stub into a standalone bayi portal operations prototype.
+- New portal prototype includes role-scoped navigation for bayi sahibi, şube müdürü, müşteri kabul, usta/teknisyen and kasa/muhasebe; screens cover cockpit, appointments, work orders, technician tasks, manager approvals, reports, delivery/QR, customers, staff/roles, Academy, finance/cashbox, assets, quality/complaints, HQ support requests and branch settings.
+- Generated bayi portal QA screenshots for desktop and mobile under `apps/admin/prototype/bayi-portal/`.
+- Validation: Playwright smoke test passed for route navigation, role switching and mobile horizontal overflow.
+- Completed ERP operations first 20 planning outputs for thread `14 - OTOTR ERP / Tum Operasyon Yonetimi`.
+- Added `docs/erp-operations-20-step-execution.md` with current-system-based module map, role matrix, operation flow, work order contract, dashboard scopes, capacity model, assignment rules, appointment/work-order rules, quality gates, finance/royalty rules, franchise pipeline, branch opening model, API draft, database safety split, demo/production boundary, admin refactor plan, test matrix and MVP scope.
+- Added visual companion report `docs/erp-operations-visual-report.html`.
+- No old files were deleted or moved.
+- No database migration or destructive command was run.
+- No secret, token or real env value was printed or written.
+- Completed ERP operations follow-up steps 21-25.
+- Added `docs/erp-operations-contracts-21-25.md` for first formal API contracts, shared role constants, branch capacity schema, appointment conversion contract and work order alignment.
+- Added shared contract source files under `packages/shared`: `README.md` and `src/erp-contracts.ts`.
+- Shared contracts are not wired into app runtime yet; no app behavior was changed.
+- Completed ERP operations follow-up steps 26-30.
+- Added `docs/erp-operations-implementation-map-26-30.md` for admin module extraction inventory, branch portal live data binding map, technician task integration map, quality gate enforcement responsibilities and finance/royalty data contract.
+- No app runtime behavior was changed for steps 26-30.
+- Completed ERP operations follow-up steps 31-35.
+- Added `docs/erp-operations-validation-31-35.md` for reviewed migration readiness, RLS role-test matrix, local/staging validation runbook, deterministic seed strategy and ERP MVP release/rollback checklist.
+- No database command was executed for steps 31-35.
+- No app runtime behavior was changed for steps 31-35.
+- Completed ERP operations follow-up steps 36-40.
+- Added `docs/erp-operations-release-candidate-36-40.md` for the first MVP demo slice, desktop/mobile visual QA checklist, end-to-end branch manager and technician smoke scenario, ERP MVP security review checklist and controlled release candidate checklist.
+- No database command was executed for steps 36-40.
+- No app runtime behavior was changed for steps 36-40.
+- Started first ERP MVP implementation slice in `apps/admin/prototype/bayi-portal/index.html`.
+- Added interactive MVP demo state for appointment conversion, technician assignment, evidence/report answer, manager approval, payment readiness and handover readiness.
+- Added `apps/admin/prototype/tools/test-bayi-portal-mvp.mjs` for the branch portal MVP slice smoke test.
+- No live backend or database command was used for this implementation slice.
+- Validation passed: branch portal MVP smoke, admin demo-data smoke, admin index smoke, VIN service test and in-app Browser visual verification through local preview server.
+- Completed Backend API first planning update for thread `05 - OTOTR Backend API`.
+- Updated `docs/api.md` with the current Supabase Edge Function `public-api` contract, server-only API boundaries and mobile/bayi portal contract direction.
+- Added `apps/api/README.md` to reserve the folder for a future dedicated backend API server without starting one now.
+- Added `OTOTR_ALLOWED_ORIGINS` placeholder to `.env.example`; no real origin list, secret, token or credential value was written.
+- No API server was started, no database migration was run and no destructive command was executed.
+- Completed mobile/bayi portal backend contract pass for thread `05 - OTOTR Backend API`.
+- Added `docs/mobile-bayi-api-contracts.md` with screen-by-screen Supabase table/RPC/storage contracts, server-only boundaries and final gap check.
+- Linked the mobile/bayi portal contract from `docs/api.md`.
+- Added current database role mapping references to `packages/shared/src/erp-contracts.ts`, `packages/shared/README.md` and `docs/auth-and-roles.md`.
+- Expanded `packages/database/rls-verification-checklist.sql` with `report-media` storage bucket and policy checks.
+- No app integration code was changed, no database migration was run and no live credential-dependent command was executed.
+- Added read-only public API smoke test script `tools/test-public-api.mjs`.
+- Added root script `npm.cmd run test:public-api`.
+- Documented the smoke test command in `docs/public-web-supabase-staging.md`.
+- Validation passed for read-only public API smoke test against staging: branches, stats, positive report verification and negative report verification. Write smoke was skipped by default.
+- Added backend static contract check script `tools/check-backend-contracts.mjs` and package script `npm.cmd run check:backend-contracts`.
+- Added Supabase local readiness script `tools/check-supabase-local-readiness.mjs` and package script `npm.cmd run check:supabase-readiness`.
+- Added `docs/backend-local-readiness.md` with current local Supabase validation status and safe next commands.
+- Validation passed: `npm.cmd run check:backend-contracts`.
+- Validation passed: `npm.cmd run test:public-api`.
+- Readiness check result: WSL, Docker and Supabase CLI respond, but local Supabase stack is not running because `supabase_db_ototr-local` does not exist.
+- Attempted `npx.cmd supabase start` twice; both attempts timed out before containers were created. No database migration, remote command or destructive operation was run.
 
 ## Pending
 
@@ -90,12 +142,92 @@
 - Refactor large admin prototype only after smoke tests.
 - Decide long-term mobile technology strategy.
 
+## Main Memory Next 20 Execution - 2026-06-03
+
+- Created execution roadmap: `docs/next-20-work-plan.md`.
+- Created execution result report: `docs/next-20-execution-status.md`.
+- Added first MVP slice decision: `docs/decisions/2026-06-03-first-mvp-slice.md`.
+- Added missing test login key names to `.env.example`; no real values were written.
+- Verified `C:\ototr_master` junction exists.
+- Verified Supabase CLI through `npx.cmd supabase --version`; version `2.104.0`.
+- Verified Supabase CLI help output before using local commands.
+- Attempted local Supabase start/reset; both are blocked because Docker Desktop Linux engine is not reachable.
+- WSL status reports WSL/Virtual Machine Platform/virtualization is not fully enabled.
+- Reviewed mobile/browser Supabase config boundaries. Service-role usage remains server-side Edge Function env only.
+- Fixed one Flutter analyzer lint by making the report-entry empty state constructor `const`.
+- Validation passed: Expo typecheck, admin prototype demo/VIN/index smoke tests, Flutter analyze and Flutter tests.
+- Reviewed npm audit warnings; `npm audit fix --force` was not run because it would apply a breaking Expo downgrade.
+
+## WSL/Docker Recovery Attempt - 2026-06-03
+
+- Rechecked WSL, Docker Desktop and Supabase local start after user asked to proceed.
+- Started Docker Desktop from `C:\Program Files\Docker\Docker\Docker Desktop.exe`; UI/backend processes started but Docker Desktop CLI still reported `Status stopped`.
+- Ran `wsl --install Ubuntu-24.04 --no-launch`; command completed successfully and Windows reported that a system restart is required before changes take effect.
+- Rechecked `wsl --status`, `docker desktop status` and `npx.cmd supabase start`; local Supabase remains blocked until Windows is restarted and Docker Desktop Linux engine starts successfully.
+- No remote Supabase command, production database command, destructive SQL, seed execution or RLS verification was run.
+
+## Local Supabase DB Validation - 2026-06-03
+
+- Resumed after WSL2/Docker Desktop became healthy.
+- Verified Docker Desktop running and Docker server reachable.
+- Ran `npx.cmd supabase db start --debug`; local Postgres container `supabase_db_ototr-local` became healthy.
+- Ran `npx.cmd supabase db reset --local`; reviewed migrations `202606030001` through `202606030007` applied successfully and `supabase/seed.sql` ran.
+- Ran `npx.cmd supabase migration list --local`; migration list showed local migrations `202606030001` through `202606030007`.
+- Ran `packages/database/expected-contract-verification.sql` through container `psql`; expected tables/RPC contracts passed.
+- Ran `packages/database/rls-verification-checklist.sql` through container `psql`; no public table without RLS was reported.
+- Recorded security follow-up: `audit_report_child_mutation` is callable by `anon` in the checklist output and should be reviewed before staging/production hardening.
+- No remote Supabase command, production database command or destructive production operation was run.
+
+## Local Supabase Full Stack And Audit Hardening - 2026-06-03
+
+- Ran full local Supabase start after DB-only validation.
+- Full local stack started; REST and Edge Function health endpoints responded.
+- Supabase status reported `supabase_imgproxy_ototr-local` and `supabase_pooler_ototr-local` as stopped; Docker process output showed `supabase_vector_ototr-local` restarting.
+- Created migration through Supabase CLI: `supabase/migrations/20260603193856_harden_audit_report_child_mutation_execute.sql`.
+- Migration revokes direct execute on `public.audit_report_child_mutation()` from `public`, `anon` and `authenticated`.
+- Re-ran `npx.cmd supabase db reset --local`; reviewed migration chain passed through `20260603193856`.
+- Verified `audit_report_child_mutation` direct execute privilege is false for both `anon` and `authenticated`.
+- Re-ran expected contract and RLS verification SQL through local container `psql`; both passed.
+- Local generated keys were displayed by Supabase CLI status output but were not written into project files.
+- No remote Supabase command, production database command or destructive production operation was run.
+
+## Local Role Session Smoke And app_users RLS Fix - 2026-06-03
+
+- Created local-only smoke tool `tools/local-role-session-smoke.mjs`.
+- The tool ensures fake local Auth users, seeds deterministic branch/case/task rows and verifies role-scoped REST reads through real Supabase Auth password sessions.
+- First smoke run exposed `app_users` RLS recursion on REST self-user lookup.
+- Created migration through Supabase CLI: `supabase/migrations/20260603195028_fix_app_users_rls_recursion.sql`.
+- Migration replaces `app_users_self_or_hq` with a non-recursive policy:
+  - self-read uses `auth_user_id = auth.uid()`;
+  - HQ/quality override uses `public.current_app_user_role()`.
+- Ran `npx.cmd supabase db reset --local`; migration chain passed through `20260603195028`.
+- Ran `node tools/local-role-session-smoke.mjs`; branch manager and technician sessions passed expected own-branch/other-branch visibility checks.
+- Re-ran expected contract and RLS verification SQL through local container `psql`; both passed.
+- No remote Supabase command, production database command or destructive production operation was run.
+- Local generated keys/tokens were not written into project files.
+
 ## Bayi Portal Redesign Expansion - 2026-06-03
 
 - Expanded `apps/admin/prototype/bayi-portal/index.html` into a full dealer portal surface covering branch operations plus commercial self-service.
 - Added screens for listings/vehicles, offers, orders, payments, invoices, shipments, warranty, technical documents and analytics.
-- Grouped the portal menu into Operasyon, Ticari Self-Servis and Y?netim sections while preserving role-scoped access.
+- Grouped the portal menu into Operasyon, Ticari Self-Servis and Yönetim sections while preserving role-scoped access.
 - Generated desktop, commerce and mobile QA screenshots under `apps/admin/prototype/bayi-portal/`.
 - Validation: Playwright smoke test passed for 24 route navigation checks, role switching, grouped menu labels and mobile horizontal overflow.
 - No old project file was deleted or moved.
+- No secret, token, live credential, database migration or production command was used.
+
+## ERP Operations MVP Slice - 2026-06-03
+
+- Added a visible ERP operations MVP flow to `apps/admin/prototype/bayi-portal/index.html`.
+- The flow covers appointment-to-work-order conversion, technician assignment, evidence completion, manager approval, payment unlock and delivery readiness.
+- Added/updated Playwright coverage in `apps/admin/prototype/tools/test-bayi-portal-mvp.mjs`.
+- Generated visual QA evidence at `apps/admin/prototype/artifacts/visual-checks/bayi-portal-erp-mvp-final.png`.
+- Revalidated after the bayi portal file changed during the run; the final implementation is mounted without deleting, moving or reverting older portal content.
+- No secret, token, live credential, database migration or production command was used.
+
+## ERP Operations MVP Slice Withdrawal - 2026-06-04
+
+- Removed the visible `ERP operasyon MVP akisi` panel from `apps/admin/prototype/bayi-portal/index.html` after product review found it unusable.
+- Removed the dedicated MVP smoke test `apps/admin/prototype/tools/test-bayi-portal-mvp.mjs` because the abandoned panel is no longer part of the product surface.
+- Existing dealer portal structure, branch operation screens and older files were not deleted or moved.
 - No secret, token, live credential, database migration or production command was used.

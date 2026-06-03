@@ -32,6 +32,23 @@ Use `bsjkohwbtrfwrqcyhsfz` for `SUPABASE_PROJECT_ID` in the staging repository s
 - `POST /franchise-applications`
 - `POST /complaints`
 
+## Smoke Test
+
+Default read-only smoke test:
+
+```powershell
+npm.cmd run test:public-api
+```
+
+Optional write smoke test, staging only:
+
+```powershell
+$env:OTOTR_PUBLIC_API_WRITE_SMOKE='1'
+npm.cmd run test:public-api
+```
+
+The default test does not create records. The write smoke test creates staging form records and must not be used against production unless explicitly approved.
+
 ## Security Notes
 
 - The Edge Function is public because the website visitor is not logged in.

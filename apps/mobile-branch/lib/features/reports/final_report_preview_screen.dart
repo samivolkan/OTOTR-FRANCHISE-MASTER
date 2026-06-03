@@ -200,7 +200,10 @@ class _FinalReportSectionCard extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 12),
-          for (final row in section.rows) _AnswerRow(row: row),
+          if (section.group.code == 'BODY_PAINT_CHECKUP')
+            _BodyPaintAnswerGroups(rows: section.rows)
+          else
+            for (final row in section.rows) _AnswerRow(row: row),
           if (section.missingItems.isNotEmpty) ...[
             const Divider(height: 24),
             const Text(
@@ -227,6 +230,41 @@ class _FinalReportSectionCard extends StatelessWidget {
           ],
         ],
       ),
+    );
+  }
+}
+
+class _BodyPaintAnswerGroups extends StatelessWidget {
+  const _BodyPaintAnswerGroups({required this.rows});
+
+  final List<FinalReportRow> rows;
+
+  @override
+  Widget build(BuildContext context) {
+    final rowsBySection = <String, List<FinalReportRow>>{};
+    for (final row in rows) {
+      rowsBySection
+          .putIfAbsent(_bodyPaintPreviewSectionFor(row.item), () => [])
+          .add(row);
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        for (final entry in rowsBySection.entries) ...[
+          Padding(
+            padding: const EdgeInsets.only(top: 6, bottom: 8),
+            child: Text(
+              '${entry.key} (${entry.value.length})',
+              style: const TextStyle(
+                color: AppColors.navy,
+                fontWeight: FontWeight.w900,
+              ),
+            ),
+          ),
+          for (final row in entry.value) _AnswerRow(row: row),
+        ],
+      ],
     );
   }
 }
@@ -268,4 +306,71 @@ class _AnswerRow extends StatelessWidget {
       ),
     );
   }
+}
+
+String _bodyPaintPreviewSectionFor(ReportTemplateItem item) {
+  final text = _normalizeBodyPaintPreviewText('${item.title} ${item.id}');
+  if (text.contains('ARACTA') ||
+      text.contains('ARAC_GENEL') ||
+      text.contains('KIRLI') ||
+      text.contains('KARALAMA') ||
+      text.contains('KENDINIZE')) {
+    return 'Genel Kontroller';
+  }
+  if (text.contains('TAVAN') || text.contains('SUNROOF')) {
+    return 'Tavan ve Camlar';
+  }
+  if (text.contains('SASI') ||
+      text.contains('PODYE') ||
+      text.contains('KULE') ||
+      text.contains('DIREK') ||
+      text.contains('ALT_TABAN') ||
+      text.contains('ALT_')) {
+    return 'Şasi ve İç Yapı';
+  }
+  if (text.contains('ON_') ||
+      text.startsWith('ON ') ||
+      text.contains(' ON ') ||
+      text.contains('PANJUR') ||
+      text.contains('KAPUT') ||
+      text.contains('ON CAM')) {
+    return 'Ön Bölüm';
+  }
+  if (text.contains('SOL_') ||
+      text.startsWith('SOL ') ||
+      text.contains(' SOL ')) {
+    return 'Sol Yan';
+  }
+  if (text.contains('SAG_') ||
+      text.startsWith('SAG ') ||
+      text.contains(' SAG ')) {
+    return 'Sağ Yan';
+  }
+  if (text.contains('ARKA_') ||
+      text.startsWith('ARKA ') ||
+      text.contains(' ARKA ') ||
+      text.contains('BAGAJ')) {
+    return 'Arka Bölüm';
+  }
+  return 'Diğer Kaporta Noktaları';
+}
+
+String _normalizeBodyPaintPreviewText(String value) {
+  return value
+      .trim()
+      .toUpperCase()
+      .replaceAll('İ', 'I')
+      .replaceAll('İ', 'I')
+      .replaceAll('Ğ', 'G')
+      .replaceAll('Ü', 'U')
+      .replaceAll('Ş', 'S')
+      .replaceAll('Ö', 'O')
+      .replaceAll('Ç', 'C')
+      .replaceAll('ı', 'I')
+      .replaceAll('ğ', 'G')
+      .replaceAll('ü', 'U')
+      .replaceAll('ş', 'S')
+      .replaceAll('ö', 'O')
+      .replaceAll('ç', 'C')
+      .replaceAll(RegExp(r'[^A-Z0-9]+'), '_');
 }

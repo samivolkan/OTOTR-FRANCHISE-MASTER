@@ -43,27 +43,31 @@ void main() {
 
     await tester.tap(find.textContaining('Motor Ekspertiz').first);
     await tester.pumpAndSettle();
+    await _pumpUntil(tester, find.text('Motor Hizli Olcum Girisi'));
+
+    final quickFields = find.byType(TextField);
+    await tester.enterText(quickFields.at(0), '-30');
+    await tester.enterText(quickFields.at(1), '82');
+
+    final allGoodButton = find.widgetWithText(
+      FilledButton,
+      'Tüm Noktalar İyi Durumda',
+    );
     await tester.scrollUntilVisible(
-      find.text('Tüm Noktalar İyi Durumda'),
+      allGoodButton,
       600,
       scrollable: find.byType(Scrollable).first,
     );
-    await tester.tap(find.text('Tüm Noktalar İyi Durumda'));
+    await tester.drag(find.byType(Scrollable).first, const Offset(0, -160));
     await tester.pumpAndSettle();
-
-    expect(find.text('Ölçüm Değerleri Gerekli'), findsOneWidget);
-    expect(find.textContaining('Antifriz'), findsWidgets);
-
-    final fields = find.byType(TextField);
-    await tester.enterText(fields.at(0), '-30');
-    await tester.enterText(fields.at(1), '12.6');
-    await tester.tap(find.text('Değerlerle İyiye Çek'));
+    await tester.tap(allGoodButton);
     await tester.pumpAndSettle();
 
     final answers = await LocalWorkOrderReportRepository.instance.getAnswers(
       'wo-2026-0001',
     );
     expect(answers.where((answer) => answer.isCompleted), hasLength(37));
+    expect(find.text('Ölçüm Değerleri Gerekli'), findsNothing);
 
     await tester.scrollUntilVisible(
       find.text('Başlığı Gönder'),
@@ -94,7 +98,7 @@ Future<void> _pumpUntil(
       .map((widget) => widget.data ?? widget.textSpan?.toPlainText() ?? '')
       .where((text) => text.isNotEmpty)
       .join(' | ');
-  fail('Beklenen widget bulunamadı: $finder. Görünen metinler: $visibleTexts');
+  fail('Beklenen widget bulunamadi: $finder. Gorunen metinler: $visibleTexts');
 }
 
 Future<void> _waitForAsyncWork(WidgetTester tester) async {

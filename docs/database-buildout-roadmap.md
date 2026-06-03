@@ -180,21 +180,42 @@ Review summary:
 ## Next 5 Baseline Work Items After 11-15
 
 16. Install/verify Supabase CLI and Docker, then validate `supabase/config.toml`.
-   - Partial: Supabase CLI works through `npx.cmd` as `2.104.0`.
-   - Partial: Docker Desktop `4.76.0` installed and Docker CLI `29.5.2` exists.
-   - Blocked: Docker Desktop Linux engine cannot start because WSL is not installed.
+   - Completed: Supabase CLI works through `npx.cmd` as `2.104.0`.
+   - Completed: Docker Desktop is running and Docker server is reachable.
+   - Completed: full local Supabase stack can start.
 
 17. Run local migration reset and capture exact SQL errors, if any.
-   - Blocked until Docker engine is healthy.
+   - Completed: `npx.cmd supabase db reset --local` passed through reviewed migrations `202606030001` to `20260603193856`.
 
 18. Fix only local migration syntax/dependency errors found by reset.
-   - Pending; no migration SQL runtime error has been reached yet.
+   - Completed: no migration syntax/dependency errors remain in the reviewed local chain.
 
 19. Create local auth users and run the smoke seed template with local UUIDs.
-   - Pending; requires local Supabase stack.
+   - Pending: `supabase/seed.sql` runs as a safe no-op placeholder; auth-user fixture strategy still needs implementation.
 
 20. Run RLS/app smoke verification with branch manager and technician sessions.
-   - Pending; requires local Supabase stack and local auth sessions.
+   - Partially completed: metadata RLS verification passed; role-session app smoke tests still need local auth fixtures.
+
+## Completed Outputs For Baseline Work Items 16-20
+
+16. Supabase CLI/Docker/full local stack:
+   - Supabase CLI `2.104.0` through `npx.cmd`.
+   - Docker Desktop running.
+   - Full local stack started; REST and Edge Function health endpoints responded.
+
+17. Local migration reset:
+   - `npx.cmd supabase db reset --local` passed.
+
+18. Security hardening:
+   - Added `supabase/migrations/20260603193856_harden_audit_report_child_mutation_execute.sql`.
+   - `audit_report_child_mutation` is no longer directly executable by `anon` or `authenticated`.
+
+19. Contract verification:
+   - `packages/database/expected-contract-verification.sql` passed.
+
+20. RLS metadata verification:
+   - `packages/database/rls-verification-checklist.sql` passed.
+   - No public table without RLS was reported.
 
 ## Later Stages
 

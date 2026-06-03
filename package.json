@@ -1,0 +1,27 @@
+{
+  "name": "ototr-franchise-master",
+  "version": "1.0.0",
+  "description": "This is the clean master workspace for the OTOTR Franchise System.",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "check:backend-contracts": "node tools/check-backend-contracts.mjs",
+    "check:supabase-readiness": "node tools/check-supabase-local-readiness.mjs",
+    "test:public-api": "node tools/test-public-api.mjs",
+    "test": "echo \"Use a scoped test script, for example: npm run test:public-api\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/samivolkan/OTOTR-FRANCHISE-MASTER.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/samivolkan/OTOTR-FRANCHISE-MASTER/issues"
+  },
+  "homepage": "https://github.com/samivolkan/OTOTR-FRANCHISE-MASTER#readme"
+}

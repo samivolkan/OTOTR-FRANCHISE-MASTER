@@ -217,6 +217,7 @@ export async function submitFinalReview(session: Session, order: LiveWorkOrder) 
 }
 
 export function subscribeLiveChanges(session: Session, onChange: () => void) {
+  requireSupabaseConfig();
   let socket: WebSocket | null = null;
   let closed = false;
   let ref = 1;

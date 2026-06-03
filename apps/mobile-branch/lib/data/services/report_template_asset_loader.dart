@@ -38,12 +38,17 @@ class ReportTemplateAssetLoader {
     }
 
     final mediaMaxByItem = <String, int>{};
+    final requiredImageCountByItem = <String, int>{};
     for (final row in mediaRaw) {
       final itemId = row['itemId']?.toString() ?? '';
       if (itemId.isEmpty) {
         continue;
       }
       mediaMaxByItem[itemId] = _int(row['maxImages'], fallback: 0);
+      requiredImageCountByItem[itemId] = _int(
+        row['requiredImageCount'],
+        fallback: 0,
+      );
     }
 
     final itemsByGroup = <String, List<ReportTemplateItem>>{};
@@ -53,6 +58,7 @@ class ReportTemplateAssetLoader {
         optionsByItem[row['id']?.toString() ?? ''] ?? const [],
         inputsByItem[row['id']?.toString() ?? ''] ?? const [],
         mediaMaxByItem[row['id']?.toString() ?? ''] ?? 0,
+        requiredImageCountByItem[row['id']?.toString() ?? ''] ?? 0,
       );
       itemsByGroup.putIfAbsent(item.groupId, () => []).add(item);
     }
@@ -97,6 +103,7 @@ class ReportTemplateAssetLoader {
     List<ReportTemplateOption> options,
     List<ReportTemplateInputField> inputs,
     int maxImages,
+    int requiredImageCount,
   ) {
     final sortedOptions = [...options]
       ..sort((a, b) => a.sortOrder.compareTo(b.sortOrder));
@@ -118,6 +125,7 @@ class ReportTemplateAssetLoader {
       hasImages: requiresMedia,
       maxImages:
           maxImages == 0 ? _int(row['maxImages'], fallback: 0) : maxImages,
+      requiredImageCount: requiredImageCount,
       options: sortedOptions,
       inputFields: sortedInputs,
     );

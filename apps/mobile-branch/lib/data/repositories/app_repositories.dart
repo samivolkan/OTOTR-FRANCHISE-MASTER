@@ -13,6 +13,7 @@ import '../remote/supabase_report_template_data_source.dart';
 import '../remote/supabase_work_order_data_source.dart';
 import '../remote/supabase_work_order_report_data_source.dart';
 import 'branch_work_order_repository.dart';
+import 'dummy_work_order_repository.dart';
 import 'final_report_repository.dart';
 import 'remote_work_order_repository.dart';
 import 'report_template_repository.dart';
@@ -21,6 +22,7 @@ import 'supabase_final_report_repository.dart';
 import 'supabase_report_template_repository.dart';
 import 'supabase_work_order_report_repository.dart';
 import 'supabase_work_order_repository.dart';
+import 'work_order_local_repository.dart';
 import 'work_order_report_repository.dart';
 import 'work_order_repository.dart';
 
@@ -72,8 +74,8 @@ class AppRepositories {
     SupabaseConfig config = SupabaseConfig.fromEnvironment,
   }) async {
     if (!config.isConfigured) {
-      _disableLiveRepositories(
-        'Supabase konfigurasyonu eksik. Canli veri baglantisi olmadan demo veri gosterilmez.',
+      _configureLocalDemoRepositories(
+        'Supabase konfigurasyonu eksik. Local demo veri kullaniliyor.',
       );
       return;
     }
@@ -128,6 +130,17 @@ class AppRepositories {
     workOrderReports = const _UnavailableWorkOrderReportRepository();
     finalReports = const _UnavailableFinalReportRepository();
     branchWorkOrders = const _UnavailableBranchWorkOrderRepository();
+  }
+
+  void _configureLocalDemoRepositories(String reason) {
+    liveConnectionError = reason;
+    localWorkOrders = DummyWorkOrderRepository.instance;
+    remoteWorkOrders = null;
+    reportTemplates = AssetReportTemplateRepository();
+    workOrderReports = LocalWorkOrderReportRepository.instance;
+    finalReports = LocalFinalReportRepository.instance;
+    branchWorkOrders =
+        LocalBranchWorkOrderRepository(WorkOrderLocalRepository.instance);
   }
 
   Future<UserProfile?> _loadCurrentUser(SupabaseClient client) async {

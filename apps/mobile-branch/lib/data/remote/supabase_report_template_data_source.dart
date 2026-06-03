@@ -110,6 +110,7 @@ class SupabaseReportTemplateDataSource {
       hasDescription: row['has_description'] == true,
       hasImages: row['has_images'] == true,
       maxImages: _int(row['max_images']),
+      requiredImageCount: _int(row['required_image_count']),
       options: options,
       inputFields: inputs,
     );

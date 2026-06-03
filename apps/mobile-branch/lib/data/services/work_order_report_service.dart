@@ -85,6 +85,7 @@ class WorkOrderReportService {
       selectedOptionIds: selectedOptionIds,
       inputValues: inputValues,
       description: description,
+      imageUrls: imageUrls,
       complete: complete,
     );
     if (missing.isNotEmpty) {
@@ -137,7 +138,7 @@ class WorkOrderReportService {
       final existingAnswer = existingAnswers[item.id];
       final providedInputValues = inputValuesByItem[item.id] ?? const {};
       final selectedOptionIds = [
-        if (item.defaultPositiveOption != null) item.defaultPositiveOption!.id,
+        if (_allGoodOptionFor(item) != null) _allGoodOptionFor(item)!.id,
       ];
       final inputValues = {
         for (final input in item.inputFields)
@@ -170,6 +171,20 @@ class WorkOrderReportService {
     }
   }
 
+  ReportTemplateOption? _allGoodOptionFor(ReportTemplateItem item) {
+    for (final option in item.options) {
+      if (option.scoreType == ReportOptionScoreType.positive) {
+        return option;
+      }
+    }
+    for (final option in item.options) {
+      if (option.scoreType != ReportOptionScoreType.negative) {
+        return option;
+      }
+    }
+    return item.defaultPositiveOption;
+  }
+
   Future<List<ReportAllGoodInputRequest>> getRequiredInputsForGroupAllGood({
     required String workOrderId,
     required ReportTemplateGroup group,
@@ -198,6 +213,7 @@ class WorkOrderReportService {
     required List<String> selectedOptionIds,
     required Map<String, String> inputValues,
     required String description,
+    required List<String> imageUrls,
     required bool complete,
   }) {
     if (!complete) {
@@ -220,6 +236,18 @@ class WorkOrderReportService {
         item.hasDescription &&
         description.trim().isEmpty) {
       missing.add('${item.title} için açıklama girilmeli.');
+    }
+    final selectedOptions = item.options.where(
+      (option) => selectedOptionIds.contains(option.id),
+    );
+    final hasRiskSelection = selectedOptions.any(
+      (option) => option.scoreType == ReportOptionScoreType.negative,
+    );
+    if (hasRiskSelection && description.trim().isEmpty) {
+      missing.add('${item.title} icin risk/musteri notu girilmeli.');
+    }
+    if (hasRiskSelection && item.hasImages && imageUrls.isEmpty) {
+      missing.add('${item.title} icin fotograf kaniti eklenmeli.');
     }
     return missing;
   }
@@ -283,6 +311,32 @@ bool isBodyPaintReportGroup(ReportTemplateGroup group) {
   final title = _normalizeReportText(group.title);
   return code == 'BODY_PAINT_CHECKUP' ||
       title.contains('KAPORTA') && title.contains('BOYA');
+}
+
+bool isMotorReportGroup(ReportTemplateGroup group) {
+  final code = group.code.toUpperCase();
+  final title = _normalizeReportText(group.title);
+  return code == 'MOTOR_CHECKUP' || title.contains('MOTOR');
+}
+
+bool isMechanicalReportGroup(ReportTemplateGroup group) {
+  final code = group.code.toUpperCase();
+  final title = _normalizeReportText(group.title);
+  return code == 'MECHANICAL_CHECKUP' ||
+      title.contains('MEKANIK') ||
+      title.contains('MECHANICAL');
+}
+
+bool isDiagnosticReportGroup(ReportTemplateGroup group) {
+  final code = group.code.toUpperCase();
+  return code == 'OBD_ECU_TEST' || code == 'AIRBAG_CHECK';
+}
+
+bool isRoadTestReportGroup(ReportTemplateGroup group) {
+  final code = group.code.toUpperCase();
+  return code == 'BRAKE_SUSPENSION_TEST' ||
+      code == 'DYNO_ROAD_TEST' ||
+      code == 'HEAD_GASKET_LEAK_TEST';
 }
 
 bool reportInputIsMicron(ReportTemplateInputField input) {

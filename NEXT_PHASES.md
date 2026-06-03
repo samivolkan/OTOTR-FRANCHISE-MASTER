@@ -2,6 +2,11 @@
 
 Status date: 2026-06-03
 
+Execution roadmap:
+
+- `docs/next-20-work-plan.md`
+- `docs/next-20-execution-status.md`
+
 The project is ready to continue from:
 
 `C:\Users\Samivolkannnn\Documents\OTOTR_HAZİRAN\OTOTR-FRANCHISE-MASTER`
@@ -94,3 +99,7 @@ Initial MVP scope:
 - Expo dependency chain reports moderate npm audit warnings; do not run `npm audit fix --force` blindly.
 - Flutter path with Turkish characters can crash analysis server; use `C:\ototr_master`.
 - Database SQL files are imported but not yet execution-ready.
+- Local Supabase DB validation now passes for reviewed migrations through `20260603193856`.
+- Full local stack can start; REST and Edge Function health endpoints respond.
+- `audit_report_child_mutation` direct execute privilege has been revoked from `anon` and `authenticated`.
+- Next database/auth work: create deterministic local auth fixtures and run role-session app smoke tests for branch manager and technician.

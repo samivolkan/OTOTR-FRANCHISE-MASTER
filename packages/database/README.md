@@ -18,6 +18,11 @@ Reviewed, executable local migrations belong in:
 
 Do not rewrite imported raw SQL in place. If a raw file needs correction, create a new reviewed migration or document the required edit before copying it into the local chain.
 
+## Verification Assets
+
+- `rls-verification-checklist.sql`: metadata checks for RLS, function grants, security definer usage, storage policies, auth linkage, region scope and public report surfaces.
+- `rls-role-fixtures.template.sql`: local/staging-only fixture template for CEO, region manager, branch manager, technician, finance and quality role checks. It starts a transaction and rolls back by default.
+
 ## Safety Rules
 
 - Do not run production or staging database commands without explicit approval.
@@ -32,4 +37,3 @@ Do not rewrite imported raw SQL in place. If a raw file needs correction, create
 - Local Supabase CLI structure is being introduced under `supabase`.
 - Supabase CLI and Docker are not currently available on this machine, so local reset/up validation is blocked.
 - No generated database types are currently present in the repo.
-

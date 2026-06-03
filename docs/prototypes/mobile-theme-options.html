@@ -1,0 +1,586 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>OTOTR Mobil Tema Alternatifleri</title>
+  <style>
+    :root {
+      --navy: #061a3a;
+      --navy-2: #082a5e;
+      --blue: #1267f1;
+      --green: #109a57;
+      --orange: #f27a0a;
+      --red: #e83246;
+      --ink: #071a3d;
+      --muted: #63708a;
+      --line: #e3e9f2;
+      --bg: #f5f7fb;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Inter, Arial, sans-serif;
+      background: linear-gradient(180deg, #eef4ff 0%, #f8fafc 100%);
+      color: var(--ink);
+    }
+
+    .page {
+      max-width: 1480px;
+      margin: 0 auto;
+      padding: 30px 28px 44px;
+    }
+
+    .top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 28px;
+      margin-bottom: 26px;
+    }
+
+    .brand {
+      font-size: 44px;
+      line-height: 1;
+      font-weight: 900;
+      font-style: italic;
+      letter-spacing: 1px;
+      color: var(--navy);
+    }
+
+    .brand span { color: var(--blue); }
+
+    .tagline {
+      margin-top: 8px;
+      color: #33415f;
+      font-size: 18px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 34px;
+      color: var(--ink);
+    }
+
+    .summary {
+      max-width: 720px;
+      color: #41506e;
+      font-size: 17px;
+      line-height: 1.5;
+    }
+
+    .themes {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(260px, 1fr));
+      gap: 20px;
+    }
+
+    .theme {
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      background: white;
+      overflow: hidden;
+      box-shadow: 0 18px 40px rgba(7, 26, 61, 0.08);
+    }
+
+    .theme.dark {
+      background: #061120;
+      border-color: rgba(255,255,255,0.16);
+      color: white;
+    }
+
+    .theme-head {
+      padding: 18px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .dark .theme-head { border-bottom-color: rgba(255,255,255,0.12); }
+
+    .theme-kicker {
+      color: var(--blue);
+      font-weight: 900;
+      font-size: 13px;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+
+    .dark .theme-kicker { color: #69a7ff; }
+
+    .theme-title {
+      margin-top: 6px;
+      font-size: 22px;
+      font-weight: 900;
+    }
+
+    .theme-note {
+      margin-top: 6px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    .dark .theme-note { color: #a8b4c8; }
+
+    .phone {
+      width: 260px;
+      min-height: 560px;
+      margin: 18px auto 20px;
+      border-radius: 28px;
+      border: 8px solid #0a1730;
+      overflow: hidden;
+      background: var(--bg);
+      box-shadow: 0 18px 38px rgba(0,0,0,0.24);
+    }
+
+    .dark .phone {
+      background: #081629;
+      border-color: #182943;
+    }
+
+    .status {
+      height: 26px;
+      padding: 8px 14px 0;
+      display: flex;
+      justify-content: space-between;
+      font-size: 11px;
+      font-weight: 800;
+    }
+
+    .hero {
+      padding: 18px 16px 24px;
+      color: white;
+      background: linear-gradient(135deg, var(--navy), var(--navy-2));
+      border-bottom-left-radius: 24px;
+      border-bottom-right-radius: 24px;
+    }
+
+    .hero.light {
+      color: var(--ink);
+      background: white;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .hero-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .logo {
+      font-size: 23px;
+      font-weight: 900;
+      font-style: italic;
+    }
+
+    .bell {
+      width: 34px;
+      height: 34px;
+      border-radius: 11px;
+      border: 1px solid rgba(255,255,255,.35);
+      display: grid;
+      place-items: center;
+      position: relative;
+    }
+
+    .hero.light .bell { border-color: var(--line); }
+
+    .badge {
+      position: absolute;
+      right: -6px;
+      top: -6px;
+      background: var(--red);
+      color: white;
+      border-radius: 999px;
+      width: 18px;
+      height: 18px;
+      display: grid;
+      place-items: center;
+      font-size: 10px;
+      font-weight: 900;
+    }
+
+    .hello {
+      margin-top: 18px;
+      font-size: 22px;
+      font-weight: 900;
+    }
+
+    .sub {
+      margin-top: 4px;
+      opacity: .75;
+      font-size: 12px;
+    }
+
+    .content { padding: 14px; }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .stat {
+      padding: 10px;
+      border-radius: 13px;
+      background: white;
+      border: 1px solid var(--line);
+      min-height: 76px;
+    }
+
+    .dark .stat,
+    .dark-card {
+      background: rgba(255,255,255,0.06);
+      border-color: rgba(255,255,255,0.12);
+    }
+
+    .stat b {
+      display: block;
+      font-size: 24px;
+      margin-top: 6px;
+    }
+
+    .stat small { color: var(--muted); font-weight: 700; }
+    .dark .stat small { color: #a8b4c8; }
+
+    .job {
+      border-radius: 16px;
+      background: white;
+      border: 1px solid var(--line);
+      padding: 12px;
+      margin-bottom: 10px;
+    }
+
+    .dark .job {
+      background: rgba(255,255,255,0.06);
+      border-color: rgba(255,255,255,0.12);
+    }
+
+    .plate {
+      display: inline-flex;
+      height: 30px;
+      border: 1px solid #243553;
+      border-radius: 5px;
+      overflow: hidden;
+      background: white;
+      color: var(--ink);
+      font-weight: 900;
+      letter-spacing: .5px;
+    }
+
+    .tr {
+      background: var(--blue);
+      color: white;
+      padding: 8px 6px 0;
+      font-size: 10px;
+    }
+
+    .pn { padding: 5px 10px 0; font-size: 17px; }
+
+    .job-title {
+      margin-top: 8px;
+      font-weight: 900;
+      font-size: 13px;
+    }
+
+    .job-meta {
+      margin-top: 3px;
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .dark .job-meta { color: #a8b4c8; }
+
+    .bar {
+      height: 7px;
+      border-radius: 999px;
+      background: #e7ecf5;
+      margin-top: 10px;
+      overflow: hidden;
+    }
+
+    .bar div {
+      height: 100%;
+      width: 70%;
+      background: var(--blue);
+      border-radius: inherit;
+    }
+
+    .chips {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-top: 9px;
+    }
+
+    .chip {
+      border-radius: 999px;
+      padding: 6px 8px;
+      font-size: 10px;
+      font-weight: 900;
+      background: #eaf2ff;
+      color: var(--blue);
+    }
+
+    .chip.green { background: #eaf8f0; color: var(--green); }
+    .chip.orange { background: #fff3e8; color: var(--orange); }
+    .chip.red { background: #ffecef; color: var(--red); }
+
+    .module-list {
+      border-radius: 16px;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      background: white;
+    }
+
+    .dark .module-list {
+      border-color: rgba(255,255,255,0.12);
+      background: rgba(255,255,255,0.06);
+    }
+
+    .module {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .dark .module { border-bottom-color: rgba(255,255,255,0.1); }
+
+    .module:last-child { border-bottom: 0; }
+
+    .ico {
+      width: 34px;
+      height: 34px;
+      border-radius: 11px;
+      display: grid;
+      place-items: center;
+      background: #eaf2ff;
+      color: var(--blue);
+      font-weight: 900;
+    }
+
+    .module-name { flex: 1; font-size: 12px; font-weight: 900; }
+    .module-pct { color: var(--green); font-size: 12px; font-weight: 900; }
+
+    .bottom {
+      height: 58px;
+      background: linear-gradient(135deg, var(--navy), var(--navy-2));
+      color: white;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      align-items: center;
+      text-align: center;
+      font-size: 10px;
+      font-weight: 800;
+    }
+
+    .bottom div:first-child { color: #4f94ff; }
+
+    .decision {
+      margin-top: 24px;
+      border: 1px solid #b8cffd;
+      background: white;
+      border-radius: 18px;
+      padding: 18px;
+      box-shadow: 0 16px 36px rgba(7, 26, 61, 0.06);
+    }
+
+    .decision h2 { margin: 0 0 10px; }
+
+    .decision-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+    }
+
+    .decision-card {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 14px;
+      background: #fbfdff;
+    }
+
+    .decision-card b { display: block; margin-bottom: 6px; }
+
+    @media (max-width: 1180px) {
+      .themes { grid-template-columns: repeat(2, minmax(260px, 1fr)); }
+      .decision-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    @media (max-width: 640px) {
+      .page { padding: 22px 14px 34px; }
+      .top { flex-direction: column; }
+      .themes { grid-template-columns: 1fr; }
+      .decision-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <section class="top">
+      <div>
+        <div class="brand">OTOT<span>R</span></div>
+        <div class="tagline">Tarafsiz Arac Ekspertizi</div>
+      </div>
+      <div>
+        <h1>Mobil Tema Alternatifleri</h1>
+        <p class="summary">
+          Bu sayfa koddan ayri tasarim karari icindir. Varsayilan urun icin acik kurumsal tema, yogun is listeleri icin operasyon odakli yapi, teknik kontrol ekranlari icin uzman akisi onerilir. Koyu tema opsiyonel olarak tutulur.
+        </p>
+      </div>
+    </section>
+
+    <section class="themes">
+      <article class="theme">
+        <div class="theme-head">
+          <div class="theme-kicker">Ana secenek</div>
+          <div class="theme-title">Premium Kurumsal</div>
+          <div class="theme-note">Bayi, teknisyen ve yonetici ekranlari icin en dengeli varsayilan tema.</div>
+        </div>
+        <div class="phone">
+          <div class="status"><span>9:41</span><span>100</span></div>
+          <div class="hero">
+            <div class="hero-row"><div class="logo">OTOTR</div><div class="bell">!</div></div>
+            <div class="hello">Merhaba Ahmet</div>
+            <div class="sub">Bugun guzel isler basaracagiz.</div>
+          </div>
+          <div class="content">
+            <div class="stats">
+              <div class="stat"><small>Aktif</small><b>5</b></div>
+              <div class="stat"><small>Tamam</small><b>8</b></div>
+              <div class="stat"><small>Eksik</small><b>2</b></div>
+            </div>
+            <div class="job">
+              <div class="plate"><div class="tr">TR</div><div class="pn">16C010935</div></div>
+              <div class="job-title">2022 Volkswagen Passat</div>
+              <div class="job-meta">Beyaz - 45.210 km</div>
+              <div class="bar"><div></div></div>
+              <div class="chips"><span class="chip">10 Gorev</span><span class="chip green">7 Tamam</span><span class="chip orange">1 Eksik</span></div>
+            </div>
+            <div class="job">
+              <div class="plate"><div class="tr">TR</div><div class="pn">16 E 274</div></div>
+              <div class="job-title">2021 Volkswagen Golf</div>
+              <div class="bar"><div style="width:100%;background:var(--green)"></div></div>
+              <div class="chips"><span class="chip green">Tamamlandi</span></div>
+            </div>
+          </div>
+          <div class="bottom"><div>Ana</div><div>Isler</div><div>Bildirim</div><div>Profil</div></div>
+        </div>
+      </article>
+
+      <article class="theme">
+        <div class="theme-head">
+          <div class="theme-kicker">Liste odakli</div>
+          <div class="theme-title">Operasyon Odakli</div>
+          <div class="theme-note">Is emri listesi, arama, filtre, kanit ve eksik sayisi icin hizli saha ekrani.</div>
+        </div>
+        <div class="phone">
+          <div class="status"><span>9:41</span><span>100</span></div>
+          <div class="hero light">
+            <div class="hero-row"><div class="logo">Islerim</div><div class="bell">3</div></div>
+          </div>
+          <div class="content">
+            <div class="chips"><span class="chip">Tumu 12</span><span class="chip">Devam 5</span><span class="chip orange">Eksik 2</span></div>
+            <div class="job">
+              <div class="plate"><div class="tr">TR</div><div class="pn">16C010935</div></div>
+              <div class="job-title">2021 Volkswagen Passat</div>
+              <div class="bar"><div></div></div>
+              <div class="chips"><span class="chip">32/45 Kanit</span><span class="chip green">10/11 Modul</span><span class="chip red">1 Eksik</span></div>
+            </div>
+            <div class="job">
+              <div class="plate"><div class="tr">TR</div><div class="pn">16R0273</div></div>
+              <div class="job-title">2022 Volkswagen Passat</div>
+              <div class="bar"><div style="width:40%;background:var(--orange)"></div></div>
+              <div class="chips"><span class="chip orange">Devam ediyor</span></div>
+            </div>
+            <div class="job">
+              <div class="plate"><div class="tr">TR</div><div class="pn">16 CAN 526</div></div>
+              <div class="job-title">2022 Volkswagen Golf</div>
+              <div class="bar"><div style="width:20%;background:var(--red)"></div></div>
+              <div class="chips"><span class="chip red">Acil</span><span class="chip red">3 Eksik</span></div>
+            </div>
+          </div>
+          <div class="bottom"><div>Ana</div><div>Isler</div><div>Bildirim</div><div>Profil</div></div>
+        </div>
+      </article>
+
+      <article class="theme">
+        <div class="theme-head">
+          <div class="theme-kicker">Teknik ekranlar</div>
+          <div class="theme-title">Teknik Uzman</div>
+          <div class="theme-note">Parca, mikron, kanit, fotograf ve final kontrol ekranlari icin en guclu akis.</div>
+        </div>
+        <div class="phone">
+          <div class="status"><span>9:41</span><span>100</span></div>
+          <div class="hero light">
+            <div class="hero-row"><div class="logo">Kaporta Kontrolu</div><div class="bell">i</div></div>
+            <div class="sub">16C010935 - 2022 Passat</div>
+          </div>
+          <div class="content">
+            <div class="module-list">
+              <div class="module"><div class="ico">1</div><div class="module-name">On Kaput</div><span class="chip green">Orijinal</span></div>
+              <div class="module"><div class="ico">2</div><div class="module-name">Sol On Camurluk</div><span class="chip orange">Boyali</span></div>
+              <div class="module"><div class="ico">3</div><div class="module-name">Sag On Camurluk</div><span class="chip red">Degisen</span></div>
+              <div class="module"><div class="ico">4</div><div class="module-name">Sol On Kapi</div><span class="chip green">Orijinal</span></div>
+            </div>
+            <div class="job">
+              <div class="job-title">Olcum Girisi</div>
+              <div class="stats">
+                <div class="stat"><small>Sol On</small><b style="font-size:18px">210</b></div>
+                <div class="stat"><small>Sag On</small><b style="font-size:18px">118</b></div>
+                <div class="stat"><small>Tavan</small><b style="font-size:18px">105</b></div>
+              </div>
+            </div>
+          </div>
+          <div class="bottom"><div>Ana</div><div>Isler</div><div>Bildirim</div><div>Profil</div></div>
+        </div>
+      </article>
+
+      <article class="theme dark">
+        <div class="theme-head">
+          <div class="theme-kicker">Opsiyonel</div>
+          <div class="theme-title">Koyu Tema Hibrit</div>
+          <div class="theme-note">Gece vardiyasi, demo ve premium sunum icin guclu koyu tema.</div>
+        </div>
+        <div class="phone">
+          <div class="status"><span>9:41</span><span>100</span></div>
+          <div class="hero">
+            <div class="hero-row"><div class="logo">OTOTR</div><div class="bell">3</div></div>
+            <div class="hello">Is Emri Detayi</div>
+            <div class="sub">16C010935 - Teknik giris acik</div>
+          </div>
+          <div class="content">
+            <div class="stats">
+              <div class="stat dark-card"><small>Modul</small><b>10</b></div>
+              <div class="stat dark-card"><small>Kanit</small><b>32</b></div>
+              <div class="stat dark-card"><small>Eksik</small><b>1</b></div>
+            </div>
+            <div class="module-list">
+              <div class="module"><div class="ico">A</div><div class="module-name">Kaporta Kontrolu</div><div class="module-pct">100</div></div>
+              <div class="module"><div class="ico">M</div><div class="module-name">Motor Kontrolu</div><div class="module-pct">80</div></div>
+              <div class="module"><div class="ico">E</div><div class="module-name">Elektronik / OBD</div><div class="module-pct" style="color:var(--orange)">60</div></div>
+              <div class="module"><div class="ico">F</div><div class="module-name">Final Kontrol</div><div class="module-pct">98</div></div>
+            </div>
+          </div>
+          <div class="bottom"><div>Ana</div><div>Isler</div><div>Bildirim</div><div>Profil</div></div>
+        </div>
+      </article>
+    </section>
+
+    <section class="decision">
+      <h2>Onerilen karar</h2>
+      <div class="decision-grid">
+        <div class="decision-card"><b>Varsayilan</b>Premium Kurumsal</div>
+        <div class="decision-card"><b>Is listesi</b>Operasyon Odakli</div>
+        <div class="decision-card"><b>Kontrol ekranlari</b>Teknik Uzman</div>
+        <div class="decision-card"><b>Ek tema</b>Koyu Tema Hibrit</div>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

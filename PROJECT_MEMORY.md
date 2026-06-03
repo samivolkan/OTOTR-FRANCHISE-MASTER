@@ -128,6 +128,7 @@ Public web source decision:
 Durable decision record:
 
 - Main source-of-truth decision is recorded in `docs/decisions/2026-06-03-master-source-of-truth.md`.
+- Local Supabase reviewed migration chain now includes audit function execute hardening through `20260603193856`.
 
 ## Learned Points
 
@@ -138,6 +139,20 @@ Durable decision record:
 - There are manual SQL migrations with RLS/security work.
 - Some SQL files contain cleanup/delete behavior and must be reviewed before running.
 - Static prototype, Flutter app and Expo app are separate code realities and should not be merged blindly.
+
+## Auth / Authorization Decisions
+
+- Supabase Auth is the canonical live session authority for mobile/web flows.
+- Authorization must resolve through database-backed `app_users.auth_user_id = auth.uid()` and reviewed RLS helpers, not editable user metadata.
+- Product-facing roles are tracked in `packages/shared/src/erp-contracts.ts`; current reviewed database roles are narrower and require explicit compatibility mapping until SQL constraints are expanded.
+- Branch, region, technician and public report access must fail closed through RLS, not only through UI filters.
+- Mobile and browser clients must use only public anon/publishable Supabase configuration; service-role or secret credentials are server/admin-only.
+- Expo technician live config must fail closed when public Supabase env values are missing.
+- Shared auth contracts now include `AUTH_ROLE_MATRIX` and `AUTH_RLS_TEST_SCENARIOS` in `packages/shared/src/erp-contracts.ts`.
+- Flutter branch live session design is documented in `docs/mobile-branch-auth-session-design.md`.
+- Local/staging RLS auth validation assets are `packages/database/rls-verification-checklist.sql` and `packages/database/rls-role-fixtures.template.sql`.
+- Local role-session smoke is automated in `tools/local-role-session-smoke.mjs`; it creates fake local Auth users at runtime and verifies branch manager/technician REST visibility through real Supabase Auth sessions.
+- `app_users` RLS self/HQ policy must stay non-recursive; the current reviewed fix is `supabase/migrations/20260603195028_fix_app_users_rls_recursion.sql`.
 
 ## Development Rules
 
@@ -151,6 +166,7 @@ Durable decision record:
 - Keep documentation updated with decisions.
 - Treat this folder as the single clean source for future OTOTR work.
 - Raw SQL files are review material until a tested local/staging migration chain is created.
+- Trigger-only audit functions must not remain directly callable by public API roles unless explicitly required and reviewed.
 
 ## ChatGPT / Codex Workflow
 

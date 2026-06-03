@@ -74,6 +74,7 @@ class ReportTemplateItem {
     required this.hasDescription,
     required this.hasImages,
     required this.maxImages,
+    required this.requiredImageCount,
     required this.options,
     required this.inputFields,
   });
@@ -91,6 +92,7 @@ class ReportTemplateItem {
   final bool hasDescription;
   final bool hasImages;
   final int maxImages;
+  final int requiredImageCount;
   final List<ReportTemplateOption> options;
   final List<ReportTemplateInputField> inputFields;
 

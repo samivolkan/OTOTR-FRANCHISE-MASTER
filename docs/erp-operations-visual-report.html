@@ -1,0 +1,273 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>OTOTR ERP Operasyon - Ilk 20 Is Panosu</title>
+  <style>
+    :root {
+      --bg: #f6f7f9;
+      --ink: #15171c;
+      --muted: #626b7a;
+      --line: #dce2ea;
+      --red: #d71920;
+      --blue: #2457c5;
+      --green: #178a4d;
+      --amber: #b7791f;
+      --card: #ffffff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.45;
+    }
+    .page { max-width: 1280px; margin: 0 auto; padding: 28px; }
+    .top {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 18px;
+      align-items: end;
+      padding-bottom: 18px;
+      border-bottom: 1px solid var(--line);
+    }
+    h1 { margin: 0 0 8px; font-size: 30px; letter-spacing: 0; }
+    h2 { margin: 0 0 12px; font-size: 20px; letter-spacing: 0; }
+    h3 { margin: 0 0 8px; font-size: 15px; letter-spacing: 0; }
+    p { margin: 0; color: var(--muted); }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border: 1px solid #b9e5cc;
+      border-radius: 999px;
+      background: #effaf4;
+      color: #12683a;
+      font-weight: 800;
+      font-size: 13px;
+      white-space: nowrap;
+    }
+    .dot { width: 9px; height: 9px; border-radius: 50%; background: currentColor; }
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin: 22px 0;
+    }
+    .metric {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 16px;
+      min-height: 96px;
+    }
+    .metric span {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+    .metric b { display: block; margin-top: 8px; font-size: 27px; }
+    .band {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 18px;
+      margin-bottom: 18px;
+    }
+    .flow {
+      display: grid;
+      grid-template-columns: repeat(7, minmax(110px, 1fr));
+      gap: 10px;
+      align-items: stretch;
+    }
+    .node {
+      min-height: 78px;
+      border: 1px solid var(--line);
+      border-top: 4px solid var(--red);
+      border-radius: 8px;
+      background: #fff;
+      padding: 11px;
+      position: relative;
+    }
+    .node.blue { border-top-color: var(--blue); }
+    .node.green { border-top-color: var(--green); }
+    .node.amber { border-top-color: var(--amber); }
+    .node small {
+      display: block;
+      margin-top: 4px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+    .grid20 {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+    }
+    .step {
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 14px;
+      min-height: 160px;
+      display: grid;
+      grid-template-rows: auto auto 1fr auto;
+      gap: 8px;
+    }
+    .step-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      align-items: center;
+    }
+    .num {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      display: inline-grid;
+      place-items: center;
+      background: #15171c;
+      color: #fff;
+      font-weight: 900;
+      font-size: 13px;
+      flex: 0 0 auto;
+    }
+    .status {
+      color: var(--green);
+      background: #effaf4;
+      border: 1px solid #b9e5cc;
+      border-radius: 999px;
+      padding: 4px 8px;
+      font-size: 11px;
+      font-weight: 900;
+      white-space: nowrap;
+    }
+    .step p { font-size: 13px; }
+    .tag {
+      color: #344054;
+      background: #f1f4f8;
+      border: 1px solid #e1e7ef;
+      border-radius: 999px;
+      padding: 5px 8px;
+      font-size: 11px;
+      font-weight: 800;
+      width: fit-content;
+    }
+    .cols {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+    }
+    .list {
+      display: grid;
+      gap: 8px;
+    }
+    .item {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 10px 12px;
+      background: #fff;
+      font-size: 13px;
+      color: #2d3542;
+    }
+    .item b { display: block; margin-bottom: 2px; color: var(--ink); }
+    .risk { border-left: 4px solid var(--amber); }
+    .footer {
+      color: var(--muted);
+      font-size: 12px;
+      padding: 12px 0 0;
+    }
+    @media (max-width: 1000px) {
+      .metrics, .grid20, .cols { grid-template-columns: repeat(2, 1fr); }
+      .flow { grid-template-columns: repeat(2, 1fr); }
+      .top { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 620px) {
+      .page { padding: 16px; }
+      .metrics, .grid20, .cols, .flow { grid-template-columns: 1fr; }
+      h1 { font-size: 24px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <section class="top">
+      <div>
+        <h1>OTOTR ERP Operasyon - Ilk 20 Is Panosu</h1>
+        <p>Mevcut admin prototype, bayi portal, Flutter branch app, Expo teknisyen app ve Supabase/Postgres migration kaynaklarina gore hazirlandi.</p>
+      </div>
+      <div class="badge"><span class="dot"></span>20/20 planlama adimi tamamlandi</div>
+    </section>
+
+    <section class="metrics">
+      <div class="metric"><span>Aktif yuzey</span><b>5</b><p>HQ ERP, bayi portal, branch mobile, teknisyen mobile, public web/rapor</p></div>
+      <div class="metric"><span>Oncelikli is</span><b>20</b><p>Modul, rol, akış, veri, API, DB, test, MVP</p></div>
+      <div class="metric"><span>Guvenlik kuralı</span><b>4</b><p>Secret yok, service role yok, destructive DB yok, manual-only otomatik yok</p></div>
+      <div class="metric"><span>Ilk MVP</span><b>11</b><p>CEO, CRM, randevu, is emri, kalite, finans, audit</p></div>
+    </section>
+
+    <section class="band">
+      <h2>Operasyon Akisi</h2>
+      <div class="flow">
+        <div class="node blue"><h3>Public Web</h3><small>Randevu, franchise lead, sikayet, rapor dogrulama</small></div>
+        <div class="node"><h3>HQ ERP</h3><small>Franchise, sube, finans, kalite, audit</small></div>
+        <div class="node amber"><h3>Bayi Portal</h3><small>Gunluk kokpit, randevu, is emri, teslim</small></div>
+        <div class="node amber"><h3>Arac Kabul</h3><small>Musteri, arac, onay, paket</small></div>
+        <div class="node green"><h3>Teknisyen</h3><small>Gorev, kanit, teknik giris</small></div>
+        <div class="node"><h3>Kalite Gate</h3><small>Eksik kanit, risk, ikinci kontrol, onay</small></div>
+        <div class="node blue"><h3>Final Rapor</h3><small>Teslim, odeme, QR/dogrulama</small></div>
+      </div>
+    </section>
+
+    <section class="band">
+      <h2>20 Adim Durumu</h2>
+      <div class="grid20">
+        <div class="step"><div class="step-head"><span class="num">1</span><span class="status">Tamam</span></div><h3>Repo ve kaynak</h3><p>Master klasor ve eski klasorlerin referans kalma kuralı netlesti.</p><span class="tag">Kontrol</span></div>
+        <div class="step"><div class="step-head"><span class="num">2</span><span class="status">Tamam</span></div><h3>ERP modul haritasi</h3><p>HQ, bayi, teknisyen, public web, rapor ve database yuzeyleri ayrildi.</p><span class="tag">Mimari</span></div>
+        <div class="step"><div class="step-head"><span class="num">3</span><span class="status">Tamam</span></div><h3>Rol matrisi</h3><p>CEO, HQ, bolge, bayi, teknisyen, finans, kalite ve public erisim sinirlari yazildi.</p><span class="tag">Yetki</span></div>
+        <div class="step"><div class="step-head"><span class="num">4</span><span class="status">Tamam</span></div><h3>Operasyon akisi</h3><p>Randevudan final rapora kadar ana surec ve status zinciri belirlendi.</p><span class="tag">Surec</span></div>
+        <div class="step"><div class="step-head"><span class="num">5</span><span class="status">Tamam</span></div><h3>Is emri modeli</h3><p>Gorev, modul, kanit, gate, odeme ve teslim alanlari kanonik sozlesmeye donustu.</p><span class="tag">Veri</span></div>
+        <div class="step"><div class="step-head"><span class="num">6</span><span class="status">Tamam</span></div><h3>Sube dashboard</h3><p>Gunluk randevu, is emri, teknisyen dolulugu, kalite ve kasa KPI seti cikarildi.</p><span class="tag">Bayi</span></div>
+        <div class="step"><div class="step-head"><span class="num">7</span><span class="status">Tamam</span></div><h3>HQ dashboard</h3><p>Network gelir, royalty, risk sube, franchise funnel ve audit kokpiti tanimlandi.</p><span class="tag">HQ</span></div>
+        <div class="step"><div class="step-head"><span class="num">8</span><span class="status">Tamam</span></div><h3>Kapasite modeli</h3><p>Calisma saati, lift, teknisyen, paket suresi ve kapasite riski formulu yazildi.</p><span class="tag">Planlama</span></div>
+        <div class="step"><div class="step-head"><span class="num">9</span><span class="status">Tamam</span></div><h3>Gorev dagitimi</h3><p>Sube, rol, yetkinlik, doluluk, SLA ve yonetici override kurali belirlendi.</p><span class="tag">Atama</span></div>
+        <div class="step"><div class="step-head"><span class="num">10</span><span class="status">Tamam</span></div><h3>Randevu-is emri</h3><p>Olustur, onayla, geldi, kabul, no-show, iptal ve convert state kurallari yazildi.</p><span class="tag">Randevu</span></div>
+        <div class="step"><div class="step-head"><span class="num">11</span><span class="status">Tamam</span></div><h3>Kalite kapilari</h3><p>VIN, onay, kanit, teknik tamamlanma, risk bulgusu, kalite ve odeme gate'leri listelendi.</p><span class="tag">Kalite</span></div>
+        <div class="step"><div class="step-head"><span class="num">12</span><span class="status">Tamam</span></div><h3>Finans/royalty</h3><p>Paket geliri, kasa, royalty, gecikme, itiraz, teslim ve audit kurallari cikarildi.</p><span class="tag">Finans</span></div>
+        <div class="step"><div class="step-head"><span class="num">13</span><span class="status">Tamam</span></div><h3>Franchise pipeline</h3><p>Lead, skor, basvuru, fizibilite, finans, hukuk, academy, acilis akisi belirlendi.</p><span class="tag">Franchise</span></div>
+        <div class="step"><div class="step-head"><span class="num">14</span><span class="status">Tamam</span></div><h3>Sube acilis projesi</h3><p>Tesis, ekipman, insan, academy, finans, dijital ve kalite checklist'i yazildi.</p><span class="tag">Acilis</span></div>
+        <div class="step"><div class="step-head"><span class="num">15</span><span class="status">Tamam</span></div><h3>API taslagi</h3><p>Auth, branch, appointment, work order, reports, finance, quality, franchise ve public domainleri listelendi.</p><span class="tag">API</span></div>
+        <div class="step"><div class="step-head"><span class="num">16</span><span class="status">Tamam</span></div><h3>DB guvenlik ayrimi</h3><p>Schema, RLS, RPC, manual-only ve seed/raw gruplari production kuralina baglandi.</p><span class="tag">Database</span></div>
+        <div class="step"><div class="step-head"><span class="num">17</span><span class="status">Tamam</span></div><h3>Demo/production</h3><p>Mock, seed, cleanup, staging ve production verisi ayrim kurali netlesti.</p><span class="tag">Guvenlik</span></div>
+        <div class="step"><div class="step-head"><span class="num">18</span><span class="status">Tamam</span></div><h3>Admin refactor</h3><p>Buyuk prototype korunarak data/service, page module ve UI sirasiyla ayrilacak.</p><span class="tag">Refactor</span></div>
+        <div class="step"><div class="step-head"><span class="num">19</span><span class="status">Tamam</span></div><h3>Test matrisi</h3><p>Admin smoke, Flutter analyze/test, Expo typecheck, DB/RLS ve visual QA matrisi olustu.</p><span class="tag">Test</span></div>
+        <div class="step"><div class="step-head"><span class="num">20</span><span class="status">Tamam</span></div><h3>MVP kapsam</h3><p>CEO, CRM, randevu, is emri, branch cockpit, teknisyen, kalite, finans, audit ve destek kilitlendi.</p><span class="tag">MVP</span></div>
+      </div>
+    </section>
+
+    <section class="band">
+      <h2>Sonraki Yol</h2>
+      <div class="cols">
+        <div class="list">
+          <div class="item"><b>21-25</b>API sozlesmeleri, ortak rol sabitleri, kapasite semasi, randevu convert, is emri uyumu.</div>
+          <div class="item"><b>26-30</b>Admin modul cikarma, bayi portal live data, teknisyen entegrasyonu, kalite gate, finans ekranlari.</div>
+        </div>
+        <div class="list">
+          <div class="item"><b>31-35</b>Reviewed migration chain, RLS rol testleri, local/staging validation, seed stratejisi, rollback.</div>
+          <div class="item"><b>36-40</b>MVP demo, desktop/mobile visual QA, e2e smoke, security review, release candidate.</div>
+        </div>
+        <div class="list">
+          <div class="item risk"><b>Kritik kontrol</b>Git snapshot/commit stratejisi netlesmeden buyuk refactor baslamamali.</div>
+          <div class="item risk"><b>DB kontrol</b>Manual-only ve demo cleanup SQL production zincirine alinmamali.</div>
+        </div>
+      </div>
+    </section>
+
+    <p class="footer">Rapor dosyasi: docs/erp-operations-20-step-execution.md. Bu pano planlama ve kontrol ciktisidir; production database komutu calistirilmadi ve secret degeri yazdirilmadi.</p>
+  </main>
+</body>
+</html>
