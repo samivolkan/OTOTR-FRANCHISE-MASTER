@@ -1,0 +1,26 @@
+export const colors = {
+  navy: '#061B33',
+  navy2: '#0B2A4A',
+  navy3: '#102A48',
+  blue: '#1463FF',
+  blueDark: '#0047D9',
+  blueSoft: '#EAF1FF',
+  green: '#079455',
+  greenSoft: '#E7F7EF',
+  orange: '#F79009',
+  orangeSoft: '#FFF3E3',
+  red: '#E31B36',
+  redSoft: '#FFECEF',
+  purple: '#7A5AF8',
+  purpleSoft: '#F1EEFF',
+  cyan: '#06AED4',
+  cyanSoft: '#E6F8FB',
+  bg: '#F4F6FA',
+  card: '#FFFFFF',
+  text: '#101828',
+  textMuted: '#667085',
+  border: '#E4E7EC',
+  muted: '#F2F4F7',
+};
+
+export type ColorKey = keyof typeof colors;

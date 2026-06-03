@@ -1,0 +1,36 @@
+# Secrets
+.env
+.env.*
+!.env.example
+
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Build outputs
+build/
+dist/
+.next/
+.expo/
+.dart_tool/
+
+# Flutter / mobile
+android/app/build/
+ios/Pods/
+*.apk
+*.aab
+
+# Test / QA artifacts
+artifacts/
+.codex-screenshots/
+coverage/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/
+
+# Logs
+*.log

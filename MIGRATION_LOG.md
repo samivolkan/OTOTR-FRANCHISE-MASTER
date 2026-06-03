@@ -1,0 +1,80 @@
+# Migration Log
+
+## 2026-06-03
+
+- Created clean target folder `OTOTR-FRANCHISE-MASTER`.
+- Created empty structure for `apps`, `packages`, `infra`, `docs`, and `archive`.
+- Created audit, migration plan and project memory documents.
+- Created `.env.example` with placeholder key names only.
+- Created `.gitignore`.
+- No old project files were deleted.
+- No old project folders were moved.
+- No production or database command was run.
+- No real `.env` values were copied.
+- Created `docs/database-migration-inventory.md` from read-only inspection of existing SQL files.
+- Created `docs/source-docs-import-plan.md` from read-only inspection of existing documentation.
+- Copied Priority A source docs into `archive/old-notes/imported-docs-priority-a-2026-06-03/`.
+- Updated canonical docs with distilled Priority A decisions: `business-rules.md`, `architecture.md`, `database.md`, `franchise-model.md`.
+- Created `docs/mobile-import-plan.md` for Flutter branch app and Expo technician app import boundaries.
+- Added mobile public env placeholder names to `.env.example`.
+- Imported database SQL and schema source files into `packages/database` as raw grouped files. No migration was executed.
+- Imported Flutter branch/operations app source into `apps/mobile-branch`, excluding build/cache/artifact outputs.
+- Imported Expo/React Native technician app source into `apps/mobile-technician`, excluding `.expo`, `dist`, `artifacts`, `node_modules` and APK outputs.
+- Imported web/admin prototype files into `apps/admin/prototype` and selected public web prototype files into `apps/web/public-prototype`.
+- Imported Priority B source docs into `archive/old-notes/imported-docs-priority-b-2026-06-03`.
+- Created `IMPORT_MANIFEST.md`.
+- Validation: `flutter pub get` succeeded for `apps/mobile-branch`.
+- Validation: `flutter analyze` initially crashed on the Turkish-character workspace path, then passed through short junction `C:\ototr_master`.
+- Validation: `flutter test` passed through short junction `C:\ototr_master`.
+- Validation: `npm install` succeeded for `apps/mobile-technician`; npm reported 10 moderate audit warnings from the dependency chain.
+- Validation: `npm run typecheck` passed for `apps/mobile-technician`.
+- Validation: admin prototype `tools/test-index.mjs` failed on `#page-dealer.active`; the same failure reproduced on the original baseline, so it is not introduced by import.
+- Validation: admin prototype `tools/test-demo-data.mjs` passed.
+- Validation: admin prototype `tools/test-vin-service.mjs` passed.
+- Fixed imported Flutter Android `.gitignore` so Gradle wrapper files can be tracked in the master project.
+- Copied missing admin prototype runtime assets: `data/inspection_schema_web.js`, `docs/kaporta-boya-harita.png`, `docs/obd-module-map.png`, `docs/airbag-srs-kontrol.png`, `docs/ototr-favicon.svg`, `docs/1000km-garanti.png`.
+- Replaced stale detailed admin smoke test with stable master smoke test.
+- Fixed admin prototype mock backend lead create/update paths so seed merge runs before mutation.
+- Latest validation passed: Flutter analyze/test, Expo typecheck, admin demo-data/VIN/smoke tests.
+- Created `AGENTS.md` and `NEXT_PHASES.md` for continuing from the new master folder.
+- Created ChatGPT/Codex workflow documentation: `docs/CHATGPT_WORKFLOW.md`.
+- Created missing planning docs: `docs/api.md`, `docs/auth-and-roles.md`, `docs/testing.md`, `docs/decisions/README.md`, `archive/README.md`.
+- Updated `AGENTS.md`, `README.md` and `PROJECT_MEMORY.md` with workflow/read-order rules.
+- Bug fix/test thread baseline validation rerun: Expo typecheck, admin prototype demo/VIN/index smoke tests, Flutter analyze and Flutter tests all passed. No database migration or live credential-dependent test was run.
+- Set public website active workspace to `apps/web/public-prototype` and added `apps/web/README.md`. Reference copies under `apps/admin/prototype` were left untouched.
+- Removed the hidden `Special.rar` download section, GitHub download URL and related browser download handler from both `apps/web/public-prototype/ototr-web.html` and `apps/admin/prototype/ototr-web.html`.
+- Added database buildout roadmap for the first 10 Supabase/Postgres migration structure stages: `docs/database-buildout-roadmap.md`.
+- Added local-only Supabase workspace skeleton under `supabase/`: `config.toml`, `README.md`, `migrations/README.md`, `schemas/README.md`, and `seed.sql`.
+- Added database package rules and reviewed migration queue docs: `packages/database/README.md` and `packages/database/reviewed-migration-order.md`.
+- Added metadata-only RLS/security verification query checklist: `packages/database/rls-verification-checklist.sql`.
+- No database migration was executed. No remote Supabase command was run. No destructive SQL was run.
+- Validation blocker recorded: `supabase` CLI and `docker` commands are not available on this machine.
+- Completed first 5 database buildout follow-up outputs: `docs/database-migration-audit.md`, `docs/database-app-contract-map.md`, `docs/database-raw-sql-classification.md`, `docs/database-deployment-checklist.md`, and `docs/database-local-validation.md`.
+- Static inspection found app database contracts in Flutter branch app, Expo technician app and admin prototype live paths. No app code was changed.
+- Prepared public web static deployment support files in `apps/web/public-prototype`: `index.html`, `robots.txt`, `sitemap.xml`, `_headers`, `_redirects` and `DEPLOYMENT_CHECKLIST.md`. No backend endpoint was implemented in this web thread.
+- Created clean public web production upload package at `apps/web/dist-public-web` with only allowed static files. Reference/test files were not copied. Upload package notes were added as `apps/web/DIST_PUBLIC_WEB_README.md`.
+- Removed hardcoded public Supabase fallback URL/key values from Expo technician live API and admin prototype live dealer Supabase config. Live access now requires explicit env/runtime config.
+- Redacted the same public Supabase fallback values from the imported legacy root snapshot copy under `docs/thread-sources`.
+- Created first reviewed local baseline migration draft: `supabase/migrations/202606030001_reviewed_expertise_report_backbone.sql`.
+- Added baseline review report and next 5 baseline work items: `docs/reviewed-baseline-001-expertise-report-backbone.md`.
+- No migration was executed; Supabase CLI/Docker blockers still apply.
+- Completed reviewed baseline work items 6-10 by drafting migrations 002-005 and local seed design documentation.
+- Added `docs/reviewed-baseline-002-005-report-rpc-seed.md` and `docs/database-local-seed-design.md`.
+- No seed data was inserted into `supabase/seed.sql`; local auth-user strategy is still required before executable seed.
+- Completed reviewed baseline work items 11-15: static dependency audit, app contract re-check, expected contract verification SQL, local smoke seed template, and local validation blocker/run command record.
+- Added `docs/reviewed-baseline-001-005-dependency-audit.md`, `docs/reviewed-baseline-001-005-app-contract-check.md`, `packages/database/expected-contract-verification.sql`, and `supabase/seeds/local_smoke_seed.template.sql`.
+- No database command was executed; Supabase CLI/Docker blockers still apply.
+- Added public web Supabase staging backend files: `supabase/migrations/202606030006_public_web_form_backend.sql`, `supabase/migrations/202606030007_public_complaints_location_fields.sql`, `supabase/functions/public-api/*`, and `docs/public-web-supabase-staging.md`.
+- Added GitHub Actions workflows for GitHub Pages public web deployment and Supabase staging deployment: `.github/workflows/deploy-public-web.yml`, `.github/workflows/deploy-supabase.yml`.
+- Updated public web source and clean dist package to call Supabase staging API at `https://bsjkohwbtrfwrqcyhsfz.supabase.co/functions/v1/public-api`.
+- Applied staging Supabase migrations `public_web_form_backend` and `public_complaints_location_fields` to project `ototr-staging`.
+- Deployed Supabase Edge Function `public-api` version 2 with `verify_jwt=false` and internal CORS/input validation controls.
+
+## Pending
+
+- Verify live Supabase env/runtime config in a local/staging target after Supabase CLI/Docker and approved credentials are available.
+- Configure GitHub repository secrets for automated deploy: `SUPABASE_ACCESS_TOKEN`, `SUPABASE_DB_PASSWORD`, `SUPABASE_PROJECT_ID`.
+- Convert raw database migrations into a reviewed executable local Supabase migration chain.
+- Install/verify Supabase CLI and Docker before local DB reset or migration validation.
+- Refactor large admin prototype only after smoke tests.
+- Decide long-term mobile technology strategy.

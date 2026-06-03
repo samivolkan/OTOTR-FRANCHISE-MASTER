@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /ototr-android-firebase-test.html
+Disallow: /web2.html
+
+Sitemap: https://www.ototr.com.tr/sitemap.xml
