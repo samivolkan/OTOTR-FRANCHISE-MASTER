@@ -7,6 +7,10 @@
   <meta name="description" content="OTOTR; karekod doğrulamalı dijital rapor, merkezi kalite denetimi, TSE/HYB uyumlu operasyon ve sigortalı ekspertiz yaklaşımıyla yeni nesil oto ekspertiz markasıdır.">
   <meta name="ototr-web-version" content="SVK WEB v1.3.2-location-disabled">
   <link rel="canonical" href="https://www.ototr.com.tr/">
+  <link rel="icon" href="favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
   <meta property="og:title" content="OTOTR | Yeni Nesil Tarafsız Araç Ekspertizi">
   <meta property="og:description" content="Karekod doğrulamalı dijital rapor, merkezi kalite denetimi ve net ekspertiz kapsamıyla OTOTR araç alım kararınızı kolaylaştırır.">
   <meta property="og:url" content="https://www.ototr.com.tr/">
@@ -2287,24 +2291,24 @@
           </div>
           <div class="vehicle-count-grid" aria-label="Araç ekspertiz adetleri">
             <article class="vehicle-count-card">
-              <b><span class="vehicle-counter" data-stat-key="totalInspections" data-target="12480">0</span><span class="vehicle-counter-suffix">+</span></b>
-              <span>Toplam ekspertiz kaydı</span>
-              <small>Randevu, rapor ve araç karnesi akışına bağlanan örnek toplam.</small>
+              <b><span class="vehicle-counter" data-stat-key="activeBranches" data-target="8">0</span><span class="vehicle-counter-suffix">+</span></b>
+              <span>Aktif şube kaydı</span>
+              <small>Merkezi şube listesine bağlı aktif hizmet noktaları.</small>
             </article>
             <article class="vehicle-count-card">
-              <b><span class="vehicle-counter" data-stat-key="paintChecks" data-target="3240">0</span><span class="vehicle-counter-suffix">+</span></b>
-              <span>Kaporta boya kontrolü</span>
-              <small>Mikron ölçümü, değişen/boyalı/lokal ayrımı ve foto delil takibi.</small>
+              <b><span class="vehicle-counter" data-stat-key="monthlyAppointments" data-target="0">0</span><span class="vehicle-counter-suffix">+</span></b>
+              <span>Aylık randevu talebi</span>
+              <small>Web sitesi üzerinden Supabase'e düşen randevu kayıtları.</small>
             </article>
             <article class="vehicle-count-card">
-              <b><span class="vehicle-counter" data-stat-key="mechanicChecks" data-target="1860">0</span><span class="vehicle-counter-suffix">+</span></b>
-              <span>Motor ve mekanik kontrol</span>
-              <small>Motor genel durum, fren, süspansiyon ve yürüyen aksam başlıkları.</small>
+              <b><span class="vehicle-counter" data-stat-key="monthlyFranchiseApplications" data-target="0">0</span><span class="vehicle-counter-suffix">+</span></b>
+              <span>Aylık franchise başvurusu</span>
+              <small>Franchise formundan gelen aday başvuru kayıtları.</small>
             </article>
             <article class="vehicle-count-card">
-              <b><span class="vehicle-counter" data-stat-key="verifiedReports" data-target="980">0</span><span class="vehicle-counter-suffix">+</span></b>
-              <span>QR doğrulamalı rapor</span>
-              <small>Rapor numarası veya karekod ile doğrulanabilir kayıt yapısı.</small>
+              <b><span class="vehicle-counter" data-stat-key="monthlyComplaints" data-target="0">0</span><span class="vehicle-counter-suffix">+</span></b>
+              <span>Aylık itiraz kaydı</span>
+              <small>Kalite ve müşteri deneyimi sürecine düşen itiraz/şikayet kayıtları.</small>
             </article>
           </div>
         </div>
@@ -3026,10 +3030,10 @@
     let geoSuggestedLocation = null;
 
     const previewOperationStats = {
-      totalInspections: 12480,
-      paintChecks: 3240,
-      mechanicChecks: 1860,
-      verifiedReports: 980
+      activeBranches: 8,
+      monthlyAppointments: 3,
+      monthlyFranchiseApplications: 3,
+      monthlyComplaints: 3
     };
 
     let operationStats = isLocalPreview ? { ...previewOperationStats } : {};
@@ -3213,10 +3217,10 @@
       try {
         const response = await getJson('/stats');
         operationStats = {
-          totalInspections: Number(response.totalInspections ?? response.data?.totalInspections ?? 0),
-          paintChecks: Number(response.paintChecks ?? response.data?.paintChecks ?? 0),
-          mechanicChecks: Number(response.mechanicChecks ?? response.data?.mechanicChecks ?? 0),
-          verifiedReports: Number(response.verifiedReports ?? response.data?.verifiedReports ?? 0)
+          activeBranches: Number(response.activeBranches ?? response.data?.activeBranches ?? 0),
+          monthlyAppointments: Number(response.monthlyAppointments ?? response.data?.monthlyAppointments ?? 0),
+          monthlyFranchiseApplications: Number(response.monthlyFranchiseApplications ?? response.data?.monthlyFranchiseApplications ?? 0),
+          monthlyComplaints: Number(response.monthlyComplaints ?? response.data?.monthlyComplaints ?? 0)
         };
       } catch (error) {
         console.error(error);
