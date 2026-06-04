@@ -1558,6 +1558,17 @@
       line-height: 1.55;
     }
 
+    .ai-message.user {
+      justify-self: end;
+      border-color: var(--line-light);
+      background: #f8fafc;
+    }
+
+    .ai-message.answer {
+      border-color: rgba(29,191,115,.22);
+      background: rgba(29,191,115,.08);
+    }
+
     .ai-prompt-row {
       margin-top: auto;
       display: flex;
@@ -1566,7 +1577,7 @@
       padding: 0 18px 14px;
     }
 
-    .ai-prompt-row span {
+    .ai-prompt-row button {
       border: 1px solid var(--line-light);
       border-radius: 999px;
       color: var(--muted-dark);
@@ -1577,6 +1588,12 @@
       white-space: nowrap;
     }
 
+    .ai-prompt-row button:hover {
+      border-color: var(--red-line);
+      color: var(--red);
+      background: var(--red-soft);
+    }
+
     .ai-input-bar {
       border-top: 1px solid var(--line-light);
       padding: 12px;
@@ -1585,7 +1602,7 @@
       gap: 8px;
     }
 
-    .ai-input-bar span {
+    .ai-input-bar input {
       min-height: 42px;
       border: 1px solid var(--line-light);
       border-radius: 12px;
@@ -1597,15 +1614,24 @@
       font-size: 13px;
     }
 
-    .ai-input-bar b {
+    .ai-input-bar input:focus {
+      outline: 3px solid rgba(215,25,32,.14);
+      border-color: rgba(215,25,32,.38);
+      background: #fff;
+      color: var(--ink);
+    }
+
+    .ai-input-bar button {
       width: 42px;
       min-height: 42px;
+      border: 0;
       border-radius: 12px;
       background: var(--red);
       color: #ffffff;
       display: grid;
       place-items: center;
       font-size: 18px;
+      font-weight: 950;
     }
 
     .ai-tool-grid {
@@ -2552,7 +2578,7 @@
               <span>OTOTR AI Asistan</span>
               <small>Karar destek modu</small>
             </div>
-            <div class="ai-window-body">
+            <div class="ai-window-body" id="aiAssistantMessages" aria-live="polite">
               <div class="ai-message">
                 Merhaba! Ben OTOTR AI asistanıyım. Araç ekspertizi, paket seçimi ve rapor okuma yardımı için buradayım.
                 <br><br>
@@ -2560,14 +2586,14 @@
               </div>
             </div>
             <div class="ai-prompt-row" aria-label="Örnek AI asistan soruları">
-              <span>2020 model aracın paket önerisi</span>
-              <span>Kaporta ekspertizi nedir?</span>
-              <span>OBD taraması ne işe yarar?</span>
+              <button type="button" data-ai-prompt="2020 model aracın paket önerisi">2020 model aracın paket önerisi</button>
+              <button type="button" data-ai-prompt="Kaporta ekspertizi nedir?">Kaporta ekspertizi nedir?</button>
+              <button type="button" data-ai-prompt="OBD taraması ne işe yarar?">OBD taraması ne işe yarar?</button>
             </div>
-            <div class="ai-input-bar" aria-hidden="true">
-              <span>Araç hakkında bilgi verin veya soru sorun...</span>
-              <b>›</b>
-            </div>
+            <form class="ai-input-bar" id="aiAssistantForm">
+              <input id="aiAssistantInput" name="question" autocomplete="off" placeholder="Araç hakkında bilgi verin veya soru sorun..." aria-label="AI asistana soru yazın">
+              <button type="submit" aria-label="AI asistana gönder">›</button>
+            </form>
           </div>
 
           <div>
@@ -3791,6 +3817,57 @@
       if (data.risk === 'premium') reasons.push('Araç değeri yüksek olduğu için QR rapor, foto delil ve Dijital Araç Karnesi kaydı önem kazanır.');
       document.getElementById('aiPackageOutput').innerHTML = `<b>${packageName}</b><br>${reasons.map((item) => `• ${item}`).join('<br>')}<br><br><span style="color:#667085">Yapay Zeka Önerisi satış yönlendirmesidir; teknik ekspertiz veya hukuki değerlendirme yerine geçmez.</span>`;
       trackEvent('ai_package_result', { packageName, purpose: data.purpose, age: data.age, mileage: data.mileage, risk: data.risk });
+    });
+
+    function getAssistantReply(question) {
+      const text = String(question || '').toLocaleLowerCase('tr-TR');
+      if (text.includes('obd')) {
+        return 'OBD taraması; motor, şanzıman, ABS, airbag/SRS ve elektronik kontrol ünitelerindeki hata kayıtlarını okur. Satın alma kararında özellikle gizli arıza ve uyarı geçmişi için önemlidir.';
+      }
+      if (text.includes('kaporta') || text.includes('boya') || text.includes('değişen')) {
+        return 'Kaporta ekspertizi; boyalı, değişen, lokal işlemli ve deformasyon şüphesi olan parçaları ölçüm ve görsel kontrolle ayrıştırır. Sadece kozmetik değil, aracın değer ve risk kararını da etkiler.';
+      }
+      if (text.includes('franchise') || text.includes('bayilik')) {
+        return 'Franchise AI skoru için lokasyon, metrekare, yatırım bütçesi, hedef günlük araç adedi ve bölge potansiyeli birlikte değerlendirilir. Kesin karar saha ve operasyon incelemesiyle netleşir.';
+      }
+      if (text.includes('rapor') || text.includes('qr') || text.includes('karekod')) {
+        return 'OTOTR raporunda kritik, takip gerekli ve normal bulgular ayrı okunur. QR veya rapor numarasıyla şube, tarih, paket ve temel bulgu doğrulaması yapılabilir.';
+      }
+      if (text.includes('2020') || text.includes('paket') || text.includes('km') || text.includes('kilometre') || text.includes('model')) {
+        return 'Paket önerisi için araç yaşı, kilometre, satın alma amacı ve şüphe sinyali gerekir. Genel kural: düşük riskte Standart, satın alma ve şüpheli araçta Plus/Premium daha doğru karar desteği sağlar.';
+      }
+      return 'Bu konuda size randevu, paket seçimi, rapor okuma, OBD, kaporta-boya ve franchise ön değerlendirme başlıklarında yardımcı olabilirim. Araç model yılı, kilometre ve şüphe duyduğunuz konuyu yazarsanız daha net yönlendiririm.';
+    }
+
+    function appendAssistantMessage(type, text) {
+      const messages = document.getElementById('aiAssistantMessages');
+      if (!messages) return;
+      const message = document.createElement('div');
+      message.className = `ai-message ${type}`;
+      message.textContent = text;
+      messages.appendChild(message);
+      messages.scrollTop = messages.scrollHeight;
+    }
+
+    document.getElementById('aiAssistantForm')?.addEventListener('submit', (event) => {
+      event.preventDefault();
+      const input = document.getElementById('aiAssistantInput');
+      const question = input?.value.trim();
+      if (!question) return;
+      appendAssistantMessage('user', question);
+      appendAssistantMessage('answer', getAssistantReply(question));
+      trackEvent('ai_assistant_question', { topic: question.slice(0, 80) });
+      input.value = '';
+      input.focus();
+    });
+
+    document.querySelectorAll('[data-ai-prompt]').forEach((button) => {
+      button.addEventListener('click', () => {
+        const input = document.getElementById('aiAssistantInput');
+        if (!input) return;
+        input.value = button.dataset.aiPrompt || '';
+        input.focus();
+      });
     });
 
     document.getElementById('complaintForm')?.addEventListener('submit', async (event) => {
