@@ -1446,87 +1446,229 @@
       margin-bottom: 2px;
     }
 
+    #ai-destek {
+      color: #f8fafc;
+      background: #0b1220;
+    }
+
+    #ai-destek .section-head {
+      max-width: 700px;
+      display: block;
+      margin-bottom: 54px;
+    }
+
+    #ai-destek .eyebrow {
+      border: 0;
+      border-radius: 0;
+      background: transparent;
+      color: #f59e0b;
+      padding: 0 0 0 28px;
+      position: relative;
+    }
+
+    #ai-destek .eyebrow:before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 50%;
+      width: 18px;
+      height: 2px;
+      background: #f59e0b;
+      transform: translateY(-50%);
+    }
+
+    #ai-destek h2,
+    #ai-destek .section-head h2 {
+      max-width: 620px;
+      color: #ffffff;
+      font-size: clamp(38px, 5vw, 58px);
+      line-height: 1.05;
+      margin: 18px 0 14px;
+    }
+
+    #ai-destek h2 span { color: #f59e0b; }
+
+    #ai-destek .lead {
+      max-width: 650px;
+      color: #b9c8df;
+      font-size: 16px;
+    }
+
     .ai-showcase {
       display: grid;
-      grid-template-columns: minmax(0,.92fr) minmax(0,1.08fr);
-      gap: 18px;
+      grid-template-columns: minmax(0,1fr) minmax(0,1fr);
+      gap: 32px;
       align-items: stretch;
     }
 
     .ai-command {
-      border: 1px solid var(--line-light);
-      border-radius: 28px;
-      background:
-        radial-gradient(circle at 0% 0%, rgba(56,189,248,.12), transparent 34%),
-        radial-gradient(circle at 100% 0%, rgba(215,25,32,.10), transparent 30%),
-        rgba(255,255,255,.94);
-      backdrop-filter: blur(18px);
-      box-shadow: var(--soft-shadow);
-      padding: 22px;
+      min-height: 484px;
+      border: 1px solid rgba(148,163,184,.18);
+      border-radius: 16px;
+      background: #101a2f;
+      box-shadow: 0 24px 70px rgba(0,0,0,.24);
+      overflow: hidden;
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+    }
+
+    .ai-window-top {
+      min-height: 50px;
+      border-bottom: 1px solid rgba(148,163,184,.18);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 14px 18px;
+      color: #f8fafc;
+      font-size: 13px;
+      font-weight: 900;
+    }
+
+    .ai-window-top span {
+      display: inline-flex;
+      align-items: center;
+      gap: 9px;
+    }
+
+    .ai-window-top span:before {
+      content: "";
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: #22c55e;
+      box-shadow: 0 0 0 4px rgba(34,197,94,.12);
+    }
+
+    .ai-window-top small {
+      color: #64748b;
+      font-size: 11px;
+      font-weight: 800;
+    }
+
+    .ai-window-body {
+      padding: 18px;
+      display: grid;
+      align-content: start;
+      gap: 18px;
+    }
+
+    .ai-message {
+      max-width: 430px;
+      border: 1px solid rgba(148,163,184,.20);
+      border-radius: 10px;
+      background: #10213d;
+      color: #ffffff;
+      padding: 14px;
+      font-size: 13px;
+      line-height: 1.55;
+    }
+
+    .ai-prompt-row {
+      margin-top: auto;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      padding: 0 18px 14px;
+    }
+
+    .ai-prompt-row span {
+      border: 1px solid rgba(148,163,184,.24);
+      border-radius: 999px;
+      color: #b9c8df;
+      padding: 7px 10px;
+      font-size: 11px;
+      line-height: 1;
+      white-space: nowrap;
+    }
+
+    .ai-input-bar {
+      border-top: 1px solid rgba(148,163,184,.18);
+      padding: 12px;
+      display: grid;
+      grid-template-columns: minmax(0,1fr) auto;
+      gap: 8px;
+    }
+
+    .ai-input-bar span {
+      min-height: 42px;
+      border: 1px solid rgba(148,163,184,.22);
+      border-radius: 6px;
+      background: #070d1a;
+      color: #64748b;
+      display: flex;
+      align-items: center;
+      padding: 0 12px;
+      font-size: 13px;
+    }
+
+    .ai-input-bar b {
+      width: 42px;
+      min-height: 42px;
+      border-radius: 6px;
+      background: #f59e0b;
+      color: #07111f;
+      display: grid;
+      place-items: center;
+      font-size: 18px;
+    }
+
+    .ai-tool-grid {
       display: grid;
       gap: 14px;
     }
 
-    .ai-recommender {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0,1fr));
-      gap: 10px;
-    }
-
-    .ai-recommender .full { grid-column: 1 / -1; }
-
-    .ai-output {
-      border: 1px solid var(--line-light);
-      background: #f8fafc;
-      border-radius: 18px;
-      color: #344054;
-      padding: 14px;
-      min-height: 138px;
-      line-height: 1.55;
-    }
-
-    .ai-output b { color: var(--ink); }
-
-    .ai-tool-grid {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0,1fr));
-      gap: 12px;
-    }
-
     .ai-tool-card {
-      border: 1px solid var(--line-light);
-      border-radius: 20px;
-      background: rgba(255,255,255,.92);
-      backdrop-filter: blur(16px);
-      padding: 16px;
-      min-height: 154px;
-      box-shadow: var(--soft-shadow);
+      border: 1px solid rgba(148,163,184,.18);
+      border-radius: 10px;
+      background: #101a2f;
+      padding: 18px;
+      min-height: 100px;
+      display: grid;
+      grid-template-columns: 40px minmax(0,1fr);
+      gap: 14px;
+      align-items: start;
     }
 
     .ai-tool-card strong {
-      display: inline-grid;
+      display: grid;
       place-items: center;
-      width: 38px;
-      height: 38px;
-      border-radius: 14px;
-      background: rgba(215,25,32,.95);
-      color: #fff;
-      margin-bottom: 12px;
-      font-size: 12px;
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      background: rgba(245,158,11,.12);
+      color: #f59e0b;
+      font-size: 18px;
+      line-height: 1;
     }
+
+    .ai-tool-card:nth-child(2) strong { background: rgba(56,189,248,.12); color: #38bdf8; }
+    .ai-tool-card:nth-child(3) strong { background: rgba(34,197,94,.12); color: #22c55e; }
+    .ai-tool-card:nth-child(4) strong { background: rgba(148,163,184,.16); color: #cbd5e1; }
 
     .ai-tool-card b {
       display: block;
-      color: var(--ink);
-      font-size: 16px;
-      margin-bottom: 7px;
+      color: #ffffff;
+      font-size: 14px;
+      margin: 1px 0 6px;
     }
 
     .ai-tool-card span {
       display: block;
-      color: var(--muted-dark);
+      color: #9fb0c9;
       font-size: 13px;
-      line-height: 1.48;
+      line-height: 1.5;
+    }
+
+    .ai-warning {
+      margin-top: 14px;
+      border: 1px solid rgba(245,158,11,.28);
+      border-radius: 10px;
+      background: rgba(245,158,11,.08);
+      color: #8392aa;
+      padding: 13px 16px;
+      font-size: 12px;
+      line-height: 1.45;
     }
 
     .passport-strip {
@@ -2400,63 +2542,45 @@
       <div class="inner">
         <div class="section-head">
           <div>
-            <span class="eyebrow">Yapay Zeka Öneri</span>
-            <h2>OTOTR, raporu sadece üretmez; müşterinin doğru kararı daha hızlı vermesine yardımcı olur.</h2>
-            <p class="lead">Yapay Zeka Öneri katmanı; paket seçimi, rapor okuma, foto ön kontrol, araç karnesi karşılaştırması, şikayet triage ve yakın şube yönlendirmesiyle müşteriye daha anlaşılır bir ekspertiz deneyimi sunar.</p>
+            <span class="eyebrow">AI Asistan</span>
+            <h2>Yapay zeka ile <span>daha akıllı karar</span></h2>
+            <p class="lead">Araç yaşı, kilometre ve risk durumunuza göre hangi ekspertiz paketini almanız gerektiğini OTOTR AI Asistan size söylesin.</p>
           </div>
         </div>
 
         <div class="ai-showcase">
           <div class="ai-command">
-            <div>
-              <span class="eyebrow">Yapay Zeka Öneri Motoru</span>
-              <h3>Araca ve satın alma riskine göre doğru paketi önerir.</h3>
-              <p class="lead">Bu karar destek alanı, müşteri ihtiyacını satış baskısı yerine risk mantığıyla doğru pakete yönlendirir.</p>
+            <div class="ai-window-top">
+              <span>OTOTR AI Asistan</span>
+              <small>Karar destek modu</small>
             </div>
-            <form class="ai-recommender" id="aiPackageForm">
-              <input type="text" name="companyWebsite" tabindex="-1" autocomplete="off" hidden aria-hidden="true">
-              <select name="purpose">
-                <option value="buy">Araç satın alacağım</option>
-                <option value="sell">Satış öncesi kontrol istiyorum</option>
-                <option value="paint">Sadece boya/değişen merak ediyorum</option>
-                <option value="fleet">Toplu araç / filo kontrol</option>
-              </select>
-              <select name="age">
-                <option value="0-3">0-3 yaş</option>
-                <option value="4-7">4-7 yaş</option>
-                <option value="8+">8 yaş ve üzeri</option>
-              </select>
-              <select name="mileage">
-                <option value="low">0-80 bin km</option>
-                <option value="mid">80-160 bin km</option>
-                <option value="high">160 bin km üzeri</option>
-              </select>
-              <select name="risk">
-                <option value="normal">Normal risk</option>
-                <option value="suspicious">Boya, arıza veya km şüphem var</option>
-                <option value="premium">Araç değeri yüksek</option>
-              </select>
-              <button class="btn primary full" type="submit">Yapay Zeka Önerisi Al</button>
-            </form>
-            <div class="ai-output" id="aiPackageOutput">Araç yaşı, kilometre, kullanım amacı ve şüphe sinyaline göre önerilen paket ve dikkat edilmesi gereken kontrol başlıkları burada görünür.</div>
+            <div class="ai-window-body">
+              <div class="ai-message">
+                Merhaba! Ben OTOTR AI asistanıyım. Araç ekspertizi, paket seçimi ve rapor okuma yardımı için buradayım.
+                <br><br>
+                Satın almayı düşündüğünüz araç hakkında bilgi verin; size en uygun paketi önereyim.
+              </div>
+            </div>
+            <div class="ai-prompt-row" aria-label="Örnek AI asistan soruları">
+              <span>2020 model aracın paket önerisi</span>
+              <span>Kaporta ekspertizi nedir?</span>
+              <span>OBD taraması ne işe yarar?</span>
+            </div>
+            <div class="ai-input-bar" aria-hidden="true">
+              <span>Araç hakkında bilgi verin veya soru sorun...</span>
+              <b>›</b>
+            </div>
           </div>
 
-          <div class="ai-tool-grid">
-            <article class="ai-tool-card"><strong>YZ</strong><b>Yapay Zeka rapor okuma asistanı</b><span>Ekspertiz raporundaki kritik, takip gerekli ve güvenli alanları sade müşteri diliyle özetler.</span></article>
-            <article class="ai-tool-card"><strong>IMG</strong><b>Foto ön kontrol</b><span>Araç fotoğraflarından kozmetik risk sinyali üretir; ekspertiz yerine geçmediğini açıkça belirtir.</span></article>
-            <article class="ai-tool-card"><strong>KM</strong><b>Kilometre ve geçmiş tutarlılığı</b><span>Önceki OTOTR kayıtlarıyla güncel kilometreyi karşılaştırır; olağan dışı düşüşte alarm verir.</span></article>
-            <article class="ai-tool-card"><strong>ŞB</strong><b>Yakın şube ve zaman önerisi</b><span>İl, ilçe, paket ihtiyacı ve yoğunluk sinyaline göre müşteriyi en uygun şube akışına yönlendirir.</span></article>
-            <article class="ai-tool-card"><strong>SLA</strong><b>Şikayet triage motoru</b><span>Webden gelen itirazı kalite, hukuk, operasyon veya Academy yeniden eğitim aksiyonuna ayırır.</span></article>
-            <article class="ai-tool-card"><strong>CRM</strong><b>WhatsApp / web asistanı</b><span>Randevu, paket, rapor sorgu, şube bulma ve itiraz başvurusu akışlarını doğru kanala yönlendirir.</span></article>
+          <div>
+            <div class="ai-tool-grid">
+              <article class="ai-tool-card"><strong>🎯</strong><div><b>AI Paket Önerisi</b><span>Araç yaşı, kilometre ve risk sinyaline göre en uygun ekspertiz paketini önerir. Satış baskısı yok, sadece veri.</span></div></article>
+              <article class="ai-tool-card"><strong>📊</strong><div><b>Rapor Okuma Asistanı</b><span>Teknik raporu müşteri dilinde özetler; kritik, takip gerekli ve güvenli alanları açık anlatır.</span></div></article>
+              <article class="ai-tool-card"><strong>📷</strong><div><b>Foto Ön Analiz</b><span>Araç fotoğraflarından kozmetik risk sinyali üretir. Ekspertiz yerine geçmez, kararı hızlandırır.</span></div></article>
+              <article class="ai-tool-card"><strong>🏢</strong><div><b>Franchise AI Skoru</b><span>Lokasyon, bütçe, metrekare ve bölge potansiyelinden franchise açılış ön skoru üretir.</span></div></article>
+            </div>
+            <div class="ai-warning">AI çıktıları karar destek amaçlıdır. Teknik ekspertiz, resmi sicil veya bilirkişi raporu yerine geçmez.</div>
           </div>
-        </div>
-
-        <div class="data-spine" aria-label="Yapay Zeka Öneri veri omurgası">
-          <div class="data-node"><b>Randevu</b><span>İl, ilçe, paket ve talep sebebi müşteri ekibine iletilir.</span></div>
-          <div class="data-node"><b>Rapor</b><span>QR, foto delil, OBD ve mikron verisi doğrulama ekranına bağlanır.</span></div>
-          <div class="data-node"><b>Araç Karnesi</b><span>Plaka/şasi bazlı eski-yeni rapor karşılaştırması yapılır.</span></div>
-          <div class="data-node"><b>Kalite</b><span>İtiraz, şikayet, SLA ve denetim sonucu merkezi kaliteye aktarılır.</span></div>
-          <div class="data-node"><b>Academy</b><span>Personel hatasında otomatik tekrar eğitim önerisi oluşur.</span></div>
         </div>
       </div>
     </section>
