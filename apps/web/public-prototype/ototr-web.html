@@ -1447,8 +1447,11 @@
     }
 
     #ai-destek {
-      color: #f8fafc;
-      background: #0b1220;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 90% 0%, rgba(215,25,32,.10), transparent 28%),
+        radial-gradient(circle at 8% 8%, rgba(56,189,248,.08), transparent 26%),
+        linear-gradient(180deg, #ffffff, #f7f9fc);
     }
 
     #ai-destek .section-head {
@@ -1458,39 +1461,29 @@
     }
 
     #ai-destek .eyebrow {
-      border: 0;
-      border-radius: 0;
-      background: transparent;
-      color: #f59e0b;
-      padding: 0 0 0 28px;
-      position: relative;
+      border: 1px solid rgba(215,25,32,.24);
+      border-radius: 999px;
+      background: rgba(215,25,32,.08);
+      color: #b42318;
+      padding: 7px 10px;
     }
 
-    #ai-destek .eyebrow:before {
-      content: "";
-      position: absolute;
-      left: 0;
-      top: 50%;
-      width: 18px;
-      height: 2px;
-      background: #f59e0b;
-      transform: translateY(-50%);
-    }
+    #ai-destek .eyebrow:before { display: none; }
 
     #ai-destek h2,
     #ai-destek .section-head h2 {
       max-width: 620px;
-      color: #ffffff;
+      color: var(--ink);
       font-size: clamp(38px, 5vw, 58px);
       line-height: 1.05;
       margin: 18px 0 14px;
     }
 
-    #ai-destek h2 span { color: #f59e0b; }
+    #ai-destek h2 span { color: var(--red); }
 
     #ai-destek .lead {
       max-width: 650px;
-      color: #b9c8df;
+      color: var(--muted-dark);
       font-size: 16px;
     }
 
@@ -1503,10 +1496,10 @@
 
     .ai-command {
       min-height: 484px;
-      border: 1px solid rgba(148,163,184,.18);
-      border-radius: 16px;
-      background: #101a2f;
-      box-shadow: 0 24px 70px rgba(0,0,0,.24);
+      border: 1px solid var(--line-light);
+      border-radius: 22px;
+      background: rgba(255,255,255,.96);
+      box-shadow: var(--soft-shadow);
       overflow: hidden;
       display: grid;
       grid-template-rows: auto 1fr auto;
@@ -1514,15 +1507,16 @@
 
     .ai-window-top {
       min-height: 50px;
-      border-bottom: 1px solid rgba(148,163,184,.18);
+      border-bottom: 1px solid var(--line-light);
       display: flex;
       align-items: center;
       justify-content: space-between;
       gap: 12px;
       padding: 14px 18px;
-      color: #f8fafc;
+      color: var(--ink);
       font-size: 13px;
       font-weight: 900;
+      background: #fff;
     }
 
     .ai-window-top span {
@@ -1536,12 +1530,12 @@
       width: 8px;
       height: 8px;
       border-radius: 999px;
-      background: #22c55e;
-      box-shadow: 0 0 0 4px rgba(34,197,94,.12);
+      background: var(--green);
+      box-shadow: 0 0 0 4px rgba(29,191,115,.12);
     }
 
     .ai-window-top small {
-      color: #64748b;
+      color: var(--muted-dark);
       font-size: 11px;
       font-weight: 800;
     }
@@ -1555,10 +1549,10 @@
 
     .ai-message {
       max-width: 430px;
-      border: 1px solid rgba(148,163,184,.20);
-      border-radius: 10px;
-      background: #10213d;
-      color: #ffffff;
+      border: 1px solid var(--red-line);
+      border-radius: 16px;
+      background: var(--red-soft);
+      color: var(--ink);
       padding: 14px;
       font-size: 13px;
       line-height: 1.55;
@@ -1573,9 +1567,10 @@
     }
 
     .ai-prompt-row span {
-      border: 1px solid rgba(148,163,184,.24);
+      border: 1px solid var(--line-light);
       border-radius: 999px;
-      color: #b9c8df;
+      color: var(--muted-dark);
+      background: #fff;
       padding: 7px 10px;
       font-size: 11px;
       line-height: 1;
@@ -1583,7 +1578,7 @@
     }
 
     .ai-input-bar {
-      border-top: 1px solid rgba(148,163,184,.18);
+      border-top: 1px solid var(--line-light);
       padding: 12px;
       display: grid;
       grid-template-columns: minmax(0,1fr) auto;
@@ -1592,10 +1587,10 @@
 
     .ai-input-bar span {
       min-height: 42px;
-      border: 1px solid rgba(148,163,184,.22);
-      border-radius: 6px;
-      background: #070d1a;
-      color: #64748b;
+      border: 1px solid var(--line-light);
+      border-radius: 12px;
+      background: #f8fafc;
+      color: var(--muted-dark);
       display: flex;
       align-items: center;
       padding: 0 12px;
@@ -1605,9 +1600,9 @@
     .ai-input-bar b {
       width: 42px;
       min-height: 42px;
-      border-radius: 6px;
-      background: #f59e0b;
-      color: #07111f;
+      border-radius: 12px;
+      background: var(--red);
+      color: #ffffff;
       display: grid;
       place-items: center;
       font-size: 18px;
@@ -1619,15 +1614,16 @@
     }
 
     .ai-tool-card {
-      border: 1px solid rgba(148,163,184,.18);
-      border-radius: 10px;
-      background: #101a2f;
+      border: 1px solid var(--line-light);
+      border-radius: 18px;
+      background: rgba(255,255,255,.96);
       padding: 18px;
       min-height: 100px;
       display: grid;
       grid-template-columns: 40px minmax(0,1fr);
       gap: 14px;
       align-items: start;
+      box-shadow: var(--soft-shadow);
     }
 
     .ai-tool-card strong {
@@ -1635,37 +1631,38 @@
       place-items: center;
       width: 40px;
       height: 40px;
-      border-radius: 10px;
-      background: rgba(245,158,11,.12);
-      color: #f59e0b;
-      font-size: 18px;
+      border-radius: 14px;
+      background: rgba(215,25,32,.10);
+      color: var(--red);
+      font-size: 13px;
+      font-weight: 950;
       line-height: 1;
     }
 
-    .ai-tool-card:nth-child(2) strong { background: rgba(56,189,248,.12); color: #38bdf8; }
-    .ai-tool-card:nth-child(3) strong { background: rgba(34,197,94,.12); color: #22c55e; }
-    .ai-tool-card:nth-child(4) strong { background: rgba(148,163,184,.16); color: #cbd5e1; }
+    .ai-tool-card:nth-child(2) strong { background: rgba(56,189,248,.12); color: #0284c7; }
+    .ai-tool-card:nth-child(3) strong { background: rgba(29,191,115,.12); color: #057a48; }
+    .ai-tool-card:nth-child(4) strong { background: rgba(17,24,39,.08); color: var(--ink); }
 
     .ai-tool-card b {
       display: block;
-      color: #ffffff;
+      color: var(--ink);
       font-size: 14px;
       margin: 1px 0 6px;
     }
 
     .ai-tool-card span {
       display: block;
-      color: #9fb0c9;
+      color: var(--muted-dark);
       font-size: 13px;
       line-height: 1.5;
     }
 
     .ai-warning {
       margin-top: 14px;
-      border: 1px solid rgba(245,158,11,.28);
-      border-radius: 10px;
-      background: rgba(245,158,11,.08);
-      color: #8392aa;
+      border: 1px solid var(--red-line);
+      border-radius: 16px;
+      background: var(--red-soft);
+      color: var(--muted-dark);
       padding: 13px 16px;
       font-size: 12px;
       line-height: 1.45;
@@ -2321,6 +2318,7 @@
           </div>
         </div>
         <a href="#paketler">Paketler</a>
+        <a href="#ai-destek">AI Asistan</a>
         <a href="#subeler">Bayiler</a>
         <a href="#kampanyalar">Kampanyalar</a>
         <div class="nav-dropdown">
@@ -2574,10 +2572,10 @@
 
           <div>
             <div class="ai-tool-grid">
-              <article class="ai-tool-card"><strong>🎯</strong><div><b>AI Paket Önerisi</b><span>Araç yaşı, kilometre ve risk sinyaline göre en uygun ekspertiz paketini önerir. Satış baskısı yok, sadece veri.</span></div></article>
-              <article class="ai-tool-card"><strong>📊</strong><div><b>Rapor Okuma Asistanı</b><span>Teknik raporu müşteri dilinde özetler; kritik, takip gerekli ve güvenli alanları açık anlatır.</span></div></article>
-              <article class="ai-tool-card"><strong>📷</strong><div><b>Foto Ön Analiz</b><span>Araç fotoğraflarından kozmetik risk sinyali üretir. Ekspertiz yerine geçmez, kararı hızlandırır.</span></div></article>
-              <article class="ai-tool-card"><strong>🏢</strong><div><b>Franchise AI Skoru</b><span>Lokasyon, bütçe, metrekare ve bölge potansiyelinden franchise açılış ön skoru üretir.</span></div></article>
+              <article class="ai-tool-card"><strong>PK</strong><div><b>AI Paket Önerisi</b><span>Araç yaşı, kilometre ve risk sinyaline göre en uygun ekspertiz paketini önerir. Satış baskısı yok, sadece veri.</span></div></article>
+              <article class="ai-tool-card"><strong>RP</strong><div><b>Rapor Okuma Asistanı</b><span>Teknik raporu müşteri dilinde özetler; kritik, takip gerekli ve güvenli alanları açık anlatır.</span></div></article>
+              <article class="ai-tool-card"><strong>FT</strong><div><b>Foto Ön Analiz</b><span>Araç fotoğraflarından kozmetik risk sinyali üretir. Ekspertiz yerine geçmez, kararı hızlandırır.</span></div></article>
+              <article class="ai-tool-card"><strong>FR</strong><div><b>Franchise AI Skoru</b><span>Lokasyon, bütçe, metrekare ve bölge potansiyelinden franchise açılış ön skoru üretir.</span></div></article>
             </div>
             <div class="ai-warning">AI çıktıları karar destek amaçlıdır. Teknik ekspertiz, resmi sicil veya bilirkişi raporu yerine geçmez.</div>
           </div>
