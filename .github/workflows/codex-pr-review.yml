@@ -1,65 +1,23 @@
-name: OTOTR Codex PR Review
+name: OTOTR AI PR Helper
 
 on:
-  pull_request:
-    types: [opened, synchronize, reopened]
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        description: Pull request number to review manually
+        required: true
 
 permissions:
   contents: read
-  pull-requests: write
+  pull-requests: read
   issues: write
 
 jobs:
-  codex_review:
+  pr_helper:
     runs-on: ubuntu-latest
-    outputs:
-      final_message: ${{ steps.run_codex.outputs['final-message'] }}
     steps:
-      - uses: actions/checkout@v4
-        with:
-          ref: refs/pull/${{ github.event.pull_request.number }}/merge
-          persist-credentials: false
-          fetch-depth: 0
-
-      - name: Write review prompt
-        shell: bash
+      - name: Explain native agent flow
         run: |
-          mkdir -p .github/codex/prompts
-          cat > .github/codex/prompts/review.md <<'PROMPT'
-Read AGENTS.md and review this pull request for OTOTR.
-
-Focus only on serious issues:
-- broken work order flow
-- broken technician task ownership or locking rules
-- broken navigation
-- data loss, auth/permission risk, or sync/offline regression
-- Turkish UI copy regression
-- failing build/test risk
-
-Return actionable findings. If no serious issue is found, say that clearly.
-PROMPT
-
-      - name: Run Codex review
-        id: run_codex
-        uses: openai/codex-action@v1
-        with:
-          openai-api-key: ${{ secrets.OPENAI_API_KEY }}
-          prompt-file: .github/codex/prompts/review.md
-          model: gpt-5.5
-          sandbox: read-only
-          output-file: codex-review-output.md
-
-      - name: Post Codex review comment
-        if: ${{ steps.run_codex.outputs['final-message'] != '' }}
-        uses: actions/github-script@v7
-        with:
-          github-token: ${{ github.token }}
-          script: |
-            await github.rest.issues.createComment({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: context.payload.pull_request.number,
-              body: process.env.CODEX_FINAL_MESSAGE,
-            });
-        env:
-          CODEX_FINAL_MESSAGE: ${{ steps.run_codex.outputs['final-message'] }}
+          echo "This workflow is intentionally safe-only."
+          echo "Use GitHub Agents / Codex from the Agents tab or mention @codex on a pull request."
+          echo "No automatic code changes, review approvals, or merge happens here."
