@@ -26,18 +26,18 @@ jobs:
         run: |
           mkdir -p .github/codex/prompts
           cat > .github/codex/prompts/review.md <<'PROMPT'
-          Read AGENTS.md and review this pull request for OTOTR.
+Read AGENTS.md and review this pull request for OTOTR.
 
-          Focus only on serious issues:
-          - broken work order flow
-          - broken technician task ownership or locking rules
-          - broken navigation
-          - data loss, auth/permission risk, or sync/offline regression
-          - Turkish UI copy regression
-          - failing build/test risk
+Focus only on serious issues:
+- broken work order flow
+- broken technician task ownership or locking rules
+- broken navigation
+- data loss, auth/permission risk, or sync/offline regression
+- Turkish UI copy regression
+- failing build/test risk
 
-          Return actionable findings. If no serious issue is found, say that clearly.
-          PROMPT
+Return actionable findings. If no serious issue is found, say that clearly.
+PROMPT
 
       - name: Run Codex review
         id: run_codex
