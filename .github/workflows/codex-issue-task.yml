@@ -1,137 +1,26 @@
-name: OTOTR Codex Issue Runner
+name: OTOTR AI Issue Helper
 
 on:
   workflow_dispatch:
     inputs:
       issue_number:
-        description: GitHub issue number to implement
+        description: GitHub issue number to prepare
         required: true
       mode:
         description: plan | implement
         required: false
-        default: implement
-  issue_comment:
-    types: [created]
+        default: plan
 
 permissions:
-  contents: write
+  contents: read
   issues: write
-  pull-requests: write
 
 jobs:
-  codex_issue_runner:
-    if: >-
-      github.event_name == 'workflow_dispatch' ||
-      (github.event_name == 'issue_comment' && contains(github.event.comment.body, '/codex-run'))
+  issue_helper:
     runs-on: ubuntu-latest
     steps:
-      - name: Resolve issue number
-        id: vars
-        shell: bash
+      - name: Explain native agent flow
         run: |
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-            echo "issue_number=${{ github.event.inputs.issue_number }}" >> "$GITHUB_OUTPUT"
-            echo "mode=${{ github.event.inputs.mode }}" >> "$GITHUB_OUTPUT"
-          else
-            echo "issue_number=${{ github.event.issue.number }}" >> "$GITHUB_OUTPUT"
-            echo "mode=implement" >> "$GITHUB_OUTPUT"
-          fi
-
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Load issue context
-        id: issue
-        env:
-          GH_TOKEN: ${{ github.token }}
-          ISSUE_NUMBER: ${{ steps.vars.outputs.issue_number }}
-        shell: bash
-        run: |
-          gh issue view "$ISSUE_NUMBER" --json title,body,labels,url > issue.json
-          ISSUE_TITLE=$(jq -r '.title' issue.json)
-          ISSUE_BODY=$(jq -r '.body // ""' issue.json)
-          ISSUE_URL=$(jq -r '.url' issue.json)
-          cat > codex-task.md <<TASK
-# OTOTR Codex Task
-
-Mode: ${{ steps.vars.outputs.mode }}
-Issue: #$ISSUE_NUMBER
-URL: $ISSUE_URL
-Title: $ISSUE_TITLE
-
-## Issue body
-
-$ISSUE_BODY
-
-## Required behavior
-
-- Read AGENTS.md.
-- Implement only this issue.
-- If mode is plan, do not edit files; provide a technical plan only.
-- If mode is implement, edit files and run available checks.
-- Do not merge or deploy.
-TASK
-
-      - name: Run Codex
-        id: run_codex
-        uses: openai/codex-action@v1
-        with:
-          openai-api-key: ${{ secrets.OPENAI_API_KEY }}
-          prompt-file: codex-task.md
-          model: gpt-5.5
-          sandbox: workspace-write
-          output-file: codex-output.md
-
-      - name: Create PR if files changed
-        id: pr
-        env:
-          GH_TOKEN: ${{ github.token }}
-          ISSUE_NUMBER: ${{ steps.vars.outputs.issue_number }}
-        shell: bash
-        run: |
-          if [ -z "$(git status --porcelain)" ]; then
-            echo "No file changes from Codex."
-            echo "pr_url=" >> "$GITHUB_OUTPUT"
-            exit 0
-          fi
-
-          BRANCH="codex/issue-${ISSUE_NUMBER}-${GITHUB_RUN_ID}"
-          git config user.name "ototr-codex-bot"
-          git config user.email "ototr-codex-bot@users.noreply.github.com"
-          git checkout -b "$BRANCH"
-          git add -A
-          git commit -m "Codex: implement issue #${ISSUE_NUMBER}"
-          git push --set-upstream origin "$BRANCH"
-
-          PR_URL=$(gh pr create \
-            --title "Codex: implement issue #${ISSUE_NUMBER}" \
-            --body "Automated Codex implementation for #${ISSUE_NUMBER}.\n\nReview before merging.\n\nCodex summary is attached in the workflow output." \
-            --base "${{ github.event.repository.default_branch }}" \
-            --head "$BRANCH")
-          echo "pr_url=$PR_URL" >> "$GITHUB_OUTPUT"
-
-      - name: Comment result on issue
-        if: always()
-        env:
-          GH_TOKEN: ${{ github.token }}
-          ISSUE_NUMBER: ${{ steps.vars.outputs.issue_number }}
-          PR_URL: ${{ steps.pr.outputs.pr_url }}
-          CODEX_FINAL_MESSAGE: ${{ steps.run_codex.outputs['final-message'] }}
-        shell: bash
-        run: |
-          BODY="## Codex result
-
-          ${CODEX_FINAL_MESSAGE}
-
-          "
-          if [ -n "$PR_URL" ]; then
-            BODY="$BODY
-          PR opened: $PR_URL
-          "
-          else
-            BODY="$BODY
-          No PR opened yet. Check workflow logs if this run failed.
-          "
-          fi
-          gh issue comment "$ISSUE_NUMBER" --body "$BODY"
+          echo "This workflow is intentionally safe-only."
+          echo "Use GitHub Agents / Codex from the Agents tab or mention @codex on an issue."
+          echo "No automatic code changes, branch creation, or merge happens here."
