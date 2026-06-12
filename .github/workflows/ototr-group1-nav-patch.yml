@@ -1,16 +1,19 @@
 name: OTOTR Group 1 Navigation Patch
 
 on:
-  push:
-    paths:
-      - '.github/workflows/ototr-group1-nav-patch.yml'
   workflow_dispatch:
+  issue_comment:
+    types: [created]
 
 permissions:
   contents: write
+  issues: write
 
 jobs:
   patch_mobile_navigation:
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'issue_comment' && contains(github.event.comment.body, '/apply-group1-nav'))
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -207,5 +210,3 @@ jobs:
           git add apps/mobile-technician/src/live/LiveApp.tsx
           git commit -m "Fix Group 1 mobile bottom navigation"
           git push
-
-# trigger: 2026-06-13-01
