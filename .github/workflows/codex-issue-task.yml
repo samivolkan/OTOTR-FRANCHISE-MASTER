@@ -53,25 +53,25 @@ jobs:
           ISSUE_BODY=$(jq -r '.body // ""' issue.json)
           ISSUE_URL=$(jq -r '.url' issue.json)
           cat > codex-task.md <<TASK
-          # OTOTR Codex Task
+# OTOTR Codex Task
 
-          Mode: ${{ steps.vars.outputs.mode }}
-          Issue: #$ISSUE_NUMBER
-          URL: $ISSUE_URL
-          Title: $ISSUE_TITLE
+Mode: ${{ steps.vars.outputs.mode }}
+Issue: #$ISSUE_NUMBER
+URL: $ISSUE_URL
+Title: $ISSUE_TITLE
 
-          ## Issue body
+## Issue body
 
-          $ISSUE_BODY
+$ISSUE_BODY
 
-          ## Required behavior
+## Required behavior
 
-          - Read AGENTS.md.
-          - Implement only this issue.
-          - If mode is plan, do not edit files; provide a technical plan only.
-          - If mode is implement, edit files and run available checks.
-          - Do not merge or deploy.
-          TASK
+- Read AGENTS.md.
+- Implement only this issue.
+- If mode is plan, do not edit files; provide a technical plan only.
+- If mode is implement, edit files and run available checks.
+- Do not merge or deploy.
+TASK
 
       - name: Run Codex
         id: run_codex
@@ -112,6 +112,7 @@ jobs:
           echo "pr_url=$PR_URL" >> "$GITHUB_OUTPUT"
 
       - name: Comment result on issue
+        if: always()
         env:
           GH_TOKEN: ${{ github.token }}
           ISSUE_NUMBER: ${{ steps.vars.outputs.issue_number }}
@@ -130,7 +131,7 @@ jobs:
           "
           else
             BODY="$BODY
-          No PR opened because no files changed.
+          No PR opened yet. Check workflow logs if this run failed.
           "
           fi
           gh issue comment "$ISSUE_NUMBER" --body "$BODY"
