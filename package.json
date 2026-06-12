@@ -10,7 +10,9 @@
     "check:backend-contracts": "node tools/check-backend-contracts.mjs",
     "check:supabase-readiness": "node tools/check-supabase-local-readiness.mjs",
     "test:public-api": "node tools/test-public-api.mjs",
-    "test": "echo \"Use a scoped test script, for example: npm run test:public-api\" && exit 1"
+    "test": "echo \"Use a scoped test script, for example: npm run test:public-api\" && exit 1",
+    "ai:plan": "node scripts/ototr-orchestrator.mjs plan",
+    "ai:plan:dry": "node scripts/ototr-orchestrator.mjs plan --dry-run"
   },
   "repository": {
     "type": "git",

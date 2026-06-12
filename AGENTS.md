@@ -71,3 +71,37 @@ node tools\test-demo-data.mjs
 node tools\test-vin-service.mjs
 node tools\test-index.mjs
 ```
+
+
+## AI Automation / Codex Issue Runner
+
+Bu repo ChatGPT + GitHub Issues + Codex kontrollu otomasyon akisini kullanir.
+
+### Uygulama sinirlari
+
+- ChatGPT karar/analiz uretir; GitHub Issue is takibi icin kullanilir; Codex sadece issue kapsamina gore kod degisikligi yapar.
+- Otomatik merge, otomatik production deploy veya destructive migration yapilmaz.
+- Codex gorevleri kucuk PR'lar halinde kalmalidir.
+- Codex her gorev sonunda degisen dosyalari, test sonucunu, riskleri ve etkilenen ekran/route'lari raporlamalidir.
+
+### OTOTR is kurallari
+
+1. Sekreterya is emirlerini bayi/dealer portalinda acar; usta mobil akisi musteri karsilama ile baslamaz.
+2. Usta kendisine dusen is emirlerini gorur, ise baslama kaniti verir, sonra tekil is basliklarini sahiplenir.
+3. Bir is basligini ayni anda sadece bir usta duzenleyebilir; digerleri sadece goruntuler.
+4. `Görevi devret` akisi korunur.
+5. Mudur zorla devralma veya yeniden atama yapabilir.
+6. Teknik onay ve rapor onay akislari bypass edilmez.
+7. Yerlesmis stabil UI kararlarini, issue acikca istemedikce bastan yazma.
+8. Navigasyon standardi: `Görevler / İşlerim`, ortada Home-Tara aksiyonu, `Eksikler / Profil`.
+9. Turkce UI metinlerini Ingilizceye cevirme.
+10. ERP/CRM/web dosyalarina issue kapsaminda degilse dokunma.
+
+### Otomasyon dosyalari
+
+- `docs/AI_PROJECT_MEMORY.md`: ChatGPT/Codex ortak proje hafizasi.
+- `docs/AI_INBOX.md`: ChatGPT kararlarinin issue'a donusmeden once toplandigi alan.
+- `docs/ROADMAP_1000.md`: 1000 kalemlik yol haritasi takip modeli.
+- `scripts/ototr-orchestrator.mjs`: AI Inbox notlarini GitHub Issue taslaklarina boler.
+- `.github/workflows/codex-issue-task.yml`: `/codex-run` yorumuyla Codex uygulama akisini baslatir.
+- `.github/workflows/codex-pr-review.yml`: PR acilinca Codex kalite kontrol yorumu uretir.
