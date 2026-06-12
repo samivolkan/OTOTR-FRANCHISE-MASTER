@@ -1,0 +1,209 @@
+name: OTOTR Group 1 Navigation Patch
+
+on:
+  push:
+    paths:
+      - '.github/workflows/ototr-group1-nav-patch.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  patch_mobile_navigation:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ github.token }}
+          fetch-depth: 0
+
+      - name: Patch mobile technician bottom navigation
+        shell: bash
+        run: |
+          python3 <<'PY'
+          from pathlib import Path
+          import re
+
+          path = Path('apps/mobile-technician/src/live/LiveApp.tsx')
+          text = path.read_text(encoding='utf-8')
+          original = text
+
+          text = text.replace(
+              "type TabKey = 'home' | 'jobs' | 'notifications' | 'profile';\ntype ViewKey = TabKey | 'detail' | 'modules' | 'body' | 'evidence' | 'final';",
+              "type TabKey = 'modules' | 'jobs' | 'home' | 'detail' | 'profile';\ntype ViewKey = TabKey | 'notifications' | 'body' | 'evidence' | 'final';"
+          )
+
+          bottom_tabs = """function BottomTabs({ active, onChange }: { active: TabKey; onChange: (tab: TabKey) => void }) {
+  const tabs: { key: TabKey; label: string; icon: IconName; center?: boolean; badge?: string }[] = [
+    { key: 'modules', label: 'Görevler', icon: 'grid-outline' },
+    { key: 'jobs', label: 'İşlerim', icon: 'clipboard-outline' },
+    { key: 'home', label: 'Home', icon: 'home-outline', center: true },
+    { key: 'detail', label: 'Eksikler', icon: 'alert-circle-outline', badge: '!' },
+    { key: 'profile', label: 'Profil', icon: 'person-outline' },
+  ];
+
+  return (
+    <View style={styles.bottomTabs}>
+      {tabs.map((tab) => {
+        const isActive = active === tab.key;
+        const iconColor = tab.center || isActive ? liveColors.white : 'rgba(255,255,255,0.72)';
+        return (
+          <Pressable
+            key={tab.key}
+            style={[styles.tabItem, tab.center && styles.centerTabItem]}
+            onPress={() => onChange(tab.key)}
+          >
+            <View style={[styles.tabIconShell, isActive && styles.tabIconShellActive, tab.center && styles.centerTabIconShell]}>
+              <Ionicons name={tab.icon} color={iconColor} size={tab.center ? 30 : 25} />
+              {tab.badge ? (
+                <View style={styles.tabBadge}>
+                  <Text style={styles.tabBadgeText}>{tab.badge}</Text>
+                </View>
+              ) : null}
+            </View>
+            <Text style={[styles.tabLabel, isActive && styles.tabLabelActive, tab.center && styles.centerTabLabel]}>{tab.label}</Text>
+            <View style={[styles.tabLine, isActive && styles.tabLineActive]} />
+          </Pressable>
+        );
+      })}
+    </View>
+  );
+}
+"""
+
+          text = re.sub(
+              r"function BottomTabs\(\{ active, onChange \}: \{ active: TabKey; onChange: \(tab: TabKey\) => void \}\) \{.*?\n\}\n\nfunction MetricCard",
+              bottom_tabs + "\nfunction MetricCard",
+              text,
+              flags=re.S,
+          )
+
+          get_active_tab = """function getActiveTab(view: ViewKey): TabKey {
+  if (view === 'home' || view === 'jobs' || view === 'profile' || view === 'modules' || view === 'detail') return view;
+  if (view === 'body' || view === 'evidence' || view === 'final') return 'modules';
+  return 'home';
+}
+"""
+
+          text = re.sub(
+              r"function getActiveTab\(view: ViewKey\): TabKey \{.*?\n\}",
+              get_active_tab.rstrip(),
+              text,
+              flags=re.S,
+          )
+
+          nav_styles = """  bottomTabs: {
+    position: 'absolute',
+    left: 14,
+    right: 14,
+    bottom: 10,
+    minHeight: 92,
+    borderRadius: 24,
+    backgroundColor: liveColors.navy,
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 8,
+    paddingTop: 10,
+    paddingBottom: 8,
+    ...cardShadow,
+  },
+  tabItem: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 4,
+  },
+  centerTabItem: {
+    marginTop: -30,
+  },
+  tabIconShell: {
+    width: 42,
+    height: 42,
+    borderRadius: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  tabIconShellActive: {
+    backgroundColor: 'rgba(255,255,255,0.16)',
+  },
+  centerTabIconShell: {
+    width: 66,
+    height: 66,
+    borderRadius: 33,
+    backgroundColor: liveColors.blue,
+    borderWidth: 4,
+    borderColor: liveColors.white,
+    ...softShadow,
+  },
+  tabLabel: {
+    color: 'rgba(255,255,255,0.78)',
+    fontSize: 11,
+    fontWeight: '800',
+  },
+  tabLabelActive: {
+    color: liveColors.white,
+  },
+  centerTabLabel: {
+    color: liveColors.white,
+    marginTop: 1,
+  },
+  tabLine: {
+    width: 34,
+    height: 3,
+    borderRadius: 99,
+    backgroundColor: 'transparent',
+  },
+  tabLineActive: {
+    backgroundColor: liveColors.blue,
+  },
+  tabBadge: {
+    position: 'absolute',
+    top: -6,
+    right: -8,
+    width: 22,
+    height: 22,
+    borderRadius: 11,
+    backgroundColor: '#FF3B4E',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 2,
+    borderColor: liveColors.navy,
+  },
+  tabBadgeText: {
+    color: liveColors.white,
+    fontSize: 12,
+    fontWeight: '900',
+  },
+"""
+
+          text = re.sub(
+              r"  bottomTabs: \{.*?  tabBadgeText: \{.*?\n  \},\n  inlineAlert:",
+              nav_styles + "  inlineAlert:",
+              text,
+              flags=re.S,
+          )
+
+          if text == original:
+              raise SystemExit('No changes were made. Expected navigation patterns were not found.')
+
+          required = ["label: 'Görevler'", "label: 'İşlerim'", "label: 'Home'", "label: 'Eksikler'", "label: 'Profil'", "centerTabIconShell"]
+          missing = [item for item in required if item not in text]
+          if missing:
+              raise SystemExit(f'Missing expected navigation markers: {missing}')
+
+          path.write_text(text, encoding='utf-8')
+          PY
+
+      - name: Commit navigation patch
+        shell: bash
+        run: |
+          if [ -z "$(git status --porcelain)" ]; then
+            echo "No navigation changes to commit."
+            exit 0
+          fi
+          git config user.name "ototr-ai-helper"
+          git config user.email "ototr-ai-helper@users.noreply.github.com"
+          git add apps/mobile-technician/src/live/LiveApp.tsx
+          git commit -m "Fix Group 1 mobile bottom navigation"
+          git push
