@@ -22,8 +22,8 @@ import { liveColors } from './theme';
 import { DashboardMetrics, LiveBodyInspectionAnswer, LiveEvidence, LiveTask, LiveWorkOrder, Session } from './types';
 
 type IconName = keyof typeof VectorIonicons.glyphMap;
-type TabKey = 'home' | 'jobs' | 'notifications' | 'profile';
-type ViewKey = TabKey | 'detail' | 'modules' | 'body' | 'evidence' | 'final';
+type TabKey = 'modules' | 'jobs' | 'home' | 'detail' | 'profile';
+type ViewKey = TabKey | 'body' | 'evidence' | 'final' | 'notifications';
 type Tone = 'blue' | 'green' | 'orange' | 'red' | 'purple' | 'gray' | 'cyan';
 
 type ModuleItem = {
@@ -1148,10 +1148,11 @@ function HeaderChip({ text }: { text: string }) {
 }
 
 function BottomTabs({ active, onChange }: { active: TabKey; onChange: (tab: TabKey) => void }) {
-  const tabs: { key: TabKey; label: string; icon: IconName }[] = [
-    { key: 'home', label: 'Ana Sayfa', icon: 'home-outline' },
+  const tabs: { key: TabKey; label: string; icon: IconName; center?: boolean }[] = [
+    { key: 'modules', label: 'Görevler', icon: 'grid-outline' },
     { key: 'jobs', label: 'İşlerim', icon: 'clipboard-outline' },
-    { key: 'notifications', label: 'Bildirimler', icon: 'notifications-outline' },
+    { key: 'home', label: 'Home', icon: 'home-outline', center: true },
+    { key: 'detail', label: 'Eksikler', icon: 'alert-circle-outline' },
     { key: 'profile', label: 'Profil', icon: 'person-outline' },
   ];
 
@@ -1160,17 +1161,16 @@ function BottomTabs({ active, onChange }: { active: TabKey; onChange: (tab: TabK
       {tabs.map((tab) => {
         const isActive = active === tab.key;
         return (
-          <Pressable key={tab.key} style={styles.tabItem} onPress={() => onChange(tab.key)}>
-            <View>
-              <Ionicons name={tab.icon} color={isActive ? liveColors.blue : liveColors.white} size={28} />
-              {tab.key === 'notifications' ? (
-                <View style={styles.tabBadge}>
-                  <Text style={styles.tabBadgeText}>3</Text>
-                </View>
-              ) : null}
+          <Pressable
+            key={tab.key}
+            style={[styles.tabItem, tab.center && styles.tabItemCenter]}
+            onPress={() => onChange(tab.key)}
+          >
+            <View style={[styles.tabIconWrap, tab.center && styles.tabHomeButton, isActive && tab.center && styles.tabHomeButtonActive]}>
+              <Ionicons name={tab.icon} color={tab.center ? liveColors.white : isActive ? liveColors.blue : liveColors.white} size={tab.center ? 32 : 27} />
             </View>
-            <Text style={[styles.tabLabel, isActive && styles.tabLabelActive]}>{tab.label}</Text>
-            <View style={[styles.tabLine, isActive && styles.tabLineActive]} />
+            <Text style={[styles.tabLabel, tab.center && styles.tabHomeLabel, isActive && styles.tabLabelActive]}>{tab.label}</Text>
+            <View style={[styles.tabLine, tab.center && styles.tabLineCenter, isActive && styles.tabLineActive]} />
           </Pressable>
         );
       })}
@@ -1785,8 +1785,9 @@ function LoadingOverlay() {
 }
 
 function getActiveTab(view: ViewKey): TabKey {
-  if (view === 'home' || view === 'jobs' || view === 'notifications' || view === 'profile') return view;
-  return 'jobs';
+  if (view === 'home' || view === 'jobs' || view === 'profile' || view === 'modules' || view === 'detail') return view;
+  if (view === 'body' || view === 'evidence' || view === 'final') return 'modules';
+  return 'home';
 }
 
 function loadIconFont() {
@@ -3686,12 +3687,12 @@ const styles = StyleSheet.create({
     left: 14,
     right: 14,
     bottom: 10,
-    minHeight: 88,
-    borderRadius: 20,
+    minHeight: 92,
+    borderRadius: 24,
     backgroundColor: liveColors.navy,
     flexDirection: 'row',
-    paddingHorizontal: 8,
-    paddingTop: 11,
+    paddingHorizontal: 6,
+    paddingTop: 12,
     paddingBottom: 8,
     ...cardShadow,
   },
@@ -3701,19 +3702,47 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     gap: 4,
   },
+  tabItemCenter: {
+    marginTop: -34,
+  },
+  tabIconWrap: {
+    width: 34,
+    height: 34,
+    borderRadius: 17,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  tabHomeButton: {
+    width: 70,
+    height: 70,
+    borderRadius: 35,
+    backgroundColor: liveColors.blue,
+    borderWidth: 5,
+    borderColor: liveColors.navy,
+    ...cardShadow,
+  },
+  tabHomeButtonActive: {
+    backgroundColor: '#E31B36',
+  },
   tabLabel: {
     color: liveColors.white,
-    fontSize: 12,
+    fontSize: 11,
     fontWeight: '800',
+  },
+  tabHomeLabel: {
+    marginTop: -2,
   },
   tabLabelActive: {
     color: liveColors.blue,
   },
   tabLine: {
-    width: 44,
+    width: 34,
     height: 3,
     borderRadius: 99,
     backgroundColor: 'transparent',
+  },
+  tabLineCenter: {
+    width: 28,
   },
   tabLineActive: {
     backgroundColor: liveColors.blue,
