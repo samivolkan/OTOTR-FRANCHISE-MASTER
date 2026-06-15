@@ -2042,8 +2042,9 @@ function renderLogin(onNavigate) {
   }, "Teknik Destek", true);
   support.type = "button";
   const runtimeConfig = globalThis.OTOTR_SUPABASE_CONFIG || {};
-  const debugLoginEnabled = runtimeConfig.debugLoginEnabled === true;
-  const debugAutoLoginEnabled = runtimeConfig.debugAutoLoginEnabled === true;
+  const fakeSupabaseSessionAllowed = runtimeConfig.allowFakeSupabaseSession === true;
+  const debugLoginEnabled = fakeSupabaseSessionAllowed && runtimeConfig.debugLoginEnabled === true;
+  const debugAutoLoginEnabled = fakeSupabaseSessionAllowed && runtimeConfig.debugAutoLoginEnabled === true;
   const debugAutoLoginKey = "ototrDebugAutoLoginAttempted";
   const triggerDebugSession = () => {
     username.value = "ahmet.usta@ototr.test";
