@@ -1,0 +1,30 @@
+{
+  "name": "ototr-mobile-app",
+  "version": "0.1.0",
+  "private": true,
+  "description": "OTOTR Terminal mobil uygulamasi PWA/Capacitor-ready altyapi.",
+  "type": "module",
+  "scripts": {
+    "start": "node scripts/serve.mjs",
+    "validate:phase0": "node scripts/validate-phase0.mjs",
+    "validate:sources": "node scripts/validate-source-hashes.mjs",
+    "validate:workflow": "node scripts/validate-workflow-components.mjs",
+    "validate:phase1-extra": "node scripts/validate-phase1-extra-screens.mjs",
+    "validate:all": "npm run validate:phase0 && npm run validate:sources && npm run validate && npm run validate:workflow && npm run validate:phase1-extra",
+    "validate": "node scripts/validate-phase1.mjs",
+    "build": "node scripts/validate-phase1.mjs",
+    "android:prepare": "node scripts/prepare-capacitor-web.mjs",
+    "android:patch-java": "node scripts/patch-capacitor-java.mjs",
+    "android:sync": "npm run android:prepare && npx cap sync android && npm run android:patch-java",
+    "android:open": "npx cap open android",
+    "android:build:debug": "npm run android:sync && cd android && gradlew.bat assembleDebug"
+  },
+  "dependencies": {
+    "@capacitor/camera": "^8.2.0",
+    "@capacitor/core": "^8.4.0"
+  },
+  "devDependencies": {
+    "@capacitor/android": "^8.4.0",
+    "@capacitor/cli": "^8.4.0"
+  }
+}

@@ -1,0 +1,154 @@
+@font-face {
+  font-family: "Bobil";
+  src: local("Bobil");
+  font-style: normal;
+  font-weight: 100 950;
+  font-display: swap;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  min-width: 320px;
+  background: var(--color-bg-top);
+  color-scheme: light;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: var(--font-family);
+  color: var(--color-graphite);
+  font-size: var(--font-size-md);
+  line-height: 1.35;
+  background: #ffffff;
+}
+
+button,
+input {
+  font: inherit;
+}
+
+h1 {
+  margin: 0;
+  font-size: var(--font-size-4xl);
+  line-height: 1.08;
+  font-family: var(--font-family-display);
+  font-weight: var(--font-weight-black);
+  letter-spacing: 0;
+}
+
+h2 {
+  margin: 0;
+  font-size: var(--font-size-2xl);
+  line-height: 1.1;
+  font-family: var(--font-family-display);
+  font-weight: var(--font-weight-black);
+  letter-spacing: 0;
+}
+
+h3 {
+  margin: 0;
+  font-size: var(--font-size-lg);
+  line-height: 1.15;
+  font-family: var(--font-family-display);
+  font-weight: 900;
+  letter-spacing: 0;
+}
+
+p,
+small,
+span,
+label,
+li {
+  letter-spacing: 0;
+}
+
+button {
+  cursor: pointer;
+}
+
+.app-root {
+  min-height: 100vh;
+  min-height: 100dvh;
+  --runtime-safe-top: max(42px, env(safe-area-inset-top));
+  --runtime-safe-bottom: max(18px, env(safe-area-inset-bottom));
+}
+
+.app-loading-shell {
+  width: min(100%, var(--mobile-max-width));
+  height: 100vh;
+  height: 100dvh;
+  min-height: 100vh;
+  min-height: 100dvh;
+  margin: 0 auto;
+  display: block;
+  padding: 0;
+  overflow: hidden;
+  background: #050505;
+}
+
+.app-loading-shell > img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+
+.app-screen {
+  width: min(100%, var(--mobile-max-width));
+  min-height: 100vh;
+  min-height: 100dvh;
+  margin: 0 auto;
+  padding: var(--runtime-safe-top) var(--screen-x) var(--bottom-nav-safe-padding);
+  position: relative;
+  overflow-x: hidden;
+}
+
+.app-screen.reference-mode {
+  width: min(100%, var(--mobile-max-width));
+  height: 100vh;
+  height: 100dvh;
+  min-height: 100vh;
+  min-height: 100dvh;
+  margin: 0 auto;
+  padding: 0;
+  overflow: hidden;
+  background: #ffffff;
+}
+
+.screen-main {
+  display: grid;
+  gap: 14px;
+}
+
+.section-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.stack {
+  display: grid;
+  gap: 12px;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+@media (max-width: 359px) {
+  .app-screen {
+    --screen-x: 12px;
+  }
+}
