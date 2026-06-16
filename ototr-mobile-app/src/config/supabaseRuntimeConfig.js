@@ -6,5 +6,5 @@ globalThis.OTOTR_SUPABASE_CONFIG = {
   debugLoginEnabled: false,
   debugAutoLoginEnabled: false,
   allowFakeSupabaseSession: false,
-  debugAutoBranchId: "istanbul-kadikoy"
+  debugAutoBranchId: ""
 };

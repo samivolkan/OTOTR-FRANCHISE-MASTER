@@ -1954,7 +1954,7 @@ function renderLogin(onNavigate) {
     const normalizedEmail = String(email).toLowerCase();
     localStorage.setItem("ototrUser", normalizedEmail.includes("ahmet.usta") ? "Ahmet Usta" : email);
     const runtimeConfig = globalThis.OTOTR_SUPABASE_CONFIG || {};
-    const debugAutoBranchId = runtimeConfig.debugAutoBranchId || "";
+    const debugAutoBranchId = runtimeConfig.allowFakeSupabaseSession === true ? runtimeConfig.debugAutoBranchId || "" : "";
     if (debugAutoBranchId && !localStorage.getItem("ototrBranch")) {
       const debugBranch = getBranchById(debugAutoBranchId);
       if (debugBranch) {
