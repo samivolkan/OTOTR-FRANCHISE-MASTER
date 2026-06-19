@@ -1,14 +1,9 @@
 import 'package:flutter/material.dart';
 
-import '../../core/constants/app_constants.dart';
-import '../../core/constants/app_sizes.dart';
 import '../../core/constants/app_strings.dart';
 import '../../core/navigation/app_routes.dart';
 import '../../core/theme/app_colors.dart';
-import '../../core/theme/app_text_styles.dart';
-import '../../core/widgets/ototr_primary_button.dart';
-import '../../core/widgets/ototr_secondary_button.dart';
-import '../../core/widgets/ototr_text_field.dart';
+import 'auth_widgets.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -19,80 +14,134 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
+  final _identityController = TextEditingController();
+  final _passwordController = TextEditingController();
+  bool _rememberMe = true;
+  bool _obscurePassword = true;
+
+  @override
+  void dispose() {
+    _identityController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.navy,
-      body: SafeArea(
-        child: ListView(
-          padding: const EdgeInsets.all(AppSizes.xl),
-          children: [
-            const SizedBox(height: 42),
-            const Text(
-              AppConstants.brandName,
-              style: TextStyle(
-                color: AppColors.white,
-                fontSize: 40,
-                fontWeight: FontWeight.w900,
-              ),
-            ),
-            const Text(
-              AppConstants.brandPositioning,
-              style: TextStyle(color: AppColors.white, fontSize: 16),
-            ),
-            const SizedBox(height: 42),
-            Container(
-              padding: const EdgeInsets.all(AppSizes.lg),
-              decoration: BoxDecoration(
-                color: AppColors.grayBg,
-                borderRadius: BorderRadius.circular(24),
-              ),
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+    return AuthShell(
+      title: 'Hesabınıza Giriş Yapın',
+      subtitle:
+          'Bayi portalı üzerinden tanımlanan kullanıcı bilgilerinizle giriş yapın.',
+      children: [
+        AuthCard(
+          child: Form(
+            key: _formKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                AuthTextField(
+                  label: 'Telefon / E-posta',
+                  icon: Icons.person_outline,
+                  controller: _identityController,
+                  keyboardType: TextInputType.emailAddress,
+                  textInputAction: TextInputAction.next,
+                  validator: _requiredValidator,
+                ),
+                const SizedBox(height: 14),
+                AuthTextField(
+                  label: 'Şifre',
+                  icon: Icons.lock_outline,
+                  controller: _passwordController,
+                  obscureText: _obscurePassword,
+                  textInputAction: TextInputAction.done,
+                  validator: _requiredValidator,
+                  onToggleObscure: () {
+                    setState(() => _obscurePassword = !_obscurePassword);
+                  },
+                ),
+                const SizedBox(height: 10),
+                Row(
                   children: [
-                    const Text('Usta Operasyon Girişi',
-                        style: AppTextStyles.title),
-                    const SizedBox(height: AppSizes.md),
-                    const OtotrTextField(
-                        label: 'E-posta / Telefon',
-                        initialValue: 'ahmet.usta@ototr.test'),
-                    const SizedBox(height: AppSizes.md),
-                    const OtotrTextField(
-                        label: 'Şifre',
-                        initialValue: 'demo123456',
-                        obscureText: true),
-                    const SizedBox(height: AppSizes.md),
-                    const OtotrTextField(
-                        label: 'Şube Kodu',
-                        initialValue: AppConstants.demoBranchCode),
-                    const SizedBox(height: AppSizes.lg),
-                    OtotrPrimaryButton(
-                      label: AppStrings.demoLogin,
-                      icon: Icons.login,
-                      onPressed: () => Navigator.pushReplacementNamed(
-                          context, AppRoutes.dashboard),
+                    Checkbox(
+                      value: _rememberMe,
+                      activeColor: AppColors.brandRed,
+                      onChanged: (value) {
+                        setState(() => _rememberMe = value ?? false);
+                      },
                     ),
-                    const SizedBox(height: AppSizes.sm),
-                    OtotrSecondaryButton(
-                      label: 'Şifremi Unuttum',
-                      icon: Icons.lock_reset,
-                      onPressed: () =>
-                          ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                            content: Text(
-                                'Şifre sıfırlama Firebase Auth ile eklenecek.')),
+                    const Expanded(
+                      child: Text(
+                        'Beni Hatırla',
+                        style: TextStyle(
+                          color: AppColors.darkText,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        Navigator.pushNamed(context, AppRoutes.passwordReset);
+                      },
+                      child: const Text(
+                        'Şifremi Unuttum',
+                        style: TextStyle(
+                          color: AppColors.brandRed,
+                          fontWeight: FontWeight.w900,
+                        ),
                       ),
                     ),
                   ],
                 ),
-              ),
+                const SizedBox(height: 12),
+                AuthPrimaryButton(
+                  tapKey: const ValueKey('auth-login-submit'),
+                  label: AppStrings.login,
+                  icon: Icons.arrow_forward,
+                  onPressed: _submitLogin,
+                ),
+                const SizedBox(height: 12),
+                AuthSecondaryButton(
+                  label: 'Teknik Destek',
+                  icon: Icons.support_agent_outlined,
+                  onPressed: () {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text(
+                          'Teknik destek talebi bayi portalı üzerinden takip edilir.',
+                        ),
+                      ),
+                    );
+                  },
+                ),
+                const SizedBox(height: 16),
+                const AuthNotice(
+                  text:
+                      'Kullanıcı bilgileriniz bayi portalı üzerinden tanımlanır.',
+                ),
+              ],
             ),
-          ],
+          ),
         ),
-      ),
+      ],
     );
+  }
+
+  String? _requiredValidator(String? value) {
+    if (value == null || value.trim().isEmpty) {
+      return 'Bu alan zorunludur';
+    }
+    return null;
+  }
+
+  void _submitLogin() {
+    if (!(_formKey.currentState?.validate() ?? false)) {
+      return;
+    }
+    final password = _passwordController.text.trim().toLowerCase();
+    if (password == 'hata' || password == 'wrong') {
+      Navigator.pushNamed(context, AppRoutes.invalidPassword);
+      return;
+    }
+    Navigator.pushReplacementNamed(context, AppRoutes.branchSelection);
   }
 }

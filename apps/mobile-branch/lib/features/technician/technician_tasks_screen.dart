@@ -56,6 +56,7 @@ class _TechnicianTasksScreenState extends State<TechnicianTasksScreen> {
         tasks: tasks,
         workOrderId: widget.workOrderId,
         currentUser: repository.currentUser,
+        technicians: repository.activeTechnicians(),
         onClaim: (taskId) async {
           repository.claimTask(widget.workOrderId, taskId);
           setState(() {});
@@ -166,6 +167,7 @@ class _RemoteTechnicianTasksScreenState
           tasks: tasks,
           workOrderId: widget.workOrderId,
           currentUser: widget.repository.currentUser,
+          technicians: data.technicians,
           onClaim: (taskId) async {
             await widget.repository.claimTask(widget.workOrderId, taskId);
             _refresh();
@@ -197,6 +199,7 @@ class _RemoteTechnicianTasksScreenState
           await AppRepositories.instance.reportTemplates.getActiveTemplate();
       final progress =
           await _reportService.getReportProgress(widget.workOrderId);
+      final technicians = await widget.repository.activeTechnicians();
       final progressByGroupId = {
         for (final item in progress) item.groupId: item,
       };
@@ -204,12 +207,14 @@ class _RemoteTechnicianTasksScreenState
         order: order,
         template: template,
         progressByGroupId: progressByGroupId,
+        technicians: technicians,
       );
     } catch (_) {
       return _RemoteTaskScreenData(
         order: order,
         template: null,
         progressByGroupId: const {},
+        technicians: const [],
       );
     }
   }
@@ -306,11 +311,13 @@ class _RemoteTaskScreenData {
     required this.order,
     required this.template,
     required this.progressByGroupId,
+    required this.technicians,
   });
 
   final TechnicianWorkOrder order;
   final ReportTemplate? template;
   final Map<String, ReportGroupProgress> progressByGroupId;
+  final List<UserProfile> technicians;
 }
 
 class _TechnicianTasksView extends StatelessWidget {
@@ -320,6 +327,7 @@ class _TechnicianTasksView extends StatelessWidget {
     required this.tasks,
     required this.workOrderId,
     required this.currentUser,
+    required this.technicians,
     this.onClaim,
     this.onRelease,
     this.onTaskChanged,
@@ -330,6 +338,7 @@ class _TechnicianTasksView extends StatelessWidget {
   final List<TechnicianTask> tasks;
   final String workOrderId;
   final UserProfile currentUser;
+  final List<UserProfile> technicians;
   final Future<void> Function(String taskId)? onClaim;
   final Future<void> Function(String taskId, String reason)? onRelease;
   final VoidCallback? onTaskChanged;
@@ -391,6 +400,7 @@ class _TechnicianTasksView extends StatelessWidget {
               isUnlocked: order.isStartEvidenceComplete,
               workOrderId: workOrderId,
               currentUser: currentUser,
+              lockedOwnerName: _technicianNameFor(task.ownerUserId),
               onClaim: onClaim == null ? null : () => onClaim!(task.taskId),
               onRelease: onRelease == null
                   ? null
@@ -406,15 +416,16 @@ class _TechnicianTasksView extends StatelessWidget {
             ),
             for (final task in completedTasks)
               _TaskProgressCard(
-                task: task,
-                isUnlocked: order.isStartEvidenceComplete,
-                workOrderId: workOrderId,
-                currentUser: currentUser,
-                onClaim: null,
-                onRelease: null,
-                onTaskChanged: onTaskChanged,
-                isOptimisticCompleted: _isOptimisticCompleted(task),
-              ),
+              task: task,
+              isUnlocked: order.isStartEvidenceComplete,
+              workOrderId: workOrderId,
+              currentUser: currentUser,
+              lockedOwnerName: _technicianNameFor(task.ownerUserId),
+              onClaim: null,
+              onRelease: null,
+              onTaskChanged: onTaskChanged,
+              isOptimisticCompleted: _isOptimisticCompleted(task),
+            ),
           ],
           OtotrSecondaryButton(
             label: 'Rapor Medyalarına Git',
@@ -444,6 +455,25 @@ class _TechnicianTasksView extends StatelessWidget {
         _isOptimisticCompleted(task) ||
         rowsComplete;
   }
+
+  String _technicianNameFor(String? technicianId) {
+    if (technicianId == null || technicianId.isEmpty) {
+      return '';
+    }
+    final technician = technicians.firstWhere(
+      (item) => item.id == technicianId,
+      orElse: () => const UserProfile(
+        id: '',
+        fullName: '',
+        email: '',
+        phone: '',
+        role: UserRole.inspectionTechnician,
+        branchId: '',
+        isActive: false,
+      ),
+    );
+    return technician.fullName.isNotEmpty ? technician.fullName : technicianId;
+  }
 }
 
 class _TaskProgressCard extends StatelessWidget {
@@ -452,6 +482,7 @@ class _TaskProgressCard extends StatelessWidget {
     required this.isUnlocked,
     required this.workOrderId,
     required this.currentUser,
+    this.lockedOwnerName,
     this.onClaim,
     this.onRelease,
     this.onTaskChanged,
@@ -462,6 +493,7 @@ class _TaskProgressCard extends StatelessWidget {
   final bool isUnlocked;
   final String workOrderId;
   final UserProfile currentUser;
+  final String? lockedOwnerName;
   final Future<void> Function()? onClaim;
   final Future<void> Function(String reason)? onRelease;
   final VoidCallback? onTaskChanged;
@@ -475,9 +507,8 @@ class _TaskProgressCard extends StatelessWidget {
     final canClaim = isUnlocked && task.isAvailableForClaim && onClaim != null;
     final isCompletedStatus =
         task.status == TaskStatus.completed || isOptimisticCompleted;
-    final canOpenForm =
-        isUnlocked && (canEdit || isReadOnly || isCompletedStatus);
-    final canOpenByTap = canClaim || canOpenForm;
+    final canOpenByTap = canClaim ||
+        (isUnlocked && (canEdit || isReadOnly || isCompletedStatus));
     final total = task.checklistItems.length;
     final completed = isCompletedStatus && total > 0
         ? total
@@ -496,10 +527,13 @@ class _TaskProgressCard extends StatelessWidget {
         : completed == 0
             ? 'Teste henuz baslanmadi'
             : 'Test devam ediyor';
+    final lockedOwner = lockedOwnerName != null && lockedOwnerName!.isNotEmpty
+        ? lockedOwnerName!
+        : task.ownerUserId ?? '';
     final ownershipLabel = task.isOwned
         ? isOwnedByCurrentUser
             ? 'Sorumlu: siz'
-            : 'Sorumlu: ${task.ownerUserId}'
+            : 'Sorumlu: $lockedOwner'
         : 'Havuzda';
     final ownershipBackground = task.isOwned
         ? isOwnedByCurrentUser
@@ -608,6 +642,22 @@ class _TaskProgressCard extends StatelessWidget {
   }
 
   Future<void> _openTask(BuildContext context) async {
+    if (task.isOwned && !task.canEditBy(currentUser)) {
+      await Navigator.pushNamed(
+        context,
+        AppRoutes.lockedSectionWarning,
+        arguments: {
+          'workOrderId': workOrderId,
+          'taskId': task.taskId,
+          'sectionName': task.title,
+          'lockedBy': lockedOwnerName ?? task.ownerUserId ?? '',
+          'lockedAt': task.claimedAt?.toIso8601String().replaceFirst('T', ' • ') ??
+              'Bilinmiyor',
+        },
+      );
+      return;
+    }
+
     if (task.isAvailableForClaim && onClaim != null) {
       await onClaim!();
       if (!context.mounted) {
@@ -615,14 +665,14 @@ class _TaskProgressCard extends StatelessWidget {
       }
     }
 
-    final changed = await Navigator.pushNamed(
-      context,
-      AppRoutes.technicianTaskForm,
-      arguments: {
-        'workOrderId': workOrderId,
-        'taskId': task.taskId,
-      },
-    );
+      final changed = await Navigator.pushNamed(
+        context,
+        AppRoutes.technicianTaskForm,
+        arguments: {
+          'workOrderId': workOrderId,
+          'taskId': task.taskId,
+        },
+      );
     if (changed == true) {
       onTaskChanged?.call();
     }
@@ -778,8 +828,8 @@ class TaskCardLegacy extends StatelessWidget {
     final isOwnedByCurrentUser = task.isOwnedBy(currentUser.id);
     final isReadOnly = task.isOwned && !canEdit;
     final canClaim = isUnlocked && task.isAvailableForClaim && onClaim != null;
-    final canOpenForm = isUnlocked && (canEdit || isReadOnly);
-    final canOpenByTap = canClaim || canOpenForm;
+    final canOpenForm = isUnlocked && canEdit;
+    final canOpenByTap = canClaim || canOpenForm || isReadOnly;
 
     return OtotrCard(
       onTap: canOpenByTap ? () => _openTask(context) : null,
@@ -870,6 +920,23 @@ class TaskCardLegacy extends StatelessWidget {
   }
 
   Future<void> _openTask(BuildContext context) async {
+    final canEdit = task.canEditBy(currentUser);
+    if (task.isOwned && !canEdit) {
+      await Navigator.pushNamed(
+        context,
+        AppRoutes.lockedSectionWarning,
+        arguments: {
+          'workOrderId': workOrderId,
+          'taskId': task.taskId,
+          'sectionName': task.title,
+          'lockedBy': task.ownerUserId ?? '',
+          'lockedAt': task.claimedAt?.toIso8601String().replaceFirst('T', ' • ') ??
+              'Bilinmiyor',
+        },
+      );
+      return;
+    }
+
     if (task.isAvailableForClaim && onClaim != null) {
       await onClaim!();
       if (!context.mounted) {

@@ -636,7 +636,7 @@ class _ReportEntryScreenState extends State<ReportEntryScreen> {
       case _BodyPaintFilter.measurement:
         return item.inputFields.isNotEmpty;
       case _BodyPaintFilter.evidence:
-        return item.hasImages;
+        return _answerHasEvidence(answer);
     }
   }
 
@@ -672,7 +672,7 @@ class _ReportEntryScreenState extends State<ReportEntryScreen> {
       case _MechanicalFilter.completed:
         return answer?.isCompleted == true;
       case _MechanicalFilter.evidence:
-        return item.hasImages;
+        return _answerHasEvidence(answer);
       case _MechanicalFilter.risk:
         return _answerHasRiskSelection(item, answer);
     }
@@ -693,10 +693,17 @@ class _ReportEntryScreenState extends State<ReportEntryScreen> {
       case _FocusedTestFilter.measurement:
         return item.inputFields.isNotEmpty;
       case _FocusedTestFilter.evidence:
-        return item.hasImages;
+        return _answerHasEvidence(answer);
       case _FocusedTestFilter.risk:
         return _answerHasRiskSelection(item, answer);
     }
+  }
+
+  bool _answerHasEvidence(WorkOrderReportAnswer? answer) {
+    if (answer == null) {
+      return false;
+    }
+    return answer.imageUrls.any((value) => value.trim().isNotEmpty);
   }
 
   bool _answerHasRiskSelection(
@@ -2365,6 +2372,17 @@ class _ReportItemCard extends StatelessWidget {
     final completed = answer?.isCompleted ?? false;
     final hasPhoto = answer?.imageUrls.isNotEmpty ?? false;
     final hasDescription = answer?.description.trim().isNotEmpty ?? false;
+    final hasWarning = _hasWarningSelection(item, answer);
+    final statusColor = completed
+        ? AppColors.success
+        : hasWarning
+            ? AppColors.warning
+            : AppColors.red;
+    final statusLabel = completed
+        ? 'Tamamlandı'
+        : hasWarning
+            ? 'Uyarı'
+            : 'Eksik';
     final inputSummary = answer?.inputValues.values
         .where((value) => value.isNotEmpty)
         .join(', ');
@@ -2379,11 +2397,43 @@ class _ReportItemCard extends StatelessWidget {
 
     return OtotrCard(
       onTap: onTap,
+      padding: const EdgeInsets.fromLTRB(12, 12, 12, 12),
       child: Row(
         children: [
-          Icon(
-            completed ? Icons.check_circle : Icons.radio_button_unchecked,
-            color: completed ? AppColors.success : AppColors.grayText,
+          Column(
+            children: [
+              Container(
+                width: 30,
+                height: 30,
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  color: statusColor.withAlpha(22),
+                  borderRadius: BorderRadius.circular(999),
+                ),
+                child: Text(
+                  '${item.noktaId}',
+                  style: TextStyle(
+                    color: statusColor,
+                    fontWeight: FontWeight.w900,
+                    fontSize: 13,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 8),
+              Container(
+                width: 52,
+                height: 52,
+                decoration: BoxDecoration(
+                  color: statusColor.withAlpha(16),
+                  borderRadius: BorderRadius.circular(999),
+                ),
+                child: Icon(
+                  _iconForReportItem(item),
+                  color: AppColors.navy,
+                  size: 26,
+                ),
+              ),
+            ],
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -2406,6 +2456,14 @@ class _ReportItemCard extends StatelessWidget {
                   style: const TextStyle(
                     color: AppColors.grayText,
                     fontWeight: FontWeight.w700,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: _StatusPill(
+                    label: statusLabel,
+                    color: statusColor,
                   ),
                 ),
                 if (item.inputFields.isNotEmpty ||
@@ -2462,7 +2520,73 @@ class _ReportItemCard extends StatelessWidget {
             color: hasPhoto ? AppColors.success : AppColors.grayText,
             size: 20,
           ),
+          const SizedBox(width: 4),
+          const Icon(Icons.chevron_right, color: AppColors.red, size: 24),
         ],
+      ),
+    );
+  }
+
+  bool _hasWarningSelection(
+    ReportTemplateItem item,
+    WorkOrderReportAnswer? answer,
+  ) {
+    if (answer == null) {
+      return false;
+    }
+    final selectedIds = answer.selectedOptionIds.toSet();
+    return item.options.any(
+      (option) =>
+          selectedIds.contains(option.id) &&
+          option.scoreType == ReportOptionScoreType.negative,
+    );
+  }
+
+  IconData _iconForReportItem(ReportTemplateItem item) {
+    final title = item.title.toLowerCase();
+    if (title.contains('kaput')) {
+      return Icons.directions_car_filled_outlined;
+    }
+    if (title.contains('tampon')) {
+      return Icons.car_repair_outlined;
+    }
+    if (title.contains('kapı') || title.contains('kapi')) {
+      return Icons.door_front_door_outlined;
+    }
+    if (title.contains('ayna')) {
+      return Icons.flip_camera_android_outlined;
+    }
+    if (title.contains('far')) {
+      return Icons.lightbulb_outline;
+    }
+    return Icons.fact_check_outlined;
+  }
+}
+
+class _StatusPill extends StatelessWidget {
+  const _StatusPill({
+    required this.label,
+    required this.color,
+  });
+
+  final String label;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+      decoration: BoxDecoration(
+        color: color.withAlpha(24),
+        borderRadius: BorderRadius.circular(7),
+      ),
+      child: Text(
+        label,
+        style: TextStyle(
+          color: color,
+          fontWeight: FontWeight.w900,
+          fontSize: 12,
+        ),
       ),
     );
   }
@@ -2616,11 +2740,18 @@ class _ReportItemFormSheetState extends State<_ReportItemFormSheet> {
     final imageSlotCount = widget.item.maxImages > 0
         ? widget.item.maxImages.clamp(1, 3).toInt()
         : 3;
-    return Padding(
-      padding: EdgeInsets.fromLTRB(16, 12, 16, bottomInset + 16),
+    final hasOptions = widget.item.options.isNotEmpty;
+    final sheetTitle = hasOptions ? 'Durum Seçimi' : 'Madde Detayı';
+
+    return Container(
+      decoration: const BoxDecoration(
+        color: AppColors.white,
+        borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
+      ),
+      padding: EdgeInsets.fromLTRB(24, 12, 24, bottomInset + 18),
       child: SingleChildScrollView(
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisSize: MainAxisSize.min,
           children: [
             Center(
@@ -2633,14 +2764,29 @@ class _ReportItemFormSheetState extends State<_ReportItemFormSheet> {
                 ),
               ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 20),
+            if (hasOptions) ...[
+              Container(
+                width: 78,
+                height: 78,
+                decoration: BoxDecoration(
+                  color: AppColors.redSoft,
+                  borderRadius: BorderRadius.circular(999),
+                ),
+                child: const Icon(
+                  Icons.car_crash_outlined,
+                  color: AppColors.red,
+                  size: 38,
+                ),
+              ),
+              const SizedBox(height: 18),
+            ],
             Text(
-              widget.item.modalTitle.isEmpty
-                  ? widget.item.title
-                  : widget.item.modalTitle,
+              sheetTitle,
+              textAlign: TextAlign.center,
               style: const TextStyle(
                 color: AppColors.navy,
-                fontSize: 20,
+                fontSize: 26,
                 fontWeight: FontWeight.w900,
               ),
             ),
@@ -2652,13 +2798,24 @@ class _ReportItemFormSheetState extends State<_ReportItemFormSheet> {
                 fontWeight: FontWeight.w700,
               ),
             ),
-            const SizedBox(height: 16),
+            if (hasOptions) ...[
+              const SizedBox(height: 6),
+              const Text(
+                'Seçtiğiniz durum rapor diline doğrudan yansıtılır.',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: AppColors.grayText,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
+            const SizedBox(height: 22),
             if (widget.item.options.isNotEmpty) ...[
               Column(
                 children: [
                   for (final option in widget.item.options)
                     Padding(
-                      padding: const EdgeInsets.only(bottom: 6),
+                      padding: const EdgeInsets.only(bottom: 10),
                       child: _OptionChip(
                         option: option,
                         selected: _selectedOptionIds.contains(option.id),
@@ -2667,7 +2824,7 @@ class _ReportItemFormSheetState extends State<_ReportItemFormSheet> {
                     ),
                 ],
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 12),
             ],
             for (final input in widget.item.inputFields) ...[
               TextField(
@@ -2710,9 +2867,9 @@ class _ReportItemFormSheetState extends State<_ReportItemFormSheet> {
               children: [
                 Expanded(
                   child: OutlinedButton.icon(
-                    onPressed: _saving ? null : () => _save(complete: false),
-                    icon: const Icon(Icons.save_outlined),
-                    label: const Text('Kaydet'),
+                    onPressed: _saving ? null : () => Navigator.pop(context),
+                    icon: const Icon(Icons.close),
+                    label: const Text('İptal'),
                   ),
                 ),
                 const SizedBox(width: 10),
@@ -2725,7 +2882,7 @@ class _ReportItemFormSheetState extends State<_ReportItemFormSheet> {
                             height: 16,
                             child: CircularProgressIndicator(strokeWidth: 2),
                           )
-                        : const Icon(Icons.check),
+                        : const Icon(Icons.arrow_forward),
                     label: const Text('Tamamlandı'),
                   ),
                 ),
@@ -3028,39 +3185,87 @@ class _OptionChip extends StatelessWidget {
     final color = _tone(option.colorType);
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(8),
+      borderRadius: BorderRadius.circular(16),
       child: Container(
         width: double.infinity,
-        constraints: const BoxConstraints(minHeight: 42),
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        constraints: const BoxConstraints(minHeight: 66),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
         decoration: BoxDecoration(
-          color: selected ? color.withAlpha(48) : _softTone(option.colorType),
-          borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: selected ? color : color.withAlpha(92)),
+          color: selected ? color.withAlpha(18) : AppColors.white,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: selected ? AppColors.red : AppColors.grayBorder,
+            width: selected ? 1.5 : 1,
+          ),
+          boxShadow: const [
+            BoxShadow(
+              color: Color(0x0F000000),
+              blurRadius: 10,
+              offset: Offset(0, 4),
+            ),
+          ],
         ),
         child: Row(
           children: [
+            Container(
+              width: 42,
+              height: 42,
+              decoration: BoxDecoration(
+                color: _softTone(option.colorType),
+                borderRadius: BorderRadius.circular(999),
+              ),
+              child: Icon(
+                _icon(option),
+                color: color,
+                size: 24,
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                option.label,
+                style: TextStyle(
+                  color: selected ? AppColors.red : AppColors.darkText,
+                  fontWeight: FontWeight.w900,
+                  fontSize: 16,
+                ),
+              ),
+            ),
             Icon(
               selected
                   ? Icons.radio_button_checked
                   : Icons.radio_button_unchecked,
-              color: color,
-              size: 20,
-            ),
-            const SizedBox(width: 8),
-            Expanded(
-              child: Text(
-                option.label,
-                style: const TextStyle(
-                  color: AppColors.darkText,
-                  fontWeight: FontWeight.w900,
-                ),
-              ),
+              color: selected ? AppColors.red : AppColors.grayText,
+              size: 28,
             ),
           ],
         ),
       ),
     );
+  }
+
+  IconData _icon(ReportTemplateOption option) {
+    final label = option.label.toLowerCase();
+    if (label.contains('orijinal') ||
+        option.colorType == ReportOptionColorType.green) {
+      return Icons.verified_user_outlined;
+    }
+    if (label.contains('lokal')) {
+      return Icons.format_paint_outlined;
+    }
+    if (label.contains('boyal')) {
+      return Icons.imagesearch_roller_outlined;
+    }
+    if (label.contains('değiş') || label.contains('degis')) {
+      return Icons.swap_horiz_outlined;
+    }
+    if (label.contains('sök') || label.contains('sok')) {
+      return Icons.build_outlined;
+    }
+    if (label.contains('hasar')) {
+      return Icons.warning_amber_rounded;
+    }
+    return Icons.help_outline;
   }
 
   Color _softTone(ReportOptionColorType type) {

@@ -82,9 +82,13 @@ assert(
   'all tasks are available after complete start evidence',
 );
 
-const template = await restSingle(
-  'report_templates?select=id,name,version&is_active=eq.true&order=created_at.desc&limit=1',
+const activeTemplates = await rest(
+  'report_templates?select=id,name,version,report_template_groups(count)&is_active=eq.true&order=created_at.desc',
 );
+const template = activeTemplates.find((row) => Number(row?.report_template_groups?.[0]?.count || 0) > 0);
+if (!template) {
+  throw new Error('Aktif ve grup iceren report template bulunamadi.');
+}
 const groups = await rest(
   `report_template_groups?select=*&template_id=eq.${template.id}&order=sort_order.asc`,
 );

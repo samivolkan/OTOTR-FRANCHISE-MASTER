@@ -24,6 +24,22 @@ ios/Pods/
 artifacts/
 .codex-screenshots/
 coverage/
+**/tmp-*
+**/*.out
+**/*.err
+/*.png
+/*.jpg
+/*.jpeg
+/*.zip
+ototr-mobile-app/*.png
+ototr-mobile-app/*.jpg
+ototr-mobile-app/*.jpeg
+ototr-mobile-app/*.xml
+ototr-mobile-app/tmp-*/
+ototr-mobile-app/www/
+supabase/.temp/
+supabase/.branches/
+apps/admin/prototype/bayi-portal/ototr-supabase-runtime-config.js
 
 # OS / editor
 .DS_Store

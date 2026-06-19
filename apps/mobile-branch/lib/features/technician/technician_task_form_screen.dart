@@ -22,10 +22,12 @@ class TechnicianTaskFormScreen extends StatefulWidget {
     super.key,
     required this.workOrderId,
     required this.taskId,
+    this.readOnly = false,
   });
 
   final String workOrderId;
   final String taskId;
+  final bool readOnly;
 
   @override
   State<TechnicianTaskFormScreen> createState() =>
@@ -161,7 +163,7 @@ class _TechnicianTaskFormScreenState extends State<TechnicianTaskFormScreen> {
     final currentUser =
         AppRepositories.instance.remoteWorkOrders?.currentUser ??
             AppRepositories.instance.localWorkOrders.currentUser;
-    final isReadOnly = !task.canEditBy(currentUser);
+    final isReadOnly = widget.readOnly || !task.canEditBy(currentUser);
     final completed = _completedCountForTask(task);
     final total = task.checklistItems.length;
     final percent = total == 0 ? 0 : ((completed / total) * 100).round();
@@ -981,15 +983,34 @@ class _ChecklistRowState extends State<_ChecklistRow> {
     final hasNote = (answer?.description.trim().isNotEmpty ?? false) ||
         item.note.trim().isNotEmpty ||
         item.notDoneReason.trim().isNotEmpty;
+    final statusColor = isCompleted
+        ? AppColors.success
+        : item.result == TechnicianFindingResult.risky
+            ? AppColors.warning
+            : AppColors.red;
+    final statusLabel = isCompleted
+        ? 'Tamamlandı'
+        : item.result == TechnicianFindingResult.risky
+            ? 'Uyarı'
+            : 'Eksik';
 
     return OtotrCard(
       onTap: widget.enabled ? widget.onTap : null,
+      padding: const EdgeInsets.fromLTRB(12, 12, 12, 12),
       child: Row(
         children: [
-          Icon(
-            isCompleted ? Icons.check_circle : Icons.search,
-            color: isCompleted ? AppColors.success : AppColors.darkText,
-            size: 28,
+          Container(
+            width: 54,
+            height: 54,
+            decoration: BoxDecoration(
+              color: statusColor.withAlpha(18),
+              borderRadius: BorderRadius.circular(999),
+            ),
+            child: Icon(
+              isCompleted ? Icons.check_rounded : Icons.search,
+              color: statusColor,
+              size: 28,
+            ),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -1013,6 +1034,14 @@ class _ChecklistRowState extends State<_ChecklistRow> {
                     fontWeight: FontWeight.w700,
                   ),
                 ),
+                const SizedBox(height: 8),
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: _TaskStatusPill(
+                    label: statusLabel,
+                    color: statusColor,
+                  ),
+                ),
               ],
             ),
           ),
@@ -1028,6 +1057,8 @@ class _ChecklistRowState extends State<_ChecklistRow> {
             color: hasPhoto ? AppColors.success : AppColors.grayText,
             size: 20,
           ),
+          const SizedBox(width: 4),
+          const Icon(Icons.chevron_right, color: AppColors.red, size: 24),
         ],
       ),
     );
@@ -1067,6 +1098,35 @@ class _ChecklistRowState extends State<_ChecklistRow> {
     }
 
     return 'Detayları doldurmak için dokunun';
+  }
+}
+
+class _TaskStatusPill extends StatelessWidget {
+  const _TaskStatusPill({
+    required this.label,
+    required this.color,
+  });
+
+  final String label;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+      decoration: BoxDecoration(
+        color: color.withAlpha(24),
+        borderRadius: BorderRadius.circular(7),
+      ),
+      child: Text(
+        label,
+        style: TextStyle(
+          color: color,
+          fontWeight: FontWeight.w900,
+          fontSize: 12,
+        ),
+      ),
+    );
   }
 }
 

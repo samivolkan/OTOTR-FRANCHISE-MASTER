@@ -1,0 +1,2511 @@
+{
+  "schemaVersion": "1.1.0-draft",
+  "createdAt": "2026-06-06T10:08:05Z",
+  "extends": "ototr_expertise_schema_otorapor_2614045.json",
+  "purpose": "OTOTR ekspertiz raporunu yalnızca teknik madde listesinden çıkarıp profesyonel rapor ürünü haline getirecek üst veri, araç kimliği, ham ölçüm, OBD, sorgu, kanıt ve hukuki onay katmanları.",
+  "designPrinciples": [
+    "Mevcut 12 grup ve 265 teknik madde korunur; yeni katmanlar mevcut groups alanının içine karıştırılmaz.",
+    "Usta ekranında teknik test maddeleri data-driven render edilir; rapor üst bilgileri ve hukuki onaylar ayrı akışlarda toplanır.",
+    "Cihazdan gelen ham ölçüm değerleri karar seçeneklerinden ayrı saklanır.",
+    "Eksik veya kritik bulguda açıklama ve kanıt fotoğrafı zorunlu hale getirilir.",
+    "label=null checkbox seçenekleri çözülmeden son kullanıcı arayüzünde ham değer olarak gösterilmez."
+  ],
+  "baseSchemaStatsAtExtensionTime": {
+    "groupCount": 12,
+    "itemCount": 265,
+    "optionInputCount": 2082,
+    "plainOptionCount": 486,
+    "unknownCheckboxOptionCount": 1568,
+    "inputCount": 28,
+    "itemsWithDescription": 265,
+    "itemsWithImageSlots": 265,
+    "totalImageSlotsDeclared": 795
+  },
+  "newTopLevelCollections": {
+    "reportMeta": {
+      "title": "Rapor / İş Emri Üst Bilgileri",
+      "ownerScreen": "sekreterya-admin-report-engine",
+      "fields": [
+        {
+          "fieldId": "reportNo",
+          "label": "Rapor No",
+          "type": "string",
+          "required": true,
+          "source": [
+            "system"
+          ],
+          "showInReport": true,
+          "validation": {
+            "unique": true
+          }
+        },
+        {
+          "fieldId": "workOrderNo",
+          "label": "İş Emri No",
+          "type": "string",
+          "required": true,
+          "source": [
+            "system"
+          ],
+          "showInReport": true,
+          "validation": {
+            "unique": true
+          }
+        },
+        {
+          "fieldId": "packageName",
+          "label": "Paket Adı",
+          "type": "string",
+          "required": true,
+          "source": [
+            "packageCatalog"
+          ],
+          "showInReport": true
+        },
+        {
+          "fieldId": "packagePrice",
+          "label": "Paket Tutarı",
+          "type": "currency",
+          "required": false,
+          "source": [
+            "packageCatalog",
+            "manual"
+          ],
+          "showInReport": true
+        },
+        {
+          "fieldId": "packageScope",
+          "label": "Paket Kapsamı",
+          "type": "multiSelect",
+          "required": true,
+          "source": [
+            "manual"
+          ],
+          "showInReport": true,
+          "options": [
+            "Kaporta/Boya",
+            "Motor",
+            "Mekanik",
+            "OBD/Beyin",
+            "Fren/Süspansiyon",
+            "Dyno",
+            "Airbag",
+            "Conta Kaçak",
+            "İç/Dış Donanım",
+            "Yol Testi",
+            "Garanti Uygunluk"
+          ]
+        },
+        {
+          "fieldId": "reportCreatedAt",
+          "label": "Rapor Oluşturma Tarihi",
+          "type": "datetime",
+          "required": true,
+          "source": [
+            "system"
+          ],
+          "showInReport": true
+        },
+        {
+          "fieldId": "reportPrintedAt",
+          "label": "Rapor Çıktı Tarihi",
+          "type": "datetime",
+          "required": false,
+          "source": [
+            "system"
+          ],
+          "showInReport": true
+        },
+        {
+          "fieldId": "vehicleAcceptedAt",
+          "label": "Araç Kabul Tarihi/Saati",
+          "type": "datetime",
+          "required": true,
+          "source": [
+            "system",
+            "manual"
+          ],
+          "showInReport": true
+        },
+        {
+          "fieldId": "testStartedAt",
+          "label": "Test Başlangıç Tarihi/Saati",
+          "type": "datetime",
+          "required": true,
+          "source": [
+            "system"
+          ],
+          "showInReport": true
+        },
+        {
+          "fieldId": "testEndedAt",
+          "label": "Test Bitiş Tarihi/Saati",
+          "type": "datetime",
+          "required": true,
+          "source": [
+            "system"
+          ],
+          "showInReport": true
+        },
+        {
+          "fieldId": "vehicleDeliveredAt",
+          "label": "Araç Teslim Tarihi/Saati",
+          "type": "datetime",
+          "required": false,
+          "source": [
+            "system",
+            "manual"
+          ],
+          "showInReport": true
+        },
+        {
+          "fieldId": "branchId",
+          "label": "Bayi / Şube Kodu",
+          "type": "string",
+          "required": true,
+          "source": [
+            "system"
+          ],
+          "showInReport": true
+        },
+        {
+          "fieldId": "branchTitle",
+          "label": "Bayi / Şube Ünvanı",
+          "type": "string",
+          "required": true,
+          "source": [
+            "system"
+          ],
+          "showInReport": true
+        },
+        {
+          "fieldId": "branchAddress",
+          "label": "Bayi / Şube Adresi",
+          "type": "text",
+          "required": true,
+          "source": [
+            "system"
+          ],
+          "showInReport": true
+        },
+        {
+          "fieldId": "branchPhone",
+          "label": "Bayi Telefonu",
+          "type": "phone",
+          "required": false,
+          "source": [
+            "system"
+          ],
+          "showInReport": true
+        },
+        {
+          "fieldId": "tseHybNo",
+          "label": "TSE / HYB Numarası",
+          "type": "string",
+          "required": true,
+          "source": [
+            "system",
+            "manual"
+          ],
+          "showInReport": true
+        },
+        {
+          "fieldId": "mersisNo",
+          "label": "Mersis No",
+          "type": "string",
+          "required": false,
+          "source": [
+            "system",
+            "manual"
+          ],
+          "showInReport": true
+        },
+        {
+          "fieldId": "technicianNames",
+          "label": "Teknikerler",
+          "type": "array<string>",
+          "required": true,
+          "source": [
+            "system"
+          ],
+          "showInReport": true
+        },
+        {
+          "fieldId": "technicalResponsible",
+          "label": "Teknik Sorumlu",
+          "type": "string",
+          "required": false,
+          "source": [
+            "system"
+          ],
+          "showInReport": true
+        },
+        {
+          "fieldId": "reportQrCode",
+          "label": "QR Doğrulama Kodu",
+          "type": "string",
+          "required": true,
+          "source": [
+            "system"
+          ],
+          "showInReport": true
+        },
+        {
+          "fieldId": "reportHash",
+          "label": "Değiştirilemez Rapor Hash",
+          "type": "string",
+          "required": true,
+          "source": [
+            "system"
+          ],
+          "showInReport": true
+        },
+        {
+          "fieldId": "reportRevisionNo",
+          "label": "Rapor Revizyon No",
+          "type": "integer",
+          "required": true,
+          "source": [
+            "system"
+          ],
+          "showInReport": true,
+          "validation": {
+            "min": 0
+          }
+        },
+        {
+          "fieldId": "reportStatus",
+          "label": "Rapor Durumu",
+          "type": "select",
+          "required": true,
+          "source": [
+            "manual"
+          ],
+          "showInReport": true,
+          "options": [
+            "Taslak",
+            "Teknik Onay Bekliyor",
+            "Düzeltme İstendi",
+            "Onaylandı",
+            "Müşteriye Gönderildi",
+            "İptal"
+          ]
+        }
+      ]
+    },
+    "customerSellerIdentity": {
+      "title": "Alıcı / Satıcı / Ruhsat Sahibi Bilgileri",
+      "ownerScreen": "sekreterya",
+      "fields": [
+        {
+          "fieldId": "buyerFullName",
+          "label": "Alıcı Ad Soyad / Ünvan",
+          "type": "string",
+          "required": false,
+          "source": [
+            "manual",
+            "customerStatement"
+          ],
+          "showInReport": true
+        },
+        {
+          "fieldId": "buyerTaxOrTcNo",
+          "label": "Alıcı TC/Vergi No",
+          "type": "maskedString",
+          "required": false,
+          "source": [
+            "manual",
+            "customerStatement"
+          ],
+          "showInReport": true
+        },
+        {
+          "fieldId": "buyerPhone",
+          "label": "Alıcı Telefon",
+          "type": "phone",
+          "required": false,
+          "source": [
+            "manual",
+            "customerStatement"
+          ],
+          "showInReport": true
+        },
+        {
+          "fieldId": "buyerEmail",
+          "label": "Alıcı E-posta",
+          "type": "email",
+          "required": false,
+          "source": [
+            "manual",
+            "customerStatement"
+          ],
+          "showInReport": true
+        },
+        {
+          "fieldId": "sellerFullName",
+          "label": "Satıcı/Vekil Ad Soyad / Ünvan",
+          "type": "string",
+          "required": false,
+          "source": [
+            "manual",
+            "customerStatement"
+          ],
+          "showInReport": true
+        },
+        {
+          "fieldId": "sellerPhone",
+          "label": "Satıcı/Vekil Telefon",
+          "type": "phone",
+          "required": false,
+          "source": [
+            "manual",
+            "customerStatement"
+          ],
+          "showInReport": true
+        },
+        {
+          "fieldId": "licenseOwnerFullName",
+          "label": "Ruhsat Sahibi",
+          "type": "string",
+          "required": false,
+          "source": [
+            "ruhsat",
+            "manual"
+          ],
+          "showInReport": true
+        },
+        {
+          "fieldId": "licenseOwnerTaxOrTcNo",
+          "label": "Ruhsat Sahibi TC/Vergi/Mersis",
+          "type": "maskedString",
+          "required": false,
+          "source": [
+            "ruhsat",
+            "manual"
+          ],
+          "showInReport": true
+        },
+        {
+          "fieldId": "driverOrProxyFullName",
+          "label": "Aracı Getiren / Vekil Kişi",
+          "type": "string",
+          "required": false,
+          "source": [
+            "manual"
+          ],
+          "showInReport": true
+        },
+        {
+          "fieldId": "customerSignatureStatus",
+          "label": "Müşteri İmza Durumu",
+          "type": "select",
+          "required": true,
+          "source": [
+            "manual"
+          ],
+          "showInReport": true,
+          "options": [
+            "İmzalandı",
+            "Eksik",
+            "Dijital imza alındı",
+            "Fiziki imza alındı",
+            "İmza reddedildi"
+          ]
+        }
+      ]
+    },
+    "vehicleIdentity": {
+      "title": "Araç Kimlik ve Profil Bilgileri",
+      "ownerScreen": "sekreterya-precheck",
+      "fields": [
+        {
+          "fieldId": "plate",
+          "label": "Plaka",
+          "type": "string",
+          "required": true,
+          "source": [
+            "manual",
+            "ruhsat",
+            "ocr"
+          ],
+          "showInReport": true,
+          "validation": {
+            "pattern": "^[0-9]{2}[A-ZÇĞİÖŞÜ]{1,3}[0-9]{2,5}$"
+          }
+        },
+        {
+          "fieldId": "vin",
+          "label": "Şasi No / VIN",
+          "type": "string",
+          "required": true,
+          "source": [
+            "ruhsat",
+            "physicalCheck",
+            "ocr"
+          ],
+          "showInReport": true,
+          "validation": {
+            "length": 17,
+            "uppercase": true
+          }
+        },
+        {
+          "fieldId": "engineNo",
+          "label": "Motor No",
+          "type": "string",
+          "required": false,
+          "source": [
+            "ruhsat",
+            "physicalCheck",
+            "manual"
+          ],
+          "showInReport": true
+        },
+        {
+          "fieldId": "brand",
+          "label": "Marka",
+          "type": "string",
+          "required": true,
+          "source": [
+            "database",
+            "manual",
+            "ruhsat"
+          ],
+          "showInReport": true
+        },
+        {
+          "fieldId": "model",
+          "label": "Model",
+          "type": "string",
+          "required": true,
+          "source": [
+            "database",
+            "manual",
+            "ruhsat"
+          ],
+          "showInReport": true
+        },
+        {
+          "fieldId": "modelDetail",
+          "label": "Model Uzantısı / Donanım Paketi",
+          "type": "string",
+          "required": false,
+          "source": [
+            "database",
+            "manual"
+          ],
+          "showInReport": true
+        },
+        {
+          "fieldId": "generation",
+          "label": "Jenerasyon",
+          "type": "string",
+          "required": false,
+          "source": [
+            "database"
+          ],
+          "showInReport": true
+        },
+        {
+          "fieldId": "modelYear",
+          "label": "Model Yılı",
+          "type": "integer",
+          "required": true,
+          "source": [
+            "ruhsat",
+            "manual"
+          ],
+          "showInReport": true,
+          "validation": {
+            "min": 1950,
+            "maxDynamic": "currentYear+1"
+          }
+        },
+        {
+          "fieldId": "firstRegistrationDate",
+          "label": "İlk Tescil Tarihi",
+          "type": "date",
+          "required": false,
+          "source": [
+            "ruhsat",
+            "manual"
+          ],
+          "showInReport": true
+        },
+        {
+          "fieldId": "registrationDate",
+          "label": "Tescil Tarihi",
+          "type": "date",
+          "required": false,
+          "source": [
+            "ruhsat",
+            "manual"
+          ],
+          "showInReport": true
+        },
+        {
+          "fieldId": "bodyType",
+          "label": "Gövde Tipi",
+          "type": "select",
+          "required": false,
+          "source": [
+            "manual"
+          ],
+          "showInReport": true,
+          "options": [
+            "Sedan",
+            "Hatchback",
+            "Station Wagon",
+            "SUV",
+            "Crossover",
+            "Coupe",
+            "Cabrio",
+            "MPV",
+            "Pick-up",
+            "Panelvan",
+            "Minibüs",
+            "Diğer"
+          ]
+        },
+        {
+          "fieldId": "doorCount",
+          "label": "Kapı Sayısı",
+          "type": "integer",
+          "required": false,
+          "source": [
+            "manual"
+          ],
+          "showInReport": true,
+          "validation": {
+            "min": 2,
+            "max": 6
+          }
+        },
+        {
+          "fieldId": "color",
+          "label": "Renk",
+          "type": "string",
+          "required": false,
+          "source": [
+            "ruhsat",
+            "manual"
+          ],
+          "showInReport": true
+        },
+        {
+          "fieldId": "fuelType",
+          "label": "Yakıt Tipi",
+          "type": "select",
+          "required": true,
+          "source": [
+            "manual"
+          ],
+          "showInReport": true,
+          "options": [
+            "Benzin",
+            "Dizel",
+            "LPG",
+            "Benzin/LPG",
+            "Hibrit",
+            "Plug-in Hibrit",
+            "Elektrik",
+            "Diğer"
+          ]
+        },
+        {
+          "fieldId": "transmissionType",
+          "label": "Vites Tipi",
+          "type": "select",
+          "required": true,
+          "source": [
+            "manual"
+          ],
+          "showInReport": true,
+          "options": [
+            "Manuel",
+            "Otomatik",
+            "Yarı Otomatik",
+            "CVT",
+            "Elektrikli Tek Oran",
+            "Diğer"
+          ]
+        },
+        {
+          "fieldId": "tractionType",
+          "label": "Çekiş Tipi",
+          "type": "select",
+          "required": false,
+          "source": [
+            "manual"
+          ],
+          "showInReport": true,
+          "options": [
+            "Önden Çekiş",
+            "Arkadan İtiş",
+            "4x4",
+            "AWD",
+            "Bilinmiyor"
+          ]
+        },
+        {
+          "fieldId": "mileageIn",
+          "label": "Giriş Kilometresi",
+          "type": "integer",
+          "required": true,
+          "source": [
+            "manual"
+          ],
+          "showInReport": true,
+          "validation": {
+            "min": 0
+          }
+        },
+        {
+          "fieldId": "mileageOut",
+          "label": "Çıkış Kilometresi",
+          "type": "integer",
+          "required": false,
+          "source": [
+            "manual"
+          ],
+          "showInReport": true,
+          "validation": {
+            "min": 0,
+            "mustBeGteField": "mileageIn"
+          }
+        },
+        {
+          "fieldId": "inspectionValidityDate",
+          "label": "Muayene Geçerlilik Tarihi",
+          "type": "date",
+          "required": false,
+          "source": [
+            "ruhsat",
+            "integration",
+            "manual"
+          ],
+          "showInReport": true
+        },
+        {
+          "fieldId": "exhaustEmissionValidityDate",
+          "label": "Egzoz Emisyon Geçerlilik Tarihi",
+          "type": "date",
+          "required": false,
+          "source": [
+            "integration",
+            "manual"
+          ],
+          "showInReport": true
+        },
+        {
+          "fieldId": "spareKeyStatus",
+          "label": "Yedek Anahtar",
+          "type": "select",
+          "required": false,
+          "source": [
+            "manual"
+          ],
+          "showInReport": true,
+          "options": [
+            "Var",
+            "Yok",
+            "Bilinmiyor"
+          ]
+        },
+        {
+          "fieldId": "licenseSeenStatus",
+          "label": "Ruhsatın Aslı Görüldü mü?",
+          "type": "select",
+          "required": true,
+          "source": [
+            "manual"
+          ],
+          "showInReport": true,
+          "options": [
+            "Evet",
+            "Hayır",
+            "Geçici belge ile işlem yapıldı"
+          ]
+        },
+        {
+          "fieldId": "tireType",
+          "label": "Lastik Tipi",
+          "type": "select",
+          "required": false,
+          "source": [
+            "manual"
+          ],
+          "showInReport": true,
+          "options": [
+            "Yaz",
+            "Kış",
+            "Dört Mevsim",
+            "Karışık",
+            "Bilinmiyor"
+          ]
+        },
+        {
+          "fieldId": "spareWheelStatus",
+          "label": "Stepne Durumu",
+          "type": "select",
+          "required": false,
+          "source": [
+            "manual"
+          ],
+          "showInReport": true,
+          "options": [
+            "Var",
+            "Yok",
+            "Kit var",
+            "Kontrol edilemedi",
+            "Araçta bulunmuyor"
+          ]
+        }
+      ]
+    },
+    "vehicleTechnicalProfile": {
+      "title": "Araç Teknik Kartı ve Donanım Profili",
+      "ownerScreen": "auto-fill-catalog-admin",
+      "fields": [
+        {
+          "fieldId": "engineVolumeCc",
+          "label": "Motor Hacmi cc",
+          "type": "integer",
+          "required": false,
+          "source": [
+            "database",
+            "ruhsat",
+            "manual"
+          ],
+          "showInReport": true
+        },
+        {
+          "fieldId": "enginePowerKw",
+          "label": "Motor Gücü kW",
+          "type": "number",
+          "required": false,
+          "source": [
+            "database",
+            "ruhsat",
+            "manual"
+          ],
+          "showInReport": true
+        },
+        {
+          "fieldId": "enginePowerHp",
+          "label": "Motor Gücü HP",
+          "type": "number",
+          "required": false,
+          "source": [
+            "database",
+            "manual"
+          ],
+          "showInReport": true
+        },
+        {
+          "fieldId": "torqueNm",
+          "label": "Tork Nm",
+          "type": "number",
+          "required": false,
+          "source": [
+            "database",
+            "manual"
+          ],
+          "showInReport": true
+        },
+        {
+          "fieldId": "acceleration0100Sec",
+          "label": "0-100 Hızlanma sn",
+          "type": "number",
+          "required": false,
+          "source": [
+            "database"
+          ],
+          "showInReport": true
+        },
+        {
+          "fieldId": "maxSpeedKmh",
+          "label": "Azami Hız km/s",
+          "type": "integer",
+          "required": false,
+          "source": [
+            "database"
+          ],
+          "showInReport": true
+        },
+        {
+          "fieldId": "fuelConsumptionCombined",
+          "label": "Ortalama Yakıt Tüketimi",
+          "type": "number",
+          "required": false,
+          "source": [
+            "database"
+          ],
+          "showInReport": true
+        },
+        {
+          "fieldId": "emissionsCo2",
+          "label": "CO2 Emisyon",
+          "type": "number",
+          "required": false,
+          "source": [
+            "database"
+          ],
+          "showInReport": true
+        },
+        {
+          "fieldId": "tankCapacityLt",
+          "label": "Yakıt Deposu lt",
+          "type": "number",
+          "required": false,
+          "source": [
+            "database"
+          ],
+          "showInReport": true
+        },
+        {
+          "fieldId": "lengthMm",
+          "label": "Uzunluk mm",
+          "type": "integer",
+          "required": false,
+          "source": [
+            "database"
+          ],
+          "showInReport": true
+        },
+        {
+          "fieldId": "widthMm",
+          "label": "Genişlik mm",
+          "type": "integer",
+          "required": false,
+          "source": [
+            "database"
+          ],
+          "showInReport": true
+        },
+        {
+          "fieldId": "heightMm",
+          "label": "Yükseklik mm",
+          "type": "integer",
+          "required": false,
+          "source": [
+            "database"
+          ],
+          "showInReport": true
+        },
+        {
+          "fieldId": "wheelbaseMm",
+          "label": "Aks Mesafesi mm",
+          "type": "integer",
+          "required": false,
+          "source": [
+            "database"
+          ],
+          "showInReport": true
+        },
+        {
+          "fieldId": "trunkVolumeLt",
+          "label": "Bagaj Hacmi lt",
+          "type": "integer",
+          "required": false,
+          "source": [
+            "database"
+          ],
+          "showInReport": true
+        },
+        {
+          "fieldId": "curbWeightKg",
+          "label": "Boş Ağırlık kg",
+          "type": "integer",
+          "required": false,
+          "source": [
+            "database"
+          ],
+          "showInReport": true
+        },
+        {
+          "fieldId": "tireSize",
+          "label": "Lastik Ölçüsü",
+          "type": "string",
+          "required": false,
+          "source": [
+            "database",
+            "manual"
+          ],
+          "showInReport": true
+        },
+        {
+          "fieldId": "factoryEquipment",
+          "label": "Fabrika Donanımları",
+          "type": "array<string>",
+          "required": false,
+          "source": [
+            "database",
+            "manual"
+          ],
+          "showInReport": true
+        },
+        {
+          "fieldId": "extraEquipment",
+          "label": "İlave / Opsiyon Donanımlar",
+          "type": "array<string>",
+          "required": false,
+          "source": [
+            "manual"
+          ],
+          "showInReport": true
+        },
+        {
+          "fieldId": "evBatteryCapacityKwh",
+          "label": "EV/Hibrit Batarya Kapasitesi kWh",
+          "type": "number",
+          "required": false,
+          "source": [
+            "database",
+            "manual"
+          ],
+          "showInReport": true,
+          "note": "Yakıt tipi elektrik/hibrit ise göster."
+        },
+        {
+          "fieldId": "evRangeKm",
+          "label": "Elektrikli Menzil km",
+          "type": "integer",
+          "required": false,
+          "source": [
+            "database",
+            "manual"
+          ],
+          "showInReport": true
+        },
+        {
+          "fieldId": "evFastChargeTime",
+          "label": "Hızlı Şarj Süresi",
+          "type": "string",
+          "required": false,
+          "source": [
+            "database",
+            "manual"
+          ],
+          "showInReport": true
+        }
+      ]
+    },
+    "measurementRawData": {
+      "title": "Cihaz Ham Ölçüm Değerleri",
+      "ownerScreen": "technician-device-results",
+      "subCollections": {
+        "brakeTest": {
+          "title": "Fren Testi Ham Ölçümleri",
+          "fields": [
+            {
+              "fieldId": "frontLeftDan",
+              "label": "Ön Sol Fren daN",
+              "type": "number",
+              "required": false,
+              "source": [
+                "device",
+                "manual"
+              ],
+              "showInReport": true
+            },
+            {
+              "fieldId": "frontRightDan",
+              "label": "Ön Sağ Fren daN",
+              "type": "number",
+              "required": false,
+              "source": [
+                "device",
+                "manual"
+              ],
+              "showInReport": true
+            },
+            {
+              "fieldId": "rearLeftDan",
+              "label": "Arka Sol Fren daN",
+              "type": "number",
+              "required": false,
+              "source": [
+                "device",
+                "manual"
+              ],
+              "showInReport": true
+            },
+            {
+              "fieldId": "rearRightDan",
+              "label": "Arka Sağ Fren daN",
+              "type": "number",
+              "required": false,
+              "source": [
+                "device",
+                "manual"
+              ],
+              "showInReport": true
+            },
+            {
+              "fieldId": "parkingBrakeLeftDan",
+              "label": "El Freni Sol daN",
+              "type": "number",
+              "required": false,
+              "source": [
+                "device",
+                "manual"
+              ],
+              "showInReport": true
+            },
+            {
+              "fieldId": "parkingBrakeRightDan",
+              "label": "El Freni Sağ daN",
+              "type": "number",
+              "required": false,
+              "source": [
+                "device",
+                "manual"
+              ],
+              "showInReport": true
+            },
+            {
+              "fieldId": "serviceBrakeEfficiencyPercent",
+              "label": "Servis Fren Verimi %",
+              "type": "number",
+              "required": false,
+              "source": [
+                "device",
+                "manual"
+              ],
+              "showInReport": true
+            },
+            {
+              "fieldId": "parkingBrakeEfficiencyPercent",
+              "label": "El Freni Verimi %",
+              "type": "number",
+              "required": false,
+              "source": [
+                "device",
+                "manual"
+              ],
+              "showInReport": true
+            },
+            {
+              "fieldId": "frontBrakeDifferencePercent",
+              "label": "Ön Fren Farkı %",
+              "type": "number",
+              "required": false,
+              "source": [
+                "device",
+                "manual"
+              ],
+              "showInReport": true
+            },
+            {
+              "fieldId": "rearBrakeDifferencePercent",
+              "label": "Arka Fren Farkı %",
+              "type": "number",
+              "required": false,
+              "source": [
+                "device",
+                "manual"
+              ],
+              "showInReport": true
+            },
+            {
+              "fieldId": "brakeResult",
+              "label": "Fren Test Sonucu",
+              "type": "select",
+              "required": false,
+              "source": [
+                "manual"
+              ],
+              "showInReport": true,
+              "options": [
+                "İyi",
+                "Orta",
+                "Kötü",
+                "Test Edilemedi",
+                "Paket Dışı"
+              ]
+            }
+          ]
+        },
+        "suspensionTest": {
+          "title": "Süspansiyon Testi Ham Ölçümleri",
+          "fields": [
+            {
+              "fieldId": "frontLeftPercent",
+              "label": "Ön Sol Süspansiyon %",
+              "type": "number",
+              "required": false,
+              "source": [
+                "device",
+                "manual"
+              ],
+              "showInReport": true
+            },
+            {
+              "fieldId": "frontRightPercent",
+              "label": "Ön Sağ Süspansiyon %",
+              "type": "number",
+              "required": false,
+              "source": [
+                "device",
+                "manual"
+              ],
+              "showInReport": true
+            },
+            {
+              "fieldId": "rearLeftPercent",
+              "label": "Arka Sol Süspansiyon %",
+              "type": "number",
+              "required": false,
+              "source": [
+                "device",
+                "manual"
+              ],
+              "showInReport": true
+            },
+            {
+              "fieldId": "rearRightPercent",
+              "label": "Arka Sağ Süspansiyon %",
+              "type": "number",
+              "required": false,
+              "source": [
+                "device",
+                "manual"
+              ],
+              "showInReport": true
+            },
+            {
+              "fieldId": "frontDifferencePercent",
+              "label": "Ön Süspansiyon Farkı %",
+              "type": "number",
+              "required": false,
+              "source": [
+                "device",
+                "manual"
+              ],
+              "showInReport": true
+            },
+            {
+              "fieldId": "rearDifferencePercent",
+              "label": "Arka Süspansiyon Farkı %",
+              "type": "number",
+              "required": false,
+              "source": [
+                "device",
+                "manual"
+              ],
+              "showInReport": true
+            },
+            {
+              "fieldId": "suspensionResult",
+              "label": "Süspansiyon Test Sonucu",
+              "type": "select",
+              "required": false,
+              "source": [
+                "manual"
+              ],
+              "showInReport": true,
+              "options": [
+                "İyi",
+                "Orta",
+                "Kötü",
+                "Test Edilemedi",
+                "Paket Dışı"
+              ]
+            }
+          ]
+        },
+        "sideSlipTest": {
+          "title": "Yanal Kayma Testi",
+          "fields": [
+            {
+              "fieldId": "frontAxleSlip",
+              "label": "Ön Aks Yanal Kayma",
+              "type": "number",
+              "required": false,
+              "source": [
+                "device",
+                "manual"
+              ],
+              "showInReport": true
+            },
+            {
+              "fieldId": "rearAxleSlip",
+              "label": "Arka Aks Yanal Kayma",
+              "type": "number",
+              "required": false,
+              "source": [
+                "device",
+                "manual"
+              ],
+              "showInReport": true
+            },
+            {
+              "fieldId": "unit",
+              "label": "Birim",
+              "type": "select",
+              "required": false,
+              "source": [
+                "manual"
+              ],
+              "showInReport": true,
+              "options": [
+                "m/km",
+                "mm/m",
+                "device-default"
+              ]
+            },
+            {
+              "fieldId": "sideSlipResult",
+              "label": "Yanal Kayma Sonucu",
+              "type": "select",
+              "required": false,
+              "source": [
+                "manual"
+              ],
+              "showInReport": true,
+              "options": [
+                "Normal",
+                "Limit Dışı",
+                "Test Edilemedi",
+                "Paket Dışı"
+              ]
+            }
+          ]
+        },
+        "dynoTest": {
+          "title": "Dyno Testi Ham Ölçümleri",
+          "fields": [
+            {
+              "fieldId": "declaredPowerKw",
+              "label": "Ruhsat/Katalog Gücü kW",
+              "type": "number",
+              "required": false,
+              "source": [
+                "database",
+                "ruhsat",
+                "manual"
+              ],
+              "showInReport": true
+            },
+            {
+              "fieldId": "measuredEnginePowerHp",
+              "label": "Ölçülen Motor Gücü HP",
+              "type": "number",
+              "required": false,
+              "source": [
+                "device",
+                "manual"
+              ],
+              "showInReport": true
+            },
+            {
+              "fieldId": "measuredWheelPowerHp",
+              "label": "Ölçülen Teker Gücü HP",
+              "type": "number",
+              "required": false,
+              "source": [
+                "device",
+                "manual"
+              ],
+              "showInReport": true
+            },
+            {
+              "fieldId": "measuredTorqueNm",
+              "label": "Ölçülen Tork Nm",
+              "type": "number",
+              "required": false,
+              "source": [
+                "device",
+                "manual"
+              ],
+              "showInReport": true
+            },
+            {
+              "fieldId": "powerLossPercent",
+              "label": "Kayıp Güç %",
+              "type": "number",
+              "required": false,
+              "source": [
+                "device",
+                "manual"
+              ],
+              "showInReport": true
+            },
+            {
+              "fieldId": "performancePercent",
+              "label": "Performans %",
+              "type": "number",
+              "required": false,
+              "source": [
+                "device",
+                "manual"
+              ],
+              "showInReport": true
+            },
+            {
+              "fieldId": "testSpeedKmh",
+              "label": "Test Hızı km/s",
+              "type": "number",
+              "required": false,
+              "source": [
+                "device",
+                "manual"
+              ],
+              "showInReport": true
+            },
+            {
+              "fieldId": "testRpm",
+              "label": "Test RPM",
+              "type": "number",
+              "required": false,
+              "source": [
+                "device",
+                "manual"
+              ],
+              "showInReport": true
+            },
+            {
+              "fieldId": "dynoResult",
+              "label": "Dyno Sonucu",
+              "type": "select",
+              "required": false,
+              "source": [
+                "manual"
+              ],
+              "showInReport": true,
+              "options": [
+                "İyi",
+                "Orta",
+                "Kötü",
+                "Riskli",
+                "Test Edilemedi",
+                "Paket Dışı"
+              ]
+            },
+            {
+              "fieldId": "dynoNotPerformedReason",
+              "label": "Dyno Yapılamama Nedeni",
+              "type": "select",
+              "required": false,
+              "source": [
+                "manual"
+              ],
+              "showInReport": true,
+              "options": [
+                "Araç uygun değil",
+                "Müşteri onay vermedi",
+                "Teknik risk",
+                "Cihaz arızası",
+                "Paket dışı",
+                "Dört çeker uygun değil",
+                "Diğer"
+              ]
+            }
+          ]
+        }
+      }
+    },
+    "obdDetailedScan": {
+      "title": "Detaylı OBD / DTC Arıza Taraması",
+      "ownerScreen": "technician-obd",
+      "fields": [
+        {
+          "fieldId": "deviceBrandModel",
+          "label": "OBD Cihaz Marka/Model",
+          "type": "string",
+          "required": false,
+          "source": [
+            "device",
+            "manual"
+          ],
+          "showInReport": true
+        },
+        {
+          "fieldId": "deviceSerialNo",
+          "label": "Cihaz Seri No",
+          "type": "string",
+          "required": false,
+          "source": [
+            "device",
+            "manual"
+          ],
+          "showInReport": true
+        },
+        {
+          "fieldId": "obdProtocol",
+          "label": "OBD Protokol",
+          "type": "string",
+          "required": false,
+          "source": [
+            "device"
+          ],
+          "showInReport": true
+        },
+        {
+          "fieldId": "ecuVin",
+          "label": "ECU’dan Okunan VIN",
+          "type": "string",
+          "required": false,
+          "source": [
+            "device"
+          ],
+          "showInReport": true,
+          "validation": {
+            "length": 17
+          }
+        },
+        {
+          "fieldId": "engineCode",
+          "label": "Motor Kodu",
+          "type": "string",
+          "required": false,
+          "source": [
+            "device",
+            "manual"
+          ],
+          "showInReport": true
+        },
+        {
+          "fieldId": "scanStartedAt",
+          "label": "OBD Tarama Başlangıç",
+          "type": "datetime",
+          "required": false,
+          "source": [
+            "device",
+            "system"
+          ],
+          "showInReport": true
+        },
+        {
+          "fieldId": "scanEndedAt",
+          "label": "OBD Tarama Bitiş",
+          "type": "datetime",
+          "required": false,
+          "source": [
+            "device",
+            "system"
+          ],
+          "showInReport": true
+        },
+        {
+          "fieldId": "globalResult",
+          "label": "Genel OBD Sonucu",
+          "type": "select",
+          "required": false,
+          "source": [
+            "manual"
+          ],
+          "showInReport": true,
+          "options": [
+            "Arıza Yok",
+            "Arıza Mevcut",
+            "İletişim Yok",
+            "Kısmi Tarama",
+            "Test Edilemedi",
+            "Paket Dışı"
+          ]
+        }
+      ],
+      "arrays": {
+        "scannedSystems": {
+          "title": "Taranan ECU Sistemleri",
+          "itemFields": [
+            {
+              "fieldId": "systemName",
+              "label": "Sistem Adı",
+              "type": "string",
+              "required": true,
+              "source": [
+                "device",
+                "manual"
+              ],
+              "showInReport": true
+            },
+            {
+              "fieldId": "communicationStatus",
+              "label": "İletişim Durumu",
+              "type": "select",
+              "required": true,
+              "source": [
+                "manual"
+              ],
+              "showInReport": true,
+              "options": [
+                "İletişim Var",
+                "İletişim Yok",
+                "Sistem Araçta Yok",
+                "Test Edilemedi"
+              ]
+            },
+            {
+              "fieldId": "faultStatus",
+              "label": "Arıza Durumu",
+              "type": "select",
+              "required": true,
+              "source": [
+                "manual"
+              ],
+              "showInReport": true,
+              "options": [
+                "Arıza Yok",
+                "Arıza Mevcut",
+                "Geçmiş Hata",
+                "Silinmiş Hata",
+                "Bilinmiyor"
+              ]
+            }
+          ]
+        },
+        "dtcList": {
+          "title": "DTC Hata Kodları",
+          "itemFields": [
+            {
+              "fieldId": "dtcCode",
+              "label": "DTC Kodu",
+              "type": "string",
+              "required": true,
+              "source": [
+                "device",
+                "manual"
+              ],
+              "showInReport": true
+            },
+            {
+              "fieldId": "dtcDescription",
+              "label": "DTC Açıklaması",
+              "type": "text",
+              "required": false,
+              "source": [
+                "device",
+                "manual"
+              ],
+              "showInReport": true
+            },
+            {
+              "fieldId": "systemName",
+              "label": "İlgili Sistem",
+              "type": "string",
+              "required": false,
+              "source": [
+                "device",
+                "manual"
+              ],
+              "showInReport": true
+            },
+            {
+              "fieldId": "criticality",
+              "label": "Kritik Seviye",
+              "type": "select",
+              "required": true,
+              "source": [
+                "manual"
+              ],
+              "showInReport": true,
+              "options": [
+                "Bilgi",
+                "Bakım Gerekli",
+                "Güvenlik Riski",
+                "Acil Servis Kontrolü"
+              ]
+            },
+            {
+              "fieldId": "faultType",
+              "label": "Hata Tipi",
+              "type": "select",
+              "required": false,
+              "source": [
+                "manual"
+              ],
+              "showInReport": true,
+              "options": [
+                "Elektrik Devresi",
+                "CAN İletişim",
+                "Sensör",
+                "Aktüatör",
+                "Mekanik İlişkili",
+                "Yazılım/Güncelleme",
+                "Geçici Hata",
+                "Bilinmiyor"
+              ]
+            },
+            {
+              "fieldId": "action",
+              "label": "Aksiyon",
+              "type": "select",
+              "required": false,
+              "source": [
+                "manual"
+              ],
+              "showInReport": true,
+              "options": [
+                "Silinmedi",
+                "Müşteri bilgisiyle silindi",
+                "Servis kontrolü önerildi",
+                "Tekrar test gerekli",
+                "Rapor notuna eklendi"
+              ]
+            }
+          ]
+        }
+      }
+    },
+    "registryQueries": {
+      "title": "Sorgular / Hasar / Sahiplik / Recall",
+      "ownerScreen": "sekreterya-admin-integrations",
+      "fields": [
+        {
+          "fieldId": "tramerStatus",
+          "label": "Tramer / Hasar Kaydı",
+          "type": "select",
+          "required": false,
+          "source": [
+            "manual"
+          ],
+          "showInReport": true,
+          "options": [
+            "Kayıt Yok",
+            "Kayıt Var",
+            "Sorgulanamadı",
+            "Müşteri yaptırmadı",
+            "Paket dışı"
+          ]
+        },
+        {
+          "fieldId": "tramerAmount",
+          "label": "Toplam Hasar Tutarı",
+          "type": "currency",
+          "required": false,
+          "source": [
+            "integration",
+            "manual"
+          ],
+          "showInReport": true
+        },
+        {
+          "fieldId": "heavyDamageStatus",
+          "label": "Ağır Hasar Kaydı",
+          "type": "select",
+          "required": false,
+          "source": [
+            "manual"
+          ],
+          "showInReport": true,
+          "options": [
+            "Yok",
+            "Var",
+            "Sorgu sonucunu kontrol edin",
+            "Sorgulanamadı"
+          ]
+        },
+        {
+          "fieldId": "mileageQueryStatus",
+          "label": "Kilometre Sorgusu",
+          "type": "select",
+          "required": false,
+          "source": [
+            "manual"
+          ],
+          "showInReport": true,
+          "options": [
+            "Uyumlu",
+            "Şüpheli",
+            "Kayıt yok",
+            "Sorgulanamadı"
+          ]
+        },
+        {
+          "fieldId": "ownershipDuration",
+          "label": "Sahiplik Süresi",
+          "type": "string",
+          "required": false,
+          "source": [
+            "integration",
+            "manual"
+          ],
+          "showInReport": true
+        },
+        {
+          "fieldId": "plateChangeStatus",
+          "label": "Plaka Değişimi",
+          "type": "select",
+          "required": false,
+          "source": [
+            "manual"
+          ],
+          "showInReport": true,
+          "options": [
+            "Yok",
+            "Var",
+            "Bilinmiyor",
+            "Sorgulanamadı"
+          ]
+        },
+        {
+          "fieldId": "cityChangeStatus",
+          "label": "İl Değişimi",
+          "type": "select",
+          "required": false,
+          "source": [
+            "manual"
+          ],
+          "showInReport": true,
+          "options": [
+            "Yok",
+            "Var",
+            "Bilinmiyor",
+            "Sorgulanamadı"
+          ]
+        },
+        {
+          "fieldId": "vehicleTypeChangeStatus",
+          "label": "Araç Tipi Değişimi",
+          "type": "select",
+          "required": false,
+          "source": [
+            "manual"
+          ],
+          "showInReport": true,
+          "options": [
+            "Yok",
+            "Var",
+            "Bilinmiyor",
+            "Sorgulanamadı"
+          ]
+        },
+        {
+          "fieldId": "recallQueryStatus",
+          "label": "Üretici Recall / Geri Çağırma Sorgusu",
+          "type": "select",
+          "required": false,
+          "source": [
+            "manual"
+          ],
+          "showInReport": true,
+          "options": [
+            "Sorgulandı - kayıt yok",
+            "Sorgulandı - kayıt var",
+            "Yetkili servis sorgusu önerildi",
+            "Sorgulanamadı"
+          ]
+        },
+        {
+          "fieldId": "chronicFaultNote",
+          "label": "Model Bazlı Kronik Arıza Notu",
+          "type": "text",
+          "required": false,
+          "source": [
+            "database",
+            "manual"
+          ],
+          "showInReport": true,
+          "note": "Kesin hüküm değil; bilgilendirme ve yetkili servis yönlendirmesi olarak kullanılmalı."
+        },
+        {
+          "fieldId": "querySource",
+          "label": "Sorgu Kaynağı",
+          "type": "multiSelect",
+          "required": false,
+          "source": [
+            "manual"
+          ],
+          "showInReport": true,
+          "options": [
+            "SBM/Tramer",
+            "TÜVTÜRK/Muayene",
+            "Yetkili Servis",
+            "Ruhsat",
+            "Müşteri Beyanı",
+            "Manuel Kontrol",
+            "Diğer"
+          ]
+        },
+        {
+          "fieldId": "queryScreenshotEvidenceId",
+          "label": "Sorgu Sonuç Görseli / PDF Kanıtı",
+          "type": "mediaRef",
+          "required": false,
+          "source": [
+            "evidenceGallery"
+          ],
+          "showInReport": true
+        }
+      ],
+      "arrays": {
+        "damageRecords": {
+          "title": "Hasar Kayıtları",
+          "itemFields": [
+            {
+              "fieldId": "damageDate",
+              "label": "Hasar Tarihi",
+              "type": "date",
+              "required": false,
+              "source": [
+                "integration",
+                "manual"
+              ],
+              "showInReport": true
+            },
+            {
+              "fieldId": "damageReason",
+              "label": "Hasar Nedeni",
+              "type": "string",
+              "required": false,
+              "source": [
+                "integration",
+                "manual"
+              ],
+              "showInReport": true
+            },
+            {
+              "fieldId": "damageAmount",
+              "label": "Hasar Tutarı",
+              "type": "currency",
+              "required": false,
+              "source": [
+                "integration",
+                "manual"
+              ],
+              "showInReport": true
+            },
+            {
+              "fieldId": "changedParts",
+              "label": "Değişen Parçalar",
+              "type": "array<string>",
+              "required": false,
+              "source": [
+                "integration",
+                "manual"
+              ],
+              "showInReport": true
+            }
+          ]
+        }
+      }
+    },
+    "evidenceGallery": {
+      "title": "Genel Kanıt / Fotoğraf Envanteri",
+      "ownerScreen": "technician-media",
+      "evidenceRules": [
+        {
+          "slotId": "licensePhoto",
+          "label": "Ruhsat Fotoğrafı",
+          "required": "always",
+          "minCount": 1,
+          "accepted": [
+            "image"
+          ]
+        },
+        {
+          "slotId": "frontLeftVehicle",
+          "label": "Ön Sol Çapraz Araç Fotoğrafı",
+          "required": "always",
+          "minCount": 1,
+          "accepted": [
+            "image"
+          ]
+        },
+        {
+          "slotId": "rearRightVehicle",
+          "label": "Arka Sağ Çapraz Araç Fotoğrafı",
+          "required": "always",
+          "minCount": 1,
+          "accepted": [
+            "image"
+          ]
+        },
+        {
+          "slotId": "leftSideVehicle",
+          "label": "Sol Yan Araç Fotoğrafı",
+          "required": "always",
+          "minCount": 1,
+          "accepted": [
+            "image"
+          ]
+        },
+        {
+          "slotId": "rightSideVehicle",
+          "label": "Sağ Yan Araç Fotoğrafı",
+          "required": "always",
+          "minCount": 1,
+          "accepted": [
+            "image"
+          ]
+        },
+        {
+          "slotId": "odometer",
+          "label": "Kilometre Gösterge Fotoğrafı",
+          "required": "always",
+          "minCount": 1,
+          "accepted": [
+            "image"
+          ]
+        },
+        {
+          "slotId": "vinPlate",
+          "label": "Şasi/VIN Etiketi Fotoğrafı",
+          "required": "whenVisible",
+          "minCount": 1,
+          "accepted": [
+            "image"
+          ]
+        },
+        {
+          "slotId": "engineBay",
+          "label": "Motor Bölümü Fotoğrafı",
+          "required": "always",
+          "minCount": 1,
+          "accepted": [
+            "image"
+          ]
+        },
+        {
+          "slotId": "trunkSpareWheel",
+          "label": "Bagaj / Stepne Alanı",
+          "required": "always",
+          "minCount": 1,
+          "accepted": [
+            "image"
+          ]
+        },
+        {
+          "slotId": "interiorDashboard",
+          "label": "İç Ön Konsol Fotoğrafı",
+          "required": "always",
+          "minCount": 1,
+          "accepted": [
+            "image"
+          ]
+        },
+        {
+          "slotId": "seatTrimGeneral",
+          "label": "Koltuk/Döşeme Genel Fotoğrafı",
+          "required": "always",
+          "minCount": 1,
+          "accepted": [
+            "image"
+          ]
+        },
+        {
+          "slotId": "underbodyFront",
+          "label": "Alt Ön Görüntü",
+          "required": "whenPackageIncludesMechanical",
+          "minCount": 1,
+          "accepted": [
+            "image"
+          ]
+        },
+        {
+          "slotId": "underbodyMiddle",
+          "label": "Alt Orta Görüntü",
+          "required": "whenPackageIncludesMechanical",
+          "minCount": 1,
+          "accepted": [
+            "image"
+          ]
+        },
+        {
+          "slotId": "underbodyRear",
+          "label": "Alt Arka Görüntü",
+          "required": "whenPackageIncludesMechanical",
+          "minCount": 1,
+          "accepted": [
+            "image"
+          ]
+        },
+        {
+          "slotId": "obdOutput",
+          "label": "OBD Cihaz Çıktısı",
+          "required": "whenObdPerformed",
+          "minCount": 1,
+          "accepted": [
+            "image",
+            "pdf"
+          ]
+        },
+        {
+          "slotId": "brakeSuspensionOutput",
+          "label": "Fren/Süspansiyon Cihaz Çıktısı",
+          "required": "whenBrakeSuspensionPerformed",
+          "minCount": 1,
+          "accepted": [
+            "image",
+            "pdf"
+          ]
+        },
+        {
+          "slotId": "dynoOutput",
+          "label": "Dyno Cihaz Çıktısı",
+          "required": "whenDynoPerformed",
+          "minCount": 1,
+          "accepted": [
+            "image",
+            "pdf"
+          ]
+        },
+        {
+          "slotId": "damageDetail",
+          "label": "Hasar Detay Fotoğrafları",
+          "required": "whenCriticalOrDamageSelected",
+          "minCount": 1,
+          "accepted": [
+            "image",
+            "video"
+          ]
+        },
+        {
+          "slotId": "customerConsent",
+          "label": "Müşteri Onay / İmza Görseli",
+          "required": "always",
+          "minCount": 1,
+          "accepted": [
+            "image",
+            "pdf"
+          ]
+        }
+      ],
+      "mediaMetadataRequired": [
+        "capturedAt",
+        "capturedByUserId",
+        "gpsApprox",
+        "deviceId",
+        "relatedModuleId",
+        "relatedItemId",
+        "storagePath",
+        "hash"
+      ]
+    },
+    "consentAndLegal": {
+      "title": "Hukuki Onaylar ve Kapsam Dışı Beyanlar",
+      "ownerScreen": "sekreterya-report-signature",
+      "fields": [
+        {
+          "fieldId": "expertiseScopeAccepted",
+          "label": "Ekspertiz Kapsamı Kabul Edildi",
+          "type": "select",
+          "required": true,
+          "source": [
+            "manual"
+          ],
+          "showInReport": true,
+          "options": [
+            "Kabul edildi",
+            "Reddedildi",
+            "İmza eksik"
+          ]
+        },
+        {
+          "fieldId": "roadTestConsent",
+          "label": "Yol Testi Onayı",
+          "type": "select",
+          "required": false,
+          "source": [
+            "manual"
+          ],
+          "showInReport": true,
+          "options": [
+            "Onaylandı",
+            "Onaylanmadı",
+            "Gerekli görülmedi",
+            "Paket dışı"
+          ]
+        },
+        {
+          "fieldId": "dynoConsent",
+          "label": "Dyno Testi Onayı",
+          "type": "select",
+          "required": false,
+          "source": [
+            "manual"
+          ],
+          "showInReport": true,
+          "options": [
+            "Onaylandı",
+            "Onaylanmadı",
+            "Teknik sebeple yapılmadı",
+            "Paket dışı"
+          ]
+        },
+        {
+          "fieldId": "airbagPhysicalCheckConsent",
+          "label": "Airbag Fiziki/Söküm Kontrol İzni",
+          "type": "select",
+          "required": false,
+          "source": [
+            "manual"
+          ],
+          "showInReport": true,
+          "options": [
+            "OBD/görsel kontrol",
+            "Fiziki söküm izni var",
+            "Söküm izni yok",
+            "Paket dışı"
+          ]
+        },
+        {
+          "fieldId": "kvkkConsent",
+          "label": "KVKK / Açık Rıza",
+          "type": "select",
+          "required": true,
+          "source": [
+            "manual"
+          ],
+          "showInReport": true,
+          "options": [
+            "Kabul edildi",
+            "Reddedildi",
+            "Yalnızca hizmet için alındı"
+          ]
+        },
+        {
+          "fieldId": "marketingConsent",
+          "label": "Pazarlama İzni",
+          "type": "select",
+          "required": false,
+          "source": [
+            "manual"
+          ],
+          "showInReport": true,
+          "options": [
+            "Var",
+            "Yok",
+            "Sorulmadı"
+          ]
+        },
+        {
+          "fieldId": "reportValidityTextAccepted",
+          "label": "Rapor Geçerlilik Şartı Onayı",
+          "type": "select",
+          "required": true,
+          "source": [
+            "manual"
+          ],
+          "showInReport": true,
+          "options": [
+            "Kabul edildi",
+            "Reddedildi",
+            "İmza eksik"
+          ]
+        },
+        {
+          "fieldId": "customerSignatureId",
+          "label": "Müşteri İmza Kaydı",
+          "type": "signatureRef",
+          "required": true,
+          "source": [
+            "signaturePad",
+            "physicalScan"
+          ],
+          "showInReport": true
+        }
+      ],
+      "standardDisclaimers": [
+        "Bu rapor test günü, test saati ve test kilometresi için geçerlidir.",
+        "Ekspertiz işlemi söküm yapılmadan, görülebilen ve test edilebilen alanlarla sınırlıdır.",
+        "Bu rapor resmi fenni muayene yerine geçmez.",
+        "Kriminal inceleme, şasi/motor numarası kriminal doğrulaması ve hukuki sahiplik garantisi niteliğinde değildir.",
+        "Tramer, hasar, muayene ve benzeri sorgular ilgili kurum kaynakları ve sorgu zamanı ile sınırlıdır.",
+        "El yazısı ile sonradan eklenen açıklama ve değişiklikler geçersiz kabul edilir.",
+        "Rapor üzerinde yapılan her revizyon sistemde kullanıcı, tarih ve gerekçesiyle kayıt altına alınır."
+      ]
+    },
+    "summaryAndRisk": {
+      "title": "Müşteri Özeti / Kritik Bulgular / Risk Değerlendirme",
+      "ownerScreen": "report-engine-manager-review",
+      "fields": [
+        {
+          "fieldId": "overallScore",
+          "label": "Genel Skor",
+          "type": "integer",
+          "required": false,
+          "source": [
+            "system"
+          ],
+          "showInReport": true,
+          "validation": {
+            "min": 0,
+            "max": 100
+          }
+        },
+        {
+          "fieldId": "criticalFindingCount",
+          "label": "Kritik Bulgu Sayısı",
+          "type": "integer",
+          "required": false,
+          "source": [
+            "system"
+          ],
+          "showInReport": true
+        },
+        {
+          "fieldId": "criticalFindings",
+          "label": "Kritik Bulgular",
+          "type": "array<object>",
+          "required": false,
+          "source": [
+            "system",
+            "manual"
+          ],
+          "showInReport": true
+        },
+        {
+          "fieldId": "goodConditionNotes",
+          "label": "İyi Durumlar",
+          "type": "array<string>",
+          "required": false,
+          "source": [
+            "manual",
+            "system"
+          ],
+          "showInReport": true
+        },
+        {
+          "fieldId": "recommendedServiceActions",
+          "label": "Önerilen Servis Kontrolleri",
+          "type": "array<string>",
+          "required": false,
+          "source": [
+            "manual",
+            "system"
+          ],
+          "showInReport": true
+        },
+        {
+          "fieldId": "guaranteeEligibility",
+          "label": "Garanti Uygunluğu",
+          "type": "select",
+          "required": false,
+          "source": [
+            "manual"
+          ],
+          "showInReport": true,
+          "options": [
+            "Uygun",
+            "Yaş/KM nedeniyle uygun değil",
+            "Mekanik risk nedeniyle uygun değil",
+            "Ek kontrol gerekli",
+            "Paket kapsamı dışında"
+          ]
+        },
+        {
+          "fieldId": "customerSummaryText",
+          "label": "Müşteri Özeti",
+          "type": "text",
+          "required": false,
+          "source": [
+            "system",
+            "manager"
+          ],
+          "showInReport": true
+        },
+        {
+          "fieldId": "internalTechnicalNote",
+          "label": "İç Teknik Not",
+          "type": "text",
+          "required": false,
+          "source": [
+            "technician",
+            "manager"
+          ],
+          "showInReport": false
+        },
+        {
+          "fieldId": "reportConclusion",
+          "label": "Rapor Sonuç Notu",
+          "type": "text",
+          "required": false,
+          "source": [
+            "manager",
+            "system"
+          ],
+          "showInReport": true,
+          "note": "Alınır/alınmaz gibi sübjektif hüküm kullanılmamalı; teknik ve ölçülebilir dil korunmalı."
+        }
+      ],
+      "riskLevels": [
+        "Bilgi",
+        "Düşük",
+        "Orta",
+        "Yüksek",
+        "Kritik"
+      ]
+    },
+    "priceValueAndGuarantee": {
+      "title": "Fiyat / Değer / Garanti Danışmanlığı",
+      "ownerScreen": "optional-sales-advisory",
+      "fields": [
+        {
+          "fieldId": "askingPrice",
+          "label": "İlan/Satış Fiyatı",
+          "type": "currency",
+          "required": false,
+          "source": [
+            "manual",
+            "integration"
+          ],
+          "showInReport": true
+        },
+        {
+          "fieldId": "marketAveragePrice",
+          "label": "Piyasa Ortalama Değer",
+          "type": "currency",
+          "required": false,
+          "source": [
+            "integration",
+            "manual"
+          ],
+          "showInReport": true
+        },
+        {
+          "fieldId": "valueImpactNote",
+          "label": "Hasar / Durum Değer Etkisi Notu",
+          "type": "text",
+          "required": false,
+          "source": [
+            "manager",
+            "system"
+          ],
+          "showInReport": true
+        },
+        {
+          "fieldId": "suggestedNegotiationBand",
+          "label": "Önerilen Pazarlık Bandı",
+          "type": "string",
+          "required": false,
+          "source": [
+            "manager",
+            "system"
+          ],
+          "showInReport": true
+        },
+        {
+          "fieldId": "secondHandWarrantyOfferRequested",
+          "label": "2. El Oto Garanti Teklifi",
+          "type": "select",
+          "required": false,
+          "source": [
+            "manual"
+          ],
+          "showInReport": true,
+          "options": [
+            "İstiyor",
+            "İstemiyor",
+            "Sonra aranacak"
+          ]
+        },
+        {
+          "fieldId": "trafficInsuranceOfferRequested",
+          "label": "Trafik Sigortası Teklifi",
+          "type": "select",
+          "required": false,
+          "source": [
+            "manual"
+          ],
+          "showInReport": true,
+          "options": [
+            "İstiyor",
+            "İstemiyor",
+            "Sonra aranacak"
+          ]
+        },
+        {
+          "fieldId": "cascoOfferRequested",
+          "label": "Kasko Teklifi",
+          "type": "select",
+          "required": false,
+          "source": [
+            "manual"
+          ],
+          "showInReport": true,
+          "options": [
+            "İstiyor",
+            "İstemiyor",
+            "Sonra aranacak"
+          ]
+        }
+      ]
+    }
+  },
+  "integrationRules": {
+    "mergeStrategy": "append_new_top_level_collections_do_not_mutate_base_groups",
+    "baseGroupsField": "inspectionGroups",
+    "recommendedRuntimeShape": {
+      "reportMeta": "object",
+      "customerSellerIdentity": "object",
+      "vehicleIdentity": "object",
+      "vehicleTechnicalProfile": "object",
+      "inspectionGroups": "base.groups",
+      "measurementRawData": "object",
+      "obdDetailedScan": "object",
+      "registryQueries": "object",
+      "evidenceGallery": "object",
+      "consentAndLegal": "object",
+      "summaryAndRisk": "object",
+      "priceValueAndGuarantee": "object"
+    },
+    "unknownOptionLabelHandling": {
+      "optionLabelMapFile": "ototr_option_label_map_starter.json",
+      "mustNotRenderRawNumericCode": true,
+      "blockFinalReportIfRequiredVisibleOptionUnresolved": true,
+      "allowDeveloperReviewScreen": true
+    }
+  },
+  "uiFlowRecommendations": [
+    {
+      "step": 1,
+      "screen": "Araç Kabul",
+      "collections": [
+        "reportMeta",
+        "customerSellerIdentity",
+        "vehicleIdentity",
+        "consentAndLegal"
+      ]
+    },
+    {
+      "step": 2,
+      "screen": "Genel Kanıt Fotoğrafları",
+      "collections": [
+        "evidenceGallery"
+      ]
+    },
+    {
+      "step": 3,
+      "screen": "Usta Modül Listesi",
+      "collections": [
+        "inspectionGroups"
+      ]
+    },
+    {
+      "step": 4,
+      "screen": "Cihaz Test Sonuçları",
+      "collections": [
+        "measurementRawData",
+        "obdDetailedScan"
+      ]
+    },
+    {
+      "step": 5,
+      "screen": "Sorgular",
+      "collections": [
+        "registryQueries"
+      ]
+    },
+    {
+      "step": 6,
+      "screen": "Müşteri Özeti ve Teknik Onay",
+      "collections": [
+        "summaryAndRisk",
+        "priceValueAndGuarantee"
+      ]
+    }
+  ],
+  "acceptanceCriteria": [
+    "Mevcut 12 grup ve 265 item birebir korunmalı.",
+    "Kod tarafında yeni koleksiyonlar ayrı sekme/akış olarak render edilmeli.",
+    "label=null checkbox değerleri son kullanıcıya ham sayı olarak asla gösterilmemeli.",
+    "Zorunlu kanıt kuralları tamamlanmadan modül tamamlandı durumuna alınmamalı.",
+    "OBD ve cihaz ham ölçüm değerleri raporda hem ham veri hem yorum sonucu olarak ayrı gösterilmeli.",
+    "Hukuki metinler rapor çıktısında merkezi ve değiştirilemez şablondan gelmeli.",
+    "Rapor revizyonları kullanıcı, tarih ve gerekçeyle loglanmalı."
+  ]
+}

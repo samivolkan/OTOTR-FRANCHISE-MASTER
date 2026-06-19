@@ -1,0 +1,9 @@
+{
+  "appId": "com.ototr.terminal",
+  "appName": "OTOTR",
+  "webDir": "www",
+  "bundledWebRuntime": false,
+  "server": {
+    "androidScheme": "http"
+  }
+}

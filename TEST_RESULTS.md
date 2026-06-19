@@ -1,4 +1,53 @@
-# Test Results
+﻿# Test Results
+
+## 2026-06-18 - Mobile Branch Password Recovery
+
+- Klasor: `apps/mobile-branch`
+- Degisiklik: Login ekranindaki `Sifremi Unuttum` akisi Supabase Auth destekli telefon OTP ve e-posta reset akisi icin baglandi.
+- Telefon oncelikli akis:
+  - Telefon girilirse Supabase `signInWithOtp(phone, shouldCreateUser: false)` ile SMS OTP istenir.
+  - Kod ekraninda `verifyOTP(type: sms)` ile dogrulama yapilir.
+  - Yeni sifre ekraninda dogrulanmis oturumla `updateUser(password)` cagrilir.
+- E-posta yedek akisi:
+  - E-posta girilirse Supabase `resetPasswordForEmail` ile reset e-postasi istenir.
+- Guvenlik notu: Mobil uygulamaya SMS provider key veya service role eklenmedi.
+- Komutlar:
+  - `dart analyze lib\data\services\password_recovery_service.dart lib\features\auth\password_reset_screen.dart lib\core\navigation\app_router.dart test\auth_flow_widget_test.dart` - gecti.
+  - `flutter test test\auth_flow_widget_test.dart` - gecti.
+  - `flutter test` - gecti, tum testler basarili.
+  - `flutter analyze` - mevcut ilgisiz info seviyesinde lint uyarilari nedeniyle non-zero dondu; degisen dosyalarda `dart analyze` temiz.
+- Canli SMS/E-posta E2E testi yapilmadi; Supabase phone provider ve reset redirect ayarlari staging/canli ortamda dogrulanmali.
+
+## 2026-06-18 - OTOTR Usta Mobil 8 Faz Debug QA
+
+- Klasor: `ototr-mobile-app`
+- Komutlar:
+  - `npm.cmd run validate:all` - gecti.
+  - `npm.cmd run build` - gecti.
+  - `npm.cmd run android:build:debug` - gecti.
+  - `OTOTR_MOBILE_SUPABASE_PROFILE=local node scripts/release-preflight.mjs` - gecti.
+- APK: `ototr-mobile-app\android\app\build\outputs\apk\debug\app-debug.apk`
+- APK boyutu: 61.05 MB
+- APK modified time: 2026-06-18 12:18:49
+- SHA256: `0CCD12F0F71B0DA41E4278D1556350BEAE07BCAF3C8E77072F57E924F34B73A5`
+- Emulator smoke:
+  - Home acildi.
+  - Gorev Modulleri acildi.
+  - Fren / Suspansiyon modulu acildi.
+  - Tum noktalari iyi aksiyonu sonrasi Testi Gonder durumuna gecildi.
+  - Testi Gonder sonrasi moduller ekranina dondu ve modul Tamamlananlar altina tasindi.
+- Kanitlar: `ototr-mobile-app\docs\codex\phase8-final-qa\`
+- Not: Production Supabase env degerleri bu makinede set olmadigi icin release/canli E2E testi yapilmadi.
+
+## 2026-06-18 - OTOTR Usta Mobil Gorev Modulleri Progress Fix
+
+- Klasor: `ototr-mobile-app`
+- Duzeltme: Gorev Modulleri ust kart yuzdesi sabit `%65` olmaktan cikarildi; modullerden gelen tamamlanan/toplam madde sayisina baglandi.
+- Web preview kontrolu: `#tests` ekraninda tum moduller tamamli durumdayken ust ring `%100` ve `251/251` olarak goruldu.
+- Emulator kontrolu: `#tests` ekraninda 7 tamamlanan / 3 aktif durumda ust ring `%79` ve `199/251` olarak goruldu.
+- Kanit: `ototr-mobile-app\docs\codex\modules-progress-fix\emulator-modules-progress-fixed-2.png`
+- APK: `ototr-mobile-app\android\app\build\outputs\apk\debug\app-debug.apk`
+- APK modified time: 2026-06-18 12:29:53
 
 Test date: 2026-06-03
 
@@ -17,7 +66,7 @@ Results:
 
 Note:
 
-- Running `flutter analyze` directly under `C:\Users\Samivolkannnn\Documents\OTOTR_HAZİRAN\...` crashed the Flutter analysis server because of path handling. The same project passed when accessed through the short junction `C:\ototr_master`.
+- Running `flutter analyze` directly under `C:\Users\Samivolkannnn\Documents\OTOTR_HAZÄ°RAN\...` crashed the Flutter analysis server because of path handling. The same project passed when accessed through the short junction `C:\ototr_master`.
 
 ## Expo / React Native Technician App
 
@@ -523,3 +572,376 @@ Validation scope:
 
 - Follow-up validation should use the existing dealer portal route/work-order tests instead of the abandoned MVP panel test.
 - No secret, token, live credential, remote database command or production command was used.
+
+## Mobile Usta Operation V1 APK Smoke
+
+Run date: 2026-06-04
+
+Passed:
+
+- `flutter analyze`: passed with no issues from `C:\ototr_master\apps\mobile-branch`.
+- `flutter test test\usta_operation_v1_flow_test.dart`: passed.
+- `flutter test`: passed, 82 tests.
+- `flutter build apk --debug`: passed.
+- Debug APK generated at `apps/mobile-branch/build/app/outputs/flutter-apk/app-debug.apk`.
+- APK installed successfully on clean Android 15 AVD `OTOTR_Pixel_Android35` via `emulator-5556`.
+- Emulator flow smoke passed: login, waiting vehicle, general vehicle photo action, work order detail, module start, test entry, manual gear selection, status selection, note entry, all-points-good action, evidence upload actions, final control, technical approval send, and return to work orders.
+- QA screenshot generated at `apps/mobile-branch/build/qa/mobile-v1-returned-main.png`.
+
+Notes:
+
+- Existing `emulator-5554` appeared as Android 9 `NE2211` but ADB file transfer/install was unstable with `connect error for write: closed` and `file_sync_client.cpp:477 protocol fault`; validation was moved to the clean Android 15 AVD.
+- No secret, token, live credential, remote database command or production command was used.
+
+## OTOTR Usta Home Progress Calculation Fix
+
+Run date: 2026-06-18
+
+Changed:
+
+- Home / Jobs work order cards no longer use only the static `order.progress` value for the currently selected active work order.
+- The selected work order progress now includes work order opened step, start-proof completed step, and technician-entered module item completion.
+- Non-selected waiting/missing cards keep their own work-order progress values so other cards are not polluted by the active module state.
+
+Validation:
+
+- `npm.cmd run validate:all`: passed.
+- `npm.cmd run build`: passed.
+- `npx.cmd cap sync android`: passed.
+- `npm.cmd run android:build:debug`: passed.
+- APK installed on `emulator-5554`: passed.
+
+Evidence:
+
+- APK path: `ototr-mobile-app/android/app/build/outputs/apk/debug/app-debug.apk`.
+- Emulator screenshot: `ototr-mobile-app/docs/codex/home-progress-fix/home-progress-apk-current.png`.
+- Verified Home card state: active selected work order showed dynamic `%100 253/253`; waiting work orders showed opened-step `%2 1/60`; missing work order retained `%25 15/60`.
+
+## OTOTR Usta Task Modules Empty Active Group Fix
+
+Run date: 2026-06-18
+
+Changed:
+
+- `GÃ¶rev ModÃ¼lleri` ekranÄ±nda aktif/devam eden modÃ¼l kalmadÄ±ÄŸÄ±nda boÅŸ `Devam Edenler` grubu artÄ±k render edilmiyor.
+- `GÃ¶rev ModÃ¼lleri` Ã¼st Ã¶zet kartÄ±ndaki yÃ¼zde ring Ã§izimi sabit CSS deÄŸerinden Ã§Ä±karÄ±ldÄ±; halka artÄ±k hesaplanan gerÃ§ek yÃ¼zdeye gÃ¶re doluyor.
+
+Validation:
+
+- `npm.cmd run validate:all`: passed.
+- `npm.cmd run build`: passed.
+- `npm.cmd run android:build:debug`: passed.
+- APK installed on `emulator-5554`: passed.
+
+Evidence:
+
+- APK path: `ototr-mobile-app/android/app/build/outputs/apk/debug/app-debug.apk`.
+- APK modified time: `2026-06-18 12:49:23`.
+
+## OTOTR Usta Waiting Work Order Activation Fix
+
+Run date: 2026-06-18
+
+Changed:
+
+- Runtime work order list now applies local work-order status overrides from `ototrWorkOrderStatus:<workOrderId>`.
+- When a waiting work order completes start proof and writes `in_progress`, Home / Jobs filters now classify it under active work orders instead of keeping it under waiting.
+- Newly activated waiting orders receive a minimal initial progress fallback so the card no longer remains visually at zero after activation.
+
+Validation:
+
+- `npm.cmd run validate:all`: passed.
+- `npm.cmd run build`: passed.
+- `npm.cmd run android:build:debug`: passed.
+- APK installed on `emulator-5554`: passed.
+
+Evidence:
+
+- APK path: `ototr-mobile-app/android/app/build/outputs/apk/debug/app-debug.apk`.
+- APK modified time: `2026-06-18 12:57:21`.
+
+## OTOTR Bayi Portal -> Usta APK -> Final Rapor Local E2E Acceptance
+
+Run date: 2026-06-18 13:11 +03:00
+
+Scope:
+
+- Bayi portal / sekreterya local work-order creation.
+- Technician/mobile visibility through real local Supabase Auth and RLS.
+- Mobile inspection answer persistence.
+- Status transition through technical review.
+- Technical approval gate with evidence metadata.
+- Final report draft generation and locked report state.
+- Secretary/report status visibility for print-ready final report.
+
+Validation:
+
+- `npm.cmd run check:backend-contracts`: passed.
+- `npm.cmd run test:dealer-print`: passed; report route `#report-design`, `window.print()` call count 1, report pages 17.
+- `npm.cmd run validate:all` in `ototr-mobile-app`: passed.
+- `npm.cmd run smoke:e2e:no-upload`: passed; 7/7 acceptance steps passed.
+- `npm.cmd run smoke:evidence:storage`: passed; real local Storage upload, metadata registration and authenticated read verified.
+- `npm.cmd run android:build:debug` in `ototr-mobile-app`: passed.
+- APK installed and launched on `emulator-5554`: passed.
+- Dealer portal local preview `http://127.0.0.1:8791/bayi-portal/index.html?portal=dealer#dealer`: HTTP 200.
+- Mobile local preview `http://127.0.0.1:5178/`: HTTP 200.
+
+Evidence:
+
+- E2E report: `docs/codex/e2e-live-flow/e2e-no-upload-acceptance-last-run.json`.
+- APK path: `ototr-mobile-app/android/app/build/outputs/apk/debug/app-debug.apk`.
+- APK size: 64,017,876 bytes.
+- APK modified time: `2026-06-18 12:57:21`.
+- APK screenshots: `ototr-mobile-app/apk-e2e-final-screen-after-wait.png`, `ototr-mobile-app/apk-login-clean.png`.
+
+Notes:
+
+- Local Supabase and Docker were started for this validation.
+- No remote production database command was run.
+- Secrets, tokens and live credentials were not written into project files.
+- ADB automated login into the WebView could not complete because the email field did not reliably receive the `@` character through coordinate input; backend E2E and APK launch were still verified independently.
+
+## OTOTR Clean First Work Order Local E2E
+
+Run date: 2026-06-18 13:29 +03:00
+
+Scope:
+
+- Local-only clean start for Bayi Portal + mobile work-order/report history.
+- Dealer/secretary creates the first work order after the clean reset.
+- Technician/mobile sees the work order, starts technical entry, saves inspection data and registers evidence metadata.
+- Final report is generated, locked and visible to secretary/report side as print-ready.
+
+Changed:
+
+- Added `tools/local-first-work-order-clean-e2e.mjs` for repeatable local clean first-work-order validation.
+- Added package script `npm.cmd run smoke:first-work-order:clean`.
+- Added migration `supabase/migrations/20260618102338_mobile_status_transition_unlock_tasks.sql` so a technician starting technical entry is assigned to the case and generated tasks become available without bypassing task ownership triggers.
+
+Validation:
+
+- `npm.cmd run smoke:first-work-order:clean`: passed.
+- `npm.cmd run check:backend-contracts`: passed.
+- `npm.cmd run test:dealer-print`: passed; route `#report-design`, `window.print()` call count 1, report pages 17.
+- `npm.cmd run validate:all` in `ototr-mobile-app`: passed.
+- In-app browser reloaded at `http://127.0.0.1:8791/bayi-portal/index.html?portal=dealer#dealer`; page title `OTOTR Bayi Portali` confirmed.
+
+Evidence:
+
+- E2E report: `docs/codex/e2e-live-flow/first-work-order-clean-e2e-last-run.json`.
+- Work order: `OTOTR-20260618-0001`.
+- Plate: `16 ILK 915`.
+- Local case ID: `14c2f98c-9121-46e3-bc37-75a18449cd28`.
+- Final report ID: `75582f5e-1622-44fe-974a-c50eca9a0962`.
+- Final report status: `LOCKED`.
+- Secretary case status: `SUBMITTED`.
+- Post-run local counts: 1 case, 1 final report, 1 inspection value, 6 inspection tasks.
+
+Notes:
+
+- This validation intentionally used local Supabase only.
+- No remote Supabase, live database or production command was run.
+- Secrets, tokens and live credentials were not printed or written into project files.
+
+## OTOTR Dealer Print Gate Locked Report Fix
+
+Run date: 2026-06-18 13:39 +03:00
+
+Issue:
+
+- Dealer portal showed `34 OTR 360` as `Rapor basÄ±ma hazÄ±r`, but the row still displayed `29%`.
+- The `Raporu Bas` menu action was disabled with the reason `Ä°ÅŸ emri ilerlemesi %100 olmalÄ±.`
+
+Fix:
+
+- Final-report locked work orders now normalize dealer completion to `100%`.
+- `dealerReportPrintGate` now treats a locked final report as print-ready consistently, including the local/demo portal state.
+- Added regression coverage to `apps/admin/prototype/tools/test-bayi-final-report-print.mjs` so locked demo work orders must show `100%` and an enabled print action.
+
+Validation:
+
+- In-app browser at `http://127.0.0.1:8791/bayi-portal/index.html?portal=dealer#dealer`: `Raporu Bas` enabled for `IE-2026-000842`, title `Rapor basÄ±ma hazÄ±r.`, row `34 OTR 360` shows `100%`.
+- `npm.cmd run test:dealer-print`: passed.
+- `npm.cmd run check:backend-contracts`: passed.
+- `npm.cmd run validate:all` in `ototr-mobile-app`: passed.
+- Android emulator `emulator-5554` opened mobile `Rapor Ã–zeti` for `34 OTR 360 / TamamlandÄ±`, with `Ä°lerleme %100` and `Eksik Yok`.
+
+Evidence:
+
+- Mobile emulator screenshot: `C:\Users\Samivolkannnn\Documents\ototr-mobile-34otr360-summary.png`.
+- Portal print route remained `#report-design`, `window.print()` call count 1, report pages 17.
+
+Notes:
+
+- The mobile emulator view used the app's local live-work-order cache to mirror the portal work order for visual QA; no production data was changed.
+- No remote Supabase, live database or production command was run.
+- Secrets, tokens and live credentials were not printed or written into project files.
+
+## OTOTR Dealer Portal Expired Refresh Token Cleanup
+
+Run date: 2026-06-18 13:52 +03:00
+
+Issue:
+
+- Bayi portal login screen could show the raw Supabase Auth error `Refresh token is not valid (validation_failed)` after a stale live session remained in browser localStorage.
+- A stale refresh token could still be treated as a pending live session until another sync attempt failed.
+
+Fix:
+
+- Invalid/expired Supabase refresh-token errors now clear the stored dealer session.
+- The standalone dealer portal now treats stale auth errors as an unusable session and returns to the login screen.
+- The user-facing warning is normalized to a Turkish session-expired message instead of exposing the raw Supabase validation error.
+- Added `apps/admin/prototype/tools/test-bayi-portal-auth-session.mjs` to lock the stale-token behavior.
+
+Validation:
+
+- `node apps\admin\prototype\tools\test-bayi-portal-auth-session.mjs`: passed.
+- `npm.cmd run test:dealer-print`: passed; route `#report-design`, `window.print()` call count 1, report pages 17.
+- `Invoke-WebRequest http://127.0.0.1:8791/bayi-portal/index.html?portal=dealer`: HTTP 200; updated auth-session cleanup code is served by the local portal.
+
+Notes:
+
+- In-app browser reload was blocked by the browser automation security policy, so direct manipulation of the open tab was not performed.
+- No remote Supabase, live database or production command was run.
+- Secrets, tokens and live credentials were not printed or written into project files.
+
+## OTOTR Dealer Portal Local Work Order To Mobile Visibility
+
+Run date: 2026-06-18 15:20 +03:00
+
+Issue:
+
+- A dealer portal work order could remain browser-local when the dealer had no usable live Supabase session.
+- Browser-local work orders were visible in the dealer portal but not visible to the technician mobile app, because mobile reads the Supabase/API-backed work-order list.
+
+Fix:
+
+- Added a `Mobile Gonder` action for local-only dealer work orders in the active work-order table.
+- The action reuses the existing live `create_branch_work_order` path, then refreshes the Supabase-backed dealer list so the same work order becomes visible to mobile.
+- If the portal is not in a live dealer session, the action now tells the user that a live dealer session is required instead of silently leaving the work order local-only.
+
+Validation:
+
+- `npm.cmd run test:dealer-print`: passed.
+- `node apps\admin\prototype\tools\test-bayi-portal-auth-session.mjs`: passed.
+- Headless dealer portal check: a local-only active work order renders the `Mobile Gonder` action.
+- Local Supabase DB check: `OTOTR-20260618-0002 | TECHNICAL_ENTRY_OPEN | 16 NZE 16 | PREMIUM | 12 tasks`.
+- Android emulator `emulator-5554`: APK WebView `#jobs` screen shows `16 NZE 16`, `BMW 320i`, `2022`, `Premium`, `61.616 km`.
+
+Evidence:
+
+- Mobile emulator screenshot: `C:\Users\Samivolkannnn\Documents\OTOTR_HAZÄ°RAN\OTOTR-FRANCHISE-MASTER\ototr-mobile-app\emulator-live-16nze-jobs-after-fix.png`.
+
+Notes:
+
+- This validation used the local Supabase live stack for safe end-to-end proof.
+- No remote production Supabase command or production database write was run.
+- Secrets, tokens and live credentials were not printed or written into project files.
+
+## OTOTR Watched Dealer Portal To Mobile Work Order
+
+Run date: 2026-06-18 15:05 +03:00
+
+Scope:
+
+- Open a fresh dealer portal work order while the user watches the local portal.
+- Show the same work order in the Android technician APK emulator.
+- Fix any blocker found during the watched flow.
+
+Result:
+
+- Dealer portal live login succeeded in local Supabase mode.
+- New work order created from the dealer portal form:
+  - Work order: `OTOTR-20260618-0003`
+  - Plate: `35 YNI 618`
+  - Vehicle: `Toyota Corolla`
+  - Package: `PREMIUM`
+  - Status: `TECHNICAL_ENTRY_OPEN`
+  - Generated tasks: `12`
+- Android emulator `emulator-5554` showed the same work order in the technician APK:
+  - Jobs screen: `35 YNI 618`, `Toyota Corolla`, `2024`, `Premium`, `18.618 km`
+  - Task/modules screen opened for the same plate.
+
+Fix Applied During Test:
+
+- The first live portal attempt exposed `permission denied for table technician_start_evidence (42501)`.
+- Added migration `supabase/migrations/20260618150000_grant_technician_start_evidence_authenticated.sql`.
+- Applied the migration locally and completed the intake/technical-entry state for the dealer-created case.
+
+Validation:
+
+- `npm.cmd run test:dealer-print`: passed.
+- `node apps\admin\prototype\tools\test-bayi-portal-auth-session.mjs`: passed.
+- Local DB check: `OTOTR-20260618-0003 | TECHNICAL_ENTRY_OPEN | 35 YNI 618 | PREMIUM | 12`.
+
+Evidence:
+
+- Portal screenshot: `C:\Users\Samivolkannnn\Documents\OTOTR_HAZÄ°RAN\OTOTR-FRANCHISE-MASTER\docs\codex\e2e-live-flow\portal-live-35yni618.png`.
+- Mobile jobs screenshot: `C:\Users\Samivolkannnn\Documents\OTOTR_HAZÄ°RAN\OTOTR-FRANCHISE-MASTER\ototr-mobile-app\emulator-live-35yni618-jobs.png`.
+- Mobile task/modules screenshot: `C:\Users\Samivolkannnn\Documents\OTOTR_HAZÄ°RAN\OTOTR-FRANCHISE-MASTER\ototr-mobile-app\emulator-live-35yni618-detail.png`.
+
+Notes:
+
+- This validation used local Supabase only.
+- No remote production Supabase command or production database write was run.
+- Secrets, tokens and live credentials were not printed or written into project files.
+
+## OTOTR Mobile Technician To Dealer Auto Sync
+
+Run date: 2026-06-18 15:26 +03:00
+
+Scope:
+
+- Verify that technician/mobile entries are written to ERP-backed Supabase tables.
+- Verify that dealer portal sees new ERP/mobile updates without clicking `Canli Yenile`.
+- Rebuild/sync the Android APK assets after the mobile task mapping change.
+
+Result:
+
+- Technician mobile answer smoke:
+  - Work order created locally through branch manager auth.
+  - Technician auth started the work order and saved a motor answer.
+  - REST/ERP check confirmed the answer landed on `inspection_item_values` joined to `inspection_tasks.task_key = MOTOR_KONTROL`.
+- Dealer auto-sync smoke:
+  - Portal live session opened.
+  - Technician answer saved after the portal was already loaded.
+  - Portal local live store received the technician answer without clicking `Canli Yenile`.
+  - Verified work order: `OTOTR-20260618-0011 / 16 ASY 528 / Motor kontrol`.
+- Emulator:
+  - Installed the rebuilt debug APK on `emulator-5554`.
+  - APK launched successfully.
+  - Mobile jobs screen showed `16 ASY 528` in the active work-order list.
+
+Validation:
+
+- `npm.cmd run build` in `ototr-mobile-app`: passed.
+- `node tools/local-mobile-inspection-answer-smoke.mjs`: passed.
+- `node tools/local-dealer-auto-sync-smoke.mjs`: passed.
+- `npm.cmd run test:dealer-print`: passed.
+- `npm.cmd run check:backend-contracts`: passed.
+- `npm.cmd run android:sync`: passed.
+- `.\gradlew.bat assembleDebug`: passed.
+- `adb install -r android\app\build\outputs\apk\debug\app-debug.apk`: passed.
+
+Evidence:
+
+- Dealer auto-sync screenshot: `C:\Users\Samivolkannnn\Documents\OTOTR_HAZÄ°RAN\OTOTR-FRANCHISE-MASTER\docs\codex\e2e-live-flow\dealer-auto-sync-smoke.png`.
+- Mobile emulator screenshot: `C:\Users\Samivolkannnn\Documents\OTOTR_HAZÄ°RAN\OTOTR-FRANCHISE-MASTER\ototr-mobile-app\emulator-auto-sync-final-after-wait.png`.
+
+Notes:
+
+- This validation used local Supabase only.
+- No remote production Supabase command or production database write was run.
+- Secrets, tokens and live credentials were not printed or written into project files.
+## 2026-06-18 - ERP / Mobil Paket ve Test Basligi Eslesmesi
+
+- Mobil test basliklari icin 10 canonical backend task key sabitlendi: BODY_PAINT_CHECKUP, MOTOR_CHECKUP, MECHANICAL_CHECKUP, BRAKE_SUSPENSION_TEST, OBD_ECU_TEST, DYNO_ROAD_TEST, EXTERIOR_CONDITION, INTERIOR_CHECKUP, AIRBAG_CHECK, HEAD_GASKET_LEAK_TEST.
+- `ototr-mobile-app/src/services/inspectionPackageCatalog.js` eklendi; Mini, Esnaf, Standart, Full, Premium, Kaporta Boya, Mekanik ve Hizli Kontrol paketleri ayni mobil modul listesine baglandi.
+- Canli is emirlerinde paket kodu, paket modul listesi ve paket task key listesi mobil order objesine eklendi.
+- Bayi portal paket gorevleri mobil basliklarla normalize edildi; paket karti aciklamalari mobil kapsamla uyumlu hale getirildi.
+- Supabase branch work order RPC migration icindeki `package_plans` ve `branch_work_order_task_specs` canonical mobil task key'lere gore guncellendi.
+- Dogrulama:
+  - `npm.cmd run validate:mapping`: gecti.
+  - `node --check` ilgili mobil mapping/service/screen dosyalari: gecti.
+  - `node apps/admin/prototype/tools/test-index.mjs`: gecti.
+  - `npm.cmd run build`: mevcut Faz 4 UI validasyon borclari nedeniyle gecmedi; hata mapping kapsamindan bagimsiz olarak bozuk Turkce karakter izi, opsiyonel fotograf uyarisi ve Islerim sekme kilidi kontrollerinde duruyor.

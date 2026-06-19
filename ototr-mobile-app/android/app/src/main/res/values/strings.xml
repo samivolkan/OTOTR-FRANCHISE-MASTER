@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">OTOTR</string>
+    <string name="title_activity_main">OTOTR</string>
+    <string name="package_name">com.ototr.terminal</string>
+    <string name="custom_url_scheme">com.ototr.terminal</string>
+</resources>

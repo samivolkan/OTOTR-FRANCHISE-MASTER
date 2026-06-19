@@ -20,12 +20,14 @@ create schema if not exists app_private;
 
 insert into public.package_plans (code, name, duration_minutes, included_modules, is_active)
 values
-  ('STANDARD', 'Standard', 45, '["Kaporta","Boya","Motor","Mekanik","Genel foto","Rapor kontrol"]'::jsonb, true),
-  ('FULL', 'Full', 75, '["Kaporta","Boya","Motor","Mekanik","Elektrik","Alt takim","Fren","Genel foto","Rapor kontrol"]'::jsonb, true),
-  ('PREMIUM', 'Premium', 95, '["Kaporta","Boya","Motor","Mekanik","Elektrik","Dyno","Alt takim","Fren","Ic kondisyon","Genel foto","Rapor kontrol","Yonetici onay"]'::jsonb, true),
-  ('KAPORTA_BOYA', 'Kaporta Boya', 35, '["Kaporta","Boya","Genel foto","Rapor kontrol"]'::jsonb, true),
-  ('MEKANIK', 'Mekanik', 40, '["Motor","Mekanik","Alt takim","Fren","Rapor kontrol"]'::jsonb, true),
-  ('HIZLI_KONTROL', 'Hizli Kontrol', 20, '["Genel foto","Motor","Fren","Rapor kontrol"]'::jsonb, true)
+  ('MINI', 'Mini Ekspertiz', 35, '["MOTOR_CHECKUP","BRAKE_SUSPENSION_TEST"]'::jsonb, true),
+  ('ESNAF', 'Esnaf Ekspertiz', 50, '["MOTOR_CHECKUP","MECHANICAL_CHECKUP","BRAKE_SUSPENSION_TEST","EXTERIOR_CONDITION"]'::jsonb, true),
+  ('STANDARD', 'Standart Ekspertiz', 65, '["MOTOR_CHECKUP","MECHANICAL_CHECKUP","BRAKE_SUSPENSION_TEST","OBD_ECU_TEST","EXTERIOR_CONDITION"]'::jsonb, true),
+  ('FULL', 'Full Ekspertiz', 85, '["BODY_PAINT_CHECKUP","MOTOR_CHECKUP","MECHANICAL_CHECKUP","BRAKE_SUSPENSION_TEST","OBD_ECU_TEST","EXTERIOR_CONDITION","INTERIOR_CHECKUP","AIRBAG_CHECK"]'::jsonb, true),
+  ('PREMIUM', 'OTOTR Premium 360', 105, '["BODY_PAINT_CHECKUP","MOTOR_CHECKUP","MECHANICAL_CHECKUP","BRAKE_SUSPENSION_TEST","OBD_ECU_TEST","DYNO_ROAD_TEST","EXTERIOR_CONDITION","INTERIOR_CHECKUP","AIRBAG_CHECK","HEAD_GASKET_LEAK_TEST"]'::jsonb, true),
+  ('KAPORTA_BOYA', 'Kaporta Boya', 40, '["BODY_PAINT_CHECKUP","EXTERIOR_CONDITION"]'::jsonb, true),
+  ('MEKANIK', 'Mekanik', 45, '["MOTOR_CHECKUP","MECHANICAL_CHECKUP","BRAKE_SUSPENSION_TEST","HEAD_GASKET_LEAK_TEST"]'::jsonb, true),
+  ('HIZLI_KONTROL', 'Hizli Kontrol', 25, '["MOTOR_CHECKUP","BRAKE_SUSPENSION_TEST"]'::jsonb, true)
 on conflict (code) do update set
   name = excluded.name,
   duration_minutes = excluded.duration_minutes,
@@ -73,51 +75,50 @@ as $$
   ),
   specs(package_code, sort_order, task_key, title, assigned_role, report_field_key, estimated_minutes) as (
     values
-      ('STANDARD', 10, 'KAPORTA_KONTROL', 'Kaporta kontrol', 'BODY_PAINT', 'report.section.body', 8),
-      ('STANDARD', 20, 'BOYA_KONTROL', 'Boya kontrol', 'BODY_PAINT', 'report.section.paint', 8),
-      ('STANDARD', 30, 'MOTOR_KONTROL', 'Motor kontrol', 'MECHANIC', 'report.section.engine', 8),
-      ('STANDARD', 40, 'MEKANIK_KONTROL', 'Mekanik kontrol', 'MECHANIC', 'report.section.mechanic', 8),
-      ('STANDARD', 50, 'GENEL_FOTO', 'Genel foto', 'BODY_PAINT', 'report.section.photos', 5),
-      ('STANDARD', 60, 'RAPOR_KONTROL', 'Rapor kontrol', 'FOREMAN', 'report.section.review', 5),
+      ('MINI', 10, 'MOTOR_CHECKUP', 'Motor', 'MECHANIC', 'report.section.engine', 10),
+      ('MINI', 20, 'BRAKE_SUSPENSION_TEST', 'Fren / Suspansiyon', 'TEST_OPERATOR', 'report.section.brake_suspension', 10),
 
-      ('FULL', 10, 'KAPORTA_KONTROL', 'Kaporta kontrol', 'BODY_PAINT', 'report.section.body', 8),
-      ('FULL', 20, 'BOYA_KONTROL', 'Boya kontrol', 'BODY_PAINT', 'report.section.paint', 8),
-      ('FULL', 30, 'MOTOR_KONTROL', 'Motor kontrol', 'MECHANIC', 'report.section.engine', 8),
-      ('FULL', 40, 'MEKANIK_KONTROL', 'Mekanik kontrol', 'MECHANIC', 'report.section.mechanic', 8),
-      ('FULL', 50, 'ELEKTRIK_KONTROL', 'Elektrik kontrol', 'OBD', 'report.section.electric', 8),
-      ('FULL', 60, 'ALT_TAKIM_KONTROL', 'Alt takim kontrol', 'MECHANIC', 'report.section.undercarriage', 8),
-      ('FULL', 70, 'FREN_KONTROL', 'Fren kontrol', 'TEST_OPERATOR', 'report.section.brake', 8),
-      ('FULL', 80, 'GENEL_FOTO', 'Genel foto', 'BODY_PAINT', 'report.section.photos', 5),
-      ('FULL', 90, 'RAPOR_KONTROL', 'Rapor kontrol', 'FOREMAN', 'report.section.review', 5),
+      ('ESNAF', 10, 'MOTOR_CHECKUP', 'Motor', 'MECHANIC', 'report.section.engine', 10),
+      ('ESNAF', 20, 'MECHANICAL_CHECKUP', 'Alt / On / Mekanik', 'MECHANIC', 'report.section.mechanic', 12),
+      ('ESNAF', 30, 'BRAKE_SUSPENSION_TEST', 'Fren / Suspansiyon', 'TEST_OPERATOR', 'report.section.brake_suspension', 10),
+      ('ESNAF', 40, 'EXTERIOR_CONDITION', 'Dis Kondisyon', 'BODY_PAINT', 'report.section.exterior', 10),
 
-      ('PREMIUM', 10, 'KAPORTA_KONTROL', 'Kaporta kontrol', 'BODY_PAINT', 'report.section.body', 8),
-      ('PREMIUM', 20, 'BOYA_KONTROL', 'Boya kontrol', 'BODY_PAINT', 'report.section.paint', 8),
-      ('PREMIUM', 30, 'MOTOR_KONTROL', 'Motor kontrol', 'MECHANIC', 'report.section.engine', 8),
-      ('PREMIUM', 40, 'MEKANIK_KONTROL', 'Mekanik kontrol', 'MECHANIC', 'report.section.mechanic', 8),
-      ('PREMIUM', 50, 'ELEKTRIK_KONTROL', 'Elektrik kontrol', 'OBD', 'report.section.electric', 8),
-      ('PREMIUM', 60, 'DYNO_TEST', 'Dyno test', 'TEST_OPERATOR', 'report.section.dyno', 8),
-      ('PREMIUM', 70, 'ALT_TAKIM_KONTROL', 'Alt takim kontrol', 'MECHANIC', 'report.section.undercarriage', 8),
-      ('PREMIUM', 80, 'FREN_KONTROL', 'Fren kontrol', 'TEST_OPERATOR', 'report.section.brake', 8),
-      ('PREMIUM', 90, 'IC_KONDISYON', 'Ic kondisyon', 'FOREMAN', 'report.section.interior', 6),
-      ('PREMIUM', 100, 'GENEL_FOTO', 'Genel foto', 'BODY_PAINT', 'report.section.photos', 5),
-      ('PREMIUM', 110, 'RAPOR_KONTROL', 'Rapor kontrol', 'FOREMAN', 'report.section.review', 5),
-      ('PREMIUM', 120, 'YONETICI_ONAY', 'Yonetici onay', 'BRANCH_MANAGER', 'report.section.manager_approval', 5),
+      ('STANDARD', 10, 'MOTOR_CHECKUP', 'Motor', 'MECHANIC', 'report.section.engine', 10),
+      ('STANDARD', 20, 'MECHANICAL_CHECKUP', 'Alt / On / Mekanik', 'MECHANIC', 'report.section.mechanic', 12),
+      ('STANDARD', 30, 'BRAKE_SUSPENSION_TEST', 'Fren / Suspansiyon', 'TEST_OPERATOR', 'report.section.brake_suspension', 10),
+      ('STANDARD', 40, 'OBD_ECU_TEST', 'OBD / Beyin', 'OBD', 'report.section.obd_ecu', 10),
+      ('STANDARD', 50, 'EXTERIOR_CONDITION', 'Dis Kondisyon', 'BODY_PAINT', 'report.section.exterior', 10),
 
-      ('KAPORTA_BOYA', 10, 'KAPORTA_KONTROL', 'Kaporta kontrol', 'BODY_PAINT', 'report.section.body', 8),
-      ('KAPORTA_BOYA', 20, 'BOYA_KONTROL', 'Boya kontrol', 'BODY_PAINT', 'report.section.paint', 8),
-      ('KAPORTA_BOYA', 30, 'GENEL_FOTO', 'Genel foto', 'BODY_PAINT', 'report.section.photos', 5),
-      ('KAPORTA_BOYA', 40, 'RAPOR_KONTROL', 'Rapor kontrol', 'FOREMAN', 'report.section.review', 5),
+      ('FULL', 10, 'BODY_PAINT_CHECKUP', 'Kaporta / Boya', 'BODY_PAINT', 'report.section.body_paint', 14),
+      ('FULL', 20, 'MOTOR_CHECKUP', 'Motor', 'MECHANIC', 'report.section.engine', 10),
+      ('FULL', 30, 'MECHANICAL_CHECKUP', 'Alt / On / Mekanik', 'MECHANIC', 'report.section.mechanic', 12),
+      ('FULL', 40, 'BRAKE_SUSPENSION_TEST', 'Fren / Suspansiyon', 'TEST_OPERATOR', 'report.section.brake_suspension', 10),
+      ('FULL', 50, 'OBD_ECU_TEST', 'OBD / Beyin', 'OBD', 'report.section.obd_ecu', 10),
+      ('FULL', 60, 'EXTERIOR_CONDITION', 'Dis Kondisyon', 'BODY_PAINT', 'report.section.exterior', 10),
+      ('FULL', 70, 'INTERIOR_CHECKUP', 'Ic Ekspertiz', 'FOREMAN', 'report.section.interior', 8),
+      ('FULL', 80, 'AIRBAG_CHECK', 'Airbag', 'OBD', 'report.section.airbag', 8),
 
-      ('MEKANIK', 10, 'MOTOR_KONTROL', 'Motor kontrol', 'MECHANIC', 'report.section.engine', 8),
-      ('MEKANIK', 20, 'MEKANIK_KONTROL', 'Mekanik kontrol', 'MECHANIC', 'report.section.mechanic', 8),
-      ('MEKANIK', 30, 'ALT_TAKIM_KONTROL', 'Alt takim kontrol', 'MECHANIC', 'report.section.undercarriage', 8),
-      ('MEKANIK', 40, 'FREN_KONTROL', 'Fren kontrol', 'TEST_OPERATOR', 'report.section.brake', 8),
-      ('MEKANIK', 50, 'RAPOR_KONTROL', 'Rapor kontrol', 'FOREMAN', 'report.section.review', 5),
+      ('PREMIUM', 10, 'BODY_PAINT_CHECKUP', 'Kaporta / Boya', 'BODY_PAINT', 'report.section.body_paint', 14),
+      ('PREMIUM', 20, 'MOTOR_CHECKUP', 'Motor', 'MECHANIC', 'report.section.engine', 10),
+      ('PREMIUM', 30, 'MECHANICAL_CHECKUP', 'Alt / On / Mekanik', 'MECHANIC', 'report.section.mechanic', 12),
+      ('PREMIUM', 40, 'BRAKE_SUSPENSION_TEST', 'Fren / Suspansiyon', 'TEST_OPERATOR', 'report.section.brake_suspension', 10),
+      ('PREMIUM', 50, 'OBD_ECU_TEST', 'OBD / Beyin', 'OBD', 'report.section.obd_ecu', 10),
+      ('PREMIUM', 60, 'DYNO_ROAD_TEST', 'Dyno / Yol', 'TEST_OPERATOR', 'report.section.dyno_road', 10),
+      ('PREMIUM', 70, 'EXTERIOR_CONDITION', 'Dis Kondisyon', 'BODY_PAINT', 'report.section.exterior', 10),
+      ('PREMIUM', 80, 'INTERIOR_CHECKUP', 'Ic Ekspertiz', 'FOREMAN', 'report.section.interior', 8),
+      ('PREMIUM', 90, 'AIRBAG_CHECK', 'Airbag', 'OBD', 'report.section.airbag', 8),
+      ('PREMIUM', 100, 'HEAD_GASKET_LEAK_TEST', 'Conta Kacak', 'MECHANIC', 'report.section.head_gasket', 8),
 
-      ('HIZLI_KONTROL', 10, 'GENEL_FOTO', 'Genel foto', 'BODY_PAINT', 'report.section.photos', 5),
-      ('HIZLI_KONTROL', 20, 'MOTOR_KONTROL', 'Motor kontrol', 'MECHANIC', 'report.section.engine', 8),
-      ('HIZLI_KONTROL', 30, 'FREN_KONTROL', 'Fren kontrol', 'TEST_OPERATOR', 'report.section.brake', 8),
-      ('HIZLI_KONTROL', 40, 'RAPOR_KONTROL', 'Rapor kontrol', 'FOREMAN', 'report.section.review', 5)
+      ('KAPORTA_BOYA', 10, 'BODY_PAINT_CHECKUP', 'Kaporta / Boya', 'BODY_PAINT', 'report.section.body_paint', 14),
+      ('KAPORTA_BOYA', 20, 'EXTERIOR_CONDITION', 'Dis Kondisyon', 'BODY_PAINT', 'report.section.exterior', 10),
+
+      ('MEKANIK', 10, 'MOTOR_CHECKUP', 'Motor', 'MECHANIC', 'report.section.engine', 10),
+      ('MEKANIK', 20, 'MECHANICAL_CHECKUP', 'Alt / On / Mekanik', 'MECHANIC', 'report.section.mechanic', 12),
+      ('MEKANIK', 30, 'BRAKE_SUSPENSION_TEST', 'Fren / Suspansiyon', 'TEST_OPERATOR', 'report.section.brake_suspension', 10),
+      ('MEKANIK', 40, 'HEAD_GASKET_LEAK_TEST', 'Conta Kacak', 'MECHANIC', 'report.section.head_gasket', 8),
+
+      ('HIZLI_KONTROL', 10, 'MOTOR_CHECKUP', 'Motor', 'MECHANIC', 'report.section.engine', 10),
+      ('HIZLI_KONTROL', 20, 'BRAKE_SUSPENSION_TEST', 'Fren / Suspansiyon', 'TEST_OPERATOR', 'report.section.brake_suspension', 10)
   )
   select s.task_key, s.title, s.assigned_role, s.report_field_key, s.estimated_minutes
   from specs s

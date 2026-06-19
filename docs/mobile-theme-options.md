@@ -4,6 +4,8 @@ Tarih: 2026-06-03
 
 Bu dokuman OTOTR mobil uygulamasinin yeni tasarimini mevcut uygulama kodundan ayri ilerletmek icin hazirlandi. Kodlama baslamadan once tasarim dili, tema secenekleri ve ilk akisin onaylanmasi hedeflenir.
 
+Nihai karar dokumani: `docs/mobile-final-design-proposal.md`
+
 ## Incelenen Tasarim Yonu
 
 Paylasilan gorsellerden 5 ana yon cikiyor:
@@ -18,7 +20,7 @@ Paylasilan gorsellerden 5 ana yon cikiyor:
 
 Ana urun tasarimi icin en iyi taban:
 
-**Premium Kurumsal + Operasyon Odakli + Teknik Uzman**
+**OtoRapor operasyon akisi + Premium Kurumsal + Operasyon Odakli + Teknik Uzman**
 
 Neden:
 
@@ -26,6 +28,13 @@ Neden:
 - Operasyon odakli ekranlarda is emri, eksik, kanit ve modul bilgileri daha hizli taraniyor.
 - Teknik Uzman alternatifindeki parca bazli kontrol, fotograf ve final kontrol akisi ekspertiz isi icin daha guclu.
 - Koyu Tema Hibrit guzel ve premium gorunuyor, fakat uzun kontrol listelerinde goz yorabilir. Opsiyonel tema olarak tutulmali.
+- OtoRapor ekranlarindaki modul, test, kontrol noktasi, mikron, toplu iyi durum ve fotograf kanit akisi sahada anlasilir bir temel sunuyor.
+
+Not:
+
+- OtoRapor arayuzu birebir kopyalanmayacak.
+- Is akisi referans alinacak; OTOTR kendine ait gorsel kimlik, component sistemi, renk dili ve bilgi hiyerarsisi ile ayrisacak.
+- Ayrintili harmanlama karari `docs/mobile-otorapor-reference-blend.md` icindedir.
 
 ## Tema Secenekleri
 
@@ -153,10 +162,11 @@ Risk:
 
 Onerilen karar:
 
-- Varsayilan tema: **Tema A - Premium Kurumsal**
+- Temel is akisi: **OtoRapor referans akisi**
+- Varsayilan gorsel tema: **Tema A - Premium Kurumsal**
 - Is emri listesi: **Tema B - Operasyon Odakli**
 - Kontrol, fotograf, final: **Tema E - Teknik Uzman**
-- Opsiyonel tema: **Tema D - Koyu Tema Hibrit**
+- Opsiyonel dark mode: **Tema D - Koyu Tema Hibrit / Dark Command**
 - Yardimci sade ekranlar: **Tema C - Minimal Modern**
 
 ## Ilk Tasarim Akisi

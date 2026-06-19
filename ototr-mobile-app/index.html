@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="tr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#050505" />
+    <meta name="apple-mobile-web-app-title" content="OTOTR Terminal" />
+    <title>OTOTR Terminal</title>
+    <link rel="manifest" href="./manifest.webmanifest" />
+    <link rel="icon" href="./icons/favicon.png" />
+    <link rel="apple-touch-icon" href="./icons/apple-touch-icon.png" />
+    <link rel="stylesheet" href="./src/styles/tokens.css" />
+    <link rel="stylesheet" href="./src/styles/base.css" />
+    <link rel="stylesheet" href="./src/styles/components.css?v=splash-single-bar-v2" />
+  </head>
+  <body>
+    <div id="app" class="app-root">
+      <main class="app-loading-shell splash-screen-shell" aria-live="polite">
+        <div class="splash-screen-media">
+          <img src="./src/assets/brand/ototr-native-splash.png" alt="OTOTR Terminal" />
+          <div class="splash-loading-lock">
+            <span class="splash-loading-track" aria-hidden="true"><i class="splash-loading-fill"></i></span>
+          </div>
+        </div>
+      </main>
+    </div>
+    <script src="./src/config/supabaseRuntimeConfig.js"></script>
+    <script type="module" src="./src/app.js"></script>
+  </body>
+</html>
