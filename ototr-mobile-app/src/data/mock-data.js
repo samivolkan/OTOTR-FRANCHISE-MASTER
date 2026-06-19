@@ -189,7 +189,7 @@ export const phase2ComponentRoutes = Object.freeze([
 export const navigationItems = Object.freeze([
   { id: "tasks", routeId: "tests", label: "Görevler", icon: "tasks" },
   { id: "jobs", routeId: "jobs", label: "İşlerim", icon: "clipboard" },
-  { id: "home", routeId: "home", label: "Ana Sayfa", icon: "home", elevated: true },
+  { id: "home", routeId: "home", label: "OtoTR", icon: "home", elevated: true },
   { id: "issues", routeId: "missing", label: "Eksikler", icon: "warning", badge: "2" },
   { id: "profile", routeId: "profile", label: "Profil", icon: "user" }
 ]);

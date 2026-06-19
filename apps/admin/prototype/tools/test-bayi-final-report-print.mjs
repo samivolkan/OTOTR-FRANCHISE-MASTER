@@ -37,7 +37,7 @@ page.on("console", (msg) => {
 });
 page.on("pageerror", (err) => errors.push(err.message));
 
-const url = "file:///" + htmlPath.replace(/\\/g, "/") + "#dealer";
+const url = "file:///" + htmlPath.replace(/\\/g, "/") + "?demo=1#dealer";
 await page.addInitScript(() => {
   localStorage.clear();
   window.__OTOTR_TEST_PRINT_COUNT__ = 0;
@@ -50,6 +50,18 @@ await page.addInitScript(() => {
 await page.goto(url, { waitUntil: "load" });
 await page.waitForSelector("#page-dealer.active", { timeout: 10000 });
 await page.waitForSelector("#page-dealer.active [data-dealer-prepare-report]", { timeout: 10000 });
+
+const lockedDemoPrintButton = page.locator('#page-dealer.active [data-dealer-print-wo="IE-2026-000842"]');
+if (await lockedDemoPrintButton.count()) {
+  const disabled = await lockedDemoPrintButton.first().getAttribute("disabled");
+  if (disabled !== null) {
+    throw new Error("Final raporu kilitli demo iş emrinde Raporu Bas butonu pasif geldi.");
+  }
+  const lockedDemoText = await page.locator("#page-dealer.active").textContent({ timeout: 5000 });
+  if (!lockedDemoText.includes("34 OTR 360") || !lockedDemoText.includes("100%")) {
+    throw new Error("Final raporu kilitli demo iş emri %100 tamamlanmış görünmedi.");
+  }
+}
 
 const dealerActions = await page.locator("#page-dealer.active [data-dealer-print-wo], #page-dealer.active [data-dealer-print], #page-dealer.active [data-dealer-prepare-report]").count();
 if (!dealerActions) {

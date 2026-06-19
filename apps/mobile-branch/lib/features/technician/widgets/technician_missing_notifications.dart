@@ -13,12 +13,14 @@ class TechnicianMissingNotifications extends StatelessWidget {
     this.syncQueue = const [],
     this.onChanged,
     this.includeTaskAction = true,
+    this.includeReportGateButton = true,
   });
 
   final TechnicianWorkOrder order;
   final List<OfflineSyncQueue> syncQueue;
   final VoidCallback? onChanged;
   final bool includeTaskAction;
+  final bool includeReportGateButton;
 
   @override
   Widget build(BuildContext context) {
@@ -30,6 +32,13 @@ class TechnicianMissingNotifications extends StatelessWidget {
     if (actions.isEmpty) {
       return const SizedBox.shrink();
     }
+
+    const reportGateAction = _NotificationAction(
+      title: 'Tüm Eksik Bildirimleri Gör',
+      subtitle: 'Tüm eksik durumları tek sayfada inceleyin.',
+      icon: Icons.list_alt_rounded,
+      routeName: AppRoutes.technicianReportGate,
+    );
 
     return Container(
       margin: const EdgeInsets.only(top: 12),
@@ -77,6 +86,13 @@ class TechnicianMissingNotifications extends StatelessWidget {
             ),
             if (action != actions.last) const SizedBox(height: 6),
           ],
+          if (actions.isNotEmpty && includeReportGateButton) ...[
+            const SizedBox(height: 6),
+            _NotificationActionButton(
+              action: reportGateAction,
+              onPressed: () => _open(context, reportGateAction),
+            ),
+          ],
         ],
       ),
     );
@@ -86,7 +102,8 @@ class TechnicianMissingNotifications extends StatelessWidget {
     final actions = <_NotificationAction>[];
 
     final startIssues = issues
-        .where((issue) => issue.code == ReportGateIssueCode.startEvidenceMissing)
+        .where(
+            (issue) => issue.code == ReportGateIssueCode.startEvidenceMissing)
         .toList(growable: false);
     if (startIssues.isNotEmpty) {
       actions.add(
@@ -101,8 +118,7 @@ class TechnicianMissingNotifications extends StatelessWidget {
 
     final taskIds = <String>{
       for (final issue in issues)
-        if (_isTechnicalTaskIssue(issue) && issue.taskId != null)
-          issue.taskId!,
+        if (_isTechnicalTaskIssue(issue) && issue.taskId != null) issue.taskId!,
     };
     if (includeTaskAction && taskIds.isNotEmpty) {
       actions.add(

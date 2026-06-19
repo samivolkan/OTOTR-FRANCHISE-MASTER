@@ -57,6 +57,12 @@ Required flow:
 - Branch-scoped test user cannot read another branch's work order in staging/local RLS tests.
 - Technician test user cannot mutate unassigned tasks in staging/local RLS tests.
 
+## Deployment Blocker
+
+- Phone password recovery must not ship until Supabase phone/SMS provider settings are configured and staging live SMS OTP delivery is verified end to end.
+- Email password recovery must not ship until the reset redirect URL and new-password flow are verified in staging.
+- Local/demo fallback is acceptable for development tests only and cannot be used as production evidence.
+
 ## Follow-Up Code Work
 
 - Replace the legacy `AuthService.demoLogin()` dependency with an explicit live session service.

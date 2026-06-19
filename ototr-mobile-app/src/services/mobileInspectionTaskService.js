@@ -1,4 +1,5 @@
 import { supabaseRequest } from "./supabaseHttpClient.js";
+import { getInspectionTaskKeyForModule } from "./inspectionModuleTaskMapping.js";
 
 const runtimeConfigKey = "OTOTR_SUPABASE_CONFIG";
 
@@ -14,40 +15,6 @@ function getRuntimeConfig() {
 
 function normalizeSupabaseUrl(url = "") {
   return String(url).trim().replace(/\/+$/, "");
-}
-
-function taskKeyForModule(moduleKey = "") {
-  switch (String(moduleKey || "").toLowerCase()) {
-    case "kaporta":
-    case "body":
-    case "paint":
-      return "BODY_PAINT_CHECKUP";
-    case "motor":
-    case "engine":
-    case "conta":
-      return "MOTOR_CHECKUP";
-    case "mechanic":
-    case "mekanik":
-    case "brake":
-    case "suspension":
-      return "MECHANICAL_CHECKUP";
-    case "electric":
-    case "elektrik":
-    case "brain":
-      return "OBD_ECU_TEST";
-    case "airbag":
-      return "AIRBAG_CHECK";
-    case "interior":
-      return "INTERIOR_CHECKUP";
-    case "interiorexterior":
-    case "exterior":
-      return "EXTERIOR_CONDITION";
-    case "roadtest":
-    case "road_test":
-      return "DYNO_ROAD_TEST";
-    default:
-      return "BODY_PAINT_CHECKUP";
-  }
 }
 
 async function restJson(url, { config, method = "GET", body, prefer = "" } = {}) {
@@ -75,7 +42,14 @@ async function restJson(url, { config, method = "GET", body, prefer = "" } = {})
 
 async function getTaskRecord(config, expertiseCaseId, moduleKey) {
   const url = normalizeSupabaseUrl(config.url);
-  const taskKey = taskKeyForModule(moduleKey);
+  const taskKey = getInspectionTaskKeyForModule(moduleKey);
+  if (!taskKey) {
+    return {
+      ok: false,
+      status: "unknown-module",
+      reason: `Teknik gorev mapping bulunamadi: ${moduleKey || "-"}`
+    };
+  }
   const query = `${url}/rest/v1/inspection_tasks?expertise_case_id=eq.${encodeURIComponent(expertiseCaseId)}&task_key=eq.${encodeURIComponent(taskKey)}&select=id,task_key,title,status,owner_user_id,claimed_at&order=created_at.asc&limit=1`;
   const result = await restJson(query, { config });
   const task = Array.isArray(result.parsed) ? result.parsed[0] : null;
@@ -128,7 +102,7 @@ async function callTaskRpc(rpcName, payload) {
 }
 
 export function getModuleTaskKey(moduleKey) {
-  return taskKeyForModule(moduleKey);
+  return getInspectionTaskKeyForModule(moduleKey);
 }
 
 export async function claimInspectionTaskForModule({ expertiseCaseId, moduleKey } = {}) {

@@ -25,6 +25,7 @@ Permanent source files:
 - `MIGRATION_LOG.md`
 - `IMPORT_MANIFEST.md`
 - `TEST_RESULTS.md`
+- `docs/PROJECT_EXECUTION_TRACKER.md`
 - `docs/thread-sources/README.md`
 
 ## Topic-Based Conversations

@@ -231,3 +231,49 @@
 - Removed the dedicated MVP smoke test `apps/admin/prototype/tools/test-bayi-portal-mvp.mjs` because the abandoned panel is no longer part of the product surface.
 - Existing dealer portal structure, branch operation screens and older files were not deleted or moved.
 - No secret, token, live credential, database migration or production command was used.
+
+## Local E2E Acceptance Validation - 2026-06-18
+
+- Validated the current Bayi Portal -> Usta APK -> final report handoff against local Supabase.
+- Started Docker Desktop when the first E2E run failed because the Docker engine pipe was unavailable.
+- Started local Supabase services and reran the acceptance suite successfully.
+- Ran backend contract, dealer print, mobile validation, local E2E, real Storage upload and Android debug APK build checks.
+- Started local preview servers for dealer portal and mobile preview; both returned HTTP 200.
+- Installed and launched the APK on `emulator-5554`.
+- No old project file was deleted or moved.
+- No remote Supabase or production database command was run.
+- No secret, token or live credential was written into project files.
+
+## Mobile Status Transition Task Unlock Fix - 2026-06-18
+
+- Created migration `supabase/migrations/20260618102338_mobile_status_transition_unlock_tasks.sql`.
+- Local clean first-work-order E2E exposed that `TECHNICAL_ENTRY_OPEN` did not make generated inspection tasks available for the technician flow and evidence metadata registration could be denied by RLS when the case was not assigned.
+- Updated `app_private.transition_mobile_work_order_status` so a technician who starts technical entry is assigned to the case when it is unassigned.
+- Updated the same transition to move generated unowned `LOCKED` or `ASSIGNED` tasks to `AVAILABLE` without writing `owner_user_id`, preserving the existing task ownership trigger boundary.
+- Applied and verified locally with `npm.cmd run smoke:first-work-order:clean`.
+- Follow-up validation passed: backend contract check, dealer print test and mobile `validate:all`.
+- No remote Supabase or production database command was run.
+- No secret, token or live credential was written into project files.
+
+## Dealer Portal Live Intake Grants - 2026-06-18
+
+- Created migration `supabase/migrations/20260618150000_grant_technician_start_evidence_authenticated.sql`.
+- The watched dealer portal flow exposed that authenticated branch users could create the work order through `create_branch_work_order`, but the portal could not create intake start evidence because `technician_start_evidence` lacked authenticated table grants.
+- Added authenticated `select`, `insert` and `update` grants for `technician_start_evidence`.
+- Added authenticated `update` grants for `expertise_cases` and `inspection_tasks`, matching the current dealer portal live technical-entry PATCH flow while still relying on existing RLS and task ownership triggers.
+- Applied the migration to local Supabase and verified the new dealer-created work order `OTOTR-20260618-0003 / 35 YNI 618` reached `TECHNICAL_ENTRY_OPEN`.
+- No remote Supabase or production database command was run.
+- No secret, token or live credential was written into project files.
+
+## Mobile Technician To Dealer Auto Sync Contract - 2026-06-18
+
+- Created migration `supabase/migrations/20260618120533_mobile_to_dealer_realtime_sync_contract.sql`.
+- Fixed mobile module to backend task mapping so technician motor entries land on the generated ERP task key `MOTOR_KONTROL` instead of falling back to the first task.
+- Updated the mobile app mapping service to use the current dealer work-order task keys (`KAPORTA_KONTROL`, `MOTOR_KONTROL`, `ALT_TAKIM_KONTROL`, `FREN_KONTROL`, `ELEKTRIK_KONTROL`, `DYNO_TEST`, `IC_KONDISYON`).
+- Added `inspection_item_values` to the dealer portal live sync read path and Realtime table list.
+- Enabled the local Supabase `supabase_realtime` publication for dealer work-order, task, evidence, mobile answer and final report tables.
+- Added a dealer portal background sync fallback so new ERP/mobile changes no longer require the user to click `Canli Yenile`.
+- Added `tools/local-dealer-auto-sync-smoke.mjs` to verify a technician answer reaches the portal without clicking manual refresh.
+- Applied and verified the migration locally only.
+- No remote Supabase or production database command was run.
+- No secret, token or live credential was written into project files.

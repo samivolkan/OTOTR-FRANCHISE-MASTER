@@ -4,8 +4,13 @@ Status date: 2026-06-03
 
 Execution roadmap:
 
+- `docs/PROJECT_EXECUTION_TRACKER.md`
 - `docs/next-20-work-plan.md`
 - `docs/next-20-execution-status.md`
+
+Primary live tracker:
+
+`docs/PROJECT_EXECUTION_TRACKER.md`
 
 The project is ready to continue from:
 
@@ -80,6 +85,7 @@ Actions:
 - Move hardcoded public fallbacks to env-safe config where needed.
 - Define dev/staging/prod env separation.
 - Test RLS with role matrix.
+- Before deployment, configure Supabase phone/SMS provider and verify the mobile branch `Sifremi Unuttum` phone OTP flow with a staging live SMS E2E test. Email reset redirect must also be verified.
 
 ## Phase 6 - Product MVP
 
@@ -103,3 +109,4 @@ Initial MVP scope:
 - Full local stack can start; REST and Edge Function health endpoints respond.
 - `audit_report_child_mutation` direct execute privilege has been revoked from `anon` and `authenticated`.
 - Next database/auth work: create deterministic local auth fixtures and run role-session app smoke tests for branch manager and technician.
+- Release blocker: phone password recovery cannot be considered production-ready until Supabase phone/SMS provider configuration and staging SMS OTP delivery are verified end to end.

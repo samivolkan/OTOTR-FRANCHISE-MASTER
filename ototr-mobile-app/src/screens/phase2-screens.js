@@ -54,9 +54,11 @@ import {
   syncEvidenceCaptures
 } from "../services/evidenceUploadService.js";
 import {
+  getCachedLiveWorkOrders,
   getLiveWorkOrderSyncStatus,
   syncLiveWorkOrders
 } from "../services/liveWorkOrdersService.js";
+import { getInspectionPackageModuleIds } from "../services/inspectionPackageCatalog.js";
 import { saveMobileInspectionAnswer } from "../services/mobileInspectionAnswerService.js";
 import {
   claimInspectionTaskForModule,
@@ -235,25 +237,68 @@ const permissionRoleSummary = Object.freeze({
 });
 
 let liveWorkOrdersSyncStarted = false;
+let liveWorkOrdersSyncInFlight = false;
+let liveWorkOrdersSyncTimer = null;
+const liveWorkOrdersRefreshRoutes = new Set(["home", "jobs", "job-detail", "detail"]);
+const liveWorkOrdersSyncIntervalMs = 5000;
+
+function getCurrentRouteId() {
+  return window.location.hash.replace(/^#/, "") || "home";
+}
+
+function liveWorkOrdersFingerprint() {
+  return getCachedLiveWorkOrders()
+    .map((order) => [
+      order.id,
+      order.plate,
+      order.status,
+      order.progress,
+      order.completedItems,
+      order.totalItems
+    ].join(":"))
+    .join("|");
+}
+
+async function runLiveWorkOrdersSync(onNavigate, { forceRender = false } = {}) {
+  const status = getLiveWorkOrderSyncStatus();
+  if (!status.configured || (!status.authenticated && !status.refreshable) || liveWorkOrdersSyncInFlight) return;
+
+  liveWorkOrdersSyncInFlight = true;
+  const before = liveWorkOrdersFingerprint();
+  try {
+    const result = await syncLiveWorkOrders();
+    if (!result.ok || !result.rows?.length) return;
+    const route = getCurrentRouteId();
+    const changed = before !== liveWorkOrdersFingerprint();
+    if ((forceRender || changed) && liveWorkOrdersRefreshRoutes.has(route)) {
+      onNavigate?.(route);
+    }
+  } catch {
+    // Live sync should not block the technician flow.
+  } finally {
+    liveWorkOrdersSyncInFlight = false;
+  }
+}
 
 function ensureLiveWorkOrdersSync(onNavigate) {
   if (liveWorkOrdersSyncStarted) return;
   const status = getLiveWorkOrderSyncStatus();
-  if (!status.configured || !status.authenticated) return;
+  if (!status.configured || (!status.authenticated && !status.refreshable)) return;
   liveWorkOrdersSyncStarted = true;
-  syncLiveWorkOrders().then((result) => {
-    if (!result.ok || !result.rows?.length) return;
-    if (["home", "jobs", "job-detail", "detail"].includes(window.location.hash.replace(/^#/, ""))) {
-      onNavigate?.(window.location.hash.replace(/^#/, "") || "home");
-    }
-  }).catch(() => undefined);
+  runLiveWorkOrdersSync(onNavigate, { forceRender: true });
+  liveWorkOrdersSyncTimer = window.setInterval(() => {
+    runLiveWorkOrdersSync(onNavigate);
+  }, liveWorkOrdersSyncIntervalMs);
 }
 
 async function syncLiveWorkOrdersBeforeRoute(onNavigate, targetRoute) {
   const status = getLiveWorkOrderSyncStatus();
   if (status.configured && status.authenticated) {
     try {
-      await syncLiveWorkOrders();
+      await Promise.race([
+        syncLiveWorkOrders(),
+        new Promise((resolve) => window.setTimeout(resolve, 1200))
+      ]);
     } catch {
       // Keep auth and branch flow usable even when live sync fails.
     }
@@ -274,7 +319,7 @@ function getStoredBranchName() {
   if (storedBranchId === "istanbul-kadikoy") return "İstanbul Kadıköy Şubesi";
   if (storedBranchId === "izmir") return "İzmir Şubesi";
   const storedBranchName = localStorage.getItem("ototrBranchName");
-  if (storedBranchName && !/[?�]/.test(storedBranchName)) return storedBranchName;
+  if (storedBranchName && !/[?\uFFFD]/.test(storedBranchName)) return storedBranchName;
   return getBranchById(storedBranchId)?.name
     ?? storedBranchId
     ?? technicianSession.activeBranch
@@ -352,6 +397,8 @@ const approvedReferenceRouteByRoute = Object.freeze({
 
 const approvedReferenceVisualRoutes = new Set(
   Object.keys(approvedReferenceRouteByRoute).filter((route) => ![
+    "detail",
+    "job-detail",
     "taskTransfer",
     "lock",
     "modules",
@@ -813,7 +860,7 @@ function renderApprovedReferenceRoute(referenceRoute, onNavigate) {
     attrs: { "aria-label": "Referans ekran tıklama alanları" }
   });
 
-  const flow = approvedReferenceFlowByRoute[referenceRoute] ?? {};
+  const flow = approvedReferenceFlowByRoute[referenceRoute] ? approvedReferenceFlowByRoute[referenceRoute] : {};
   if (flow.primary) {
     hotspots.append(referenceHotspot("Ana aksiyon", "primary", referenceRoute, flow.primary, onNavigate));
   }
@@ -1017,7 +1064,8 @@ function setStatusEvidenceCapture(formKey, item, slotIndex, capture) {
   });
   setModuleItemState(formKey, item, {
     statusEvidenceCaptures: nextCaptures.sort((a, b) => Number(a.slotIndex) - Number(b.slotIndex)),
-    readyPhotoSlots: nextCaptures.map((entry) => Number(entry.slotIndex)).sort((a, b) => a - b)
+    readyPhotoSlots: nextCaptures.map((entry) => Number(entry.slotIndex)).sort((a, b) => a - b),
+    needsEvidenceAttention: false
   });
   return nextCaptures;
 }
@@ -1553,19 +1601,20 @@ function updateReferenceWorkflowState(sourceRoute, actionArea, targetRoute) {
 function renderHomeOptimized(onNavigate) {
   const activeOrders = filterWorkOrdersByStatus(getRuntimeWorkOrders(), ["in_progress"]);
   const waitingOrders = filterWorkOrdersByStatus(getRuntimeWorkOrders(), ["waiting_start_proof", "start_proof_incomplete"]);
-  const technicalOrders = filterWorkOrdersByStatus(getRuntimeWorkOrders(), ["completed"]);
   const missingOrders = filterWorkOrdersByStatus(getRuntimeWorkOrders(), ["test_missing", "returned_for_correction"]);
+  const technicalOrders = filterWorkOrdersByStatus(getRuntimeWorkOrders(), ["completed"]);
   const main = element("main", { className: "app-content phase2-main home-ref-main home-standard-main" });
-  main.append(
+  const sections = [
     homeFinalHeader(onNavigate),
     homeFinalProfile(onNavigate),
-    homeStandardKpis(onNavigate),
-    homeStandardOrderSection("Aktif İş Emirleri", activeOrders, onNavigate),
-    homeStandardOrderSection("Bekleyen İş Emirleri", waitingOrders, onNavigate),
-    homeStandardOrderSection("Eksik / Uyarı Olan İşler", missingOrders, onNavigate),
-    homeStandardOrderSection("Tamamlanan İşler", technicalOrders, onNavigate),
-    homeFinalQuickActions(onNavigate)
-  );
+    homeStandardKpis(onNavigate)
+  ];
+  if (activeOrders.length) sections.push(homeStandardOrderSection("Aktif İş Emirleri", activeOrders, onNavigate));
+  if (waitingOrders.length) sections.push(homeStandardOrderSection("Bekleyen İş Emirleri", waitingOrders, onNavigate));
+  if (missingOrders.length) sections.push(homeStandardOrderSection("Eksik / Uyarı Olan İşler", missingOrders, onNavigate));
+  if (technicalOrders.length) sections.push(homeStandardOrderSection("Tamamlanan İşler", technicalOrders, onNavigate));
+  sections.push(homeFinalQuickActions(onNavigate, technicalOrders.length));
+  main.append(...sections);
   return main;
 }
 
@@ -1955,6 +2004,8 @@ function renderLogin(onNavigate) {
     localStorage.setItem("ototrUser", normalizedEmail.includes("ahmet.usta") ? "Ahmet Usta" : email);
     const runtimeConfig = globalThis.OTOTR_SUPABASE_CONFIG || {};
     const debugAutoBranchId = runtimeConfig.allowFakeSupabaseSession === true ? runtimeConfig.debugAutoBranchId || "" : "";
+    const debugSelectedWorkOrderId = runtimeConfig.allowFakeSupabaseSession === true ? runtimeConfig.debugSelectedWorkOrderId || "" : "";
+    const debugStartupRoute = runtimeConfig.allowFakeSupabaseSession === true ? runtimeConfig.debugStartupRoute || "" : "";
     if (debugAutoBranchId && !localStorage.getItem("ototrBranch")) {
       const debugBranch = getBranchById(debugAutoBranchId);
       if (debugBranch) {
@@ -1963,11 +2014,16 @@ function renderLogin(onNavigate) {
         localStorage.setItem("ototrDefaultBranch", "true");
       }
     }
+    if (debugSelectedWorkOrderId) {
+      localStorage.setItem("ototrSelectedWorkOrder", debugSelectedWorkOrderId);
+    }
     setAuthKeyboardActive(false);
     username.blur();
     password.blur();
     message.className = "auth-message login-production-message auth-message-success";
-    const targetRoute = localStorage.getItem("ototrBranch") ? "home" : "branch";
+    const targetRoute = localStorage.getItem("ototrBranch")
+      ? (debugStartupRoute || "home")
+      : "branch";
     message.textContent = targetRoute === "home" ? "Canlı giriş başarılı." : "Canlı giriş başarılı, şube seçimine yönlendiriliyorsunuz.";
     onNavigate(targetRoute);
   };
@@ -2046,6 +2102,12 @@ function renderLogin(onNavigate) {
   const debugLoginEnabled = fakeSupabaseSessionAllowed && runtimeConfig.debugLoginEnabled === true;
   const debugAutoLoginEnabled = fakeSupabaseSessionAllowed && runtimeConfig.debugAutoLoginEnabled === true;
   const debugAutoLoginKey = "ototrDebugAutoLoginAttempted";
+  const debugRealAutoLoginEnabled = runtimeConfig.debugRealAutoLoginEnabled === true
+    && typeof runtimeConfig.debugRealAutoLoginEmail === "string"
+    && runtimeConfig.debugRealAutoLoginEmail.trim()
+    && typeof runtimeConfig.debugRealAutoLoginPassword === "string"
+    && runtimeConfig.debugRealAutoLoginPassword.trim();
+  const debugRealAutoLoginKey = "ototrDebugRealAutoLoginAttempted";
   const triggerDebugSession = () => {
     username.value = "ahmet.usta@ototr.test";
     password.value = "123456";
@@ -2092,6 +2154,19 @@ function renderLogin(onNavigate) {
     sessionStorage.setItem(debugAutoLoginKey, "true");
     requestAnimationFrame(() => {
       triggerDebugSession();
+    });
+  }
+  if (
+    debugRealAutoLoginEnabled
+    && localStorage.getItem("ototrAuth") !== "true"
+    && sessionStorage.getItem(debugRealAutoLoginKey) !== "true"
+  ) {
+    sessionStorage.setItem(debugRealAutoLoginKey, "true");
+    requestAnimationFrame(() => {
+      submitLogin({
+        email: runtimeConfig.debugRealAutoLoginEmail.trim(),
+        password: runtimeConfig.debugRealAutoLoginPassword
+      });
     });
   }
   return main;
@@ -2573,12 +2648,13 @@ function homeFinalBrandGraphic(order) {
   return `<img src="${src}" alt="${homeFinalBrandLabel(brand)}" aria-hidden="true">`;
 }
 
-function homeFinalQuickActions(onNavigate) {
+function homeFinalQuickActions(onNavigate, readyCount = 0) {
+  const readyLabel = `${readyCount} iş emri hazır`;
   const actions = [
     { label: "İş Emri Tara", description: "İş emrini tara", icon: "scan", route: "start-proof", badge: "", tone: "red" },
     { label: "Durum Gir", description: "Fotoğraf opsiyonel", icon: "camera", route: "tests", badge: "", tone: "blue" },
     { label: "Devam Eden Modül", description: "Motor Kontrolü", icon: "engine", route: "tests", badge: "", tone: "orange" },
-    { label: "Tamamlamaya Hazır", description: "2 iş emri hazır", icon: "shield", route: "final-report", badge: "2", tone: "purple" }
+    { label: "Tamamlamaya Hazır", description: readyLabel, icon: "shield", route: "final-report", badge: readyCount ? String(readyCount) : "", tone: "purple" }
   ];
   const wrap = element("section", { className: "home-final-block home-final-actions-block" });
   wrap.append(element("h2", { text: "Hızlı Aksiyonlar" }));
@@ -2616,7 +2692,7 @@ function homeFinalProgressRing(value) {
 function renderJobs(onNavigate) {
   ensureLiveWorkOrdersSync(onNavigate);
   const main = element("main", { className: "phase2-main jobs-approved-screen" });
-  let activeFilter = "devam";
+  let activeFilter = "all";
   let searchQuery = "";
   let kpiStrip;
   const setActiveFilter = (nextFilter) => {
@@ -2626,9 +2702,9 @@ function renderJobs(onNavigate) {
   };
   const list = element("section", { className: "work-list phase2-work-list jobs-approved-list" });
   const clearFilters = () => {
-    activeFilter = "devam";
+    activeFilter = "all";
     searchQuery = "";
-    setActiveFilter("devam");
+    setActiveFilter("all");
   };
   const matchesFilter = (order, filter) => {
     if (filter === "waiting") return order.status === "waiting_start_proof" || order.status === "start_proof_incomplete";
@@ -2653,7 +2729,12 @@ function renderJobs(onNavigate) {
   const refresh = () => {
     list.replaceChildren();
     const query = searchQuery.trim().toLowerCase();
-    const rows = getRuntimeWorkOrders()
+    const orders = getRuntimeWorkOrders();
+    if (activeFilter !== "all" && !query && !orders.some((order) => matchesFilter(order, activeFilter))) {
+      activeFilter = "all";
+      syncKpis();
+    }
+    const rows = orders
       .filter((order) => matchesFilter(order, activeFilter))
       .filter((order) => matchesSearch(order, query));
 
@@ -2756,7 +2837,7 @@ function renderStart(onNavigate) {
     startProofVinBlock(vehicle),
     startProofPlateKmBlock(vehicle),
     startProofTransmissionBlock(vehicle),
-    startProofEvidenceBlock(),
+    startProofEvidenceBlock(onNavigate),
     startProofInfoBand(),
     startProofAction(onNavigate)
   );
@@ -2901,7 +2982,7 @@ function startProofMiniInput(label, value, tone, icon, suffix) {
   return wrap;
 }
 
-function startProofEvidenceBlock() {
+function startProofEvidenceBlock(onNavigate) {
   const section = element("section", { className: "start-proof-block start-proof-evidence-block" });
   const list = element("div", { className: "start-proof-evidence-list" });
   [
@@ -2909,14 +2990,20 @@ function startProofEvidenceBlock() {
     ["platePhoto", "Plaka Fotoğrafı", "Aracın plaka görünümü", "amber", icons.clipboard],
     ["kmPhoto", "KM Ekran Fotoğrafı", "Kilometre ekranı net görünüm", "violet", icons.gauge]
   ].forEach(([id, title, description, tone, icon]) => {
-    list.append(startProofEvidenceRow({ id, title, description, tone, icon }));
+    list.append(startProofEvidenceRow({ id, title, description, tone, icon }, onNavigate));
   });
   section.append(element("h2", { html: "5. Gerekli Kanıt Fotoğrafları <b>*</b>" }), list);
   return section;
 }
 
-function startProofEvidenceRow({ id, title, description, tone, icon }) {
+function startProofEvidenceRow({ id, title, description, tone, icon }, onNavigate) {
   const row = element("article", { className: `start-proof-evidence-row tone-${tone}`, dataset: { evidenceId: id } });
+  const fieldKey = `start_proof_${id}`;
+  const existingCapture = getEvidenceCaptureStore().find((item) => item.fieldKey === fieldKey);
+  if (existingCapture?.id) {
+    row.dataset.captureId = existingCapture.id;
+    row.classList.add("is-complete");
+  }
   const action = button(`${icons.camera}<span>Fotoğraf Çek / Yükle</span>`, "start-proof-camera-drop", () => {
     if (row.classList.contains("is-complete")) {
       removeEvidenceCaptureById(row.dataset.captureId || "");
@@ -2932,17 +3019,19 @@ function startProofEvidenceRow({ id, title, description, tone, icon }) {
       expertiseCaseId: order.expertiseCaseId || order.id,
       selectedEvidenceSlot: title,
       selectedEvidenceStatus: "Bekliyor",
-      selectedEvidenceFieldKey: `start_proof_${id}`,
-      selectedReportFieldKey: `start_proof_${id}`,
+      selectedEvidenceFieldKey: fieldKey,
+      selectedReportFieldKey: fieldKey,
       selectedModuleTitle: "İşe Başlama Kanıtı",
-      workOrderStatus: "start_proof_evidence_ready"
+      workOrderStatus: "start_proof_evidence_required"
     });
+    onNavigate("camera");
+    return;
     const { item } = saveCapturedEvidence("start-proof", {
       dataUrl: startProofPlaceholderDataUrl(),
       fileName: `${order.plate.replace(/\s+/g, "-").toLowerCase()}-${id}-${Date.now()}.png`,
       mimeType: "image/png",
       sizeBytes: 92,
-      sizeText: "StartProof mock",
+      sizeText: "Gercek kamera",
       note: `${title} canlı iş emrine bağlandı.`
     });
     row.dataset.captureId = item.id;
@@ -3618,11 +3707,12 @@ function renderProfileSettingDetail(onNavigate) {
 
 function renderModules(onNavigate) {
   const order = getSelectedWorkOrder();
+  const modules = getNormalizedTaskModules();
   const main = element("main", { className: "phase2-main task-modules-screen" });
   main.append(
     taskModulesHeader(onNavigate),
-    taskModulesSummary(order),
-    taskModulesList(onNavigate)
+    taskModulesSummary(order, modules),
+    taskModulesList(onNavigate, modules)
   );
   return main;
 }
@@ -3640,11 +3730,13 @@ function taskModulesHeader(onNavigate) {
   return header;
 }
 
-function taskModulesSummary(order) {
+function taskModulesSummary(order, modules = getNormalizedTaskModules()) {
   const card = element("section", { className: "task-modules-summary-card" });
-  const progress = 65;
-  const totalTasks = 60;
-  const completedTasks = Math.round((totalTasks * progress) / 100);
+  const aggregate = getTaskModulesAggregate(modules);
+  const progress = aggregate.percent;
+  const totalTasks = aggregate.totalItems;
+  const completedTasks = aggregate.completedItems;
+  const progressOffset = Math.max(0, 284 - ((284 * progress) / 100));
   card.append(
     element("div", {
       className: "task-modules-vehicle",
@@ -3656,17 +3748,16 @@ function taskModulesSummary(order) {
     }),
     element("div", {
       className: "task-modules-ring",
-      html: `<svg viewBox="0 0 112 112" aria-hidden="true"><circle cx="56" cy="56" r="45"></circle><circle cx="56" cy="56" r="45"></circle></svg><strong>%${progress}</strong><span>${completedTasks}/${totalTasks}</span>`
+      html: `<svg viewBox="0 0 112 112" aria-hidden="true"><circle cx="56" cy="56" r="45"></circle><circle cx="56" cy="56" r="45" style="stroke-dashoffset:${progressOffset.toFixed(1)}"></circle></svg><strong>%${progress}</strong><span>${completedTasks}/${totalTasks}</span>`
     }),
-    taskModulesMetrics()
+    taskModulesMetrics(modules)
   );
   return card;
 }
 
-function taskModulesMetrics() {
-  const modules = getNormalizedTaskModules();
+function taskModulesMetrics(modules = getNormalizedTaskModules()) {
   const rows = [
-    { value: String(modules.filter((module) => module.progress >= 100).length), label: "Tamamlanan", tone: "success", icon: "check" },
+    { value: String(modules.filter((module) => module.complete || module.progress >= 100).length), label: "Tamamlanan", tone: "success", icon: "check" },
     { value: String(modules.filter((module) => module.status === "Devam Ediyor" || module.status === "Usta Üzerinde").length), label: "Devam Eden", tone: "blue", icon: "clock" },
     { value: String(modules.filter((module) => module.status === "Eksik Var" || module.status === "Eksik / Uyarı").length), label: "Eksik / Uyarı", tone: "orange", icon: "warning" },
     { value: String(modules.filter((module) => module.status === "Kilitli").length), label: "Kilitli", tone: "slate", icon: "key" }
@@ -3682,8 +3773,39 @@ function taskModulesMetrics() {
   return wrap;
 }
 
+function getTaskModulesAggregate(modules = getNormalizedTaskModules()) {
+  const totalItems = modules.reduce((sum, module) => sum + Math.max(0, Number(module.totalItems ?? module.itemCount ?? 0)), 0);
+  const completedItems = modules.reduce((sum, module) => {
+    const total = Math.max(0, Number(module.totalItems ?? module.itemCount ?? 0));
+    const completed = module.complete || module.progress >= 100
+      ? total
+      : Math.max(0, Number(module.completedItems ?? 0));
+    return sum + Math.min(total, completed);
+  }, 0);
+  return {
+    totalItems,
+    completedItems,
+    percent: totalItems ? Math.round((completedItems / totalItems) * 100) : 0
+  };
+}
+
+function getWorkOrderPackageModuleIds(order = getSelectedWorkOrder()) {
+  if (Array.isArray(order.packageModuleIds) && order.packageModuleIds.length) return new Set(order.packageModuleIds);
+  const moduleIds = getInspectionPackageModuleIds(order.packageCode || order.packageName || "");
+  return moduleIds.length ? new Set(moduleIds) : null;
+}
+
+function filterTaskModulesByOrderPackage(modules, order = getSelectedWorkOrder()) {
+  const packageModuleIds = getWorkOrderPackageModuleIds(order);
+  const filtered = packageModuleIds
+    ? modules.filter((module) => packageModuleIds.has(module.formKey || module.id))
+    : modules;
+  return filtered.map((module, index) => ({ ...module, no: index + 1 }));
+}
+
 function getBaseTaskModules() {
-  return moduleCatalog.map((module, index) => {
+  const order = getSelectedWorkOrder();
+  const baseModules = moduleCatalog.map((module, index) => {
     const formKey = module.formKey || module.id;
     const form = expertiseModuleForms[formKey];
     const progress = form ? getModuleFormProgress(formKey, form) : { completed: 0, total: module.itemCount || 0, percent: 0 };
@@ -3692,6 +3814,9 @@ function getBaseTaskModules() {
       title: module.subtitle || module.title,
       subtitle: `${module.itemCount} madde · ${form?.groupTitles?.length || 1} alt başlık`,
       count: `${progress.completed} / ${module.itemCount} madde`,
+      itemCount: module.itemCount || progress.total || 0,
+      totalItems: progress.total || module.itemCount || 0,
+      completedItems: progress.completed || 0,
       status: module.status || "Bekliyor",
       tone: resolveModuleControlTone(module.tone, module.status),
       icon: resolveModuleControlIcon(module.id),
@@ -3703,6 +3828,7 @@ function getBaseTaskModules() {
       lockedAt: module.lockedAt || ""
     };
   });
+  return filterTaskModulesByOrderPackage(baseModules, order);
 }
 
 function getNormalizedTaskModules() {
@@ -3712,20 +3838,31 @@ function getNormalizedTaskModules() {
     const override = getModuleStateOverride(order, module.formKey || "kaporta");
     const claimed = getClaimedModuleOwner(module.formKey || "kaporta");
     const released = Boolean(override?.releasedAt);
+    const taskCompleted = module.progress >= 100
+      || isModuleTaskCompleted(order, module.formKey || "kaporta")
+      || override?.status === "Tamamlandı"
+      || module.status === "Tamamlandı";
     const effectiveOwner = released
       ? (override?.owner || "Atama Bekliyor")
       : (claimed?.owner || override?.owner || module.owner);
-    const effectiveStatus = released
+    const effectiveStatus = taskCompleted
+      ? "Tamamlandı"
+      : released
       ? (override?.status || "Bekliyor")
       : (claimed?.owner ? "Devam Ediyor" : (override?.status || module.status));
-    const effectiveLockedBy = released ? "" : (claimed?.owner ? "" : (override?.lockedBy || module.lockedBy));
-    const effectiveLockedAt = released ? "" : (claimed?.owner ? claimed?.claimedAt || "" : (override?.lockedAt || module.lockedAt));
-    const isOwnedByCurrent = effectiveOwner ? effectiveOwner === currentTechnician : effectiveLockedBy === currentTechnician;
-    const effectiveProgress = module.progress;
+      const effectiveLockedBy = released ? "" : (claimed?.owner ? "" : (override?.lockedBy || module.lockedBy));
+      const effectiveLockedAt = released ? "" : (claimed?.owner ? claimed?.claimedAt || "" : (override?.lockedAt || module.lockedAt));
+      const isOwnedByCurrent = effectiveOwner ? effectiveOwner === currentTechnician : effectiveLockedBy === currentTechnician;
+      const effectiveProgress = taskCompleted ? 100 : module.progress;
     return {
       ...module,
       owner: effectiveOwner,
       status: effectiveStatus,
+      count: taskCompleted ? `${module.itemCount} / ${module.itemCount} madde` : module.count,
+      completedItems: taskCompleted ? module.totalItems : module.completedItems,
+      totalItems: module.totalItems,
+      tone: taskCompleted ? "success" : resolveModuleControlTone(module.tone, effectiveStatus),
+      complete: taskCompleted,
       progress: effectiveProgress,
       lockedBy: effectiveLockedBy,
       lockedAt: effectiveLockedAt,
@@ -3735,17 +3872,22 @@ function getNormalizedTaskModules() {
   });
 }
 
-function taskModulesList(onNavigate) {
+function taskModulesList(onNavigate, normalizedModules = getNormalizedTaskModules()) {
   const list = element("section", { className: "task-modules-list", attrs: { "aria-label": "Görev modülleri" } });
-  const normalizedModules = getNormalizedTaskModules();
-  const activeModules = normalizedModules.filter((module) => module.progress < 100);
-  const completedModules = normalizedModules.filter((module) => module.progress >= 100);
-  list.append(taskModulesGroup("Devam Edenler", activeModules, onNavigate));
+  const isCompletedModule = (module) => module.complete || module.progress >= 100 || module.status === "Tamamlandı";
+  const activeModules = normalizedModules.filter((module) => !isCompletedModule(module));
+  const completedModules = normalizedModules.filter(isCompletedModule);
+  if (activeModules.length) {
+    list.append(taskModulesGroup("Devam Edenler", activeModules, onNavigate));
+  }
   list.append(taskModulesGroup("Tamamlananlar", completedModules, onNavigate));
   return list;
 }
 
 function taskModulesGroup(title, modules, onNavigate) {
+  if (!modules.length) {
+    return document.createDocumentFragment();
+  }
   const group = element("section", { className: "task-modules-group" });
   group.append(element("div", {
     className: "task-modules-group-title",
@@ -4133,7 +4275,10 @@ function renderModuleControl(onNavigate) {
   const selectedModule = getSelectedInspectionModule();
   const moduleItems = selectedModule.form?.items || [];
   const moduleProgress = getModuleFormProgress(selectedModule.formKey, selectedModule.form);
-  const main = element("main", { className: "phase2-main inspection-module-screen" });
+  const isMechanicDesign = isMechanicInspectionModule(selectedModule.formKey);
+  const main = element("main", {
+    className: `phase2-main inspection-module-screen inspection-module-${selectedModule.formKey}${isMechanicDesign ? " inspection-mechanic-screen" : ""}`
+  });
   const activeFilter = { value: "all", category: "all" };
   const list = element("section", { className: "inspection-panel-list", attrs: { "aria-live": "polite" } });
 
@@ -4152,6 +4297,8 @@ function renderModuleControl(onNavigate) {
   });
   const pendingCount = Math.max(0, moduleProgress.total - moduleProgress.completed);
   const summaryTone = moduleProgress.missingEvidence > 0 ? "warning" : pendingCount > 0 ? "danger" : "ok";
+  const progressMeta = isMechanicDesign ? `<b class="inspection-mechanic-ring-meta">${moduleProgress.completed} / ${moduleProgress.total}<small>tamamlandı</small></b>` : "";
+  const moduleReadyToSubmit = moduleProgress.total > 0 && moduleProgress.completed >= moduleProgress.total && moduleProgress.missingEvidence === 0;
   const renderChunkSize = 10;
   let panelRenderToken = 0;
   let searchRenderTimer = 0;
@@ -4237,21 +4384,29 @@ function renderModuleControl(onNavigate) {
           <div class="inspection-module-plate"><span>TR</span><strong>${order.plate}</strong></div>
           <h3>${order.brandModel}</h3>
           <p><span>${icons.calendar}${order.year || "2021"}</span><i></i><span>${icons.gauge}${order.mileage || "128.450 km"}</span></p>
-          <button type="button" class="inspection-module-release-inline" aria-label="Testi bırak">${icons.logout}<span>Testi Bırak</span></button>
+          <div class="inspection-module-hero-actions">
+            <button type="button" class="inspection-module-release-inline" aria-label="Testi devret">${icons.logout}<span>Testi Devret</span></button>
+            <button type="button" class="inspection-module-good-inline${moduleReadyToSubmit ? " is-submit" : ""}" aria-label="${moduleReadyToSubmit ? "Testi gönder" : "Tüm noktaları iyi durumda işaretle"}">${moduleReadyToSubmit ? icons.send : icons.check}<span>${moduleReadyToSubmit ? "Testi Gönder" : "Tümü İyi"}</span></button>
+          </div>
         </div>
-        <div class="inspection-module-ring">${renderInspectionProgressGauge(moduleProgress.percent)}<strong>%${moduleProgress.percent}</strong><span>Tamamlandı</span></div>
+        <div class="inspection-module-ring">${renderInspectionProgressGauge(moduleProgress.percent)}<strong>%${moduleProgress.percent}</strong><span>Tamamlandı</span>${progressMeta}</div>
         <button type="button" aria-label="İş emri detayına git">${icons.arrow}</button>
       </div>
     ` }),
-    button(`${icons.arrowLeft}<span>Testi Bırak</span>`, "inspection-module-release", () => {
-      releaseActiveModuleOwnership(onNavigate);
-    }, "Testi bırak", true),
     element("section", { className: "inspection-module-card" })
   );
   const card = main.querySelector(".inspection-module-card");
   main.querySelector(".inspection-module-release-inline")?.addEventListener("click", (event) => {
     event.stopPropagation();
     releaseActiveModuleOwnership(onNavigate);
+  });
+  main.querySelector(".inspection-module-good-inline")?.addEventListener("click", (event) => {
+    event.stopPropagation();
+    if (moduleReadyToSubmit) {
+      submitCurrentInspectionModule(selectedModule, onNavigate);
+      return;
+    }
+    markAllInspectionItemsGood(selectedModule, onNavigate);
   });
   card.append(
     element("div", { className: "inspection-module-list-head", html: `<h2>Tüm Test Maddeleri (${moduleItems.length})</h2><span class="tone-${summaryTone}">${moduleProgress.percent >= 100 ? "Tamamlandı" : `${pendingCount} Bekliyor`}</span>` }),
@@ -4264,10 +4419,7 @@ function renderModuleControl(onNavigate) {
       <article><span>Tamamlanan</span><strong class="ok">${moduleProgress.completed}</strong></article>
       <article><span>Fotoğraf</span><strong class="warn">${moduleProgress.readyEvidence}</strong></article>
       <article><span>Bekleyen</span><strong class="danger">${pendingCount}</strong></article>
-    ` }),
-    button(`<span>Tüm noktalar iyi durumda</span><small>${selectedModule.subtitle}</small>${icons.check}`, "inspection-module-next", () => {
-      markAllInspectionItemsGood(selectedModule, onNavigate);
-    }, "Tüm test maddelerini iyi olarak tamamla", true)
+    ` })
   );
   card.querySelector(".inspection-module-search-row").append(
     element("label", { className: "inspection-module-search", html: `${icons.search}` }),
@@ -4283,20 +4435,55 @@ function renderModuleControl(onNavigate) {
 }
 
 function renderInspectionProgressGauge(percent = 0) {
-  const totalSegments = 30;
+  const totalSegments = 32;
   const normalized = Math.max(0, Math.min(100, Number(percent) || 0));
-  const activeSegments = Math.max(12, Math.round((normalized / 100) * totalSegments));
+  const activeSegments = Math.min(totalSegments, Math.max(0, Math.round((normalized / 100) * totalSegments)));
   const segmentStep = 360 / totalSegments;
-  const startAngle = -138;
+  const startAngle = -140;
   return `
     <svg class="inspection-module-ring-svg" viewBox="0 0 140 140" aria-hidden="true" focusable="false">
       ${Array.from({ length: totalSegments }).map((_, index) => {
         const angle = startAngle + index * segmentStep;
         const activeClass = index < activeSegments ? " is-active" : "";
-        return `<line class="inspection-module-ring-segment${activeClass}" x1="70" y1="14" x2="70" y2="30" transform="rotate(${angle.toFixed(2)} 70 70)" />`;
+        return `<line class="inspection-module-ring-segment${activeClass}" x1="70" y1="11" x2="70" y2="28" transform="rotate(${angle.toFixed(2)} 70 70)" />`;
       }).join("")}
     </svg>
   `;
+}
+
+function isMechanicInspectionModule(formKey = "") {
+  return formKey === "alt-on-mekanik" || formKey === "mechanic";
+}
+
+function resolveStatusSelectionOptions(selectedModule, selectedItem) {
+  const labels = [];
+  const appendLabel = (label) => {
+    const normalized = String(label || "").trim();
+    if (!normalized || labels.includes(normalized)) return;
+    labels.push(normalized);
+  };
+  (selectedItem.options || []).forEach((option) => {
+    if (option?.disabled) return;
+    appendLabel(option.displayLabel || option.label || option.value || option.sourceText);
+  });
+  (selectedItem.statusOptions || []).forEach(appendLabel);
+  return labels.length ? labels : ["Sorunsuz"];
+}
+
+function resolveGoodStatusForItem(item) {
+  const options = resolveStatusSelectionOptions({ formKey: "" }, item);
+  const preferred = [
+    "İyi",
+    "Sorunsuz",
+    "Hasarsız",
+    "Arıza Kaydı Yok",
+    "Çalışıyor",
+    "Uygun",
+    "Yanmıyor",
+    "Hayır",
+    "Yok"
+  ];
+  return preferred.find((label) => options.includes(label)) || options[0] || "Sorunsuz";
 }
 
 function resolveModuleControlHeroIcon(formKey) {
@@ -4313,6 +4500,55 @@ function resolveModuleControlHeroIcon(formKey) {
     conta: icons.key
   };
   return iconMap[formKey] || icons.clipboard;
+}
+
+async function submitCurrentInspectionModule(selectedModule, onNavigate) {
+  const order = getSelectedWorkOrder();
+  const formKey = selectedModule.formKey;
+  const progress = getModuleFormProgress(formKey, selectedModule.form);
+  if (progress.total > 0 && progress.completed < progress.total) {
+    recordWorkflowStep("module_submit_blocked", {
+      selectedModule: selectedModule.title,
+      selectedModuleFormKey: formKey,
+      completed: progress.completed,
+      total: progress.total,
+      currentOrderId: order.id
+    });
+    onNavigate("moduleControl");
+    return;
+  }
+  const completedAt = new Date().toISOString();
+  markModuleTaskCompleted(order, formKey, true);
+  setModuleStateOverride(order, formKey, {
+    owner: getCurrentTechnicianName(),
+    status: "Tamamlandı",
+    lockedBy: "",
+    lockedAt: "",
+    completedAt
+  });
+  const result = await Promise.race([
+    submitInspectionTaskForModule({
+      expertiseCaseId: order.expertiseCaseId || order.id,
+      moduleKey: formKey
+    }),
+    new Promise((resolve) => window.setTimeout(() => resolve({
+      ok: false,
+      status: "queued",
+      reason: "Canlı senkron arka planda devam ediyor."
+    }), 1200))
+  ]).catch((error) => ({
+    ok: false,
+    status: "error",
+    reason: error?.message || "Test gönderimi senkronize edilemedi."
+  }));
+  recordWorkflowStep(result.ok ? "module_task_submit_requested" : "module_task_submit_queued", {
+    selectedModule: selectedModule.title,
+    selectedModuleFormKey: formKey,
+    currentOrderId: order.id,
+    liveResult: result.status,
+    completedAt
+  });
+  onNavigate("tests");
 }
 
 function openInspectionItemStatus(item, index, selectedModule, onNavigate, returnRoute = "moduleControl") {
@@ -4343,19 +4579,23 @@ function markAllInspectionItemsGood(selectedModule, onNavigate) {
   const order = getSelectedWorkOrder();
   const items = selectedModule.form?.items || [];
   const completedAt = new Date().toISOString();
-  items.forEach((item) => {
+  items.forEach((item, index) => {
+    const goodStatus = resolveGoodStatusForItem(item);
+    const needsEvidenceAttention = isInspectionItemPhotoRequired(item, index)
+      && getStatusEvidenceCaptures(selectedModule.formKey, item).length === 0;
     const inputs = (item.inputs || []).reduce((acc, input) => {
       const key = input.name || input.label || "Ek alan";
-      acc[key] = "İyi";
+      acc[key] = goodStatus;
       return acc;
     }, {});
     setModuleItemState(selectedModule.formKey, item, {
-      selectedOption: "İyi",
+      selectedOption: goodStatus,
       inputs,
       description: "",
       syncInlineStatus: "Senkron bekliyor",
       completed: true,
       bulkGoodApplied: true,
+      needsEvidenceAttention,
       reportAnswer: {
         reportId: order.expertiseCaseId || order.id,
         moduleId: selectedModule.formKey,
@@ -4363,7 +4603,7 @@ function markAllInspectionItemsGood(selectedModule, onNavigate) {
         itemId: getModuleItemKey(item),
         noktaId: item.noktaId || "",
         itemTitle: item.title || "",
-        status: "İyi",
+        status: goodStatus,
         note: "",
         photos: [],
         completed: true,
@@ -4373,7 +4613,6 @@ function markAllInspectionItemsGood(selectedModule, onNavigate) {
     queueMobileInspectionAnswerSave(selectedModule.formKey, item);
   });
   refreshCurrentModuleFormProgress(selectedModule.formKey);
-  scheduleModuleTaskCompletionSync(selectedModule.formKey);
   recordWorkflowStep("module_all_items_marked_good", {
     selectedModule: selectedModule.title,
     selectedModuleFormKey: selectedModule.formKey,
@@ -4462,9 +4701,10 @@ function renderInspectionModuleItemRow(item, index, selectedModule, onNavigate) 
   const hasHistory = hasInspectionItemReportHistory(item, index, selectedModule);
   const photoRequired = isInspectionItemPhotoRequired(item, index);
   const photoStateClass = photoCount > 0 ? " is-complete" : photoRequired ? " is-required" : "";
+  const needsEvidenceAttention = Boolean(itemState.needsEvidenceAttention) && photoRequired && photoCount === 0;
   const openStatus = () => openInspectionItemStatus(item, index, selectedModule, onNavigate, "moduleControl");
   const row = element("article", {
-    className: `inspection-panel-row tone-${leftTone}${hasHistory ? " has-history" : ""}${photoRequired ? " has-required-photo" : ""}`,
+    className: `inspection-panel-row tone-${leftTone}${hasHistory ? " has-history" : ""}${photoRequired ? " has-required-photo" : ""}${needsEvidenceAttention ? " needs-photo-attention" : ""}`,
     attrs: {
       role: "button",
       tabindex: "0",
@@ -4567,7 +4807,10 @@ function renderKaportaPanelRow(panel, onNavigate) {
 function getModuleControlModules() {
   const currentTechnician = getCurrentTechnicianName();
   const order = getSelectedWorkOrder();
-  return moduleCatalog.map((module, index) => {
+  const packageModuleIds = getWorkOrderPackageModuleIds(order);
+  return moduleCatalog
+  .filter((module) => !packageModuleIds || packageModuleIds.has(module.formKey || module.id))
+  .map((module, index) => {
     const formKey = module.formKey || module.id;
     const override = getModuleStateOverride(order, formKey);
     const claimed = getClaimedModuleOwner(formKey);
@@ -4636,9 +4879,11 @@ function renderModuleControlRow(module, onNavigate) {
 
 function moduleControlSummaryCard(order, modules) {
   const card = element("section", { className: "task-modules-summary-card module-control-summary" });
-  const progress = Math.max(0, Math.min(100, Number.isFinite(order.progress) ? order.progress : 65));
-  const totalTasks = 60;
-  const completedTasks = Math.round((totalTasks * progress) / 100);
+  const aggregate = getTaskModulesAggregate(modules);
+  const progress = aggregate.percent;
+  const totalTasks = aggregate.totalItems;
+  const completedTasks = aggregate.completedItems;
+  const progressOffset = Math.max(0, 284 - ((284 * progress) / 100));
   card.append(
     element("div", {
       className: "task-modules-vehicle",
@@ -4651,7 +4896,7 @@ function moduleControlSummaryCard(order, modules) {
     }),
     element("div", {
       className: "task-modules-ring",
-      html: `<svg viewBox="0 0 112 112" aria-hidden="true"><circle cx="56" cy="56" r="45"></circle><circle cx="56" cy="56" r="45"></circle></svg><strong>%${progress}</strong><span>${completedTasks}/${totalTasks}</span>`
+      html: `<svg viewBox="0 0 112 112" aria-hidden="true"><circle cx="56" cy="56" r="45"></circle><circle cx="56" cy="56" r="45" style="stroke-dashoffset:${progressOffset.toFixed(1)}"></circle></svg><strong>%${progress}</strong><span>${completedTasks}/${totalTasks}</span>`
     }),
     (() => {
       const summary = element("div", { className: "task-modules-metrics" });
@@ -4967,7 +5212,7 @@ function moduleTitleForFormKey(formKey) {
   const titles = {
     motor: "Motor",
     "alt-on-mekanik": "Alt / Ön / Mekanik",
-    mechanic: "Mekanik",
+    mechanic: "Alt / Ön / Mekanik",
     brakeSuspension: "Fren / Süspansiyon",
     "fren-suspansiyon": "Fren / Süspansiyon",
     electric: "Elektrik / OBD",
@@ -5197,13 +5442,16 @@ function renderStatusModal(onNavigate) {
   const selectedModule = getSelectedInspectionModule();
   const selectedItem = getSelectedInspectionItem(selectedModule);
   const itemState = getModuleItemState(selectedModule.formKey, selectedItem);
+  const isMechanicDesign = isMechanicInspectionModule(selectedModule.formKey);
   const workflow = getWorkflowState();
   const statusReturnRoute = workflow.statusSelectionReturnRoute || "itemDetail";
   const closeStatusSelection = (targetRoute) => {
     setWorkflowState({ statusSelectionReturnRoute: "" });
     onNavigate(targetRoute);
   };
-  const main = element("main", { className: "phase2-main status-selection-screen" });
+  const main = element("main", {
+    className: `phase2-main status-selection-screen${isMechanicDesign ? " status-selection-mechanic" : ""}`
+  });
   const statusDescriptions = {
     "Sorunsuz": "Madde kontrol edildi ve sorun tespit edilmedi.",
     "Kontrol Gerekli": "Madde için ek kontrol, açıklama veya kanıt gerekli.",
@@ -5211,14 +5459,16 @@ function renderStatusModal(onNavigate) {
     "İşlemli": "Maddede daha önce işlem uygulanmış.",
     "Uygulanamaz": "Bu madde araç veya koşullar için uygulanamaz."
   };
-  const options = (selectedItem.statusOptions || selectedItem.options?.map((option) => option.label).filter(Boolean) || ["Sorunsuz"]).map((label) => ({
+  const options = resolveStatusSelectionOptions(selectedModule, selectedItem).map((label) => ({
     key: label,
     title: label,
     desc: statusDescriptions[label] || "Standart ekspertiz durumu.",
     tone: optionTone(label),
-    icon: label === "Sorunsuz" ? icons.check : label === "Kusurlu" ? icons.warning : label === "İşlemli" ? icons.wrench : icons.info
+    icon: ["Sorunsuz", "İyi"].includes(label) ? icons.check : label === "Kusurlu" ? icons.warning : label === "İşlemli" || label.includes("Kaçağı") ? icons.wrench : icons.info
   }));
-  let selected = itemState.selectedOption || options[0]?.key || "Sorunsuz";
+  let selected = options.some((option) => option.key === itemState.selectedOption)
+    ? itemState.selectedOption
+    : options[0]?.key || "Sorunsuz";
   const noteInput = element("textarea", {
     className: "status-selection-note-input",
     attrs: {
@@ -5247,13 +5497,13 @@ function renderStatusModal(onNavigate) {
     return row;
   });
   main.append(
-    element("section", { className: "status-selection-backdrop", html: `<div class="status-selection-blur"><h2>İş Emri Detayı</h2><p>16C010935</p></div>` }),
+    element("section", { className: "status-selection-backdrop", html: `<div class="status-selection-blur"><h2>${selectedModule.title}</h2><p>${selectedItem.title || "Kontrol maddesi"}</p></div>` }),
     element("section", { className: "status-selection-sheet" })
   );
   const sheet = main.querySelector(".status-selection-sheet");
   sheet.append(
     element("i", { className: "status-selection-handle" }),
-    element("div", { className: "status-selection-hero", html: `<span>${icons.car}</span><h1>Durum Seçimi</h1><p>${selectedItem.title || selectedModule.title} için durum belirleyin.</p>` }),
+    element("div", { className: "status-selection-hero", html: `<span>${isMechanicDesign ? icons.wrench : icons.car}</span><h1>${isMechanicDesign ? (selectedItem.title || "Durum Seçimi") : "Durum Seçimi"}</h1><p>${selectedModule.title} için durum belirleyin.</p>` }),
     renderStatusSelectionSummary(selectedModule, selectedItem),
     optionList,
     element("section", { className: "status-selection-note-panel", html: `<label><span>Açıklama / Not</span></label>` }),
@@ -6122,7 +6372,7 @@ function renderFinalReportPreview(onNavigate) {
         const hasVisualBlockers = finalApprovalWarnings.length > 0 || unresolvedSelectedOptions.length > 0;
         const gateAllowsSubmit = currentGate.source === "supabase"
           ? currentGate.canSubmit
-          : finalApprovalGate.allowsTechnicalApproval && currentGate.canSubmit;
+          : currentGate.canSubmit;
         const canSubmit = gateAllowsSubmit && !hasVisualBlockers;
         const order = getSelectedWorkOrder();
         const finalReportResult = canSubmit
@@ -6540,7 +6790,7 @@ function featuredWorkOrderCard(order, onNavigate) {
   card.append(
     element("div", {
       className: "featured-work-copy",
-      html: `<small>Öne çıkan iş emri</small><h2>${order.plaka}</h2><p>${order.marka} ${order.model} · ${order.yıl} · ${order.kilometre}</p><span>${order.işEmriNo} · ${order.bayi}</span>`
+      html: `<small>Öne çıkan iş emri</small><h2>${order.plaka}</h2><p>${order.marka} ${order.model} · ${order["yıl"]} · ${order.kilometre}</p><span>${order["işEmriNo"]} · ${order.bayi}</span>`
     }),
     element("div", { className: "car-visual", html: carSilhouette() }),
     segmentedSemiGauge(order.ilerleme ?? 65, "İlerleme"),
@@ -6581,7 +6831,7 @@ function detailApprovedHero(order) {
     }),
     element("div", {
       className: "detail-approved-vehicle-copy",
-      html: `<h3>${order.marka} ${order.model} <span class="status-badge detail-brand-status" data-tone="success">Devam Ediyor</span></h3><p><span>${icons.calendar}${order.yıl}</span><span>${icons.engine}${order.paket}</span><span>${icons.gauge}${order.kilometre}</span></p>`
+      html: `<h3>${order.marka} ${order.model} <span class="status-badge detail-brand-status" data-tone="success">Devam Ediyor</span></h3><p><span>${icons.calendar}${order["yıl"]}</span><span>${icons.engine}${order.paket}</span><span>${icons.gauge}${order.kilometre}</span></p>`
     }),
     element("img", {
       className: "detail-approved-car",
@@ -6620,8 +6870,8 @@ function detailConnectedProgress(order) {
       className: "detail-progress-flow",
       html: `
         <article class="tone-success">${icons.check}<strong>42/60</strong><span>Tamamlanan</span></article>
-        <article class="tone-warning">${icons.alert}<strong>${order.eksikSayısı}</strong><span>Eksik / Uyarı</span></article>
-        <article class="tone-purple">${icons.shield}<strong>${order.kanıtSayısı}</strong><span>Kanıt</span></article>
+        <article class="tone-warning">${icons.alert}<strong>${order["eksikSayısı"]}</strong><span>Eksik / Uyarı</span></article>
+        <article class="tone-purple">${icons.shield}<strong>${order["kanıtSayısı"]}</strong><span>Kanıt</span></article>
         <article class="tone-info">${icons.clock}<strong>01:35</strong><span>Süre</span></article>
         <article class="tone-blue">${icons.clipboard}<strong>7</strong><span>Modül</span></article>
       `
@@ -6723,7 +6973,7 @@ function getFinalReportCloseState(liveReport = null, evidenceGate = getEvidenceA
   const liveCanSubmit = Boolean(liveGate.canSubmit || summary.canSubmit);
   const effectiveCanSubmit = evidenceGate?.source === "supabase"
     ? Boolean(evidenceGate?.canSubmit) && liveCanSubmit
-    : Boolean(evidenceGate?.canSubmit) && finalApprovalGate.allowsTechnicalApproval;
+    : Boolean(evidenceGate?.canSubmit);
   return {
     hasVisualBlockers,
     canClose: effectiveCanSubmit && !hasVisualBlockers,
@@ -6751,21 +7001,26 @@ function reportScoreCard(liveReport = null, closeState = getFinalReportCloseStat
 function reportSectionGrid(liveReport = null, closeState = getFinalReportCloseState(liveReport)) {
   const summary = closeState.summary || liveReport?.payload?.summary || {};
   const grid = element("section", { className: "report-section-grid" });
-  const rows = liveReport ? [
-    ["Canlı Cevap", summary.answerCount || 0],
-    ["Riskli Madde", summary.riskyAnswerCount || 0],
-    ["Kontrol Edilemeyen", summary.notDoneAnswerCount || 0],
-    ["Kanıt", summary.evidenceCount || 0],
-    ["Gate", closeState.canClose ? "Geçti" : "Blokaj"],
-    ["Rapor", liveReport.status || "DRAFT"]
-  ] : [
-    ["Müşteri Özeti", customerSummaryData.customer],
-    ["İç Teknik Not", "1 not"],
-    ["Kritik Bulgular", customerSummaryData.criticalFindings.length],
-    ["İyi Durumlar", customerSummaryData.goodFindings.length],
-    ["Fotoğraf Sayısı", customerSummaryData.photoCount],
-    ["Doğrulama Bekleyenler", unresolvedSelectedOptions.length]
-  ];
+  let rows;
+  if (liveReport) {
+    rows = [
+      ["Canl? Cevap", summary.answerCount || 0],
+      ["Riskli Madde", summary.riskyAnswerCount || 0],
+      ["Kontrol Edilemeyen", summary.notDoneAnswerCount || 0],
+      ["Kan?t", summary.evidenceCount || 0],
+      ["Gate", closeState.canClose ? "Ge?ti" : "Blokaj"],
+      ["Rapor", liveReport.status || "DRAFT"]
+    ];
+  } else {
+    rows = [
+      ["M??teri ?zeti", customerSummaryData.customer],
+      ["?? Teknik Not", "1 not"],
+      ["Kritik Bulgular", customerSummaryData.criticalFindings.length],
+      ["?yi Durumlar", customerSummaryData.goodFindings.length],
+      ["Foto?raf Say?s?", customerSummaryData.photoCount],
+      ["Eksik", `${customerSummaryData.missingItems} alan`]
+    ];
+  }
   rows.forEach(([label, value]) => {
     grid.append(element("article", { className: "premium-kpi-card compact", html: `<strong>${value}</strong><span>${label}</span>` }));
   });
@@ -7132,7 +7387,7 @@ function dailyPlanCard() {
     row.append(
       element("div", { className: "plan-time", html: `<strong>${item.time}</strong><span>${item.type}</span>` }),
       iconWrap("calendar"),
-      element("div", { className: "plan-copy", html: `<strong>${item.plaka}</strong><span>${item.araç}</span>` }),
+      element("div", { className: "plan-copy", html: `<strong>${item.plaka}</strong><span>${item["araç"]}</span>` }),
       statusBadge(item.durum, item.tone)
     );
     card.append(row);
@@ -7248,15 +7503,15 @@ function workOrderCard(order, onNavigate) {
   plateRow.append(element("h3", { text: order.plaka }));
   const badgeRow = element("div", { className: "jobs-approved-badges" });
   badgeRow.append(statusBadge(order.durum, order.durumTone));
-  if (order.eksikSayısı > 0) {
-    badgeRow.append(element("span", { className: "jobs-approved-missing", text: `${order.eksikSayısı} eksik` }));
+  if (order["eksikSayısı"] > 0) {
+    badgeRow.append(element("span", { className: "jobs-approved-missing", text: `${order["eksikSayısı"]} eksik` }));
   }
   copy.append(
     plateRow,
     badgeRow,
     element("strong", { text: `${order.marka} ${order.model}` }),
-    element("p", { text: `${order.yıl} · ${order.paket} · ${order.kilometre}` }),
-    element("small", { text: order.başlamaDurumu })
+    element("p", { text: `${order["yıl"]} · ${order.paket} · ${order.kilometre}` }),
+    element("small", { text: order["başlamaDurumu"] })
   );
   card.append(
     element("i", { className: `jobs-approved-status-bar tone-${order.durumTone}`, attrs: { "aria-hidden": "true" } }),
@@ -7275,6 +7530,7 @@ function jobsApprovedCard(order, onNavigate) {
   const statusLabel = workOrderStatusLabels[order.status] ?? order.status;
   const statusTone = workOrderStatusTones[order.status] ?? "neutral";
   const targetRoute = getWorkOrderTargetRoute(order);
+  const progressSnapshot = getHomeWorkOrderProgress(order);
   const card = element("article", {
     className: `order-list-card phase2-order-card premium-order-card jobs-approved-card status-${statusTone}`,
     attrs: { role: "button", tabindex: "0", "aria-label": `${order.plate} iş emrini aç` }
@@ -7316,16 +7572,90 @@ function jobsApprovedCard(order, onNavigate) {
   if (order.missingCount > 0) {
     vehicleThumb.append(element("span", { className: "jobs-approved-missing", text: `${order.missingCount} Eksik` }));
   }
-  const progressLine = jobsLinearProgress(order.progress, statusTone);
+  const progressLine = jobsLinearProgress(progressSnapshot.percent, statusTone);
   card.append(
     element("i", { className: `jobs-approved-status-bar tone-${statusTone}`, attrs: { "aria-hidden": "true" } }),
     vehicleThumb,
     copy,
-    jobsProgressRing(order.progress, "red", order),
+    jobsProgressRing(progressSnapshot.percent, "red", progressSnapshot),
     progressLine,
     button(icons.arrow, "order-arrow", openDetail, "İş emrini aç", true)
   );
   return card;
+}
+
+function getHomeWorkOrderProgress(order = {}) {
+  const selectedOrder = getSelectedWorkOrder();
+  const modules = getNormalizedTaskModules();
+  const aggregate = getTaskModulesAggregate(modules);
+  const moduleTotal = Math.max(0, Number(aggregate.totalItems || 0));
+  const moduleCompleted = Math.max(0, Number(aggregate.completedItems || 0));
+  const openedStepTotal = 1;
+  const startProofStepTotal = 1;
+  const openedStepCompleted = order.id ? 1 : 0;
+  const startProofStepCompleted = isWorkOrderStartProofComplete(order) ? 1 : 0;
+  const total = openedStepTotal + startProofStepTotal + moduleTotal;
+  let completed = openedStepCompleted + startProofStepCompleted + moduleCompleted;
+
+  if (order.status === "completed" || order.status === "technical_review") {
+    completed = total;
+  }
+
+  const fallbackTotal = Math.max(1, Number(order.totalItems || 60));
+  const fallbackCompleted = Number.isFinite(Number(order.completedItems))
+    ? Math.max(0, Number(order.completedItems))
+    : Math.round((Math.max(0, Number(order.progress || 0)) / 100) * fallbackTotal);
+  const isSelectedOrder = isSameWorkOrder(order, selectedOrder);
+  const shouldUseWorkflowProgress = isSelectedOrder
+    && moduleTotal > 0
+    && ["in_progress", "test_missing", "returned_for_correction", "completed", "technical_review"].includes(order.status);
+
+  if (!shouldUseWorkflowProgress) {
+    const baseCompleted = order.status === "waiting_start_proof" || order.status === "start_proof_incomplete"
+      ? Math.max(1, fallbackCompleted)
+      : fallbackCompleted;
+    const fallbackPercent = Math.round((Math.min(fallbackTotal, baseCompleted) / fallbackTotal) * 100);
+    return {
+      ...order,
+      percent: Math.min(100, Math.max(0, fallbackPercent)),
+      progress: Math.min(100, Math.max(0, fallbackPercent)),
+      completedItems: Math.min(fallbackTotal, baseCompleted),
+      totalItems: fallbackTotal
+    };
+  }
+
+  const safeCompleted = Math.min(total, Math.max(0, completed));
+  const percent = total ? Math.round((safeCompleted / total) * 100) : 0;
+  return {
+    ...order,
+    percent: Math.min(100, Math.max(0, percent)),
+    progress: Math.min(100, Math.max(0, percent)),
+    completedItems: safeCompleted,
+    totalItems: total
+  };
+}
+
+function isSameWorkOrder(order = {}, selectedOrder = {}) {
+  if (order.id && selectedOrder.id && order.id === selectedOrder.id) return true;
+  if (order.expertiseCaseId && selectedOrder.expertiseCaseId && order.expertiseCaseId === selectedOrder.expertiseCaseId) return true;
+  return Boolean(order.plate && selectedOrder.plate && order.plate === selectedOrder.plate);
+}
+
+function isWorkOrderStartProofComplete(order = {}) {
+  if (["in_progress", "test_missing", "returned_for_correction", "completed", "technical_review"].includes(order.status)) {
+    return true;
+  }
+  const caseId = order.expertiseCaseId || order.id;
+  const requiredKeys = ["start_proof_vinPhoto", "start_proof_platePhoto", "start_proof_kmPhoto"];
+  const captures = getEvidenceCaptureStore();
+  return requiredKeys.every((fieldKey) => captures.some((capture) => {
+    const sameField = capture.fieldKey === fieldKey;
+    const sameOrder = !caseId
+      || capture.workOrderId === order.id
+      || capture.expertiseCaseId === caseId
+      || capture.plate === order.plate;
+    return sameField && sameOrder && (capture.previewUrl || capture.id);
+  }));
 }
 
 function jobsVehicleImage(order) {
@@ -7380,7 +7710,7 @@ function detailSummary(order) {
     element("div", { className: "license-plate", html: `<span>TR</span><strong>${order.plaka}</strong>` }),
     statusBadge(order.durum, order.durumTone),
     element("h2", { text: `${order.marka} ${order.model}` }),
-    element("p", { text: `${order.yıl} · ${order.paket} · ${order.kilometre}` })
+    element("p", { text: `${order["yıl"]} · ${order.paket} · ${order.kilometre}` })
   );
   return card;
 }
@@ -7388,14 +7718,14 @@ function detailSummary(order) {
 function detailInfoGrid(order) {
   const grid = element("section", { className: "detail-info-grid" });
   [
-    ["İş Emri", order.işEmriNo],
+    ["İş Emri", order["işEmriNo"]],
     ["Bayi", order.bayi],
-    ["Müşteri", order.müşteriAdı],
-    ["Öncelik", order.öncelik],
-    ["Atanmış Usta", order.atanmışUsta],
-    ["Başlama Durumu", order.başlamaDurumu],
+    ["Müşteri", order["müşteriAdı"]],
+    ["Öncelik", order["öncelik"]],
+    ["Atanmış Usta", order["atanmışUsta"]],
+    ["Başlama Durumu", order["başlamaDurumu"]],
     ["Tamamlanma Durumu", order.teknikOnayDurumu],
-    ["Kanıt Sayısı", `${order.kanıtSayısı}`]
+    ["Kanıt Sayısı", `${order["kanıtSayısı"]}`]
   ].forEach(([label, value]) => {
     grid.append(element("div", { className: "detail-info-item", html: `<span>${label}</span><strong>${value}</strong>` }));
   });
@@ -7535,9 +7865,9 @@ function optionGrid(item, formKey) {
 }
 
 function optionTone(label) {
-  const risk = ["Kötü", "Kritik", "Hasarlı", "Deforme", "Arıza", "Yağ Kaçağı", "Terleme", "Çalışmıyor", "Sorunlu", "Değişen", "İşlemli"];
+  const risk = ["Kötü", "Kritik", "Hasarlı", "Deforme", "Arıza", "Yağ Kaçağı", "Yağ Kaçağı Var", "Terleme", "Çalışmıyor", "Sorunlu", "Değişen", "İşlemli", "Kusurlu", "Eksik"];
   const warning = ["Orta", "Bakılamadı", "Kontrol Edilmedi", "Yok", "Test Yapılamadı", "Bakım Gerekli"];
-  const success = ["İyi", "Sorunsuz", "Çalışıyor", "Arıza Kaydı Yok", "Hayır"];
+  const success = ["İyi", "Sorunsuz", "Çalışıyor", "Arıza Kaydı Yok", "Hayır", "Yağ Kaçağı Yok"];
   if (risk.some((word) => label.includes(word))) return "red";
   if (warning.some((word) => label.includes(word))) return "warning";
   if (success.some((word) => label.includes(word))) return "success";

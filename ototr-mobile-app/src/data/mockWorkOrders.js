@@ -20,6 +20,32 @@ export const workOrderStatusTones = Object.freeze({
 
 export const mockWorkOrders = Object.freeze([
   {
+    id: "IE-2026-000843",
+    plate: "34 STR 2026",
+    brand: "BMW",
+    model: "3 Serisi",
+    brandModel: "BMW 3 Serisi",
+    year: "2021",
+    packageName: "Standart Ekspertiz",
+    packageCode: "STANDARD",
+    km: "48.000 km",
+    vin: "OTOTRDEMO000843",
+    status: "waiting_start_proof",
+    progress: 0,
+    completedItems: 0,
+    totalItems: 60,
+    missingCount: 0,
+    photoCount: 0,
+    branchName: "Bursa Küçük Sanayi Şubesi",
+    assignedTechnician: "Ahmet Usta",
+    plannedTime: "45 dk",
+    createdAt: "2026-06-16T09:30:00Z",
+    customerVisibleName: "STORE KONTROL DEMO",
+    returnReason: null,
+    image: "bmw",
+    source: "dealer-demo"
+  },
+  {
     id: "WO-001",
     plate: "16 ABC 123",
     brand: "BMW",
@@ -27,6 +53,7 @@ export const mockWorkOrders = Object.freeze([
     brandModel: "BMW 3 Serisi",
     year: "2021",
     packageName: "320i",
+    packageCode: "PREMIUM",
     km: "45.000 km",
     vin: "NMTBB29E08R123456",
     status: "in_progress",
@@ -51,6 +78,7 @@ export const mockWorkOrders = Object.freeze([
     brandModel: "Volkswagen Passat",
     year: "2020",
     packageName: "1.6 TDI",
+    packageCode: "STANDARD",
     km: "62.500 km",
     vin: "WVWZZZ3CZLE123456",
     status: "waiting_start_proof",
@@ -73,6 +101,7 @@ export const mockWorkOrders = Object.freeze([
     brandModel: "Renault Megane",
     year: "2019",
     packageName: "1.5 dCi",
+    packageCode: "STANDARD",
     km: "78.300 km",
     vin: "VF1RFB006K1234567",
     status: "test_missing",
@@ -95,6 +124,7 @@ export const mockWorkOrders = Object.freeze([
     brandModel: "Peugeot 508",
     year: "2022",
     packageName: "1.5 BlueHDi",
+    packageCode: "FULL",
     km: "33.100 km",
     vin: "VF38EHYHZML123456",
     status: "technical_review",
@@ -117,6 +147,7 @@ export const mockWorkOrders = Object.freeze([
     brandModel: "Toyota Corolla",
     year: "2021",
     packageName: "1.5 Hybrid",
+    packageCode: "FULL",
     km: "27.800 km",
     vin: "JT2BF22KX2K123456",
     status: "completed",
@@ -139,6 +170,7 @@ export const mockWorkOrders = Object.freeze([
     brandModel: "Ford Focus",
     year: "2018",
     packageName: "1.0 EcoBoost",
+    packageCode: "STANDARD",
     km: "88.200 km",
     vin: "1FAFP34N0M2P12345",
     status: "returned_for_correction",
@@ -182,7 +214,7 @@ export function getWorkOrderTargetRoute(workOrder) {
 export function getSelectedWorkOrder() {
   const selectedId = localStorage.getItem("ototrSelectedWorkOrder");
   const orders = getRuntimeWorkOrders();
-  return orders.find((order) => order.id === selectedId) ?? orders[0] ?? mockWorkOrders[0];
+  return orders.find((order) => order.id === selectedId) || orders[0] || mockWorkOrders[0];
 }
 
 export function setSelectedWorkOrder(workOrder) {
@@ -191,7 +223,21 @@ export function setSelectedWorkOrder(workOrder) {
 
 export function getRuntimeWorkOrders() {
   const liveOrders = getCachedLiveWorkOrders();
-  return liveOrders.length ? liveOrders : mockWorkOrders;
+  return applyLocalWorkOrderStatusOverrides(liveOrders.length ? liveOrders : mockWorkOrders);
+}
+
+function applyLocalWorkOrderStatusOverrides(orders) {
+  return orders.map((order) => {
+    const status = localStorage.getItem(`ototrWorkOrderStatus:${order.id}`);
+    if (!status || status === order.status) return order;
+    return {
+      ...order,
+      status,
+      progress: status === "in_progress" && Number(order.progress || 0) <= 0 ? 2 : order.progress,
+      completedItems: status === "in_progress" && Number(order.completedItems || 0) <= 0 ? 1 : order.completedItems,
+      totalItems: order.totalItems || 60
+    };
+  });
 }
 
 export function getVehicleImagePath(workOrder) {
@@ -203,6 +249,6 @@ export function getVehicleImagePath(workOrder) {
     corolla: "./src/assets/approved-group2/job-car-5.png",
     focus: "./src/assets/home-reference/plan-car-3.png"
   };
-  return images[workOrder.image] ?? images.bmw;
+  return images[workOrder.image] || images.bmw;
 }
 import { getCachedLiveWorkOrders } from "../services/liveWorkOrdersService.js";

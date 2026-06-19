@@ -153,6 +153,7 @@ Durable decision record:
 - Local/staging RLS auth validation assets are `packages/database/rls-verification-checklist.sql` and `packages/database/rls-role-fixtures.template.sql`.
 - Local role-session smoke is automated in `tools/local-role-session-smoke.mjs`; it creates fake local Auth users at runtime and verifies branch manager/technician REST visibility through real Supabase Auth sessions.
 - `app_users` RLS self/HQ policy must stay non-recursive; the current reviewed fix is `supabase/migrations/20260603195028_fix_app_users_rls_recursion.sql`.
+- Before deployment, phone password recovery must be verified with Supabase phone/SMS provider settings and a staging live SMS OTP E2E test; do not ship relying only on demo/local fallback.
 
 ## Development Rules
 

@@ -1,22 +1,17 @@
 import { supabaseRequest } from "./supabaseHttpClient.js";
+import {
+  getCanonicalInspectionPackageCode,
+  getInspectionPackageModuleIds,
+  getInspectionPackageTaskKeys
+} from "./inspectionPackageCatalog.js";
+import {
+  getSupabaseRuntimeConfig,
+  normalizeSupabaseUrl,
+  refreshSupabaseAccessToken
+} from "./supabaseSessionService.js";
 
-const runtimeConfigKey = "OTOTR_SUPABASE_CONFIG";
 const liveWorkOrdersStorageKey = "ototrLiveWorkOrders";
 const liveWorkOrdersSyncKey = "ototrLiveWorkOrdersLastSync";
-
-function getRuntimeConfig() {
-  const runtimeConfig = globalThis[runtimeConfigKey] || {};
-  const storage = globalThis.localStorage;
-  return {
-    url: runtimeConfig.url || storage?.getItem("ototrSupabaseUrl") || "",
-    anonKey: runtimeConfig.anonKey || runtimeConfig.publishableKey || storage?.getItem("ototrSupabaseAnonKey") || "",
-    accessToken: runtimeConfig.accessToken || storage?.getItem("ototrSupabaseAccessToken") || ""
-  };
-}
-
-function normalizeSupabaseUrl(url = "") {
-  return String(url).trim().replace(/\/+$/, "");
-}
 
 export function toMobileWorkOrderStatus(remoteStatus = "") {
   const status = String(remoteStatus || "").toUpperCase();
@@ -46,6 +41,8 @@ function imageKeyFromBrand(brand = "") {
 function mapLiveWorkOrder(row = {}) {
   const vehicle = row.vehicles || {};
   const packagePlan = row.package_plans || {};
+  const packageCode = getCanonicalInspectionPackageCode(packagePlan.code || packagePlan.name || row.package_type || "");
+  const packageModuleIds = getInspectionPackageModuleIds(packageCode);
   const status = toMobileWorkOrderStatus(row.status);
   const progress = status === "completed" ? 100 : status === "in_progress" ? 35 : 0;
   const totalItems = 60;
@@ -61,6 +58,9 @@ function mapLiveWorkOrder(row = {}) {
     brandModel: `${vehicle.brand || "Araç"} ${vehicle.model || ""}`.trim(),
     year: vehicle.model_year ? String(vehicle.model_year) : "",
     packageName: packagePlan.name || packagePlan.code || "Ekspertiz",
+    packageCode,
+    packageModuleIds,
+    packageTaskKeys: getInspectionPackageTaskKeys(packageCode),
     km: formatKm(vehicle.mileage_km),
     vin: vehicle.vin || "",
     status,
@@ -115,16 +115,17 @@ export function patchCachedLiveWorkOrderStatus(expertiseCaseId, remoteStatus) {
 }
 
 export function getLiveWorkOrderSyncStatus() {
-  const config = getRuntimeConfig();
+  const config = getSupabaseRuntimeConfig();
   return {
     configured: Boolean(normalizeSupabaseUrl(config.url) && config.anonKey),
     authenticated: Boolean(config.accessToken),
+    refreshable: Boolean(config.refreshToken),
     lastSync: localStorage.getItem(liveWorkOrdersSyncKey) || ""
   };
 }
 
 export async function syncLiveWorkOrders() {
-  const config = getRuntimeConfig();
+  const config = getSupabaseRuntimeConfig();
   const url = normalizeSupabaseUrl(config.url);
   if (!url || !config.anonKey || !config.accessToken) {
     return {
@@ -135,18 +136,29 @@ export async function syncLiveWorkOrders() {
     };
   }
 
+  const session = await refreshSupabaseAccessToken().catch(() => null);
+  let accessToken = session?.ok ? session.accessToken : config.accessToken;
   const query = [
-    "select=id,work_order_no,status,created_at,vehicles(plate,vin,brand,model,model_year,mileage_km),package_plans(code,name,duration_minutes)",
+    "select=id,work_order_no,status,created_at,vehicles(plate,vin,brand,model,model_year,mileage_km),package_plans(code,name,duration_minutes,included_modules)",
     "order=created_at.desc",
     "limit=20"
   ].join("&");
-  const response = await supabaseRequest(`${url}/rest/v1/expertise_cases?${query}`, {
+  const requestRows = (token) => supabaseRequest(`${url}/rest/v1/expertise_cases?${query}`, {
     headers: {
       apikey: config.anonKey,
-      Authorization: `Bearer ${config.accessToken}`,
+      Authorization: `Bearer ${token}`,
       "Content-Type": "application/json"
     }
   });
+  let response = await requestRows(accessToken);
+
+  if (response.status === 401 && config.refreshToken) {
+    const refreshed = await refreshSupabaseAccessToken({ force: true }).catch(() => null);
+    if (refreshed?.ok && refreshed.accessToken) {
+      accessToken = refreshed.accessToken;
+      response = await requestRows(accessToken);
+    }
+  }
 
   if (!response.ok) {
     const reason = await response.text().catch(() => "");

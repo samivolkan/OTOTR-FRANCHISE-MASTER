@@ -3,6 +3,15 @@ class AppRoutes {
 
   static const String splash = '/';
   static const String login = '/login';
+  static const String branchSelection = '/auth/branch-selection';
+  static const String passwordReset = '/auth/password-reset';
+  static const String passwordCode = '/auth/password-code';
+  static const String newPassword = '/auth/new-password';
+  static const String invalidPassword = '/auth/invalid-password';
+  static const String noInternet = '/auth/no-internet';
+  static const String sessionExpired = '/auth/session-expired';
+  static const String unauthorized = '/auth/unauthorized';
+  static const String offlineLoginBlocked = '/auth/offline-login-blocked';
   static const String dashboard = '/dashboard';
   static const String workOrders = '/work-orders';
   static const String newWorkOrder = '/work-orders/new';
@@ -23,9 +32,12 @@ class AppRoutes {
   static const String technicianJobs = '/technician/jobs';
   static const String technicianJobDetail = '/technician/job-detail';
   static const String technicianStartEvidence = '/technician/start-evidence';
+  static const String technicianStartProofSuccess = '/technician/start-proof-success';
   static const String technicianTasks = '/technician/tasks';
   static const String technicianReportEntry = '/technician/report-entry';
   static const String technicianTaskForm = '/technician/task-form';
+  static const String lockedSectionWarning = '/technician/locked-section-warning';
+  static const String managerTaskOwnershipRequest = '/technician/manager-task-ownership-request';
   static const String technicianEvidence = '/technician/evidence';
   static const String technicianQueries = '/technician/queries';
   static const String technicianReportGate = '/technician/report-gate';

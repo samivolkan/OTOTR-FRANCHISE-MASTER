@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 
+import '../../features/auth/auth_state_screen.dart';
+import '../../features/auth/branch_selection_screen.dart';
 import '../../features/auth/login_screen.dart';
+import '../../features/auth/password_reset_screen.dart';
 import '../../features/branch/branch_kpi_screen.dart';
 import '../../features/branch/branch_settings_screen.dart';
 import '../../features/customer/customer_info_screen.dart';
@@ -8,14 +11,18 @@ import '../../features/dashboard/branch_dashboard_screen.dart';
 import '../../features/inspection/inspection_module_detail_screen.dart';
 import '../../features/inspection/inspection_modules_screen.dart';
 import '../../features/inspection/inspection_progress_screen.dart';
+import '../../features/mobile_workflow/usta_operation_v1_screen.dart';
 import '../../features/packages/package_selection_screen.dart';
 import '../../features/photo_evidence/photo_evidence_screen.dart';
 import '../../features/profile/profile_screen.dart';
 import '../../features/reports/final_report_preview_screen.dart';
 import '../../features/reports/report_preview_screen.dart';
 import '../../features/technician/report_entry/report_entry_screen.dart';
+import '../../features/technician/start_proof_success_screen.dart';
 import '../../features/splash/splash_screen.dart';
 import '../../features/technician/start_evidence_screen.dart';
+import '../../features/technician/locked_section_warning_screen.dart';
+import '../../features/technician/manager_task_ownership_request_screen.dart';
 import '../../features/technician/technician_evidence_screen.dart';
 import '../../features/technician/technician_jobs_screen.dart';
 import '../../features/technician/technician_queries_screen.dart';
@@ -37,7 +44,34 @@ class AppRouter {
     final Widget screen = switch (settings.name) {
       AppRoutes.splash => const SplashScreen(),
       AppRoutes.login => const LoginScreen(),
-      AppRoutes.dashboard => const TechnicianJobsScreen(),
+      AppRoutes.branchSelection => const BranchSelectionScreen(),
+      AppRoutes.passwordReset => const PasswordResetScreen(),
+      AppRoutes.passwordCode => OtpVerificationScreen(
+          args: settings.arguments is PasswordRecoveryFlowArgs
+              ? settings.arguments as PasswordRecoveryFlowArgs
+              : null,
+        ),
+      AppRoutes.newPassword => NewPasswordScreen(
+          args: settings.arguments is PasswordRecoveryFlowArgs
+              ? settings.arguments as PasswordRecoveryFlowArgs
+              : null,
+        ),
+      AppRoutes.invalidPassword => const AuthStateScreen(
+          kind: AuthStateKind.invalidPassword,
+        ),
+      AppRoutes.noInternet => const AuthStateScreen(
+          kind: AuthStateKind.noInternet,
+        ),
+      AppRoutes.sessionExpired => const AuthStateScreen(
+          kind: AuthStateKind.sessionExpired,
+        ),
+      AppRoutes.unauthorized => const AuthStateScreen(
+          kind: AuthStateKind.unauthorized,
+        ),
+      AppRoutes.offlineLoginBlocked => const AuthStateScreen(
+          kind: AuthStateKind.offlineLoginBlocked,
+        ),
+      AppRoutes.dashboard => const UstaOperationV1Screen(),
       AppRoutes.workOrders => const WorkOrdersListScreen(),
       AppRoutes.newWorkOrder => const NewWorkOrderScreen(),
       AppRoutes.vehicleIntake => const VehicleIntakeScreen(),
@@ -67,10 +101,15 @@ class AppRouter {
       AppRoutes.technicianTasks => TechnicianTasksScreen(
           workOrderId: settings.arguments as String,
         ),
+      AppRoutes.technicianStartProofSuccess =>
+        StartProofSuccessScreen(workOrderId: settings.arguments as String),
       AppRoutes.technicianReportEntry => ReportEntryScreen(
           workOrderId: settings.arguments as String,
         ),
       AppRoutes.technicianTaskForm => _guardedTaskForm(settings),
+      AppRoutes.lockedSectionWarning => _guardedLockedSectionWarning(settings),
+      AppRoutes.managerTaskOwnershipRequest =>
+        _guardedManagerTaskOwnershipRequest(settings),
       AppRoutes.technicianEvidence => TechnicianEvidenceScreen(
           workOrderId: settings.arguments as String,
         ),
@@ -90,12 +129,60 @@ class AppRouter {
   }
 
   static Widget _guardedTaskForm(RouteSettings settings) {
-    final args = settings.arguments as Map<String, String>;
-    final workOrderId = args['workOrderId']!;
-    final taskId = args['taskId']!;
-    if (AppRepositories.instance.hasRemoteWorkOrders) {
-      return TechnicianTaskFormScreen(workOrderId: workOrderId, taskId: taskId);
+    final args = settings.arguments as Map<String, dynamic>? ?? {};
+    final workOrderId = args['workOrderId'];
+    final taskId = args['taskId'];
+    final readOnly = args['readOnly'] == true;
+    if (workOrderId is! String || taskId is! String) {
+      return const BranchDashboardScreen();
     }
-    return TechnicianTasksScreen(workOrderId: workOrderId);
+    if (AppRepositories.instance.hasRemoteWorkOrders) {
+      return TechnicianTaskFormScreen(
+        workOrderId: workOrderId,
+        taskId: taskId,
+        readOnly: readOnly,
+      );
+    }
+    return TechnicianTaskFormScreen(
+      workOrderId: workOrderId,
+      taskId: taskId,
+      readOnly: readOnly,
+    );
+  }
+
+  static Widget _guardedLockedSectionWarning(RouteSettings settings) {
+    final args = settings.arguments as Map<String, dynamic>? ?? {};
+    final workOrderId = args['workOrderId'];
+    final taskId = args['taskId'];
+    final sectionName = args['sectionName'];
+    final lockedBy = args['lockedBy'];
+    final lockedAt = args['lockedAt'];
+    if (workOrderId is! String || taskId is! String) {
+      return const BranchDashboardScreen();
+    }
+    return LockedSectionWarningScreen(
+      workOrderId: workOrderId,
+      taskId: taskId,
+      sectionName: sectionName is String ? sectionName : 'Bilinmeyen Başlık',
+      lockedBy: lockedBy is String ? lockedBy : 'Bilinmiyor',
+      lockedAt: lockedAt is String ? lockedAt : '',
+    );
+  }
+
+  static Widget _guardedManagerTaskOwnershipRequest(RouteSettings settings) {
+    final args = settings.arguments as Map<String, dynamic>? ?? {};
+    final workOrderId = args['workOrderId'];
+    final taskId = args['taskId'];
+    final sectionName = args['sectionName'];
+    final lockedBy = args['lockedBy'];
+    if (workOrderId is! String || taskId is! String) {
+      return const BranchDashboardScreen();
+    }
+    return ManagerTaskOwnershipRequestScreen(
+      workOrderId: workOrderId,
+      taskId: taskId,
+      sectionName: sectionName is String ? sectionName : 'Bilinmeyen Başlık',
+      lockedBy: lockedBy is String ? lockedBy : 'Bilinmiyor',
+    );
   }
 }

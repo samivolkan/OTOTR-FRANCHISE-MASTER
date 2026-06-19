@@ -1,4 +1,9 @@
 import { supabaseRequest } from "./supabaseHttpClient.js";
+import {
+  getCanonicalInspectionModuleId,
+  getInspectionModuleMapping,
+  getInspectionTaskKeyForModule
+} from "./inspectionModuleTaskMapping.js";
 
 const runtimeConfigKey = "OTOTR_SUPABASE_CONFIG";
 
@@ -33,42 +38,6 @@ function decodeJwtPayload(token = "") {
     return JSON.parse(atob(padded));
   } catch {
     return {};
-  }
-}
-
-function mobileTaskKeyForModule(moduleKey = "") {
-  switch (String(moduleKey || "").toLowerCase()) {
-    case "kaporta":
-    case "body":
-    case "paint":
-      return "BODY_PAINT_CHECKUP";
-    case "motor":
-    case "engine":
-      return "MOTOR_CHECKUP";
-    case "mechanic":
-    case "mekanik":
-      return "MECHANICAL_CHECKUP";
-    case "brake":
-    case "suspension":
-      return "BRAKE_SUSPENSION_TEST";
-    case "electric":
-    case "elektrik":
-    case "brain":
-      return "OBD_ECU_TEST";
-    case "interior":
-      return "INTERIOR_CHECKUP";
-    case "airbag":
-      return "AIRBAG_CHECK";
-    case "interiorexterior":
-    case "exterior":
-      return "EXTERIOR_CONDITION";
-    case "roadtest":
-    case "road_test":
-      return "DYNO_ROAD_TEST";
-    case "conta":
-      return "HEAD_GASKET_LEAK_TEST";
-    default:
-      return "BODY_PAINT_CHECKUP";
   }
 }
 
@@ -169,18 +138,26 @@ async function saveViaRestFallback({
   }
 
   const actor = actorQuery.parsed[0];
-  const wantedTaskKey = mobileTaskKeyForModule(moduleKey);
+  const wantedTaskKey = getInspectionTaskKeyForModule(moduleKey);
+  const moduleMapping = getInspectionModuleMapping(moduleKey);
+  if (!wantedTaskKey || !moduleMapping) {
+    return {
+      ok: false,
+      status: "unknown-module",
+      reason: `Teknik gorev mapping bulunamadi: ${moduleKey || "-"}`
+    };
+  }
   const taskQuery = await restJson(
     `${url}/rest/v1/inspection_tasks?expertise_case_id=eq.${encodeURIComponent(expertiseCaseId)}&task_key=eq.${encodeURIComponent(wantedTaskKey)}&select=id,task_key,report_field_key,status&order=created_at.asc&limit=1`,
     { config }
   );
   let task = Array.isArray(taskQuery.parsed) ? taskQuery.parsed[0] : null;
   if (!task?.id) {
-    const fallbackTaskQuery = await restJson(
-      `${url}/rest/v1/inspection_tasks?expertise_case_id=eq.${encodeURIComponent(expertiseCaseId)}&select=id,task_key,report_field_key,status&order=created_at.asc&limit=1`,
-      { config }
-    );
-    task = Array.isArray(fallbackTaskQuery.parsed) ? fallbackTaskQuery.parsed[0] : null;
+    return {
+      ok: false,
+      status: "task-required",
+      reason: `${moduleMapping.portalDisplayName} icin ${wantedTaskKey} teknik gorevi bulunamadi. Yanlis goreve kayit yapilmadi.`
+    };
   }
   if (!task?.id) {
     return { ok: false, status: "task-required", reason: "Canlı iş emri için teknik görev bulunamadı." };
@@ -200,6 +177,10 @@ async function saveViaRestFallback({
     result,
     note: JSON.stringify({
       moduleKey: String(moduleKey || "kaporta").toLowerCase(),
+      canonicalModuleId: moduleMapping.mobileModuleId,
+      backendTaskKey: moduleMapping.backendTaskKey,
+      portalDisplayName: moduleMapping.portalDisplayName,
+      reportSection: moduleMapping.reportSection,
       selectedOptionLabel: selectedOptionLabel || "",
       inputValues: inputValues || {},
       description: description || "",
@@ -208,7 +189,7 @@ async function saveViaRestFallback({
       savedFrom: "ototr-mobile-app-rest-fallback"
     }),
     not_done_reason: result === "NOT_DONE" ? (selectedOptionLabel || "Kontrol edilemedi") : "",
-    report_field_key: `${task.report_field_key || task.task_key || "mobile"}.${normalizedItemKey}`,
+    report_field_key: `${task.report_field_key || moduleMapping.reportSection || task.task_key || "mobile"}.${normalizedItemKey}`,
     requires_evidence_on_risk: Math.max(Number(requiredPhotoCount || 0), 0) > 0,
     severity: result === "RISKY" ? 2 : result === "NOT_DONE" ? 1 : 0,
     measured_value: null,
@@ -285,7 +266,7 @@ export async function saveMobileInspectionAnswer({
     },
     body: JSON.stringify({
       target_case_id: expertiseCaseId,
-      target_module_key: moduleKey || "kaporta",
+      target_module_key: getCanonicalInspectionModuleId(moduleKey) || moduleKey || "kaporta",
       target_item_key: normalizeItemKey(itemKey || itemTitle || "item"),
       target_item_title: itemTitle || itemKey || "Kontrol maddesi",
       target_selected_option_label: selectedOptionLabel || "",

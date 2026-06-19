@@ -277,7 +277,7 @@ class _StartEvidenceScreenState extends State<StartEvidenceScreen> {
         }
         Navigator.pushReplacementNamed(
           context,
-          AppRoutes.technicianTasks,
+          AppRoutes.technicianStartProofSuccess,
           arguments: widget.workOrderId,
         );
         return;
@@ -296,7 +296,7 @@ class _StartEvidenceScreenState extends State<StartEvidenceScreen> {
         }
         Navigator.pushReplacementNamed(
           context,
-          AppRoutes.technicianTasks,
+          AppRoutes.technicianStartProofSuccess,
           arguments: widget.workOrderId,
         );
         return;
