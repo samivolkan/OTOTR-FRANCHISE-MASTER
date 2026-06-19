@@ -9,11 +9,6 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
-  <script src="data/inspection_schema_web.js"></script>
   <script>
     (function(){
       try{
@@ -25,6 +20,66 @@
           document.title = 'OTOTR Bayi Portalı';
         }
       }catch(err){}
+    })();
+  </script>
+  <script>
+    (function(){
+      var cache = {};
+      function loadScript(src){
+        if(cache[src]) return cache[src];
+        cache[src] = new Promise(function(resolve,reject){
+          var script = document.createElement('script');
+          script.src = src;
+          script.async = true;
+          script.onload = resolve;
+          script.onerror = function(){ reject(new Error('Asset yuklenemedi: '+src)); };
+          document.head.appendChild(script);
+        });
+        return cache[src];
+      }
+      function loadStyle(href){
+        if(cache[href]) return cache[href];
+        cache[href] = new Promise(function(resolve,reject){
+          var link = document.createElement('link');
+          link.rel = 'stylesheet';
+          link.href = href;
+          link.onload = resolve;
+          link.onerror = function(){ reject(new Error('Asset yuklenemedi: '+href)); };
+          document.head.appendChild(link);
+        });
+        return cache[href];
+      }
+      function idle(fn){
+        if(window.requestIdleCallback) window.requestIdleCallback(fn,{timeout:1500});
+        else setTimeout(fn,650);
+      }
+      window.OTOTR_ASSET_LOADER = {
+        loadIcons:function(){
+          return window.lucide ? Promise.resolve(window.lucide) : loadScript('https://unpkg.com/lucide@0.468.0/dist/umd/lucide.min.js').then(function(){ return window.lucide; });
+        },
+        loadCharts:function(){
+          return window.Chart ? Promise.resolve(window.Chart) : loadScript('https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js').then(function(){ return window.Chart; });
+        },
+        loadLeaflet:function(){
+          return window.L ? Promise.resolve(window.L) : Promise.all([
+            loadStyle('https://unpkg.com/leaflet@1.9.4/dist/leaflet.css'),
+            loadScript('https://unpkg.com/leaflet@1.9.4/dist/leaflet.js')
+          ]).then(function(){ return window.L; });
+        },
+        loadInspectionSchema:function(){
+          return window.OTOTR_INSPECTION_SCHEMA ? Promise.resolve(window.OTOTR_INSPECTION_SCHEMA) : loadScript('data/inspection_schema_web.js').then(function(){ return window.OTOTR_INSPECTION_SCHEMA; });
+        },
+        afterDashboard:function(){
+          idle(function(){
+            window.OTOTR_ASSET_LOADER.loadIcons().then(function(){ window.lucide?.createIcons?.(); }).catch(function(){});
+          });
+          setTimeout(function(){
+            window.OTOTR_ASSET_LOADER.loadCharts().then(function(){
+              if(typeof renderCharts === 'function') renderCharts();
+            }).catch(function(){});
+          },900);
+        }
+      };
     })();
   </script>
   <style>
@@ -4319,7 +4374,7 @@
       const royalty=branches.reduce((s,b)=>s+b.royalty,0);
       const activeReports=appointments.length;
       const riskCount=tickets.filter(t=>t.severity==='Yüksek').length;
-      document.getElementById('pages').innerHTML =
+      const dashboardPage =
         pageShell('dashboard', `
           <div class="ceo-stack">
             <div class="kpi-grid">${(DB.ceoDashboard?.kpis||seed.ceoDashboard.kpis).map(KPICard).join('')}</div>
@@ -4369,7 +4424,17 @@
               </div>
             </div>
             ${CommandDock()}
-          </div>`)+
+          </div>`);
+      if(current==='dashboard' && !window.__OTOTR_FULL_ADMIN_PAGES_RENDERED__ && !window.__OTOTR_DEALER_STANDALONE__){
+        document.getElementById('pages').innerHTML = dashboardPage;
+        wirePageEvents();
+        renderCharts();
+        window.OTOTR_ASSET_LOADER?.afterDashboard?.();
+        return;
+      }
+      window.__OTOTR_FULL_ADMIN_PAGES_RENDERED__ = true;
+      document.getElementById('pages').innerHTML =
+        dashboardPage+
         pageShell('franchise', franchiseDashboard())+
         pageShell('crm', crmDashboard())+
         pageShell('complaints', ComplaintsCenterPage())+
@@ -4399,6 +4464,7 @@
       wirePageEvents();
       renderCharts();
       if(window.lucide) lucide.createIcons();
+      window.OTOTR_ASSET_LOADER?.afterDashboard?.();
     }
 
     function complaintCenter(){ return DB.complaintsCenter || seed.complaintsCenter || {}; }
@@ -4901,7 +4967,10 @@
       if(!['branches','growth'].includes(current) || !el) return;
       const rows=filteredBranchMapRows();
       if(!window.L){
-        el.innerHTML=`<div class="mini" style="margin:16px">${icon('map-pin')}<div><b>Harita kütüphanesi yüklenemedi</b><span>Şube listesi yine sağ panelden seçilebilir.</span></div></div>`;
+        el.innerHTML=`<div class="mini" style="margin:16px">${icon('map-pin')}<div><b>Harita hazirlaniyor</b><span>Sube listesi yine sag panelden secilebilir.</span></div></div>`;
+        window.OTOTR_ASSET_LOADER?.loadLeaflet?.().then(()=>{ if(['branches','growth'].includes(current)) initBranchMap(); }).catch(()=>{
+          el.innerHTML=`<div class="mini" style="margin:16px">${icon('map-pin')}<div><b>Harita kutuphanesi yuklenemedi</b><span>Sube listesi yine sag panelden secilebilir.</span></div></div>`;
+        });
         return;
       }
       el.innerHTML='';
@@ -6397,11 +6466,12 @@
         ]
       }
     };
-    const inspectionSchema=window.OTOTR_INSPECTION_SCHEMA||null;
-    function schemaReportRows(key,fallback){const rows=inspectionSchema?.reportRows?.[key];return Array.isArray(rows)&&rows.length?rows:fallback;}
-    function schemaPackageDefinition(name){const packages=inspectionSchema?.packages||[];return packages.find(p=>p.name===name)||packages.find(p=>p.code==='PREMIUM')||null;}
+    function currentInspectionSchema(){return window.OTOTR_INSPECTION_SCHEMA||null;}
+    function schemaReportRows(key,fallback){const rows=currentInspectionSchema()?.reportRows?.[key];return Array.isArray(rows)&&rows.length?rows:fallback;}
+    function schemaPackageDefinition(name){const packages=currentInspectionSchema()?.packages||[];return packages.find(p=>p.name===name)||packages.find(p=>p.code==='PREMIUM')||null;}
     function schemaPackagePills(name){const pkg=schemaPackageDefinition(name);const scope=pkg?.scope||[];return `<div class="package-pills">${scope.slice(0,8).map(item=>`<span>${rpEsc(item)}</span>`).join('')}</div>`;}
     function applyInspectionSchemaToReportData(){
+      const inspectionSchema=currentInspectionSchema();
       if(!inspectionSchema?.reportRows)return;
       reportData.schemaSource=`JSON ${inspectionSchema.metadata?.raporID||''}`;
       reportData.bodyPaintRows=schemaReportRows('bodyPaintRows',reportData.bodyPaintRows);
@@ -6424,7 +6494,7 @@
     function ReportTable(headers,rows){return `<div class="report-table-wrap technical-detail"><table class="report-table"><thead><tr>${headers.map(h=>`<th>${rpEsc(h)}</th>`).join('')}</tr></thead><tbody>${rows.map(r=>`<tr>${r.map(c=>`<td>${reportCell(c)}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`;}
     function ReportScoreCard(label,score,status,note,tone='green'){return `<article class="report-card score-card tone-${tone}"><strong>${rpEsc(label)}</strong><div class="score-ring" style="--score:${Number(score)||0};--ring:var(--tone)"><div>${score}<small>/100</small></div></div>${reportStatus(status)}<p>${rpEsc(note)}</p></article>`;}
     function ReportPanel(label,value,note='',tone='blue'){return `<div class="report-panel tone-${tone}"><span>${rpEsc(label)}</span><b>${rpEsc(value)}</b>${note?`<small class="card-sub">${rpEsc(note)}</small>`:''}</div>`;}
-    function PartyCard(title,ico,rows,extra=''){const resolvedExtra=title==='Paket ve iş emri'&&inspectionSchema?schemaPackagePills(reportData.packageName):extra;return `<section class="party-card"><h4><i>${icon(ico)}</i>${rpEsc(title)}</h4><div class="party-list">${rows.map(r=>`<div><span>${rpEsc(r[0])}</span><b>${rpEsc(r[1])}</b></div>`).join('')}</div>${resolvedExtra}</section>`;}
+    function PartyCard(title,ico,rows,extra=''){const resolvedExtra=title==='Paket ve iş emri'&&currentInspectionSchema()?schemaPackagePills(reportData.packageName):extra;return `<section class="party-card"><h4><i>${icon(ico)}</i>${rpEsc(title)}</h4><div class="party-list">${rows.map(r=>`<div><span>${rpEsc(r[0])}</span><b>${rpEsc(r[1])}</b></div>`).join('')}</div>${resolvedExtra}</section>`;}
     function ReportPriorityStrip(rows){return `<div class="report-priority-strip">${rows.map(r=>`<div class="report-priority tone-${r[3]||'blue'}"><span>${rpEsc(r[0])}</span><b>%${rpEsc(r[1])}</b><i style="--score:${Number(r[1])||0}"></i><small>${rpEsc(r[2])}</small></div>`).join('')}</div>`;}
     function ReportDeviceGrid(){return `<div class="report-device-grid"><div class="report-device"><span>Dyno / yol testi çıktısı</span><div class="device-screen dyno"></div><b>84 / 100 karar desteği</b></div><div class="report-device"><span>OBD tarama ekranı</span><div class="device-screen obd"></div><b>1 geçmiş kayıt, aktif arıza yok</b></div><div class="report-device"><span>Fren test cihazı</span><div class="device-screen brake"></div><b>Sapma limit altında</b></div></div>`;}
     function ReportMeasurementGrid(rows){return `<div class="report-measure-grid">${rows.map(r=>`<div class="report-measure tone-${r[4]||'green'}"><span>${rpEsc(r[0])}</span><b>${rpEsc(r[1])}</b><div class="measure-track"><i style="--value:${Math.max(0,Math.min(100,Number(r[3])||0))}%"></i></div><small>${rpEsc(r[2])}</small></div>`).join('')}</div>`;}
@@ -6545,12 +6615,12 @@
       const technicianNoteRows=(live.technicianNoteRows||[]).length?live.technicianNoteRows:[['Teknik istasyon','Bilgi','Ham not bekliyor','Kontrol bekliyor']];
       return ReportPage(page,total,'Canlı İş Emri ve Usta Girişleri','Basılacak rapor; müşteri kabul, sekreterya, usta tablet girişi ve JSON kontrol noktalarından beslenir.',`<div class="report-grid-2"><section><div class="combined-section-title">Müşteri kabul / sekreterya kaynakları</div>${ReportDenseTable(['Alan','Girilen değer','Ek bilgi'],acceptanceRows)}</section><section><div class="combined-section-title">Rapora yansıyan usta girişleri</div>${ReportDenseTable(['İstasyon','Usta / rol','Durum','Müşteri dili','Kanıt'],technicianRows)}</section></div><div class="combined-section-title light" style="margin-top:8px">Usta ham notları ve kontrol kilitleri</div>${ReportDenseTable(['İstasyon','Önem','Ham not','Eksik / kontrol'],technicianNoteRows)}<div class="report-note report-warning" style="margin-top:8px">${rpEsc(live.sourceNotice||'Bu sayfa rapordaki bilgilerin hangi iş emri kaynaklarından geldiğini gösterir. Teknik ham notlar müşteri diline çevrilerek ana bulgu tablolarına aktarılır.')}</div>`,'optimized-combined-page work-order-source-page');
     }
-    function BodyPaintAnalysis(page,total){const d=reportData;return ReportPage(page,total,'Kaporta / Boya Analizi','Görsel harita, parça sayaçları, boya yoğunluk haritası ve mikron tablosu aynı sayfada karar desteğine dönüşür.',`<div class="body-paint-layout body-paint-image-layout"><section class="body-map-card body-map-image-card"><img class="body-map-image" src="docs/kaporta-boya-harita.png" alt="Kaporta boya analiz araç haritası"></section></div><div class="body-paint-table">${ReportTable(['Parça','Durum','Mikron min','Mikron max','Risk','Açıklama','Fotoğraf no'],d.bodyPaintRows.concat([['Sağ direk','Orijinal','90','130','Düşük','Fabrika ölçü değerlerinde.','F-014'],['Sol ön direk','Orijinal','90','130','Düşük','Fabrika ölçü değerlerinde.','F-015'],['Arka panel','Orijinal','95','135','Düşük','Fabrika ölçü değerlerinde.','F-016']]))}</div>`,'body-paint-page');}
+    function BodyPaintAnalysis(page,total){const d=reportData;return ReportPage(page,total,'Kaporta / Boya Analizi','Görsel harita, parça sayaçları, boya yoğunluk haritası ve mikron tablosu aynı sayfada karar desteğine dönüşür.',`<div class="body-paint-layout body-paint-image-layout"><section class="body-map-card body-map-image-card"><img class="body-map-image" src="docs/kaporta-boya-harita.png" alt="Kaporta boya analiz araç haritası" loading="lazy" decoding="async" fetchpriority="low"></section></div><div class="body-paint-table">${ReportTable(['Parça','Durum','Mikron min','Mikron max','Risk','Açıklama','Fotoğraf no'],d.bodyPaintRows.concat([['Sağ direk','Orijinal','90','130','Düşük','Fabrika ölçü değerlerinde.','F-014'],['Sol ön direk','Orijinal','90','130','Düşük','Fabrika ölçü değerlerinde.','F-015'],['Arka panel','Orijinal','95','135','Düşük','Fabrika ölçü değerlerinde.','F-016']]))}</div>`,'body-paint-page');}
     function TechnicalDashboard(page,total){const d=reportData;return ReportPage(page,total,'Teknik Durum Dashboard','Motor, OBD, süspansiyon, fren, akü, lastik ve önem puanları ölçüm özetiyle beraber gösterilir.',`<div class="report-grid-3">${d.technicalScores.map(s=>ReportScoreCard(s[0],s[1],s[2],s[3],s[4])).join('')}</div><div style="margin-top:8px">${ReportPriorityStrip(d.priorityScores)}</div>${ReportDeviceGrid()}${ReportMeasurementGrid(d.measurementRows)}<div class="report-note report-warning" style="margin-top:8px">Teknik skorlar karar destek amaçlıdır; canlı sistemde cihaz ölçümü, teknisyen notu ve kalite kontrol onayıyla hesaplanacaktır.</div>`);}
     function MechanicalInspection(page,total){const d=reportData;return ReportPage(page,total,'Motor-Mekanik Kontrol / Üst Bölge','Motor üst bölge, sıvı, kaçak, ses, kompresyon, şarj ve bakım başlıkları sıkıştırılmadan satır satır görünür.',`<div class="report-section-chip">Motor üst bölge / check-up</div>${ReportTable(['Kontrol kalemi','Durum','Risk','Not','Kanıt'],d.mechanicalRows)}<div class="report-note report-warning" style="margin-top:8px">Servis kontrolü gereken bulgular satın alma öncesi yetkili/özel servis bakım planına dahil edilmelidir.</div>`);}
     function MechanicalUnderbodyInspection(page,total){const d=reportData;return ReportPage(page,total,'Motor-Mekanik Kontrol / Alt ve Ön Mekanik','Şanzıman, diferansiyel, takoz, fren kaliperi, aks, rot, egzoz, hortum ve taban kontrolleri ayrı A4 sayfada okunur.',`<div class="report-section-chip">Alt / ön mekanik ve aktarma</div>${ReportTable(['Kontrol kalemi','Durum','Risk','Not','Kanıt'],d.underbodyRows)}<div class="report-note report-warning" style="margin-top:8px">Bu sayfa lift altı kontrol ve ön takım bulgularının rapor içinde kaybolmaması için ayrı tutulur.</div>`);}
-    function ObdSection(page,total){const d=reportData;return ReportPage(page,total,'Elektronik / OBD Modül Taraması','OBD cihaz ekranı, modül sağlık haritası, arıza kodu ve servis önerisi ayrı sayfada okunur.',`<div class="airbag-visual-grid"><section class="airbag-map airbag-image-card obd-module-image-card" aria-label="OBD modül yerleşim görseli"><img class="obd-module-image" src="docs/obd-module-map.png" alt="OBD modül yerleşim görseli"></section><section><div class="airbag-method-grid">${[['Motor ECU','Sorunsuz','green'],['Şanzıman modülü','Sorunsuz','green'],['Airbag modülü','Aktif hata yok','green'],['BCM / gövde kontrol','Geçmiş kod izlenir','orange']].map(x=>`<div class="airbag-method tone-${x[2]}"><span>${rpEsc(x[0])}</span><b>${rpEsc(x[1])}</b></div>`).join('')}</div><div class="report-note" style="margin-top:8px">OBD sonucu karar destek amaçlıdır; geçmiş kodlar canlı veri, akü/şarj testi ve yol testiyle birlikte değerlendirilir.</div></section></div><div class="report-section-chip">OBD / beyin test detayları</div>${ReportTable(['Sistem / modül','Durum','Arıza kodu','Açıklama','Tekrarlandı mı?','Servis önerisi'],d.obdRows)}`);}
-    function AirbagSection(page,total){const d=reportData;return ReportPage(page,total,'Airbag / SRS Kontrol Yöntemi','Airbag ışığı, SRS modül taraması, fiziki söküm kapsamı, emniyet kemeri ve döşeme kontrolleri ayrı sayfada netleştirilir.',`<div class="airbag-visual-grid"><section class="airbag-map airbag-image-card" aria-label="Airbag SRS yerleşim görseli"><img class="airbag-image" src="docs/airbag-srs-kontrol.png" alt="Airbag SRS araç içi yerleşim görseli"></section><section><div class="airbag-method-grid">${[['Gösterge ışığı','Kontak sonrası sönüyor','green'],['SRS OBD taraması','Aktif hata yok','green'],['Fiziki söküm','Yapılmadı','gray'],['Yetkili servis teyidi','Önerilir','orange']].map(x=>`<div class="airbag-method tone-${x[2]}"><span>${rpEsc(x[0])}</span><b>${rpEsc(x[1])}</b></div>`).join('')}</div><div class="report-note report-warning" style="margin-top:8px">Fiziki söküm yapılmadıysa raporda gri/kapsam yöntemi olarak gösterilir; müşteri bunu kırmızı kritik arıza sanmaz, doğru kontrol kapsamını görür.</div></section></div><div class="report-section-chip">Airbag / SRS detay kontrolü</div>${ReportTable(['Airbag başlığı','Durum','Risk','Açıklama','Kanıt'],d.airbagRows)}`);}
+    function ObdSection(page,total){const d=reportData;return ReportPage(page,total,'Elektronik / OBD Modül Taraması','OBD cihaz ekranı, modül sağlık haritası, arıza kodu ve servis önerisi ayrı sayfada okunur.',`<div class="airbag-visual-grid"><section class="airbag-map airbag-image-card obd-module-image-card" aria-label="OBD modül yerleşim görseli"><img class="obd-module-image" src="docs/obd-module-map.png" alt="OBD modül yerleşim görseli" loading="lazy" decoding="async" fetchpriority="low"></section><section><div class="airbag-method-grid">${[['Motor ECU','Sorunsuz','green'],['Şanzıman modülü','Sorunsuz','green'],['Airbag modülü','Aktif hata yok','green'],['BCM / gövde kontrol','Geçmiş kod izlenir','orange']].map(x=>`<div class="airbag-method tone-${x[2]}"><span>${rpEsc(x[0])}</span><b>${rpEsc(x[1])}</b></div>`).join('')}</div><div class="report-note" style="margin-top:8px">OBD sonucu karar destek amaçlıdır; geçmiş kodlar canlı veri, akü/şarj testi ve yol testiyle birlikte değerlendirilir.</div></section></div><div class="report-section-chip">OBD / beyin test detayları</div>${ReportTable(['Sistem / modül','Durum','Arıza kodu','Açıklama','Tekrarlandı mı?','Servis önerisi'],d.obdRows)}`);}
+    function AirbagSection(page,total){const d=reportData;return ReportPage(page,total,'Airbag / SRS Kontrol Yöntemi','Airbag ışığı, SRS modül taraması, fiziki söküm kapsamı, emniyet kemeri ve döşeme kontrolleri ayrı sayfada netleştirilir.',`<div class="airbag-visual-grid"><section class="airbag-map airbag-image-card" aria-label="Airbag SRS yerleşim görseli"><img class="airbag-image" src="docs/airbag-srs-kontrol.png" alt="Airbag SRS araç içi yerleşim görseli" loading="lazy" decoding="async" fetchpriority="low"></section><section><div class="airbag-method-grid">${[['Gösterge ışığı','Kontak sonrası sönüyor','green'],['SRS OBD taraması','Aktif hata yok','green'],['Fiziki söküm','Yapılmadı','gray'],['Yetkili servis teyidi','Önerilir','orange']].map(x=>`<div class="airbag-method tone-${x[2]}"><span>${rpEsc(x[0])}</span><b>${rpEsc(x[1])}</b></div>`).join('')}</div><div class="report-note report-warning" style="margin-top:8px">Fiziki söküm yapılmadıysa raporda gri/kapsam yöntemi olarak gösterilir; müşteri bunu kırmızı kritik arıza sanmaz, doğru kontrol kapsamını görür.</div></section></div><div class="report-section-chip">Airbag / SRS detay kontrolü</div>${ReportTable(['Airbag başlığı','Durum','Risk','Açıklama','Kanıt'],d.airbagRows)}`);}
     function BrakeSuspensionTyreSection(page,total){const d=reportData;return ReportPage(page,total,'Fren / Süspansiyon / Lastik','Fren verimliliği, sağ-sol sapma, süspansiyon, yanal kayma, lastik ve dyno/yol testi cihaz çıktısı tek teknik sayfada okunur.',`<div class="report-grid-2"><div><div class="report-section-chip">Fren test cihazı</div>${ReportDenseTable(['Konum','Ölçüm','Sapma %','Kabul limiti','Sonuç','Not'],d.brakeRows)}</div><div><div class="report-section-chip">Süspansiyon / yanal kayma</div>${ReportDenseTable(['Konum','Ölçüm','Sapma','Kabul limiti','Sonuç'],d.suspensionRows)}<div style="height:8px"></div><div class="report-section-chip">Dyno / yol testi</div>${ReportDenseTable(['Dyno / yol testi','Durum','Not'],d.dynoRows)}</div></div><div style="margin-top:8px">${ReportDenseTable(['Konum','Marka','Ebat','Diş derinliği','Üretim tarihi','Durum'],d.tyreRows)}</div>`);}
     function DamageMileageRecords(page,total){const d=reportData;return ReportPage(page,total,'Hasar / KM / Kayıt Sorguları','Tramer, KM, vergi, ceza, muayene, ağır hasar ve recall sorguları veri kaynağı sınırıyla gösterilir.',`<div class="report-grid-3">${d.records.map(r=>`<section class="report-card risk-item" data-risk="${reportTone(r[1])==='green'?'ok':reportTone(r[1])}"><span>${rpEsc(r[0])}</span><b>${rpEsc(r[1])}</b><p class="card-sub">${rpEsc(r[2])}</p><small class="card-sub">Bu sorgu bilgi amaçlıdır; resmi kriminal inceleme yerine geçmez.</small></section>`).join('')}</div><div class="combined-section-title" style="margin-top:8px">Tramer detay ve veri sınırı</div>${ReportTable(['Tarih','Kayıt türü','Tutar','Kaynak','Açıklama'],[['12.06.2024','Çarpma','12.450 TL','SBM / Tramer','Sağ arka kapı lokal onarım kaydıyla birlikte değerlendirilmelidir.'],['24.05.2026','KM doğrulama','%98 tutarlı','TÜVTÜRK + servis','KM geçmişi rapor anında tutarlı görünmektedir.'],['24.05.2026','Recall kontrolü','Servis teyidi','Üretici / yetkili servis','Satın alma öncesi yetkili servis kaydı ayrıca sorgulanmalıdır.']])}<div class="report-note report-warning" style="margin-top:8px">Sorgu sonuçları ilgili kurum ve sistemlerden alınan bilgi amaçlı kayıtlardır. Ekspertiz işlemi resmi hasar, kilometre, kriminal inceleme veya bilirkişi raporu yerine geçmez.</div>`);}
     function EvidenceTimeline(page,total){const d=reportData;return ReportPage(page,total,'Fotoğraf ve Kanıt Arşivi','Araç üzerinde yapılan inceleme sırasında çekilen fotoğraflar kronolojik ve konumsal sıraya göre düzenlenmiştir.',`<div class="photo-archive-summary"><div><span>Zorunlu foto seti</span><b>${d.evidence.length} kayıt</b></div><div><span>Belge kanıtı</span><b>Ruhsat + VIN</b></div><div><span>Cihaz kanıtı</span><b>OBD + ölçüm</b></div><div><span>Bulgu bağlantısı</span><b>Foto no ile izlenir</b></div></div>${ReportPhotoArchive()}<div class="report-note" style="margin-top:5px;font-size:7.5px;padding:7px">Fotoğraflar rapor numarası, teknisyen, saat ve ilgili bulgu ile eşleştirilir. Kritik bulgularda fotoğraf/video kanıtı zorunlu kabul edilir.</div>`);}
@@ -15376,7 +15446,12 @@
         ACADEMY_VIEW.room = academyRoute.room;
         academySaveView();
       }
+      if(resolved!=='dashboard' && !document.getElementById('page-'+resolved)){
+        window.__OTOTR_FULL_ADMIN_PAGES_RENDERED__ = true;
+        renderPages();
+      }
       current = resolved;
+      ensureInspectionSchemaForRoute(resolved);
       syncDealerStandaloneMode(resolved);
       document.getElementById('pageTitle').textContent = titles[resolved] || resolved;
       document.querySelectorAll('.page').forEach(p=>p.classList.toggle('active',p.id==='page-'+resolved));
@@ -15872,6 +15947,23 @@
     bindGlobalSearch();
     document.addEventListener('click',e=>{ if(!e.target.closest('.search')) closeSearchResults(); });
 
+    function ensureInspectionSchemaForRoute(resolved){
+      const schemaRoutes=['dealer','report-design','vehicle-passport'];
+      if(!schemaRoutes.includes(resolved) || window.OTOTR_INSPECTION_SCHEMA || window.__OTOTR_SCHEMA_LOAD_PENDING__) return;
+      window.__OTOTR_SCHEMA_LOAD_PENDING__ = true;
+      window.OTOTR_ASSET_LOADER?.loadInspectionSchema?.().then(()=>{
+        window.__OTOTR_SCHEMA_LOAD_PENDING__ = false;
+        if(typeof applyInspectionSchemaToReportData === 'function') applyInspectionSchemaToReportData();
+        if(schemaRoutes.includes(current)){
+          window.__OTOTR_FULL_ADMIN_PAGES_RENDERED__ = true;
+          renderPages();
+          route(current,{preserveScroll:true});
+        }
+      }).catch(()=>{
+        window.__OTOTR_SCHEMA_LOAD_PENDING__ = false;
+      });
+    }
+
     function renderCharts(){
       Object.values(charts).forEach(c=>c.destroy()); charts={};
       const theme=chartTheme();
@@ -15999,6 +16091,10 @@
       initTheme();
       dealerScrubSensitiveUrlParams();
       syncDealerStandaloneMode(current);
+      if(['dealer','report-design','vehicle-passport'].includes(current)){
+        await window.OTOTR_ASSET_LOADER?.loadInspectionSchema?.().catch(()=>null);
+        if(typeof applyInspectionSchemaToReportData === 'function') applyInspectionSchemaToReportData();
+      }
       renderAll(); route(initialHR||initialAcademy?initialCanonical:current);
     })();
     window.addEventListener('hashchange',()=>{
