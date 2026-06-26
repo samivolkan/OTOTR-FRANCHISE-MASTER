@@ -239,6 +239,8 @@ button,input,select,textarea{font:inherit}.app{min-height:100vh;display:grid;gri
 </style>
 <style>
 #dashboardPage.active-module{display:flex!important;flex-direction:column}.dashboard-performance{order:99;margin-top:0;margin-bottom:0}.commerce-kpi-strip{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:10px}.commerce-kpi-strip.compact{grid-template-columns:repeat(4,minmax(0,1fr))}.commerce-kpi-card{border:1px solid #dbe3ee;border-radius:12px;background:#fff;padding:13px;box-shadow:0 8px 22px rgba(16,24,40,.045);min-width:0;display:grid;grid-template-columns:34px minmax(0,1fr);gap:10px;align-items:start}.commerce-kpi-icon{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;font-size:15px;font-weight:950}.commerce-kpi-copy{min-width:0}.commerce-kpi-copy span{display:block;color:#42526f;font-size:11px;font-weight:850}.commerce-kpi-copy strong{display:block;margin-top:4px;color:#101828;font-size:22px;letter-spacing:-.035em}.commerce-kpi-delta{display:flex;align-items:center;gap:4px;margin-top:8px;color:#16a34a;font-size:11px;font-weight:900}.commerce-kpi-note{display:block;margin-top:2px;color:#667085;font-size:10.5px;font-weight:750}.commerce-spark{grid-column:2;width:100%;height:38px;margin-top:2px}.commerce-spark polyline{fill:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}.commerce-summary-grid{display:grid;grid-template-columns:1.1fr 1.1fr .72fr .72fr;gap:10px}.commerce-summary-card{border:1px solid #dbe3ee;border-radius:12px;background:#fff;padding:14px;box-shadow:0 8px 22px rgba(16,24,40,.045);min-width:0}.commerce-summary-card h3{margin:0 0 12px;color:#101828;font-size:14px}.commerce-average-rings{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;text-align:center}.commerce-ring{--p:70;--c:#1769ff;width:82px;height:82px;border-radius:50%;background:conic-gradient(var(--c) calc(var(--p)*1%),#edf2ff 0);display:grid;place-items:center;position:relative;margin:0 auto 7px}.commerce-ring:after{content:"";position:absolute;width:62px;height:62px;border-radius:50%;background:#fff}.commerce-ring b{position:relative;z-index:1;color:#102a60;font-size:19px}.commerce-average-rings span,.commerce-mix-legend span{display:block;color:#667085;font-size:10.5px;font-weight:850}.commerce-average-rings small{display:block;color:#102a60;font-size:11px;font-weight:850}.commerce-package-mix{display:grid;grid-template-columns:128px minmax(0,1fr);gap:14px;align-items:center}.commerce-donut{--a:42;--b:28;--c:18;--d:8;--ca:#6545f6;--cb:#48c78e;--cc:#ffad33;--cd:#39b5c6;width:122px;height:122px;border-radius:50%;background:conic-gradient(var(--ca) 0 calc(var(--a)*1%),var(--cb) 0 calc((var(--a) + var(--b))*1%),var(--cc) 0 calc((var(--a) + var(--b) + var(--c))*1%),var(--cd) 0 calc((var(--a) + var(--b) + var(--c) + var(--d))*1%),#aab4c3 0);position:relative}.commerce-donut:after{content:"";position:absolute;inset:35px;border-radius:50%;background:#fff}.commerce-mix-legend{display:grid;gap:8px}.commerce-mix-row{display:grid;grid-template-columns:9px minmax(0,1fr) auto auto;gap:8px;align-items:center;font-size:11px;font-weight:850;color:#102a60}.commerce-dot{width:9px;height:9px;border-radius:50%}.commerce-mini-value{font-size:24px!important;letter-spacing:-.04em}.commerce-progress{height:8px;border-radius:999px;background:#e4e7ec;overflow:hidden;margin:12px 0 7px}.commerce-progress i{display:block;height:100%;border-radius:inherit;background:#6545f6}.commerce-footnote{display:flex;justify-content:space-between;gap:8px;color:#475467;font-size:12px;font-weight:850}.commerce-summary-card.revenue{display:grid;align-content:start}.commerce-summary-card.revenue .commerce-spark{grid-column:auto;height:58px}.performance-command .commerce-summary-grid{grid-template-columns:1fr 1fr 1fr 1fr}.performance-command .commerce-kpi-strip{margin-bottom:0}@media(max-width:1500px){.commerce-kpi-strip,.commerce-kpi-strip.compact{grid-template-columns:repeat(3,minmax(0,1fr))}.commerce-summary-grid,.performance-command .commerce-summary-grid{grid-template-columns:1fr 1fr}}@media(max-width:900px){.commerce-kpi-strip,.commerce-kpi-strip.compact,.commerce-summary-grid,.performance-command .commerce-summary-grid,.commerce-average-rings,.commerce-package-mix{grid-template-columns:1fr}.commerce-kpi-card{grid-template-columns:34px 1fr}.commerce-spark{grid-column:1/-1}}
+.commerce-donut{background:conic-gradient(var(--ca) 0 var(--a),var(--cb) 0 var(--ab),var(--cc) 0 var(--abc),var(--cd) 0 var(--abcd),#aab4c3 0)}
+#dashboardPerformance.dashboard-performance{order:99}
 </style>
 </head>
 <body class="module-page-open">
@@ -790,6 +792,7 @@ button,input,select,textarea{font:inherit}.app{min-height:100vh;display:grid;gri
     <div class="drawer-foot"><button class="btn" id="cancelVehicleEntry">Kokpite Dön</button><button class="btn primary" id="openFullEntryOrder" type="button">İş Emri Aç ve Tam İş Emrine Geç</button></div>
   </aside>
 </div>
+<script src="assets/dealer-final-report-status.js"></script>
 <script>
 const backdrop=document.getElementById('drawerBackdrop');
 const vehicleBackdrop=document.getElementById('vehicleEntryBackdrop');
@@ -1190,6 +1193,219 @@ function nextWorkOrderCode(){
   },1052);
   return `OTOTR_${maxCode+1}`;
 }
+const DEALER_LIVE_KEY='ototr-dealer-live-workorders-v1';
+const DEALER_SUPABASE_CONFIG_KEY='ototr-dealer-supabase-config-v1';
+const DEALER_SUPABASE_SESSION_KEY='ototr-dealer-supabase-session-v1';
+const DEALER_SUPABASE_SYNC_KEY='ototr-dealer-supabase-sync-v1';
+function dealerLiveNotice(message){
+  if(typeof showReportToast==='function')showReportToast(message);
+  else if(typeof showAppointmentToast==='function')showAppointmentToast(message);
+}
+function dealerSupabaseRuntimeConfig(){
+  let stored={};
+  try{stored=JSON.parse(localStorage.getItem(DEALER_SUPABASE_CONFIG_KEY)||'{}')||{};}catch(err){stored={};}
+  const runtime=window.OTOTR_SUPABASE_CONFIG||{};
+  return {
+    url:String(runtime.url||stored.url||'').replace(/\/+$/,''),
+    key:String(runtime.key||runtime.anonKey||runtime.publishableKey||stored.key||stored.anonKey||stored.publishableKey||'')
+  };
+}
+function dealerSaveSupabaseSyncState(next){
+  let current={};
+  try{current=JSON.parse(localStorage.getItem(DEALER_SUPABASE_SYNC_KEY)||'{}')||{};}catch(err){current={};}
+  localStorage.setItem(DEALER_SUPABASE_SYNC_KEY,JSON.stringify({...current,...next}));
+}
+function dealerStoredSupabaseSession(){
+  try{
+    const session=JSON.parse(localStorage.getItem(DEALER_SUPABASE_SESSION_KEY)||'null');
+    if(!session?.access_token&&!session?.refresh_token)return null;
+    return session;
+  }catch(err){return null;}
+}
+function dealerSupabaseActiveSession(){
+  const session=dealerStoredSupabaseSession();
+  if(!session?.access_token)return null;
+  if(session.expires_at&&Number(session.expires_at)<Date.now()+60000)return null;
+  return session;
+}
+function dealerSupabaseErrorMessage(body,fallback){
+  return body?.error_description||body?.message||body?.msg||body?.error||fallback;
+}
+async function dealerSupabaseSignIn(email,password){
+  const config=dealerSupabaseRuntimeConfig();
+  if(!config.url||!config.key)throw new Error('Canlı Supabase ayarları eksik.');
+  const res=await fetch(`${config.url}/auth/v1/token?grant_type=password`,{
+    method:'POST',
+    headers:{apikey:config.key,'Content-Type':'application/json'},
+    body:JSON.stringify({email:String(email||'').trim(),password:String(password||'')})
+  });
+  const text=await res.text();
+  const body=text?JSON.parse(text):null;
+  if(!res.ok)throw new Error(dealerSupabaseErrorMessage(body,'Canlı oturum açılamadı.'));
+  const session={access_token:body.access_token,refresh_token:body.refresh_token,email:String(email||'').trim(),expires_at:Date.now()+Math.max(60,Number(body.expires_in)||3600)*1000};
+  localStorage.setItem(DEALER_SUPABASE_SESSION_KEY,JSON.stringify(session));
+  dealerSaveSupabaseSyncState({connectedAt:new Date().toLocaleString('tr-TR',{dateStyle:'short',timeStyle:'short'}),lastError:''});
+  return session;
+}
+async function dealerSupabaseRequest(path,options={}){
+  const config=dealerSupabaseRuntimeConfig();
+  const session=dealerSupabaseActiveSession();
+  if(!config.url||!config.key){
+    const err=new Error('Canlı Supabase ayarları eksik.');
+    err.code='NO_LIVE_CONFIG';
+    throw err;
+  }
+  if(!session?.access_token){
+    const err=new Error('Canlı iş emri için bayi portalı oturumu gerekli.');
+    err.code='NO_LIVE_SESSION';
+    throw err;
+  }
+  const res=await fetch(`${config.url}${path}`,{
+    ...options,
+    headers:{apikey:config.key,Authorization:`Bearer ${session.access_token}`,'Content-Type':'application/json',...(options.headers||{})}
+  });
+  const text=await res.text();
+  const body=text?JSON.parse(text):null;
+  if(!res.ok){
+    const err=new Error(dealerSupabaseErrorMessage(body,`Supabase isteği başarısız: HTTP ${res.status}`));
+    err.status=res.status;
+    err.body=body;
+    throw err;
+  }
+  return body;
+}
+function dealerMileageNumber(value){
+  const numeric=String(value||'').replace(/[^\d]/g,'');
+  return numeric?Number(numeric):0;
+}
+function dealerPackageCode(name){
+  const normalized=String(name||'').toLocaleLowerCase('tr-TR');
+  if(normalized.includes('premium'))return 'PREMIUM';
+  if(normalized.includes('full'))return 'FULL';
+  if(normalized.includes('mini'))return 'MINI';
+  if(normalized.includes('esnaf'))return 'ESNAF';
+  return 'STANDARD';
+}
+async function dealerCreateSupabaseWorkOrder(data){
+  const createdId=await dealerSupabaseRequest('/rest/v1/rpc/create_branch_work_order',{
+    method:'POST',
+    body:JSON.stringify({
+      customer_full_name:data.customer||data.reportRecipient||'Müşteri',
+      customer_phone:data.phone||'',
+      customer_email:'',
+      customer_identity_number:data.taxNo||'',
+      customer_role:data.customerType||'OWNER',
+      vehicle_plate:data.plate||'',
+      vehicle_vin:data.vin||'',
+      vehicle_brand:data.brand||'Marka',
+      vehicle_model:[data.model,data.variant].filter(Boolean).join(' ')||'Model',
+      vehicle_year:Number(data.year)||new Date().getFullYear(),
+      vehicle_fuel_type:data.fuel||'',
+      vehicle_transmission:data.transmission||'',
+      vehicle_kilometers:dealerMileageNumber(data.km||data.mileage),
+      vehicle_seller_type:data.sellerType||'Bireysel',
+      vehicle_arrival_note:[data.channel,data.sellerName].filter(Boolean).join(' | '),
+      package_type:dealerPackageCode(data.packageName),
+      work_order_notes:'Bayi portal hızlı/tam iş emri'
+    })
+  });
+  try{
+    await dealerSupabaseRequest(`/rest/v1/expertise_cases?id=eq.${encodeURIComponent(createdId)}`,{
+      method:'PATCH',
+      headers:{Prefer:'return=minimal'},
+      body:JSON.stringify({status:'TECHNICAL_ENTRY_OPEN',secretary_gate_ready:true,kvkk_gate_ready:true})
+    });
+  }catch(err){
+    dealerSaveSupabaseSyncState({lastOpenTechnicalEntryError:err.message||String(err)});
+  }
+  await dealerSyncSupabaseWorkOrders({silent:true,noRender:true,selectSupabaseId:createdId});
+  return createdId;
+}
+function dealerLiveWorkOrderFromCase(row,statusRow){
+  const vehicle=row.vehicles||{};
+  const plan=row.package_plans||{};
+  const customer=row.customers||{};
+  const finalStatus=String(statusRow?.final_report_status||'').toUpperCase();
+  return {
+    id:row.work_order_no||row.id,
+    supabaseId:row.id,
+    plate:vehicle.plate||'',
+    customer:customer.full_name||'Müşteri',
+    vehicle:[vehicle.brand,vehicle.model,vehicle.model_year].filter(Boolean).join(' '),
+    packageName:plan.name||plan.code||'Ekspertiz',
+    liveStatus:row.status||'',
+    finalReportStatus:finalStatus,
+    finalReportLockedAt:statusRow?.final_report_locked_at||'',
+    finalReportCanSubmit:statusRow?.can_submit===true,
+    source:'Supabase canlı'
+  };
+}
+function dealerMergeLiveRows(workOrders=[]){
+  const tbody=document.querySelector('.final-cockpit .ab-table tbody');
+  if(!tbody)return;
+  workOrders.forEach(order=>{
+    if(!order?.id)return;
+    let row=[...tbody.querySelectorAll('tr')].find(candidate=>candidate.dataset.supabaseId===order.supabaseId||candidate.querySelector('.ab-code span:last-child')?.textContent?.trim()===order.id);
+    const status=String(order.finalReportStatus||'').toUpperCase();
+    const printReady=['LOCKED','APPROVED','DELIVERED','CLOSED','COMPLETED'].includes(status)||order.finalReportCanSubmit===true;
+    if(!row){
+      row=document.createElement('tr');
+      row.dataset.filterRow=printReady?'ready':'active';
+      row.dataset.supabaseId=order.supabaseId||'';
+      row.innerHTML=`
+        <td><div class="ab-code"><span class="ab-status-dot active"></span><span>${escapeHtml(order.id)}</span></div><div class="ab-main"><small>Canlı Supabase</small></div></td>
+        <td>${renderWorkOrderPlate(order.plate)}</td>
+        <td><div class="ab-main"><strong>${escapeHtml(order.vehicle||'Araç')}</strong><small>${escapeHtml(order.customer||'Müşteri')}</small></div></td>
+        <td><div class="ab-main"><strong>${escapeHtml(order.packageName||'Ekspertiz')}</strong><small>Canlı kayıt</small></div></td>
+        <td><span class="status ${printReady?'s-green':'s-purple'}">${printReady?'Basıma hazır':'Teknikte'}</span></td>
+        <td><div class="ab-owner"><img class="ab-owner-photo" src="reference-profesyonel-v2/assets/secretary-avatar.svg" alt=""><div><span class="ab-owner-name">Canlı</span><span class="ab-owner-role">Supabase</span></div></div></td>
+        <td><div class="ab-progress"><span><em>${printReady?'Rapor kilitli':'Mobil işlemde'}</em><b>${printReady?'%100':'%35'}</b></span><div class="ab-line"><i style="width:${printReady?'100':'35'}%;background:${printReady?'var(--green)':'var(--purple)'}"></i></div></div></td>
+        <td><span class="status s-green">Normal</span></td>
+        <td><div class="ab-time"><strong>Canlı</strong><small>${escapeHtml(order.liveStatus||'Açık')}</small></div></td>
+        <td><div class="ab-action-icons" aria-label="İş emri aksiyonları"><button class="ab-icon-action primary" type="button" title="İş emrini aç" aria-label="İş emrini aç">✎</button><button class="ab-icon-action verify" type="button" title="Rapor kodunu doğrula" aria-label="Rapor kodunu doğrula">#</button><button class="ab-icon-action print" type="button" title="${printReady?'Raporu bas':'Rapor basıma hazır değil'}" aria-label="Rapor bas" ${printReady?'':'disabled'}>⎙</button><button class="ab-icon-action cancel" type="button" title="Raporu iptal et" aria-label="Raporu iptal et">×</button></div></td>`;
+      tbody.prepend(row);
+      bindWorkOrderRowActions(row);
+    }else{
+      row.dataset.filterRow=printReady?'ready':(row.dataset.filterRow||'active');
+      row.dataset.supabaseId=order.supabaseId||row.dataset.supabaseId||'';
+      const statusCell=row.querySelector('td:nth-child(5) .status');
+      if(statusCell){statusCell.textContent=printReady?'Basıma hazır':'Teknikte';statusCell.className=`status ${printReady?'s-green':'s-purple'}`;}
+      const printButton=row.querySelector('.ab-icon-action.print');
+      if(printButton){
+        printButton.disabled=!printReady;
+        printButton.title=printReady?'Raporu bas':'Rapor basıma hazır değil';
+      }
+    }
+  });
+  refreshWorkOrderFilterCounts();
+  renderWorkOrdersModule();
+}
+async function dealerSyncSupabaseWorkOrders(options={}){
+  const session=dealerSupabaseActiveSession();
+  if(!session){
+    if(!options.silent)dealerLiveNotice('Canlı sistem için bayi portalı oturumu açın.');
+    return [];
+  }
+  try{
+    const rows=await dealerSupabaseRequest('/rest/v1/expertise_cases?select=id,work_order_no,status,opened_at,package_plans(code,name),customers(full_name,phone,email,identity_number,customer_role),vehicles(plate,vin,brand,model,model_year,fuel_type,transmission,mileage_km)&order=opened_at.desc&limit=100');
+    let statusMap=new Map();
+    if(window.OTOTRDealerFinalReportStatus?.fetchStatuses){
+      statusMap=await window.OTOTRDealerFinalReportStatus.fetchStatuses(dealerSupabaseRequest,100);
+    }
+    const workOrders=(Array.isArray(rows)?rows:[]).map(row=>dealerLiveWorkOrderFromCase(row,statusMap.get(row.id)));
+    localStorage.setItem(DEALER_LIVE_KEY,JSON.stringify({activeId:workOrders[0]?.id||'',workOrders,source:'supabase',liveSyncedAt:new Date().toISOString()}));
+    dealerSaveSupabaseSyncState({lastSyncAt:new Date().toLocaleString('tr-TR',{dateStyle:'short',timeStyle:'short'}),lastCount:workOrders.length,lastError:''});
+    if(!options.noRender)dealerMergeLiveRows(workOrders);
+    if(!options.silent)dealerLiveNotice(`${workOrders.length} canlı iş emri senkronize edildi.`);
+    return workOrders;
+  }catch(err){
+    dealerSaveSupabaseSyncState({lastError:err.message||String(err)});
+    if(!options.silent)dealerLiveNotice(`Canlı senkron hatası: ${err.message||err}`);
+    return [];
+  }
+}
+window.dealerSupabaseSignIn=dealerSupabaseSignIn;
+window.dealerSyncSupabaseWorkOrders=dealerSyncSupabaseWorkOrders;
 function bindWorkOrderRowActions(row){
   row.querySelectorAll('.ab-icon-action.primary').forEach(btn=>btn.addEventListener('click',()=>openWorkOrderEditor(row)));
   row.querySelectorAll('.ab-icon-action.verify').forEach(btn=>btn.addEventListener('click',()=>btn.classList.toggle('is-selected')));
@@ -1221,7 +1437,7 @@ function openWorkOrderEditor(row){
   const note=document.querySelector('[data-quick-ready-state]');
   if(note)note.textContent=`Düzenlenen kayıt: ${data.code || 'İş emri'}`;
 }
-function addQuickWorkOrderToTable(){
+async function addQuickWorkOrderToTable(){
   if(!updateQuickEntryGate())return;
   const data=readDashboardEntry();
   const tbody=document.querySelector('.final-cockpit .ab-table tbody');
@@ -1249,6 +1465,19 @@ function addQuickWorkOrderToTable(){
   bindWorkOrderRowActions(row);
   refreshWorkOrderFilterCounts();
   setWorkOrderFilter('open',false);
+  if(dealerSupabaseActiveSession()){
+    createQuickEntry.textContent='Canlıya Gönderiliyor';
+    createQuickEntry.disabled=true;
+    try{
+      const liveCreatedId=await dealerCreateSupabaseWorkOrder(data);
+      row.dataset.supabaseId=liveCreatedId;
+      row.querySelector('.ab-main small').textContent='Canlı Supabase';
+      dealerLiveNotice(`Canlı iş emri açıldı ve mobile gönderildi: ${liveCreatedId}`);
+    }catch(err){
+      dealerLiveNotice(`Canlı iş emri açılamadı: ${err.message||err}`);
+      dealerSaveSupabaseSyncState({lastError:err.message||String(err)});
+    }
+  }
   createQuickEntry.textContent='İş Emri Açıldı';
   createQuickEntry.disabled=true;
   setTimeout(()=>{
@@ -1372,6 +1601,7 @@ function renderCommerceSummary(targetId){
   if(!target)return;
   const mixTotal=commercePackageTypes.reduce((sum,item)=>sum+item.value,0)||1;
   const parts=commercePackageTypes.map(item=>Math.round((item.value/mixTotal)*100));
+  const stops={a:parts[0],ab:parts[0]+parts[1],abc:parts[0]+parts[1]+parts[2],abcd:parts[0]+parts[1]+parts[2]+parts[3]};
   const revenue=commercePerformance.revenue;
   const targetRevenue=commercePerformance.targetRevenue;
   const targetPct=Math.min(100,Math.round((revenue.value/targetRevenue.value)*100));
@@ -1385,7 +1615,7 @@ function renderCommerceSummary(targetId){
     <article class="commerce-summary-card">
       <h3>Paket Türlerimiz</h3>
       <div class="commerce-package-mix">
-        <div class="commerce-donut" style="--a:${parts[0]};--b:${parts[1]};--c:${parts[2]};--d:${parts[3]}"></div>
+        <div class="commerce-donut" style="--a:${stops.a}%;--ab:${stops.ab}%;--abc:${stops.abc}%;--abcd:${stops.abcd}%"></div>
         <div class="commerce-mix-legend">
           ${commercePackageTypes.map(item=>`<div class="commerce-mix-row"><span class="commerce-dot" style="background:${item.color}"></span><span>${item.label}</span><b>₺${Math.round(item.revenue/1000)}K</b><b>${item.value} adet</b></div>`).join('')}
         </div>

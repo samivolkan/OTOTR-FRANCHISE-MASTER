@@ -16,6 +16,9 @@ const realtimeTables = [
   'work_order_report_answers',
   'work_order_group_status',
   'final_reports',
+  'customer_consent_events',
+  'ocr_capture_events',
+  'vehicle_history_alerts',
 ];
 
 const bodyItemNoktaIds: Record<string, number> = {
@@ -93,6 +96,9 @@ const caseSelect = [
   'secretary_gate_ready',
   'payment_gate_ready',
   'kvkk_gate_ready',
+  'acceptance_snapshot',
+  'vehicle_history_status',
+  'crm_context',
   'package_plans(code,name,duration_minutes)',
   'customers(full_name,phone,email,identity_number,customer_role,metadata)',
   'vehicles(plate,vin,brand,model,model_year,fuel_type,transmission,mileage_km,seller_type,arrival_note,metadata)',
@@ -326,6 +332,9 @@ function mapCase(row: CaseRow, taskRows: TaskRow[], evidenceRows: EvidenceRow[])
   const customer = Array.isArray(row.customers) ? row.customers[0] : row.customers || {};
   const vehicle = Array.isArray(row.vehicles) ? row.vehicles[0] : row.vehicles || {};
   const pkg = Array.isArray(row.package_plans) ? row.package_plans[0] : row.package_plans || {};
+  const vehicleMeta = vehicle.metadata && typeof vehicle.metadata === 'object' ? vehicle.metadata : {};
+  const customerMeta = customer.metadata && typeof customer.metadata === 'object' ? customer.metadata : {};
+  const acceptance = normalizeAcceptance(row.acceptance_snapshot || vehicleMeta.dealer_acceptance || customerMeta.dealer_acceptance, row.vehicle_history_status, row.crm_context);
   const evidence = evidenceRows.filter((item) => item.expertise_case_id === row.id).map(mapEvidence);
   const tasks = taskRows
     .filter((item) => item.expertise_case_id === row.id)
@@ -356,12 +365,32 @@ function mapCase(row: CaseRow, taskRows: TaskRow[], evidenceRows: EvidenceRow[])
     },
     tasks,
     evidence,
+    acceptance,
     gates: {
       managerApproved: Boolean(row.manager_approved_at),
       secretaryReady: Boolean(row.secretary_gate_ready),
       paymentReady: Boolean(row.payment_gate_ready),
       kvkkReady: Boolean(row.kvkk_gate_ready),
     },
+  };
+}
+
+function normalizeAcceptance(snapshot: any, status: string, crmContext: any) {
+  const source = snapshot && typeof snapshot === 'object' ? snapshot : {};
+  const history = source.vehicleHistory && typeof source.vehicleHistory === 'object' ? source.vehicleHistory : {};
+  const crm = crmContext && typeof crmContext === 'object' ? crmContext : source.crm || {};
+  const alerts = Array.isArray(history.alerts) ? history.alerts : [];
+  return {
+    historyStatus: status || history.status || 'UNCHECKED',
+    historyText: history.text || '',
+    alerts: alerts.map((alert: any) => ({
+      severity: alert?.severity || history.status || 'INFO',
+      title: alert?.title || 'Arac gecmisi uyarisi',
+      body: alert?.body || history.text || '',
+      source: alert?.source || 'OTOTR_NETWORK',
+    })),
+    crmMatch: crm?.match || '',
+    consentStatus: source.consent?.status || '',
   };
 }
 

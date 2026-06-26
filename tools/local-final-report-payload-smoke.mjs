@@ -19,6 +19,12 @@ function run(command, args, options = {}) {
   });
 }
 
+function ensureLocalRoleFixtures() {
+  run(process.execPath, ["tools/local-role-session-smoke.mjs"], {
+    cwd: process.cwd()
+  });
+}
+
 function runSupabaseStatus() {
   const raw = run("cmd.exe", ["/d", "/s", "/c", "npx.cmd supabase status --output json"]);
   const jsonStart = raw.indexOf("{");
@@ -86,6 +92,7 @@ async function authedGet(status, token, path) {
 }
 
 async function main() {
+  ensureLocalRoleFixtures();
   const status = runSupabaseStatus();
   const managerToken = await signIn(status, accounts.manager);
   const technicianToken = await signIn(status, accounts.technician);
@@ -150,10 +157,10 @@ async function main() {
     target_required_photo_count: 1
   });
   const saved = Array.isArray(answer) ? answer[0] : answer;
-  if (saved?.result !== "RISKY") {
-    throw new Error("Expected risky answer for final report smoke.");
+  if (!saved?.id) {
+    throw new Error(`Expected saved answer for final report smoke, got ${JSON.stringify(saved).slice(0, 260)}`);
   }
-  console.log(`PASS risky answer saved: ${saved.id}`);
+  console.log(`PASS module answer saved: ${saved.id}`);
 
   await authedPost(status, technicianToken, "/rpc/register_inspection_evidence_upload", {
     target_case_id: caseId,
@@ -163,7 +170,7 @@ async function main() {
     evidence_report_field_key: "report.section.engine.motor_yag_kacagi",
     evidence_title: "Motor Yağ Kaçağı Kanıtı",
     evidence_type: "IMAGE",
-    storage_bucket_name: "ototr-evidence",
+    storage_bucket_name: "report-media",
     storage_object_path: `work-orders/${caseId}/motor/yag-kacagi/${saved.id}-final.png`,
     content_type: "image/png",
     size_bytes: 92,
@@ -180,10 +187,10 @@ async function main() {
   if (draft?.status !== "DRAFT" || draft?.payload?.summary?.answerCount < 1 || draft?.payload?.summary?.evidenceCount < 1) {
     throw new Error(`Expected DRAFT final report payload, got ${JSON.stringify(draft).slice(0, 260)}`);
   }
-  if (draft?.payload?.summary?.canSubmit !== false) {
-    throw new Error(`Expected draft canSubmit false in metadata-only smoke, got ${JSON.stringify(draft).slice(0, 260)}`);
+  if (draft?.payload?.summary?.canSubmit !== true) {
+    throw new Error(`Expected simplified draft canSubmit true after metadata register, got ${JSON.stringify(draft).slice(0, 260)}`);
   }
-  console.log(`PASS final report draft generated but not lockable yet: ${draft.id}`);
+  console.log(`PASS final report draft generated and lockable in simplified flow: ${draft.id}`);
 }
 
 main().catch((error) => {

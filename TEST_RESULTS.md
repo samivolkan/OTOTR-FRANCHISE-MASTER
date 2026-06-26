@@ -945,3 +945,148 @@ Notes:
   - `node --check` ilgili mobil mapping/service/screen dosyalari: gecti.
   - `node apps/admin/prototype/tools/test-index.mjs`: gecti.
   - `npm.cmd run build`: mevcut Faz 4 UI validasyon borclari nedeniyle gecmedi; hata mapping kapsamindan bagimsiz olarak bozuk Turkce karakter izi, opsiyonel fotograf uyarisi ve Islerim sekme kilidi kontrollerinde duruyor.
+
+## 2026-06-20 - OTOTR Mobil Gece Stabilizasyonu
+
+- Klasor: `ototr-mobile-app`
+- Auth/cache temizligi:
+  - `src/app.js` icinde stale `ototrAuth=true` ama gecerli Supabase session olmayan durumlar login'e zorlanacak sekilde sertlestirildi.
+  - Logout/invalid session temizligine su cache/state anahtarlari eklendi:
+    - `ototrLiveWorkOrders`
+    - `ototrLiveWorkOrdersLastSync`
+    - `ototrSelectedWorkOrderSnapshot`
+    - `ototrWorkflowState`
+    - `ototrModuleOwnership`
+    - `ototrFinalReportPayloads`
+    - `ototrTechnicalApprovalGate`
+    - `ototrWorkOrderStatus:*`
+- Mock fallback temizligi:
+  - `src/data/mockWorkOrders.js` sadece kullanilabilir auth state varsa mock order fallback verecek sekilde duzeltildi.
+  - Cift import kaynakli WebView `SyntaxError: Identifier 'getCachedLiveWorkOrders' has already been declared` hatasi giderildi.
+- Service worker:
+  - Cache adi `ototr-terminal-v110-auth-clean-start` olarak bump edildi.
+- Local Supabase / evidence akisi:
+  - Yeni migration: `supabase/migrations/20260620013000_align_evidence_bucket_with_report_media.sql`
+  - `register_inspection_evidence_upload` RPC artik `report-media` bucket'i ile uyumlu.
+  - `inspection_evidence_assets.storage_bucket` default'u `report-media` olarak hizalandi.
+- Local smoke script uyarlamalari:
+  - `tools/local-evidence-storage-upload-smoke.mjs`
+  - `tools/local-technical-approval-gate-smoke.mjs`
+  - `tools/local-final-report-payload-smoke.mjs`
+  - `tools/local-secretary-report-status-smoke.mjs`
+  - Bu scriptler local role fixture hazirligini kendi iclerinde garanti eder hale getirildi ve sade akisa gore guncellendi.
+- Dogrulama:
+  - `npm.cmd run validate:all` - gecti.
+  - `npm.cmd run build` - gecti.
+  - `npm.cmd run smoke:evidence:storage` - gecti.
+  - `npm.cmd run smoke:first-work-order:clean` - gecti.
+  - `npm.cmd run smoke:e2e:no-upload` - gecti.
+  - `npm.cmd run test:dealer-print` - gecti.
+  - `npm.cmd run android:build:debug` - gecti.
+- APK:
+  - Yol: `ototr-mobile-app\android\app\build\outputs\apk\debug\app-debug.apk`
+  - Son rebuild bu gece alindi ve emulatore yeniden kuruldu.
+- Not:
+  - Emulatorde temiz kurulumdan sonra splash/app acilisi geldi; ilk kurulum kontrolunde yakalanan JS syntax blocker fixlenip rebuild edildi.
+
+## 2026-06-22 - Emulator ve Preview Smoke Toparlama
+
+- Klasor: `OTOTR-FRANCHISE-MASTER`
+- Hedef:
+  - Android emulator temiz kurulumunu toparlamak
+  - Mobil uygulamanin local Supabase ile tekrar canli oturum acabildigini dogrulamak
+  - Mobil preview ve dealer portal preview adreslerini yeniden ayaga kaldirmak
+
+- Yapilanlar:
+  - Android SDK emulator yolu ile `OTOTR_Pixel_Android35` yeniden acildi.
+  - `com.ototr.terminal` paketi emulator'den kaldirildi ve debug APK temiz kuruldu.
+  - Docker Desktop kapali oldugu icin local Supabase ilk denemede ulasilamaz durumdaydi; Docker yeniden baslatildi.
+  - `npx.cmd supabase status --output json` ile local Supabase tekrar dogrulandi.
+  - Emulator WebView remote debugging socket'i (`webview_devtools_remote_*`) uzerinden canli route/DOM smoke alindi.
+  - Mobil preview server `http://127.0.0.1:5178`
+  - Dealer preview server `http://127.0.0.1:8787/bayi-portal/index.html?portal=dealer#dealer`
+
+- Dogrulama:
+  - `adb uninstall com.ototr.terminal`: gecti.
+  - `adb install app-debug.apk`: gecti.
+  - `adb shell cmd package resolve-activity --brief com.ototr.terminal`: `com.ototr.terminal/.MainActivity`
+  - `docker version`: Docker Desktop baslatildiktan sonra gecti.
+  - `npx.cmd supabase status --output json`: gecti.
+  - `Invoke-WebRequest http://127.0.0.1:55321/rest/v1/`: `200`
+  - Emulator canli WebView smoke:
+    - `#home`: alt nav var, home icerigi var
+    - `#jobs`: alt nav var, islerim icerigi var
+    - `#job-detail`: alt nav var, is emri detayi icerigi var
+    - `#tests`: alt nav var, gorev modulleri/test icerigi var
+  - Browser preview smoke:
+    - `http://127.0.0.1:5178/#login`: aciliyor, login component render oluyor
+    - auth olmadan `#home` / `#jobs`: dogru sekilde `#login`e donuyor
+
+- Kanit dosyalari:
+  - `docs/codex/live-go-live-e2e/emulator-live-home.png`
+  - `docs/codex/live-go-live-e2e/emulator-live-jobs.png`
+  - `docs/codex/live-go-live-e2e/emulator-live-job-detail.png`
+  - `docs/codex/live-go-live-e2e/emulator-live-tests.png`
+  - `docs/codex/live-go-live-e2e/emulator-live-webview-login.png`
+  - `docs/codex/live-go-live-e2e/mobile-route-login.png`
+  - `docs/codex/live-go-live-e2e/mobile-route-home.png`
+  - `docs/codex/live-go-live-e2e/mobile-route-jobs.png`
+  - `docs/codex/live-go-live-e2e/portal-manual-smoke-8787.png`
+  - `docs/codex/live-go-live-e2e/dealer-live-portal-8787.png`
+
+- Acik blocker:
+  - `8787` dealer preview aciliyor ancak bu preview uzerinde son local live work order (`OTOTR-20260620-0009 / 16 CAN 245`) gorunmedi; local auth/session veya live hydrate akisina ayri smoke gerekiyor.
+  - Kullaniciya gorunmeyen bazi ic metinlerde hala `Teknik onay` terminolojisi kalintisi var; sade dil temizligi suruyor.
+
+## 2026-06-22 - Dealer portal hydrate/auth smoke, gorunur kanit, dil temizligi, signed release
+
+- Yapilanlar:
+  - Root seviyesinde `npm.cmd run config:supabase:local` ile mobil + bayi portali runtime config tekrar local profile alindi.
+  - Dealer portal local preview yeni origin uzerinden acildi: `http://127.0.0.1:8791/bayi-portal/index.html?portal=dealer#dealer`
+  - `tools/local-dealer-auto-sync-smoke.mjs` iki kez calistirildi; portal canli oturum acisi, usta cevabi geldikten sonra manuel yenileme olmadan hydrate oldugu dogrulandi.
+  - `apps/admin/prototype/bayi-portal/assets/dealer-final-report-status.js` icinde final rapor statuleri sade Turkce akis diline cekildi.
+  - `ototr-mobile-app/src/screens/phase2-screens.js` ve `src/services/technicalApprovalGateService.js` icinde kullaniciya gorunen teknik onay dili sade tamamlanma diline indirildi.
+  - Android release signing icin `ototr-mobile-app/android/app/build.gradle` signing config ile guncellendi.
+  - Yeni release keystore olusturuldu:
+    - `ototr-mobile-app/android/app/ototr-release.jks`
+    - `ototr-mobile-app/android/keystore.properties`
+  - Production runtime config ile `npm.cmd run android:build:release` basarili calisti.
+  - Build sonrasinda kaynak agaci tekrar local runtime config'e geri alindi.
+
+- Dogrulama:
+  - Dealer portal live hydrate/auth smoke: gecti.
+  - Portal gorunur son is emri kaniti:
+    - `OTOTR-20260622-0001 / 16 ASY 511`
+    - `OTOTR-20260622-0002 / 16 ASY 156`
+  - `npm.cmd run build` (`ototr-mobile-app`): gecti.
+  - `npm.cmd run release:preflight` production zinciri icinde: gecti.
+  - `npm.cmd run android:build:release`: gecti.
+  - `apksigner verify --print-certs app-release.apk`: gecti.
+
+- Kanit dosyalari:
+  - `docs/codex/e2e-live-flow/dealer-auto-sync-smoke.png`
+  - Signed release APK:
+    - `ototr-mobile-app/android/app/build/outputs/apk/release/app-release.apk`
+
+- APK bilgisi:
+  - Yol: `C:\Users\Samivolkannnn\Documents\OTOTR_HAZİRAN\OTOTR-FRANCHISE-MASTER\ototr-mobile-app\android\app\build\outputs\apk\release\app-release.apk`
+  - Boyut: `62,206,863` byte
+  - Zaman: `2026-06-22 12:07:20`
+  - Imza DN: `CN=OTOTR, OU=Mobile, O=OTOTR, L=Bursa, ST=Bursa, C=TR`
+
+## 2026-06-25 - Bayii Portal Performans Komuta Merkezi entegrasyonu
+
+- Yapilanlar:
+  - `apps/admin/prototype/bayi-portal/index.html` icindeki `Performans` menusu bos ekran yerine portal kabugu icindeki performans sayfasini acar hale getirildi.
+  - Performans Komuta Merkezi yalnizca `Kucuk Sanayi` sube kapsami icin gosterildi; ana CRM sistemine veri yazma/karistirma akisi eklenmedi.
+  - Paket satis, Google yorum, musteri sikayeti, sosyal medya, arac sayisi ve bayi saglik endeksi kartlari eklendi.
+  - Sikayet KPI'i ters yonlu KPI olarak limit kullanimi, kalan tolerans, acik kayit, cozum suresi ve SLA uyumu ile gosterildi.
+  - Kumulatif hedef/tahmin/güven araligi, bullet chart, radar, waterfall, musteri deneyimi kontrol grafigi, aksiyon merkezi ve yonetici icgoru ozeti eklendi.
+
+- Dogrulama:
+  - `node tools\test-index.mjs`: gecti.
+  - `http://127.0.0.1:8787/bayi-portal/index.html` uzerinde Playwright smoke: `Performans` menusu acildi, 6 KPI karti ve ana grafikler render oldu.
+  - Viewport kontrolleri: 1920, 1200 ve 390 px mobil genislikte console error/warning yok, yatay tasma `0`.
+
+- Kanit dosyasi:
+  - `C:\Users\Samivolkannnn\Documents\performance-page-check.png`

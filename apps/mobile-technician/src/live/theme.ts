@@ -4,7 +4,10 @@ export const liveColors = {
   panel: '#FFFFFF',
   panel2: '#F7FAFF',
   line: '#E4E7EC',
+  surface: '#FFFFFF',
   text: '#101828',
+  textPrimary: '#101828',
+  textSecondary: '#667085',
   muted: '#667085',
   red: '#E31B36',
   redSoft: '#FFECEF',
@@ -25,6 +28,21 @@ export const liveColors = {
   navy: '#061B33',
   navy2: '#0B2A4A',
   navy3: '#102A48',
+};
+
+export const liveSemanticColors = {
+  background: '#F7F8FA',
+  surface: '#FFFFFF',
+  textPrimary: '#101828',
+  textSecondary: '#667085',
+  border: '#EAECF0',
+  brandPrimary: '#E30613',
+  success: '#12B76A',
+  successSoft: '#ECFDF3',
+  error: '#F04438',
+  errorSoft: '#FFF7F8',
+  info: '#2E90FA',
+  infoSoft: '#EFF8FF',
 };
 
 export const lightReportColors = {

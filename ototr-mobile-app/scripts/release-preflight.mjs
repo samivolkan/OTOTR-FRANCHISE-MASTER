@@ -50,6 +50,16 @@ const requiredAndroidPatterns = [
   }
 ];
 
+function extractRuntimeConfig(content) {
+  const match = content.match(/globalThis\.OTOTR_SUPABASE_CONFIG\s*=\s*(\{[\s\S]*?\})\s*;/);
+  if (!match) return null;
+  try {
+    return JSON.parse(match[1]);
+  } catch {
+    return null;
+  }
+}
+
 async function listFiles(root) {
   const files = [];
   async function walk(dir) {
@@ -87,6 +97,33 @@ if (profile === "production") {
       }
     }
   }
+
+  const runtimeConfigPath = resolve(appRoot, "src", "config", "supabaseRuntimeConfig.js");
+  const runtimeConfigContent = await readFile(runtimeConfigPath, "utf8").catch(() => "");
+  const runtimeConfig = extractRuntimeConfig(runtimeConfigContent);
+  const shouldSkipLiveCheck = ["1", "true", "yes", "on"].includes(
+    String(process.env.OTOTR_RELEASE_PREFLIGHT_SKIP_SUPABASE_LIVE_CHECK || "").toLowerCase()
+  );
+
+  if (!runtimeConfig?.url || !runtimeConfig?.publishableKey) {
+    failures.push("src/config/supabaseRuntimeConfig.js: production Supabase runtime config eksik");
+  } else if (!shouldSkipLiveCheck) {
+    try {
+      const baseUrl = runtimeConfig.url.replace(/\/$/, "");
+      const response = await fetch(`${baseUrl}/auth/v1/settings`, {
+        headers: {
+          apikey: runtimeConfig.publishableKey
+        }
+      });
+      if (response.status === 401 || response.status === 403) {
+        const body = await response.text().catch(() => "");
+        const reason = body.includes("Invalid API key") ? "gecersiz Supabase API key" : `Supabase HTTP ${response.status}`;
+        failures.push(`src/config/supabaseRuntimeConfig.js: ${reason}`);
+      }
+    } catch (error) {
+      failures.push(`src/config/supabaseRuntimeConfig.js: Supabase canlı key kontrolü yapılamadı (${error.message})`);
+    }
+  }
 }
 
 for (const check of requiredAndroidPatterns) {
@@ -100,7 +137,7 @@ for (const check of requiredAndroidPatterns) {
 if (failures.length) {
   console.error(`Release preflight failed (${profile}):`);
   for (const failure of failures) console.error(`- ${failure}`);
-  process.exit(1);
+  process.exitCode = 1;
+} else {
+  console.log(`Release preflight passed (${profile}).`);
 }
-
-console.log(`Release preflight passed (${profile}).`);

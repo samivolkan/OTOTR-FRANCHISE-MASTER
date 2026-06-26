@@ -2,6 +2,7 @@ import { supabaseRequest } from "./supabaseHttpClient.js";
 import {
   getCanonicalInspectionPackageCode,
   getInspectionPackageModuleIds,
+  getInspectionPackageModuleIdsFromIncludedModules,
   getInspectionPackageTaskKeys
 } from "./inspectionPackageCatalog.js";
 import {
@@ -9,9 +10,54 @@ import {
   normalizeSupabaseUrl,
   refreshSupabaseAccessToken
 } from "./supabaseSessionService.js";
+import { OTOTR_EXPERTISE_TEST_MODULES } from "../data/ototrExpertiseTestModules.js";
 
 const liveWorkOrdersStorageKey = "ototrLiveWorkOrders";
+const legacyLiveWorkOrdersStorageKey = "ototr-dealer-live-workorders-v1";
 const liveWorkOrdersSyncKey = "ototrLiveWorkOrdersLastSync";
+const completedRemoteStatuses = new Set(["SUBMITTED", "REPORT_GATE_READY", "MANAGER_REVIEW", "TECHNICAL_REVIEW", "APPROVED", "COMPLETED", "DELIVERED"]);
+const startedMobileStatuses = new Set(["in_progress", "test_missing", "returned_for_correction", "completed", "technical_review"]);
+const technicalDoneStatuses = new Set(["SUBMITTED", "REPORT_GATE_READY", "MANAGER_REVIEW", "TECHNICAL_REVIEW", "APPROVED", "COMPLETED", "DELIVERED"]);
+const fastRequiredFields = Object.freeze(["customer", "phone", "plate", "vin", "engine_no", "vehicle_make", "vehicle_model", "model_year", "package_type"]);
+const fullExtraRequiredFields = Object.freeze([
+  "customer",
+  "phone",
+  "tax_no",
+  "customer_type",
+  "contact_permission",
+  "spare_key",
+  "seller",
+  "seller_phone",
+  "seller_tax_no",
+  "seller_type",
+  "seller_contact_permission",
+  "engine_no",
+  "vehicle_variant",
+  "fuel",
+  "transmission",
+  "report_channels",
+  "vehicle_source",
+  "arrival_channel",
+  "test_drive_permission",
+  "arrival_status",
+  "key_delivery",
+  "registration_delivery",
+  "belongings_status",
+  "customer_waiting",
+  "vehicle_dropped",
+  "consent_kvkk",
+  "service_terms_consent",
+  "media_consent",
+  "digital_report_consent"
+]);
+const moduleItemCounts = Object.freeze(
+  Object.fromEntries(
+    OTOTR_EXPERTISE_TEST_MODULES.map((module) => [
+      module.moduleId || module.key,
+      Number(module.itemCount || module.items?.length || 0)
+    ])
+  )
+);
 
 export function toMobileWorkOrderStatus(remoteStatus = "") {
   const status = String(remoteStatus || "").toUpperCase();
@@ -38,15 +84,105 @@ function imageKeyFromBrand(brand = "") {
   return "bmw";
 }
 
-function mapLiveWorkOrder(row = {}) {
+function expectedPackageItemCount(packageCode = "") {
+  return getInspectionPackageModuleIds(packageCode)
+    .reduce((sum, moduleId) => sum + Number(moduleItemCounts[moduleId] || 0), 0);
+}
+
+function digitsOnly(value = "") {
+  return String(value || "").replace(/\D+/g, "");
+}
+
+function normalizeValue(value = "") {
+  return String(value || "").trim();
+}
+
+function hasMeaningfulValue(value = "") {
+  return normalizeValue(value).length > 0;
+}
+
+function isSignedConsent(value = "") {
+  const normalized = normalizeValue(value).toLocaleLowerCase("tr-TR");
+  return normalized === "imzalandi" || normalized === "imzalandi";
+}
+
+function isValidPhone(value = "") {
+  return digitsOnly(value).slice(-10).length === 10;
+}
+
+function isValidTaxNo(value = "") {
+  return digitsOnly(value).length === 11;
+}
+
+function isValidVin(value = "") {
+  return normalizeValue(value).replace(/\s+/g, "").length >= 17;
+}
+
+function isValidEngineNo(value = "") {
+  const normalized = normalizeValue(value).replace(/\s+/g, "");
+  return normalized.length >= 6 && normalized.length <= 17;
+}
+
+function isFieldComplete(row = {}, fieldName = "") {
+  const value = row?.[fieldName];
+  if (!hasMeaningfulValue(value)) return false;
+  if (["phone", "seller_phone", "vehicle_owner_phone", "bringer_phone", "payer_phone", "report_recipient_phone"].includes(fieldName)) {
+    return isValidPhone(value);
+  }
+  if (["tax_no", "seller_tax_no"].includes(fieldName)) return isValidTaxNo(value);
+  if (fieldName === "vin") return isValidVin(value);
+  if (fieldName === "engine_no") return isValidEngineNo(value);
+  if (["consent_kvkk", "service_terms_consent", "media_consent", "digital_report_consent", "third_party_share_consent"].includes(fieldName)) {
+    return isSignedConsent(value);
+  }
+  if (fieldName === "report_channels") return hasMeaningfulValue(value);
+  return true;
+}
+
+function expectedInfoFields(row = {}, packageCode = "") {
+  const fields = [...fastRequiredFields];
+  if (packageCode === "FULL" || packageCode === "PREMIUM") fields.push(...fullExtraRequiredFields);
+  if (normalizeValue(row?.test_drive_permission).toLocaleLowerCase("tr-TR") === "hayir") fields.push("test_drive_rejection_reason");
+  if (normalizeValue(row?.vehicle_source) === "Galeri") fields.push("gallery_name");
+  if (normalizeValue(row?.vehicle_source) === "Referans") fields.push("referrer_name");
+  return [...new Set(fields)];
+}
+
+function liveProgressForCase(row = {}, packageCode = "", progressByCase = {}) {
+  const caseId = row.id || "";
+  const status = toMobileWorkOrderStatus(row.status);
+  const progress = progressByCase[caseId] || {};
+  const tasks = Array.isArray(progress.tasks) ? progress.tasks : [];
+  const technicalTotal = Math.max(tasks.length, getInspectionPackageTaskKeys(packageCode).length, 1);
+  const technicalDone = tasks.filter((task) => technicalDoneStatuses.has(String(task.status || "").toUpperCase())).length;
+  const infoFields = expectedInfoFields(row, packageCode);
+  const infoDone = infoFields.filter((fieldName) => isFieldComplete(row, fieldName)).length;
+  const totalItems = Math.max(technicalTotal + infoFields.length, 1);
+  let completedItems = technicalDone + infoDone;
+
+  if (status === "completed") completedItems = totalItems;
+
+  const safeCompleted = Math.min(totalItems, Math.max(0, completedItems));
+  return {
+    progress: Math.round((safeCompleted / totalItems) * 100),
+    completedItems: safeCompleted,
+    totalItems,
+    photoCount: Number(progress.photoCount || 0),
+    missingCount: status === "test_missing" ? Math.max(1, Number(progress.missingCount || 0)) : Number(progress.missingCount || 0),
+    technicalDone,
+    technicalTotal,
+    infoDone,
+    infoTotal: infoFields.length
+  };
+}
+
+function mapLiveWorkOrder(row = {}, progressByCase = {}) {
   const vehicle = row.vehicles || {};
   const packagePlan = row.package_plans || {};
   const packageCode = getCanonicalInspectionPackageCode(packagePlan.code || packagePlan.name || row.package_type || "");
-  const packageModuleIds = getInspectionPackageModuleIds(packageCode);
+  const packageModuleIds = getInspectionPackageModuleIdsFromIncludedModules(packagePlan.included_modules, packageCode);
   const status = toMobileWorkOrderStatus(row.status);
-  const progress = status === "completed" ? 100 : status === "in_progress" ? 35 : 0;
-  const totalItems = 60;
-  const completedItems = Math.max(0, Math.min(totalItems, Math.round((progress / 100) * totalItems)));
+  const liveProgress = liveProgressForCase(row, packageCode, progressByCase);
 
   return {
     id: row.id || row.work_order_no,
@@ -64,11 +200,11 @@ function mapLiveWorkOrder(row = {}) {
     km: formatKm(vehicle.mileage_km),
     vin: vehicle.vin || "",
     status,
-    progress,
-    completedItems,
-    totalItems,
-    missingCount: status === "test_missing" ? 1 : 0,
-    photoCount: 0,
+    progress: liveProgress.progress,
+    completedItems: liveProgress.completedItems,
+    totalItems: liveProgress.totalItems,
+    missingCount: liveProgress.missingCount,
+    photoCount: liveProgress.photoCount,
     branchName: localStorage.getItem("ototrBranchName") || "Seçili Şube",
     assignedTechnician: localStorage.getItem("ototrUser") || "Ahmet Usta",
     plannedTime: packagePlan.duration_minutes ? `${packagePlan.duration_minutes} dk` : "45 dk",
@@ -76,14 +212,72 @@ function mapLiveWorkOrder(row = {}) {
     customerVisibleName: "Müşteri",
     returnReason: status === "test_missing" ? "Düzeltme veya kanıt kontrolü gerekli" : null,
     image: imageKeyFromBrand(vehicle.brand),
-    source: "supabase"
+    source: "supabase",
+    progressSource: "supabase-live",
+    technicalDone: liveProgress.technicalDone,
+    technicalTotal: liveProgress.technicalTotal,
+    infoDone: liveProgress.infoDone,
+    infoTotal: liveProgress.infoTotal
   };
+}
+
+function groupRowsByCase(rows = []) {
+  return rows.reduce((map, row) => {
+    const caseId = row?.expertise_case_id;
+    if (!caseId) return map;
+    if (!map[caseId]) map[caseId] = [];
+    map[caseId].push(row);
+    return map;
+  }, {});
+}
+
+function buildInFilter(ids = []) {
+  return ids.map((id) => encodeURIComponent(id)).join(",");
+}
+
+async function fetchLiveInspectionProgress(url, config, accessToken, caseIds = []) {
+  if (!caseIds.length) return {};
+  const idFilter = buildInFilter(caseIds);
+  const headers = {
+    apikey: config.anonKey,
+    Authorization: `Bearer ${accessToken}`,
+    "Content-Type": "application/json"
+  };
+  const [taskResponse, valueResponse, evidenceResponse] = await Promise.all([
+    supabaseRequest(`${url}/rest/v1/inspection_tasks?select=id,expertise_case_id,status,task_key&expertise_case_id=in.(${idFilter})`, { headers }),
+    supabaseRequest(`${url}/rest/v1/inspection_item_values?select=id,expertise_case_id,item_key,task_id,result,updated_at&expertise_case_id=in.(${idFilter})`, { headers }),
+    supabaseRequest(`${url}/rest/v1/inspection_evidence_assets?select=id,expertise_case_id,sync_status,remote_url,is_required&expertise_case_id=in.(${idFilter})`, { headers })
+  ]);
+
+  if (!taskResponse.ok || !valueResponse.ok || !evidenceResponse.ok) return {};
+
+  const tasks = await taskResponse.json().catch(() => []);
+  const values = await valueResponse.json().catch(() => []);
+  const evidence = await evidenceResponse.json().catch(() => []);
+  const valuesByCase = groupRowsByCase(Array.isArray(values) ? values : []);
+  const evidenceByCase = groupRowsByCase(Array.isArray(evidence) ? evidence : []);
+  const tasksByCase = groupRowsByCase(Array.isArray(tasks) ? tasks : []);
+
+  return caseIds.reduce((map, caseId) => {
+    const answeredItems = new Set((valuesByCase[caseId] || []).map((value) => value.item_key || value.id).filter(Boolean));
+    const caseEvidence = evidenceByCase[caseId] || [];
+    const caseTasks = tasksByCase[caseId] || [];
+    map[caseId] = {
+      completedItems: answeredItems.size,
+      totalItems: answeredItems.size,
+      tasks: caseTasks,
+      photoCount: caseEvidence.filter((item) => item.remote_url || String(item.sync_status || "").toUpperCase() === "UPLOADED").length,
+      missingCount: caseTasks.filter((task) => ["RETURNED", "MANAGER_RETURNED", "EVIDENCE_MISSING"].includes(String(task.status || "").toUpperCase())).length
+    };
+    return map;
+  }, {});
 }
 
 function readCachedWorkOrders() {
   try {
-    const rows = JSON.parse(localStorage.getItem(liveWorkOrdersStorageKey) || "[]");
-    return Array.isArray(rows) ? rows : [];
+    const rows = parseLiveWorkOrdersFromStorage(localStorage.getItem(liveWorkOrdersStorageKey));
+    const legacyRows = parseLegacyDealerPayload(localStorage.getItem(legacyLiveWorkOrdersStorageKey));
+    return mergeWorkOrderRows(legacyRows, rows);
   } catch {
     return [];
   }
@@ -91,7 +285,39 @@ function readCachedWorkOrders() {
 
 function writeCachedWorkOrders(rows = []) {
   localStorage.setItem(liveWorkOrdersStorageKey, JSON.stringify(rows));
+  localStorage.setItem(legacyLiveWorkOrdersStorageKey, JSON.stringify({
+    updatedAt: new Date().toISOString(),
+    workOrders: rows
+  }));
   localStorage.setItem(liveWorkOrdersSyncKey, new Date().toISOString());
+}
+
+function parseLiveWorkOrdersFromStorage(rawValue) {
+  const rows = JSON.parse(rawValue || "[]");
+  return Array.isArray(rows) ? rows : [];
+}
+
+function parseLegacyDealerPayload(rawValue) {
+  if (!rawValue) return [];
+  const parsed = JSON.parse(rawValue);
+  if (!parsed) return [];
+  if (Array.isArray(parsed)) return parsed;
+  if (Array.isArray(parsed.workOrders)) return parsed.workOrders;
+  return [];
+}
+
+function getWorkOrderId(row = {}) {
+  return String(row?.expertiseCaseId || row?.id || row?.workOrderNo || row?.code || "");
+}
+
+function mergeWorkOrderRows(first = [], second = []) {
+  const byId = new Map();
+  [...first, ...second].forEach((row) => {
+    const key = getWorkOrderId(row);
+    if (!key) return;
+    byId.set(key, { ...byId.get(key), ...row });
+  });
+  return Array.from(byId.values());
 }
 
 export function getCachedLiveWorkOrders() {
@@ -139,7 +365,7 @@ export async function syncLiveWorkOrders() {
   const session = await refreshSupabaseAccessToken().catch(() => null);
   let accessToken = session?.ok ? session.accessToken : config.accessToken;
   const query = [
-    "select=id,work_order_no,status,created_at,vehicles(plate,vin,brand,model,model_year,mileage_km),package_plans(code,name,duration_minutes,included_modules)",
+    "select=*,vehicles(plate,vin,brand,model,model_year,mileage_km),package_plans(code,name,duration_minutes,included_modules)",
     "order=created_at.desc",
     "limit=20"
   ].join("&");
@@ -174,7 +400,9 @@ export async function syncLiveWorkOrders() {
   const businessRows = Array.isArray(rows)
     ? rows.filter((row) => !String(row.work_order_no || "").startsWith("RLS-"))
     : [];
-  const mapped = businessRows.map(mapLiveWorkOrder);
+  const caseIds = businessRows.map((row) => row.id).filter(Boolean);
+  const progressByCase = await fetchLiveInspectionProgress(url, config, accessToken, caseIds).catch(() => ({}));
+  const mapped = businessRows.map((row) => mapLiveWorkOrder(row, progressByCase));
   writeCachedWorkOrders(mapped);
   return { ok: true, status: "synced", rows: mapped };
 }

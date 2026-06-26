@@ -1,4 +1,4 @@
-const CACHE_NAME = "ototr-terminal-v107-local-api-pass-through";
+const CACHE_NAME = "ototr-terminal-v110-auth-clean-start";
 
 // Keep install lightweight in Android WebView; large PNG screens are cached on first request.
 const SHELL_ASSETS = [

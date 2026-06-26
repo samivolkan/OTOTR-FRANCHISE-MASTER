@@ -14,13 +14,27 @@ export const mockLiveOrders: LiveWorkOrder[] = [
       plate: '34 OTR 360',
       vin: 'WBA***********694',
       brand: 'BMW',
-      model: '320i M Sport',
+      model: 'BMW 3 Serisi',
       year: '2023',
       fuel: 'Benzin',
       transmission: 'Otomatik',
       mileage: '89.500 km',
     },
     gates: { managerApproved: false, secretaryReady: true, paymentReady: true, kvkkReady: true },
+    acceptance: {
+      historyStatus: 'WARNING',
+      historyText: 'AynÄ± ÅŸasi iÃ§in Ã¶nceki ekspertiz kaydÄ± bulundu.',
+      alerts: [
+        {
+          severity: 'WARNING',
+          title: 'AraÃ§ geÃ§miÅŸi uyarÄ±sÄ±',
+          body: '3 ay Ã¶nce farklÄ± bayide boya/deÄŸiÅŸen kaydÄ± aÃ§Ä±lmÄ±ÅŸ.',
+          source: 'OTOTR_NETWORK',
+        },
+      ],
+      crmMatch: 'MATCHED',
+      consentStatus: 'Dijital onay alÄ±ndÄ±',
+    },
     evidence: [
       { id: 'F-001', caseId: 'demo-case-842', taskId: 'task-body', title: 'Ön genel görünüm', url: '', required: true, qualityStatus: 'OK' },
       { id: 'F-002', caseId: 'demo-case-842', taskId: 'task-obd', title: 'OBD ekranı', url: '', required: true, qualityStatus: 'OK' },
@@ -44,7 +58,7 @@ export const mockLiveOrders: LiveWorkOrder[] = [
         id: 'task-body',
         caseId: 'demo-case-842',
         key: 'body_paint',
-        title: 'Kaporta / Boya 59 Nokta',
+        title: 'Araç Alt Kısım Hasar Kontrolü',
         role: 'Kaporta Ustası',
         status: 'IN_PROGRESS',
         reportFieldKey: 'task_results.body_paint',
@@ -57,7 +71,7 @@ export const mockLiveOrders: LiveWorkOrder[] = [
         id: 'task-engine',
         caseId: 'demo-case-842',
         key: 'engine_checkup',
-        title: 'Motor Üst Mekanik',
+        title: 'Motor Muhafaza',
         role: 'Mekanik Usta',
         status: 'COMPLETED',
         reportFieldKey: 'task_results.engine_checkup',
@@ -95,3 +109,4 @@ export const mockLiveOrders: LiveWorkOrder[] = [
     ],
   },
 ];
+

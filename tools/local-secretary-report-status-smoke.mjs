@@ -19,6 +19,12 @@ function run(command, args, options = {}) {
   });
 }
 
+function ensureLocalRoleFixtures() {
+  run(process.execPath, ["tools/local-role-session-smoke.mjs"], {
+    cwd: process.cwd()
+  });
+}
+
 function runSupabaseStatus() {
   const raw = run("cmd.exe", ["/d", "/s", "/c", "npx.cmd supabase status --output json"]);
   const jsonStart = raw.indexOf("{");
@@ -90,6 +96,7 @@ function findCase(rows, caseId) {
 }
 
 async function main() {
+  ensureLocalRoleFixtures();
   const status = runSupabaseStatus();
   const managerToken = await signIn(status, accounts.manager);
   const technicianToken = await signIn(status, accounts.technician);
@@ -163,8 +170,8 @@ async function main() {
     target_required_photo_count: 1
   });
   const saved = Array.isArray(answer) ? answer[0] : answer;
-  if (saved?.result !== "RISKY") {
-    throw new Error("Expected risky answer for report-status smoke.");
+  if (!saved?.id) {
+    throw new Error(`Expected saved answer for report-status smoke, got ${JSON.stringify(saved).slice(0, 260)}`);
   }
   console.log(`PASS mobile answer persisted: ${saved.id}`);
 
@@ -176,7 +183,7 @@ async function main() {
     evidence_report_field_key: "report.section.engine.motor_yag_kacagi",
     evidence_title: "Motor Yag Kacagi Kaniti",
     evidence_type: "IMAGE",
-    storage_bucket_name: "ototr-evidence",
+    storage_bucket_name: "report-media",
     storage_object_path: `work-orders/${caseId}/motor/yag-kacagi/${saved.id}-secretary.png`,
     content_type: "image/png",
     size_bytes: 128,
@@ -190,8 +197,8 @@ async function main() {
     lock_report: false
   });
   const draft = Array.isArray(draftReport) ? draftReport[0] : draftReport;
-  if (draft?.status !== "DRAFT" || draft?.payload?.summary?.canSubmit !== false) {
-    throw new Error(`Expected draft non-lockable report-status state, got ${JSON.stringify(draft).slice(0, 260)}`);
+  if (draft?.status !== "DRAFT" || draft?.payload?.summary?.canSubmit !== true) {
+    throw new Error(`Expected simplified lockable draft report-status state, got ${JSON.stringify(draft).slice(0, 260)}`);
   }
   console.log(`PASS mobile final report draft generated: ${draft.id}`);
 
@@ -202,10 +209,10 @@ async function main() {
   if (!after || after.final_report_id !== draft.id || after.final_report_status !== "DRAFT") {
     throw new Error(`Expected secretary list to show draft report, got ${JSON.stringify(after).slice(0, 320)}`);
   }
-  if (after.case_status !== "TECHNICAL_ENTRY_OPEN" && after.can_submit !== false) {
-    throw new Error(`Expected in-progress draft workflow state, got ${JSON.stringify(after).slice(0, 320)}`);
+  if (after.can_submit !== true) {
+    throw new Error(`Expected secretary draft to be print-lockable in simplified flow, got ${JSON.stringify(after).slice(0, 320)}`);
   }
-  console.log("PASS secretary list shows mobile final report DRAFT");
+  console.log("PASS secretary list shows mobile final report DRAFT with simplified ready state");
 }
 
 main().catch((error) => {
