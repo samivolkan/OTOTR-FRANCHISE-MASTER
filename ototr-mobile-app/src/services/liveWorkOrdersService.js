@@ -74,6 +74,76 @@ function formatKm(value) {
   return `${new Intl.NumberFormat("tr-TR").format(numeric)} km`;
 }
 
+function parseVehicleTextForLegacy(rawVehicle = "") {
+  const text = String(rawVehicle || "").trim();
+  if (!text) return {};
+  const parts = text.split(/\s+/).filter(Boolean);
+  const year = parts.find((part) => /^\d{4}$/.test(part)) || "";
+  const yearIndex = year ? parts.indexOf(year) : -1;
+  const beforeYear = yearIndex > 0 ? parts.slice(0, yearIndex).join(" ") : parts.join(" ");
+  const afterYear = yearIndex >= 0 ? parts.slice(yearIndex + 1).join(" ") : "";
+  const [brandFromText, ...rest] = beforeYear.split(" ");
+  const modelFromText = rest.join(" ").trim() || afterYear.trim();
+
+  return {
+    brand: (brandFromText || "").trim(),
+    model: modelFromText,
+    year: year || "",
+    brandModel: text
+  };
+}
+
+function parseLegacyWorkOrderRow(rawRow = {}) {
+  const row = typeof rawRow === "object" && rawRow !== null ? rawRow : {};
+  const rawStatus = row.status || row.liveStatus || row.finalReportStatus || row.workflow_status || "";
+  const mappedStatus = toMobileWorkOrderStatus(rawStatus);
+  const workOrderNo = row.workOrderNo || row.work_order_no || row.code || row.id || "";
+  const vehicle = parseVehicleTextForLegacy(row.vehicle || row.vehicleText || row.vehicle_info);
+  const plate = String(row.plate || row.plaka || "").trim() || "PLAKA YOK";
+  const brand = String(row.brand || vehicle.brand || "").trim();
+  const model = String(row.model || vehicle.model || "").trim();
+  const year = String(row.year || row.yıl || vehicle.year || "").trim();
+  const brandModel = row.brandModel || row.vehicle || `${brand} ${model}`.trim();
+  const packageName = String(row.packageName || row.package || row.paket || row.package_type || "Ekspertiz").trim();
+  const packageCode = getCanonicalInspectionPackageCode(row.packageCode || row.package_code || packageName);
+  const progressRaw = Number.parseInt(row.progress, 10);
+
+  return {
+    ...row,
+    id: row.id || workOrderNo,
+    expertiseCaseId: row.expertiseCaseId || row.supabaseId || workOrderNo,
+    workOrderNo,
+    plate,
+    brand,
+    model,
+    brandModel: brandModel || `${brand || "Araç"} ${model || ""}`.trim(),
+    year,
+    packageName,
+    packageCode,
+    packageModuleIds: getInspectionPackageModuleIdsFromIncludedModules(row.package_modules, packageCode),
+    packageTaskKeys: getInspectionPackageTaskKeys(packageCode),
+    km: formatKm(row.km || row.kilometre || row.mileage || row.mileage_km),
+    vin: String(row.vin || row.vin_no || row.chasis || row.chassis || "").trim(),
+    status: mappedStatus || "waiting_start_proof",
+    progress: Number.isFinite(progressRaw) ? Math.min(100, Math.max(0, progressRaw)) : mappedStatus === "completed" ? 100 : 0,
+    completedItems: Number.parseInt(row.completedItems || row.completed_items, 10) || 0,
+    totalItems: Number.parseInt(row.totalItems || row.total_items, 10) || 60,
+    missingCount: Number(row.missingCount || row.missing_count || 0) || (mappedStatus === "test_missing" ? 1 : 0),
+    photoCount: Number(row.photoCount || row.photo_count || 0) || 0,
+    branchName: String(row.branchName || row.branch || row.bayi || "Seçili Şube").trim(),
+    assignedTechnician: String(row.assignedTechnician || row.technician || localStorage.getItem("ototrUser") || "Ahmet Usta").trim(),
+    plannedTime: row.plannedTime || row.planned_time || "45 dk",
+    createdAt: row.createdAt || row.created_at || new Date().toISOString(),
+    customerVisibleName: String(
+      row.customerVisibleName || row.customer || row.müşteri || row.customer_name || row.buyer || row.owner || "Müşteri"
+    ).trim(),
+    returnReason: row.returnReason || row.return_reason || null,
+    image: imageKeyFromBrand(brand),
+    source: "legacy-dealer-portal",
+    sourcePayload: row
+  };
+}
+
 function imageKeyFromBrand(brand = "") {
   const normalized = String(brand).toLowerCase();
   if (normalized.includes("volkswagen")) return "passat";
@@ -302,7 +372,8 @@ function parseLegacyDealerPayload(rawValue) {
   const parsed = JSON.parse(rawValue);
   if (!parsed) return [];
   if (Array.isArray(parsed)) return parsed;
-  if (Array.isArray(parsed.workOrders)) return parsed.workOrders;
+  const legacyRows = parsed.workOrders || parsed.orders;
+  if (Array.isArray(legacyRows)) return legacyRows.map((row) => parseLegacyWorkOrderRow(row));
   return [];
 }
 
