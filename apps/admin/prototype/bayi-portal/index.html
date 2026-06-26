@@ -1341,6 +1341,72 @@ function makeSpark(item){
   const points=values.map((value,index)=>`${8+index*18},${42-(value/max)*34}`).join(' ');
   return `<svg class="spark" viewBox="0 0 176 48" aria-hidden="true"><polyline points="${points}" stroke="${item.color}"></polyline></svg>`;
 }
+function commerceMetricValue(item){
+  if(item.unit==='TL')return `₺${performanceNumber(item.value)}`;
+  return performanceNumber(item.value);
+}
+function commerceSpark(item){
+  const values=item.series.slice(-10);
+  const max=Math.max(...values,1);
+  const points=values.map((value,index)=>`${8+index*18},${36-(value/max)*30}`).join(' ');
+  return `<svg class="commerce-spark" viewBox="0 0 176 42" aria-hidden="true"><polyline points="${points}" stroke="${item.color}"></polyline></svg>`;
+}
+function renderCommerceKpis(targetId,keys){
+  const target=document.getElementById(targetId);
+  if(!target)return;
+  const source=keys.map(key=>commercePerformance[key]).filter(Boolean);
+  target.innerHTML=source.map(item=>`
+    <article class="commerce-kpi-card">
+      <span class="commerce-kpi-icon" style="background:${item.soft};color:${item.color}">${item.icon}</span>
+      <div class="commerce-kpi-copy">
+        <span>${item.title}</span>
+        <strong>${commerceMetricValue(item)}</strong>
+        <div class="commerce-kpi-delta">↑ ${item.delta}</div>
+        <small class="commerce-kpi-note">${item.note}</small>
+      </div>
+      ${commerceSpark(item)}
+    </article>`).join('');
+}
+function renderCommerceSummary(targetId){
+  const target=document.getElementById(targetId);
+  if(!target)return;
+  const mixTotal=commercePackageTypes.reduce((sum,item)=>sum+item.value,0)||1;
+  const parts=commercePackageTypes.map(item=>Math.round((item.value/mixTotal)*100));
+  const revenue=commercePerformance.revenue;
+  const targetRevenue=commercePerformance.targetRevenue;
+  const targetPct=Math.min(100,Math.round((revenue.value/targetRevenue.value)*100));
+  target.innerHTML=`
+    <article class="commerce-summary-card">
+      <h3>Paket Satış Ortalamaları</h3>
+      <div class="commerce-average-rings">
+        ${commerceAverages.map(item=>`<div><div class="commerce-ring" style="--p:${item.pct};--c:${item.color}"><b>${performanceNumber(item.value)}</b></div><span>${item.label}</span><small>${item.unit}</small></div>`).join('')}
+      </div>
+    </article>
+    <article class="commerce-summary-card">
+      <h3>Paket Türlerimiz</h3>
+      <div class="commerce-package-mix">
+        <div class="commerce-donut" style="--a:${parts[0]};--b:${parts[1]};--c:${parts[2]};--d:${parts[3]}"></div>
+        <div class="commerce-mix-legend">
+          ${commercePackageTypes.map(item=>`<div class="commerce-mix-row"><span class="commerce-dot" style="background:${item.color}"></span><span>${item.label}</span><b>₺${Math.round(item.revenue/1000)}K</b><b>${item.value} adet</b></div>`).join('')}
+        </div>
+      </div>
+    </article>
+    <article class="commerce-summary-card revenue">
+      <h3>Toplam Ciro</h3>
+      <strong class="commerce-mini-value">₺${performanceNumber(revenue.value)}</strong>
+      <div class="commerce-kpi-delta">↑ ${revenue.delta}</div>
+      <small class="commerce-kpi-note">${revenue.note}</small>
+      ${commerceSpark(revenue)}
+    </article>
+    <article class="commerce-summary-card revenue">
+      <h3>Hedeflenen Ciro</h3>
+      <strong class="commerce-mini-value">₺${performanceNumber(targetRevenue.value)}</strong>
+      <div class="commerce-kpi-delta">↑ ${targetRevenue.delta}</div>
+      <small class="commerce-kpi-note">${targetRevenue.note}</small>
+      <div class="commerce-progress"><i style="width:${targetPct}%"></i></div>
+      <div class="commerce-footnote"><span>₺${performanceNumber(revenue.value)}</span><b>/ ₺${performanceNumber(targetRevenue.value)}</b></div>
+    </article>`;
+}
 function renderTargetCards(targetId){
   const target=document.getElementById(targetId);
   if(!target)return;
@@ -1703,6 +1769,10 @@ function renderDashboardPerformanceCards(){
 }
 function renderPerformanceDashboard(){
   renderDashboardPerformanceCards();
+  renderCommerceKpis('dashboardCommerceKpis',['revenue','targetRevenue','packageSales','avgPackageSale']);
+  renderCommerceSummary('dashboardCommerceSummary');
+  renderCommerceKpis('performanceCommerceKpis',['revenue','targetRevenue','packageSales','avgPackageSale','inspections','avgTicket']);
+  renderCommerceSummary('performanceCommerceSummary');
   renderTargetCards('dashboardPerfTargets');
   renderTargetCards('detailPerfTargets');
   renderLineChart('packageLineChart');
