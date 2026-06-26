@@ -3,6 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="ototr-bayi-portal-version" content="v4.2026.06.26-1235" />
 <title>OTOTR Bayii ERP - Operasyon Merkezi V2</title>
 <style>
 :root{
@@ -99,7 +100,7 @@ button,input,select,textarea{font:inherit}.app{min-height:100vh;display:grid;gri
 .ab-workorders.final-cockpit .ab-tab.is-empty .ab-tab-count{background:#eef2f6;color:#98a2b3}
 .ab-workorders.final-cockpit .ab-quick{height:32px;border:1px solid var(--brand);border-radius:8px;background:var(--brand);color:#fff;padding:0 13px;font-size:10.5px;font-weight:800}
 .ab-workorders.final-cockpit .table-wrap{overflow-x:auto}
-.ab-workorders.final-cockpit .ab-table{width:100%;min-width:1000px;table-layout:fixed;font-size:10px;margin:0}
+.ab-workorders.final-cockpit .ab-table{width:100%;min-width:1080px;table-layout:fixed;font-size:10px;margin:0}
 .ab-workorders.final-cockpit .ab-table thead th{height:38px;padding:0 9px;font-size:9px;color:#182230;background:#f8fafc;font-weight:850;text-transform:uppercase;letter-spacing:.055em;border-top:1px solid #eef2f6;border-bottom:1px solid #dbe3ee;box-shadow:inset 0 -1px 0 rgba(16,24,40,.03);text-align:center}
 .ab-workorders.final-cockpit .ab-table thead th:first-child{border-left:0}
 .ab-workorders.final-cockpit .ab-table thead th:last-child{text-align:center}
@@ -109,16 +110,16 @@ button,input,select,textarea{font:inherit}.app{min-height:100vh;display:grid;gri
 .ab-workorders.final-cockpit .ab-table tbody tr:hover td{background:#f3f7ff}
 .ab-workorders.final-cockpit .ab-table tbody tr.is-new-order td{animation:newOrderFlash 1.4s ease-out 1;background:#ecfdf3}
 @keyframes newOrderFlash{0%{background:#dcfce7;box-shadow:inset 0 0 0 999px rgba(18,183,106,.08)}100%{background:transparent;box-shadow:none}}
-.ab-workorders.final-cockpit .ab-table th:nth-child(1),.ab-workorders.final-cockpit .ab-table td:nth-child(1){width:10%}
+.ab-workorders.final-cockpit .ab-table th:nth-child(1),.ab-workorders.final-cockpit .ab-table td:nth-child(1){width:10.5%}
 .ab-workorders.final-cockpit .ab-table th:nth-child(2),.ab-workorders.final-cockpit .ab-table td:nth-child(2){width:10%}
-.ab-workorders.final-cockpit .ab-table th:nth-child(3),.ab-workorders.final-cockpit .ab-table td:nth-child(3){width:10%}
+.ab-workorders.final-cockpit .ab-table th:nth-child(3),.ab-workorders.final-cockpit .ab-table td:nth-child(3){width:12%}
 .ab-workorders.final-cockpit .ab-table th:nth-child(4),.ab-workorders.final-cockpit .ab-table td:nth-child(4){width:10%}
-.ab-workorders.final-cockpit .ab-table th:nth-child(5),.ab-workorders.final-cockpit .ab-table td:nth-child(5){width:10%}
-.ab-workorders.final-cockpit .ab-table th:nth-child(6),.ab-workorders.final-cockpit .ab-table td:nth-child(6){width:10%}
-.ab-workorders.final-cockpit .ab-table th:nth-child(7),.ab-workorders.final-cockpit .ab-table td:nth-child(7){width:10%}
-.ab-workorders.final-cockpit .ab-table th:nth-child(8),.ab-workorders.final-cockpit .ab-table td:nth-child(8){width:10%}
-.ab-workorders.final-cockpit .ab-table th:nth-child(9),.ab-workorders.final-cockpit .ab-table td:nth-child(9){width:10%}
-.ab-workorders.final-cockpit .ab-table th:nth-child(10),.ab-workorders.final-cockpit .ab-table td:nth-child(10){width:10%;text-align:center}
+.ab-workorders.final-cockpit .ab-table th:nth-child(5),.ab-workorders.final-cockpit .ab-table td:nth-child(5){width:8.5%}
+.ab-workorders.final-cockpit .ab-table th:nth-child(6),.ab-workorders.final-cockpit .ab-table td:nth-child(6){width:11.5%}
+.ab-workorders.final-cockpit .ab-table th:nth-child(7),.ab-workorders.final-cockpit .ab-table td:nth-child(7){width:12.5%}
+.ab-workorders.final-cockpit .ab-table th:nth-child(8),.ab-workorders.final-cockpit .ab-table td:nth-child(8){width:8%}
+.ab-workorders.final-cockpit .ab-table th:nth-child(9),.ab-workorders.final-cockpit .ab-table td:nth-child(9){width:8%}
+.ab-workorders.final-cockpit .ab-table th:nth-child(10),.ab-workorders.final-cockpit .ab-table td:nth-child(10){width:9%;text-align:center}
 .ab-workorders.final-cockpit .ab-table th:nth-child(2),.ab-workorders.final-cockpit .ab-table td:nth-child(2),
 .ab-workorders.final-cockpit .ab-table th:nth-child(5),.ab-workorders.final-cockpit .ab-table td:nth-child(5),
 .ab-workorders.final-cockpit .ab-table th:nth-child(7),.ab-workorders.final-cockpit .ab-table td:nth-child(7),
@@ -126,6 +127,10 @@ button,input,select,textarea{font:inherit}.app{min-height:100vh;display:grid;gri
 .ab-workorders.final-cockpit .ab-table th:nth-child(9),.ab-workorders.final-cockpit .ab-table td:nth-child(9),
 .ab-workorders.final-cockpit .ab-table th:nth-child(10),.ab-workorders.final-cockpit .ab-table td:nth-child(10){text-align:center}
 .ab-workorders.final-cockpit .ab-table td:nth-child(2),.ab-workorders.final-cockpit .ab-table td:nth-child(10){padding-left:4px;padding-right:4px}
+.ab-workorders.final-cockpit .ab-table th:nth-child(1),.ab-workorders.final-cockpit .ab-table td:nth-child(1),
+.ab-workorders.final-cockpit .ab-table th:nth-child(3),.ab-workorders.final-cockpit .ab-table td:nth-child(3),
+.ab-workorders.final-cockpit .ab-table th:nth-child(4),.ab-workorders.final-cockpit .ab-table td:nth-child(4),
+.ab-workorders.final-cockpit .ab-table th:nth-child(6),.ab-workorders.final-cockpit .ab-table td:nth-child(6){text-align:left}
 .ab-workorders.final-cockpit .ab-table th:nth-child(6),.ab-workorders.final-cockpit .ab-table td:nth-child(6){padding-left:8px;padding-right:6px}
 .ab-workorders.final-cockpit .ab-code{display:grid;grid-template-columns:10px minmax(0,1fr);gap:6px;align-items:center;font-weight:700;line-height:1.2}
 .ab-status-dot{width:8px;height:8px;border-radius:50%;display:inline-block}
@@ -174,7 +179,7 @@ button,input,select,textarea{font:inherit}.app{min-height:100vh;display:grid;gri
 .appointment-page-open .content>:not(#appointmentPage){display:none!important}.appointment-page{display:none}.appointment-page-open #appointmentPage{display:block}.appointment-summary-card{grid-column:span 2}.appt-summary-top{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-bottom:12px}.appt-mini-kpi{border:1px solid #dbe3ee;border-radius:10px;background:#f8fbff;padding:10px}.appt-mini-kpi span{display:block;color:#667085;font-size:9px;font-weight:900;text-transform:uppercase}.appt-mini-kpi b{display:block;margin-top:4px;font-size:18px}.appt-mini-kpi.good{border-top:3px solid var(--green)}.appt-mini-kpi.warn{border-top:3px solid var(--orange)}.appt-mini-kpi.bad{border-top:3px solid var(--brand)}.appt-table-wrap{overflow:auto;border:1px solid #e4e7ec;border-radius:11px}.appt-table{width:100%;border-collapse:collapse;min-width:760px}.appt-table th,.appt-table td{padding:10px;border-bottom:1px solid #eef2f6;text-align:left;font-size:11px;vertical-align:middle}.appt-table th{background:#f8fafc;color:#475467;font-size:9px;text-transform:uppercase;letter-spacing:.04em}.appt-table tr:last-child td{border-bottom:0}.appt-customer b{display:block;font-size:12px}.appt-customer small{display:block;color:#667085;margin-top:2px}.appt-action-row{display:flex;gap:6px;flex-wrap:wrap}.appt-status{display:inline-flex;align-items:center;justify-content:center;min-width:76px;height:24px;border-radius:999px;font-size:10px;font-weight:850}.appt-status.confirmed{background:#e8fff1;color:#067647}.appt-status.pending{background:#fff5df;color:#b54708}.appt-status.risk{background:#fff1f3;color:#d71920}.appt-status.open{background:#eff6ff;color:#1769ff}.appt-page-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;margin-bottom:12px}.appt-page-title h1{font-size:22px;margin:0}.appt-page-title p{margin:5px 0 0;color:#667085;font-size:12px}.appt-page-actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}.appt-shell{display:grid;grid-template-columns:1.35fr .75fr;gap:12px;align-items:start}.appt-panel{border:1px solid #dbe3ee;border-radius:14px;background:#fff;box-shadow:0 8px 24px rgba(16,24,40,.05);min-width:0}.appt-panel-head{padding:14px 16px;border-bottom:1px solid #e4e7ec;display:flex;justify-content:space-between;gap:12px;align-items:center}.appt-panel-head h3{margin:0;font-size:15px}.appt-panel-head p{margin:3px 0 0;color:#667085;font-size:11px}.appt-panel-body{padding:14px 16px}.appt-filterbar{display:flex;gap:7px;flex-wrap:wrap}.appt-chip{height:30px;border:1px solid #dbe3ee;background:#fff;border-radius:999px;padding:0 11px;font-size:10px;font-weight:850;color:#344054;cursor:pointer}.appt-chip.active{background:#1769ff;color:#fff;border-color:#1769ff}.appt-calendar{border:1px solid #dce5f0;border-radius:13px;background:#fff;overflow:auto}.appt-week-grid{min-width:850px;display:grid;grid-template-columns:64px repeat(7,minmax(108px,1fr))}.appt-week-corner,.appt-week-day,.appt-week-time,.appt-week-cell{border-right:1px solid #e5ebf3;border-bottom:1px solid #e5ebf3}.appt-week-corner,.appt-week-day{min-height:54px;background:linear-gradient(135deg,#f8fafc,#fff);display:grid;align-content:center}.appt-week-corner{place-items:center;color:#98a2b3;font-size:10px;font-weight:950;text-transform:uppercase}.appt-week-day{padding:8px 10px}.appt-week-day span{color:#778194;font-size:10px;font-weight:950;text-transform:uppercase}.appt-week-day b{font-size:15px;margin-top:3px}.appt-week-day.today{box-shadow:inset 0 3px 0 var(--brand);background:#fff7f8}.appt-week-time{min-height:74px;display:grid;place-items:start center;padding-top:9px;color:#778194;font-size:10px;font-weight:950;background:#fbfdff}.appt-week-cell{min-height:74px;padding:7px;background:linear-gradient(90deg,rgba(226,232,240,.38) 0 1px,transparent 1px 100%)}.appt-week-cell.empty{background:#fbfdff}.appt-week-event{height:100%;min-height:54px;border:1px solid #d8e6ff;border-left:4px solid #1769ff;border-radius:10px;background:linear-gradient(135deg,#f6f9ff,#fff);padding:7px;display:grid;align-content:start;gap:4px;box-shadow:0 8px 16px rgba(24,90,188,.06);cursor:pointer;overflow:hidden}.appt-week-event.done{border-color:#c5ead5;border-left-color:#12a15c;background:linear-gradient(135deg,#f6fcf8,#fff)}.appt-week-event.warn{border-color:#ffe0a6;border-left-color:#ff7a00;background:linear-gradient(135deg,#fffaf0,#fff)}.appt-week-event.risk{border-color:#ffd7db;border-left-color:#d71920;background:linear-gradient(135deg,#fff7f8,#fff)}.appt-week-event b{font-size:11px;line-height:1.2;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.appt-week-event small{color:#5f6876;font-size:9px;line-height:1.3;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.appt-empty-slot{height:100%;min-height:54px;border-radius:9px;background:repeating-linear-gradient(135deg,#fbfdff 0,#fbfdff 8px,#f6f8fb 8px,#f6f8fb 16px)}.appt-side-list{display:grid;gap:8px}.appt-item{border:1px solid #e4e7ec;border-radius:11px;background:#f8fafc;padding:10px;display:grid;grid-template-columns:48px 1fr auto;gap:9px;align-items:center}.appt-item time{font-size:12px;font-weight:950;color:#d71920}.appt-item b{display:block;font-size:12px}.appt-item small{display:block;color:#667085;font-size:10px;margin-top:2px}.appt-detail{display:grid;gap:10px}.appt-detail-box{border:1px solid #e4e7ec;border-radius:11px;background:#f8fbff;padding:11px}.appt-detail-box span{display:block;color:#667085;font-size:9px;font-weight:900;text-transform:uppercase}.appt-detail-box b{display:block;margin-top:4px;font-size:13px}.appt-progress-row{margin-top:12px}.appt-call-kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.appt-call-kpi{border:1px solid #dbe3ee;border-radius:11px;background:#fff;padding:10px}.appt-call-kpi span{color:#64748b;font-size:9px;font-weight:950;text-transform:uppercase}.appt-call-kpi b{display:block;font-size:18px;margin-top:4px}.appt-call-kpi small{display:block;color:#64748b;font-size:10px;margin-top:2px}.appt-modal{position:fixed;inset:0;z-index:80;display:none;place-items:center;background:rgba(15,23,42,.52);padding:18px}.appt-modal.open{display:grid}.appt-modal-card{width:min(720px,100%);max-height:calc(100dvh - 36px);overflow:auto;border:1px solid #dbe3ee;border-radius:16px;background:#fff;box-shadow:0 28px 80px rgba(15,23,42,.28);padding:16px;display:grid;gap:14px}.appt-form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.appt-form .field.wide{grid-column:1/-1}.appt-form textarea{width:100%;border:1px solid #d0d5dd;border-radius:8px;padding:10px;font:inherit;font-size:12px;resize:vertical}.appt-toast{position:fixed;right:20px;bottom:20px;z-index:90;background:#111827;color:#fff;border-radius:12px;padding:11px 14px;font-size:12px;font-weight:800;box-shadow:0 16px 40px rgba(15,23,42,.24);opacity:0;transform:translateY(10px);pointer-events:none;transition:.2s}.appt-toast.show{opacity:1;transform:translateY(0)}@media(max-width:1500px){.appointment-summary-card{grid-column:1/-1}.appt-shell{grid-template-columns:1fr}.appt-summary-top{grid-template-columns:repeat(2,1fr)}}@media(max-width:900px){.appt-summary-top,.appt-call-kpis,.appt-form{grid-template-columns:1fr}.appt-page-head{display:grid}.appt-page-actions{justify-content:flex-start}}
 </style>
 <style>
-.module-page{display:none}.module-page-open .content > *:not(.module-page){display:none!important}.module-page-open .content > .module-page{display:none!important}.module-page-open .content > .module-page.active-module{display:block}
+.module-page{display:none}.module-page-open .content > *:not(.module-page){display:none!important}.module-page-open .content > .module-page{display:none!important}.module-page-open .content > .module-page.active-module{display:block!important}
 .module-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:12px}.module-head h1{font-size:24px;letter-spacing:-.02em;margin:0}.module-head p{margin:6px 0 0;color:#667085;font-size:12px}
 .module-panel{display:grid;gap:10px}.module-kpi-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}.module-kpi{border:1px solid #dbe3ee;border-radius:10px;background:#fff;padding:10px}.module-kpi span{display:block;color:#667085;font-size:9px;font-weight:850;text-transform:uppercase}.module-kpi b{display:block;margin-top:4px;font-size:21px}
 .module-action-grid{display:grid;grid-template-columns:1.2fr .8fr .7fr;gap:10px}
@@ -206,11 +211,17 @@ button,input,select,textarea{font:inherit}.app{min-height:100vh;display:grid;gri
 .module-sla-item{display:flex;justify-content:space-between;gap:8px;padding:8px;border:1px solid #e4e7ec;border-radius:8px;font-size:11px}
 .module-sla-item b{font-size:12px}
 </style>
+<style>
+.performance-page{padding-bottom:22px}.performance-page.active-module{display:block!important}.performance-command{display:grid;gap:12px}.performance-command-head{align-items:center}.performance-command-head h1{font-size:24px;margin:0;letter-spacing:-.02em}.performance-scope-banner{display:flex;align-items:center;justify-content:space-between;gap:12px;border:1px solid #bbf7d0;background:linear-gradient(135deg,#ecfdf3,#fff);border-radius:12px;padding:12px 14px;color:#065f46;font-size:12px;font-weight:800}.performance-scope-banner strong{display:block;color:#064e3b;font-size:13px}.performance-scope-banner span{display:block;margin-top:2px;color:#047857;font-size:11px}.performance-scope-badge{display:inline-flex;align-items:center;gap:6px;border:1px solid #86efac;background:#fff;border-radius:999px;padding:6px 10px;color:#067647;font-size:10px;font-weight:950;white-space:nowrap}.perf-filterbar{display:grid;grid-template-columns:1.15fr repeat(3,minmax(150px,.75fr));gap:10px;border:1px solid #dbe3ee;background:#fff;border-radius:12px;padding:12px}.perf-filter-control{display:grid;gap:5px;min-width:0}.perf-filter-control label{font-size:9px;font-weight:950;text-transform:uppercase;color:#667085;letter-spacing:.04em}.perf-filter-control select{width:100%;height:36px;border:1px solid #d0d5dd;border-radius:9px;background:#fff;padding:0 10px;color:#101828;font-size:12px;font-weight:850}.perf-filter-control.is-locked select{background:#f8fafc;color:#475467}.perf-state-banner{display:flex;align-items:center;justify-content:space-between;gap:10px;border:1px solid #bfdbfe;background:#eff6ff;color:#155eef;border-radius:12px;padding:10px 12px;font-size:11px;font-weight:850}.perf-command-targets{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:10px}.perf-command-card{border:1px solid #dbe3ee;border-radius:12px;background:#fff;padding:14px;box-shadow:0 8px 20px rgba(16,24,40,.045);min-width:0}.perf-command-card.is-inverse{border-color:#fecdd3;background:linear-gradient(135deg,#fff7f8,#fff)}.perf-command-card-top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:12px}.perf-command-card h3{margin:0;color:#101828;font-size:12px;line-height:1.25}.perf-command-card small{display:block;color:#667085;font-size:10px;line-height:1.35}.perf-command-value{display:flex;align-items:baseline;gap:6px;margin-bottom:8px}.perf-command-value strong{font-size:28px;letter-spacing:-.04em}.perf-command-value span{color:#475467;font-size:11px;font-weight:850}.perf-command-meter{height:8px;border-radius:999px;background:#eef2f6;overflow:hidden}.perf-command-meter i{display:block;height:100%;border-radius:inherit}.perf-command-meta{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:10px}.perf-command-meta span{border:1px solid #e4e7ec;background:#f8fafc;border-radius:8px;padding:7px;font-size:9px;color:#475467;font-weight:850}.perf-command-meta b{display:block;margin-top:2px;color:#101828;font-size:11px}.perf-command-layout{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(320px,.85fr);gap:12px;align-items:start}.perf-chart-svg{width:100%;height:272px;display:block}.perf-panel-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.perf-panel{border:1px solid #dbe3ee;border-radius:12px;background:#fff;padding:12px;min-width:0}.perf-panel h3{margin:0 0 3px;font-size:13px}.perf-panel p{margin:0 0 10px;color:#667085;font-size:11px;line-height:1.4}.perf-bullet-list,.perf-action-list,.perf-insight-list,.perf-complaint-list{display:grid;gap:8px}.perf-bullet-row{display:grid;grid-template-columns:118px 1fr 44px;gap:9px;align-items:center;font-size:10px;font-weight:850}.perf-bullet-track{height:12px;border-radius:999px;background:#eef2f6;position:relative;overflow:hidden}.perf-bullet-track i{position:absolute;inset:0 auto 0 0;border-radius:999px}.perf-bullet-track b{position:absolute;top:-3px;width:2px;height:18px;background:#101828;opacity:.55}.perf-action-row{display:grid;grid-template-columns:22px 1fr auto;gap:9px;align-items:center;border:1px solid #e4e7ec;border-radius:10px;background:#f8fafc;padding:9px}.perf-action-row em{display:grid;place-items:center;width:22px;height:22px;border-radius:999px;background:#fff;color:#d71920;font-style:normal;font-size:11px;font-weight:950}.perf-action-row strong{display:block;font-size:11px}.perf-action-row small{display:block;color:#667085;font-size:10px;margin-top:2px}.perf-action-row button{height:28px;border:1px solid #dbe3ee;border-radius:8px;background:#fff;color:#d71920;font-size:10px;font-weight:900;cursor:pointer}.perf-insight{border:1px solid #e4e7ec;border-left:4px solid #1769ff;border-radius:10px;background:#fbfdff;padding:10px}.perf-insight b{display:block;font-size:12px}.perf-insight span{display:block;margin-top:3px;color:#667085;font-size:11px;line-height:1.35}.perf-complaint-box{border:1px solid #fecdd3;border-radius:10px;background:#fff7f8;padding:10px}.perf-complaint-box span{display:block;color:#b42318;font-size:9px;font-weight:950;text-transform:uppercase}.perf-complaint-box b{display:block;margin-top:4px;font-size:18px;color:#101828}.perf-waterfall,.perf-control-chart,.perf-radar-detail{width:100%;height:238px;display:block}.target-editor.command-editor{grid-template-columns:minmax(0,1.2fr) minmax(290px,.8fr)}@media(max-width:1500px){.perf-command-targets{grid-template-columns:repeat(3,minmax(0,1fr))}.perf-command-layout,.target-editor.command-editor{grid-template-columns:1fr}.perf-filterbar{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:900px){.performance-command-head,.performance-scope-banner,.perf-state-banner{display:grid}.perf-filterbar,.perf-command-targets,.perf-panel-grid{grid-template-columns:1fr}.perf-command-meta{grid-template-columns:1fr}.perf-bullet-row{grid-template-columns:1fr}.perf-action-row{grid-template-columns:22px 1fr}.perf-action-row button{grid-column:2}.performance-detail-actions{justify-content:flex-start;flex-wrap:wrap}}
+</style>
+<style>
+@media(max-width:760px){html,body{max-width:100%;overflow-x:hidden}.app{display:block;min-width:0}.sidebar{position:static;width:100%;max-height:300px;overflow:auto}.main{grid-column:auto;width:100%;min-width:0}.topbar{position:static;height:auto;min-height:0;display:flex;flex-wrap:wrap;padding:12px;gap:8px}.topbar>*{min-width:0}.topbar-title{width:100%;white-space:normal;font-size:16px}.search{min-width:0;max-width:none;flex:1 1 100%;width:100%}.user-select{width:100%;justify-content:space-between}.user-select select{max-width:none;min-width:0}.content{width:100%;max-width:100%;padding:12px;overflow-x:hidden}.performance-page,.performance-command,.card,.perf-panel{max-width:100%;overflow:hidden}.perf-chart-svg,.perf-waterfall,.perf-control-chart,.perf-radar-detail,.line-chart,.radar-chart{max-width:100%;height:auto;min-height:220px}.target-row{grid-template-columns:36px 1fr!important}.target-row>div:nth-child(3),.target-row>div:nth-child(4){grid-column:1/-1}.drawer{width:100%}#vehicleEntryBackdrop.open{left:0;padding:10px}}
+</style>
 </head>
 <body class="module-page-open">
 <div class="app">
   <aside class="sidebar">
-    <button class="brand" id="brandHome" type="button" aria-label="Bayii dashboard'a dön"><div class="brand-mark">OT</div><div class="brand-copy"><strong>OTOTR ERP</strong><small>YÖNETİM PANELİ</small></div></button>
+    <button class="brand" id="brandHome" type="button" aria-label="Bayii dashboard'a dön"><div class="brand-mark">OT</div><div class="brand-copy"><strong>OTOTR ERP</strong><small>YÖNETİM PANELİ</small><small>v4 · 26.06.2026 12:35</small></div></button>
     <nav class="nav">
       <div class="nav-group">Yönetim</div>
       <a class="active" href="#" id="navDashboard"><span class="nav-icon">▦</span>Bayii Kokpiti</a>
@@ -512,33 +523,59 @@ button,input,select,textarea{font:inherit}.app{min-height:100vh;display:grid;gri
         </article>
       </div>
 
-      <section class="performance-page" id="performancePage">
-        <div class="page-head" style="display:flex;justify-content:space-between;gap:12px;align-items:center;margin-bottom:12px">
-          <div><h1 style="margin:0;font-size:22px;letter-spacing:-.02em">Performans Hedefleri</h1><div class="card-sub">Bayi aylık hedeflerini girin; kokpit grafikleri bu hedeflere göre güncellenir.</div></div>
-          <div class="performance-detail-actions"><button class="btn" id="backToDashboard" type="button">Kokpite Dön</button><button class="btn primary" id="savePerformanceTargets" type="button">Hedefleri Güncelle</button></div>
-        </div>
-        <div class="target-editor">
-          <article class="card">
-            <div class="card-head"><div><div class="card-title">Aylık Hedef Girişi</div><div class="card-sub">Satış, yorum, şikayet, sosyal medya ve araç sayısı hedefleri.</div></div><span class="status s-blue">Mayıs 2025</span></div>
-            <div class="card-body"><div class="target-form-grid" id="performanceTargetForm"></div></div>
-          </article>
-          <article class="card">
-            <div class="card-head"><div><div class="card-title">Hedef Yönetim Notları</div><div class="card-sub">Dashboard çıktısını etkileyen operasyon kuralları.</div></div></div>
-            <div class="card-body"><div class="perf-note-panel">
-              <div class="perf-note-line"><span>Paket satış hedefi</span><b>Aylık ana gelir hedefi</b></div>
-              <div class="perf-note-line"><span>Google yorum hedefi</span><b>Müşteri deneyimi ve görünürlük</b></div>
-              <div class="perf-note-line"><span>Şikayet hedefi</span><b>Maksimum sınır olarak izlenir</b></div>
-              <div class="perf-note-line"><span>Sosyal medya hedefi</span><b>Paylaşım ve etkileşim toplamı</b></div>
-              <div class="perf-note-line"><span>Araç sayısı hedefi</span><b>Operasyon kapasite planı</b></div>
-            </div></div>
-          </article>
-        </div>
-        <div class="perf-board" style="margin-top:12px">
-          <div class="perf-targets" id="detailPerfTargets"></div>
-          <div class="perf-grid">
-            <article class="card perf-chart-card"><div class="card-head"><div><div class="card-title">Detaylı Paket Satış Grafiği</div><div class="card-sub">Aylık gerçekleşen değer, hedef çizgisi ve gelecek ay projeksiyonu.</div></div></div><div class="card-body"><svg class="line-chart" id="detailLineChart" viewBox="0 0 640 244"></svg></div></article>
-            <article class="card perf-chart-card"><div class="card-head"><div><div class="card-title">Kanal Radar Detayı</div><div class="card-sub">Instagram, Facebook, TikTok, YouTube ve LinkedIn.</div></div></div><div class="card-body"><div class="radar-wrap"><svg class="radar-chart" id="detailRadarChart" viewBox="0 0 320 238"></svg></div></div></article>
+      <section class="module-page performance-page" id="performancePage">
+        <div class="module-head performance-command-head">
+          <div>
+            <h1>Performans Komuta Merkezi</h1>
+            <p>Bu görünüm yalnızca seçili şubenin operasyon performansını gösterir; ana CRM sistemine veri yazmaz.</p>
           </div>
+          <div class="performance-detail-actions"><button class="btn" id="backToDashboard" type="button">Kokpite Dön</button><button class="btn primary" id="savePerformanceTargets" type="button">Şube Hedeflerini Güncelle</button></div>
+        </div>
+        <div class="performance-command" data-branch-scope="kucuk-sanayi">
+          <div class="performance-scope-banner">
+            <div><strong>Şube kapsamı kilitli: Küçük Sanayi Bayii</strong><span>Rapor, randevu, iş emri, yorum ve şikayet metrikleri bu bayi operasyonu mock/adaptör verisinden beslenir.</span></div>
+            <span class="performance-scope-badge">● Şube içi görünüm</span>
+          </div>
+          <div class="perf-filterbar" aria-label="Performans filtreleri">
+            <div class="perf-filter-control is-locked"><label for="performanceBranchFilter">Bayi</label><select id="performanceBranchFilter" disabled><option>Küçük Sanayi - Bursa</option></select></div>
+            <div class="perf-filter-control"><label for="performanceDateFilter">Tarih Aralığı</label><select id="performanceDateFilter" data-performance-filter><option value="month">Bu ay</option><option value="week">Son 7 gün</option><option value="quarter">Bu çeyrek</option></select></div>
+            <div class="perf-filter-control"><label for="performanceOperationFilter">Operasyon</label><select id="performanceOperationFilter" data-performance-filter><option value="all">Tüm operasyon</option><option value="inspection">Ekspertiz</option><option value="sales">Paket satış</option><option value="experience">Müşteri deneyimi</option></select></div>
+            <div class="perf-filter-control"><label for="performanceCompareFilter">Karşılaştırma</label><select id="performanceCompareFilter" data-performance-filter><option value="previous">Önceki dönem</option><option value="target">Hedef</option><option value="lastYear">Geçen yıl</option></select></div>
+          </div>
+          <div class="perf-state-banner" id="performanceStateBanner"><span>Veri durumu: Tamamlandı · Son senkron 25.06.2026 12:01 · stale veri yok</span><button class="mini-btn" type="button" data-performance-retry>Yenile</button></div>
+          <div class="perf-command-targets" id="performanceCommandCards"></div>
+          <div class="perf-command-layout">
+            <article class="card perf-chart-card">
+              <div class="card-head"><div><div class="card-title">Kümülatif Gerçekleşen / Hedef / Tahmin</div><div class="card-sub">Güven aralığı ve bugün işaretiyle şube hedef gidişatı.</div></div><span class="status s-blue" id="performanceForecastLabel">Bu ay</span></div>
+              <div class="card-body"><svg class="perf-chart-svg" id="performanceForecastChart" viewBox="0 0 760 272" role="img" aria-label="Kümülatif gerçekleşen hedef ve tahmin grafiği"></svg></div>
+            </article>
+            <aside class="perf-panel">
+              <h3>Bayi Sağlık Endeksi</h3>
+              <p>Satış, müşteri deneyimi, operasyon hızı ve kalite kanıtlarından hesaplanan şube içi skor.</p>
+              <div class="summary-ring"><div class="ring" id="branchHealthRing" style="--p:82;--c:#12a15c"><b id="branchHealthScore">82</b></div><div class="perf-legend" id="branchHealthLegend"></div></div>
+              <div class="perf-insight-list" id="executiveInsightList" style="margin-top:10px"></div>
+            </aside>
+          </div>
+          <div class="perf-panel-grid">
+            <article class="perf-panel"><h3>KPI Bullet Chart Portföyü</h3><p>Hedef çizgisi ve gerçekleşen durum.</p><div class="perf-bullet-list" id="performanceBulletPortfolio"></div></article>
+            <article class="perf-panel"><h3>Sosyal Medya Radar</h3><p>Kanal bazlı hedef kapsaması.</p><svg class="perf-radar-detail" id="detailRadarChart" viewBox="0 0 320 238" role="img" aria-label="Sosyal medya radar grafiği"></svg></article>
+            <article class="perf-panel"><h3>KPI Etki Köprüsü</h3><p>Bayi sağlık skoruna pozitif ve negatif katkılar.</p><svg class="perf-waterfall" id="performanceWaterfallChart" viewBox="0 0 420 238" role="img" aria-label="KPI etki köprüsü waterfall grafiği"></svg></article>
+            <article class="perf-panel"><h3>Müşteri Deneyimi Kontrol Grafiği</h3><p>NPS ve şikayet sinyallerinde kontrol bandı.</p><svg class="perf-control-chart" id="experienceControlChart" viewBox="0 0 420 238" role="img" aria-label="Müşteri deneyimi kontrol grafiği"></svg></article>
+          </div>
+          <div class="target-editor command-editor">
+            <article class="card">
+              <div class="card-head"><div><div class="card-title">Şube Hedef Girişi</div><div class="card-sub">Bu değerler sadece Küçük Sanayi performans ekranındaki hesapları günceller.</div></div><span class="status s-blue">Şube kilitli</span></div>
+              <div class="card-body"><div class="target-form-grid" id="performanceTargetForm"></div></div>
+            </article>
+            <article class="card">
+              <div class="card-head"><div><div class="card-title">Müşteri Şikayeti Kontrolü</div><div class="card-sub">Ters yönlü KPI: düşük değer iyidir, başarı yüzdesi olarak sunulmaz.</div></div></div>
+              <div class="card-body"><div class="perf-complaint-list" id="complaintLimitPanel"></div></div>
+            </article>
+          </div>
+          <article class="card">
+            <div class="card-head"><div><div class="card-title">Önceliklendirilmiş Aksiyon Merkezi</div><div class="card-sub">Şube yöneticisi için bugünkü etkisi en yüksek müdahaleler.</div></div><span class="status s-orange">4 aksiyon</span></div>
+            <div class="card-body"><div class="perf-action-list" id="performanceActionCenter"></div></div>
+          </article>
         </div>
       </section>
       <section class="module-page" id="salesCrmPage">
@@ -1132,13 +1169,60 @@ function addQuickWorkOrderToTable(){
 const performanceTargets=[
   {key:'sales',title:'Paket Satış Hedefi',icon:'◈',color:'#1769ff',tone:'blue',value:36,target:50,unit:'Paket',targetText:'Aylık Hedef: 50 Paket',delta:'%12 dünden iyi',series:[18,22,25,30,36,38,42,46,50,54,58,62]},
   {key:'reviews',title:'Google Yorum Hedefi',icon:'G',color:'#0aa05b',tone:'green',value:85,target:100,unit:'Yorum',targetText:'Aylık Hedef: 100 Yorum',delta:'%8 dünden iyi',series:[22,28,25,34,44,38,52,50,61,59,70,85]},
-  {key:'complaints',title:'Müşteri Şikayeti Hedefi',icon:'!',color:'#ff3b3f',tone:'red',value:9,target:10,unit:'Şikayet',targetText:'Aylık Hedef: 10 Şikayet (Maks.)',delta:'Hedefin altında',inverse:true,series:[2,3,5,6,7,6,5,3,4,6,7,9]},
+  {key:'complaints',title:'Müşteri Şikayeti Hedefi',icon:'!',color:'#ff3b3f',tone:'red',value:9,target:10,unit:'Şikayet',targetText:'Aylık Limit: 10 Şikayet',delta:'Limit altında',inverse:true,openCases:3,avgResolutionHours:18,slaCompliance:86,series:[2,3,5,6,7,6,5,3,4,6,7,9]},
   {key:'social',title:'Sosyal Medya Hedefi',icon:'↗',color:'#7337f2',tone:'purple',value:78,target:100,unit:'Paylaşım/Etkileşim',targetText:'Aylık Hedef: 100',delta:'%15 dünden iyi',series:[20,18,30,28,41,38,52,45,61,49,65,78]},
   {key:'vehicles',title:'Araç Sayı Hedefi',icon:'▰',color:'#ff7a00',tone:'orange',value:32,target:50,unit:'Araç',targetText:'Aylık Hedef: 50 Araç',delta:'%6 dünden iyi',series:[10,14,11,16,20,17,15,18,19,23,27,32]}
 ];
+const branchHealthDrivers=[
+  {label:'Paket satış',score:72,color:'#1769ff'},
+  {label:'Yorum kalitesi',score:85,color:'#12a15c'},
+  {label:'Şikayet riski',score:74,color:'#ff3b3f'},
+  {label:'Sosyal görünürlük',score:78,color:'#7337f2'},
+  {label:'Araç kapasitesi',score:64,color:'#ff7a00'}
+];
+const performanceForecastSeries=[
+  {day:'1',actual:4,target:3,forecast:4,low:3,high:5},
+  {day:'4',actual:10,target:9,forecast:10,low:8,high:12},
+  {day:'7',actual:16,target:15,forecast:17,low:14,high:20},
+  {day:'10',actual:22,target:21,forecast:24,low:20,high:27},
+  {day:'13',actual:27,target:27,forecast:31,low:26,high:35},
+  {day:'16',actual:36,target:33,forecast:40,low:34,high:46},
+  {day:'19',actual:0,target:38,forecast:45,low:38,high:52},
+  {day:'22',actual:0,target:43,forecast:50,low:42,high:58},
+  {day:'25',actual:0,target:47,forecast:55,low:46,high:64},
+  {day:'28',actual:0,target:50,forecast:60,low:50,high:70}
+];
+const performanceActionItems=[
+  {priority:'1',title:'Google yorum isteği tamamla',detail:'Teslim edilmiş 12 müşteriye QR yorum linki gönder.',impact:'+5 sağlık puanı',action:'Gönder'},
+  {priority:'2',title:'Şikayet toleransını koru',detail:'3 açık kayıtta 24 saat SLA riski var; sorumlu ata.',impact:'-3 risk azaltır',action:'Ata'},
+  {priority:'3',title:'Paket satış kapanışı',detail:'Full paket görüşmesi bekleyen 6 araç için teklif yenile.',impact:'+4 paket',action:'Teklif'},
+  {priority:'4',title:'Sosyal medya kanıtı',detail:'Kaporta-boya öncesi/sonrası 4 içerik eksik.',impact:'+8 etkileşim',action:'Planla'}
+];
+const performanceInsights=[
+  {title:'Tahmin hedef üstünde',text:'Mevcut tempo korunursa paket satış tahmini hedefin 10 paket üzerine çıkar.'},
+  {title:'Şikayet metrikleri izlenmeli',text:'Limit kullanımı yüksek; kalan tolerans 1 kayıt. SLA odağı kritik.'},
+  {title:'Araç sayısı geride',text:'Walk-in kabul ve randevu dönüşümü güçlendirilirse kapasite açığı kapanır.'}
+];
+function performanceFilterValue(id,fallback){return document.getElementById(id)?.value||fallback}
+function performancePeriodFactor(){
+  const date=performanceFilterValue('performanceDateFilter','month');
+  if(date==='week')return .28;
+  if(date==='quarter')return 2.7;
+  return 1;
+}
+function performancePeriodLabel(){
+  const date=performanceFilterValue('performanceDateFilter','month');
+  return {week:'Son 7 gün',month:'Bu ay',quarter:'Bu çeyrek'}[date]||'Bu ay';
+}
+function performanceNumber(value){return Number(value||0).toLocaleString('tr-TR')}
+function performanceValue(item){return Math.max(0,Math.round(item.value*performancePeriodFactor()))}
+function performanceTarget(item){return Math.max(1,Math.round(item.target*performancePeriodFactor()))}
 function pctForTarget(item){
-  if(item.inverse)return Math.max(0,Math.min(100,Math.round((item.value/item.target)*100)));
-  return Math.max(0,Math.min(100,Math.round((item.value/item.target)*100)));
+  return Math.max(0,Math.min(100,Math.round((performanceValue(item)/performanceTarget(item))*100)));
+}
+function scoreForTarget(item){
+  const pct=pctForTarget(item);
+  return item.inverse ? Math.max(0,100-pct) : pct;
 }
 function makeSpark(item){
   const values=item.series.slice(-10);
@@ -1151,7 +1235,12 @@ function renderTargetCards(targetId){
   if(!target)return;
   target.innerHTML=performanceTargets.map(item=>{
     const pct=pctForTarget(item);
-    return `<article class="perf-card"><div class="perf-card-head"><span class="perf-icon ${item.tone}">${item.icon}</span><div class="perf-card-title ${item.tone}">${item.title}</div></div><div class="perf-card-main"><div class="ring" style="--p:${pct};--c:${item.color}"><b>${pct}%</b></div><div class="perf-value"><strong>${item.value}</strong> <span>/ ${item.target}</span><small>${item.unit}</small></div></div><small style="display:block;margin-top:10px;color:#344054;font-weight:750">${item.targetText}</small>${makeSpark(item)}<div class="perf-delta">↗ ${item.delta}</div></article>`;
+    const value=performanceValue(item);
+    const goal=performanceTarget(item);
+    const detail=item.inverse ? `Açık kayıt: ${item.openCases} · SLA: %${item.slaCompliance}` : item.unit;
+    const label=item.inverse ? 'Limit kullanımı' : 'Tamamlanma';
+    const delta=item.inverse ? `Kalan tolerans: ${Math.max(0,goal-value)} ${item.unit}` : `↗ ${item.delta}`;
+    return `<article class="perf-card ${item.inverse?'is-inverse':''}"><div class="perf-card-head"><span class="perf-icon ${item.tone}">${item.icon}</span><div class="perf-card-title ${item.tone}">${item.title}</div></div><div class="perf-card-main"><div class="ring" style="--p:${pct};--c:${item.color}"><b>${pct}%</b></div><div class="perf-value"><strong>${performanceNumber(value)}</strong> <span>/ ${performanceNumber(goal)}</span><small>${label} · ${detail}</small></div></div><small style="display:block;margin-top:10px;color:#344054;font-weight:750">${item.inverse?'Aylık şikayet limiti, düşük değer iyidir.':item.targetText}</small>${makeSpark(item)}<div class="perf-delta">${delta}</div></article>`;
   }).join('');
 }
 function renderTargetForm(){
@@ -1166,7 +1255,7 @@ function applyPerformanceInputs(){
     const targetInput=document.querySelector(`[data-perf-target="${item.key}"]`);
     if(valueInput)item.value=Math.max(0,Number(valueInput.value||0));
     if(targetInput)item.target=Math.max(1,Number(targetInput.value||1));
-    item.targetText=item.inverse ? `Aylık Hedef: ${item.target} ${item.unit} (Maks.)` : `Aylık Hedef: ${item.target} ${item.unit}`;
+    item.targetText=item.inverse ? `Aylık Limit: ${item.target} ${item.unit}` : `Aylık Hedef: ${item.target} ${item.unit}`;
   });
   renderPerformanceDashboard();
 }
@@ -1198,26 +1287,145 @@ function renderRadar(id){
   svg.innerHTML=`<g>${[20,40,60,80,100].map(level=>`<polygon points="${labels.map((_,i)=>pt(i,level).join(',')).join(' ')}" fill="none" stroke="#dbe3ee"/>`).join('')}</g><g>${labels.map((_,i)=>`<line x1="${cx}" y1="${cy}" x2="${pt(i,100)[0]}" y2="${pt(i,100)[1]}" stroke="#e4e7ec"/>`).join('')}</g><polygon points="${target}" fill="none" stroke="#1769ff" stroke-dasharray="4 4" stroke-width="2"/><polygon points="${shape}" fill="rgba(23,105,255,.16)" stroke="#1769ff" stroke-width="3"/><g>${labels.map(([label,pct],i)=>{const [x,y]=pt(i,118);return `<text x="${x-28}" y="${y}">${label}</text><text x="${x-10}" y="${y+14}" fill="#1769ff">${pct}%</text>`}).join('')}</g>`;
 }
 function renderSummary(){
-  const values=performanceTargets.map(pctForTarget);
+  const values=performanceTargets.map(scoreForTarget);
   const avg=Math.round(values.reduce((sum,value)=>sum+value,0)/values.length);
   const ring=document.getElementById('successRing');
   if(ring)ring.style.setProperty('--p',avg);
   document.getElementById('successPercent')&&(document.getElementById('successPercent').textContent=`${avg}%`);
   const legend=document.getElementById('summaryLegend');
-  if(legend)legend.innerHTML=performanceTargets.map(item=>`<div class="perf-legend-row"><span class="legend-dot" style="background:${item.color}"></span><span>${item.title}</span><b style="color:${item.color}">${pctForTarget(item)}%</b></div>`).join('');
+  if(legend)legend.innerHTML=performanceTargets.map(item=>`<div class="perf-legend-row"><span class="legend-dot" style="background:${item.color}"></span><span>${item.title}</span><b style="color:${item.color}">${item.inverse?'Risk '+pctForTarget(item):pctForTarget(item)}%</b></div>`).join('');
 }
 function renderTrendAndRemaining(){
   const trend=document.getElementById('weeklyTrend');
   if(trend)trend.innerHTML=performanceTargets.map(item=>{
-    const avg=(item.value/7).toFixed(1).replace('.',',');
+    const avg=(performanceValue(item)/7).toFixed(1).replace('.',',');
     const bars=[32,46,38,58,44,64,72].map((height,index)=>`<i style="height:${height}%;background:${item.color};opacity:${.55+index*.06}"></i>`).join('');
     return `<div class="trend-col"><b>${avg}</b><small>Günlük Ort.</small><div class="mini-bars">${bars}</div><small style="color:${item.color};font-weight:850">${item.title.split(' ')[0]}</small></div>`;
   }).join('');
   const remaining=document.getElementById('remainingTargets');
   if(remaining)remaining.innerHTML=performanceTargets.map(item=>{
-    const left=item.inverse ? Math.max(0,item.target-item.value) : Math.max(0,item.target-item.value);
-    return `<div class="remaining-box"><span class="perf-icon ${item.tone}">${item.icon}</span><b>${left}</b><span>${item.unit}<br>Kalan</span></div>`;
+    const left=Math.max(0,performanceTarget(item)-performanceValue(item));
+    return `<div class="remaining-box"><span class="perf-icon ${item.tone}">${item.icon}</span><b>${left}</b><span>${item.unit}<br>${item.inverse?'Tolerans':'Kalan'}</span></div>`;
   }).join('');
+}
+function renderPerformanceCommandCards(){
+  const target=document.getElementById('performanceCommandCards');
+  if(!target)return;
+  const health=Math.round(branchHealthDrivers.reduce((sum,item)=>sum+item.score,0)/branchHealthDrivers.length);
+  const cards=performanceTargets.map(item=>{
+    const value=performanceValue(item);
+    const goal=performanceTarget(item);
+    const pct=pctForTarget(item);
+    if(item.inverse){
+      return `<article class="perf-command-card is-inverse"><div class="perf-command-card-top"><div><h3>${item.title}</h3><small>Düşük değer iyidir; başarı yüzdesi değildir.</small></div><span class="perf-icon ${item.tone}">${item.icon}</span></div><div class="perf-command-value"><strong>${value}</strong><span>/ ${goal} limit</span></div><div class="perf-command-meter" aria-label="Şikayet limit kullanımı ${pct}%"><i style="width:${pct}%;background:${item.color}"></i></div><div class="perf-command-meta"><span>Limit kullanımı<b>%${pct}</b></span><span>Kalan tolerans<b>${Math.max(0,goal-value)}</b></span><span>Açık kayıt<b>${item.openCases}</b></span><span>SLA uyumu<b>%${item.slaCompliance}</b></span></div><small style="margin-top:9px">Ortalama çözüm: ${item.avgResolutionHours} saat</small></article>`;
+    }
+    const forecast=Math.round(value*1.16);
+    return `<article class="perf-command-card"><div class="perf-command-card-top"><div><h3>${item.title}</h3><small>${performancePeriodLabel()} · Küçük Sanayi</small></div><span class="perf-icon ${item.tone}">${item.icon}</span></div><div class="perf-command-value"><strong>${performanceNumber(value)}</strong><span>/ ${performanceNumber(goal)} ${item.unit}</span></div><div class="perf-command-meter" aria-label="${item.title} gerçekleşme ${pct}%"><i style="width:${pct}%;background:${item.color}"></i></div><div class="perf-command-meta"><span>Gerçekleşen<b>${performanceNumber(value)}</b></span><span>Hedef<b>${performanceNumber(goal)}</b></span><span>Tahmin<b>${performanceNumber(forecast)}</b></span><span>Sapma<b>${forecast-goal>=0?'+':''}${performanceNumber(forecast-goal)}</b></span></div></article>`;
+  });
+  cards.push(`<article class="perf-command-card"><div class="perf-command-card-top"><div><h3>Bayi Sağlık Endeksi</h3><small>Şube içi bileşik skor</small></div><span class="perf-icon green">✓</span></div><div class="perf-command-value"><strong>${health}</strong><span>/ 100</span></div><div class="perf-command-meter" aria-label="Bayi sağlık endeksi ${health}"><i style="width:${health}%;background:#12a15c"></i></div><div class="perf-command-meta"><span>Durum<b>İyi</b></span><span>Risk<b>Orta</b></span><span>Trend<b>+4 puan</b></span><span>Kapsam<b>Şube</b></span></div></article>`);
+  target.innerHTML=cards.join('');
+}
+function renderPerformanceForecast(){
+  const svg=document.getElementById('performanceForecastChart');
+  if(!svg)return;
+  const factor=performancePeriodFactor();
+  const data=performanceForecastSeries.map(row=>({day:row.day,actual:Math.round(row.actual*factor),target:Math.round(row.target*factor),forecast:Math.round(row.forecast*factor),low:Math.round(row.low*factor),high:Math.round(row.high*factor)}));
+  const w=760,h=272,pad=42,todayIndex=5;
+  const max=Math.max(...data.flatMap(row=>[row.actual,row.target,row.forecast,row.high]))+8;
+  const x=index=>pad+index*((w-pad*2)/(data.length-1));
+  const y=value=>h-pad-(value/max)*(h-pad*2);
+  const points=(key,start=0,end=data.length-1)=>data.slice(start,end+1).map((row,index)=>`${x(index+start)},${y(row[key])}`).join(' ');
+  const bandHigh=data.map((row,index)=>`${x(index)},${y(row.high)}`).join(' ');
+  const bandLow=[...data].reverse().map((row,index)=>`${x(data.length-1-index)},${y(row.low)}`).join(' ');
+  svg.innerHTML=`<defs><linearGradient id="forecastBand" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#1769ff" stop-opacity=".2"/><stop offset="1" stop-color="#1769ff" stop-opacity=".04"/></linearGradient></defs><rect width="${w}" height="${h}" rx="14" fill="#fff"/><g stroke="#e4e7ec">${[0,1,2,3,4].map(i=>`<line x1="${pad}" x2="${w-pad}" y1="${pad+i*42}" y2="${pad+i*42}"/>`).join('')}</g><polygon points="${bandHigh} ${bandLow}" fill="url(#forecastBand)"/><polyline points="${points('target')}" fill="none" stroke="#ff7a00" stroke-width="3" stroke-dasharray="7 6"/><polyline points="${points('forecast',todayIndex)}" fill="none" stroke="#7337f2" stroke-width="3.5" stroke-dasharray="6 6" stroke-linecap="round"/><polyline points="${points('actual',0,todayIndex)}" fill="none" stroke="#1769ff" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/><line x1="${x(todayIndex)}" x2="${x(todayIndex)}" y1="${pad-14}" y2="${h-pad}" stroke="#d71920" stroke-width="2"/><text x="${x(todayIndex)+7}" y="${pad-2}" fill="#d71920" font-size="12" font-weight="900">Bugün</text>${data.map((row,index)=>`<text class="axis-label" x="${x(index)-7}" y="${h-12}">${row.day}</text>`).join('')}<g>${data.slice(0,todayIndex+1).map((row,index)=>`<circle cx="${x(index)}" cy="${y(row.actual)}" r="4" fill="#1769ff"/>`).join('')}</g><text x="${pad}" y="22" fill="#1769ff" font-size="12" font-weight="900">Gerçekleşen</text><text x="${pad+96}" y="22" fill="#ff7a00" font-size="12" font-weight="900">Hedef</text><text x="${pad+152}" y="22" fill="#7337f2" font-size="12" font-weight="900">Tahmin + güven aralığı</text>`;
+  const label=document.getElementById('performanceForecastLabel');
+  if(label)label.textContent=performancePeriodLabel();
+}
+function renderBranchHealth(){
+  const score=Math.round(branchHealthDrivers.reduce((sum,item)=>sum+item.score,0)/branchHealthDrivers.length);
+  const ring=document.getElementById('branchHealthRing');
+  const text=document.getElementById('branchHealthScore');
+  const legend=document.getElementById('branchHealthLegend');
+  if(ring)ring.style.setProperty('--p',score);
+  if(text)text.textContent=score;
+  if(legend)legend.innerHTML=branchHealthDrivers.map(item=>`<div class="perf-legend-row"><span class="legend-dot" style="background:${item.color}"></span><span>${item.label}</span><b style="color:${item.color}">${item.score}</b></div>`).join('');
+  const insights=document.getElementById('executiveInsightList');
+  if(insights)insights.innerHTML=performanceInsights.map(item=>`<div class="perf-insight"><b>${item.title}</b><span>${item.text}</span></div>`).join('');
+}
+function renderPerformanceBullets(){
+  const target=document.getElementById('performanceBulletPortfolio');
+  if(!target)return;
+  target.innerHTML=performanceTargets.map(item=>{
+    const value=performanceValue(item);
+    const goal=performanceTarget(item);
+    const pct=pctForTarget(item);
+    const label=item.inverse?'Şikayet limiti':item.title.replace(' Hedefi','');
+    return `<div class="perf-bullet-row"><span>${label}</span><div class="perf-bullet-track"><i style="width:${pct}%;background:${item.color}"></i><b style="left:100%"></b></div><strong>${item.inverse?value+'/'+goal:'%'+pct}</strong></div>`;
+  }).join('');
+}
+function renderComplaintPanel(){
+  const target=document.getElementById('complaintLimitPanel');
+  const item=performanceTargets.find(row=>row.key==='complaints');
+  if(!target||!item)return;
+  const value=performanceValue(item);
+  const goal=performanceTarget(item);
+  const usage=pctForTarget(item);
+  target.innerHTML=[
+    ['Limit kullanımı',`%${usage}`],
+    ['Kalan tolerans',`${Math.max(0,goal-value)} kayıt`],
+    ['Açık kayıt',`${item.openCases} kayıt`],
+    ['Ortalama çözüm',`${item.avgResolutionHours} saat`],
+    ['SLA uyumu',`%${item.slaCompliance}`]
+  ].map(row=>`<div class="perf-complaint-box"><span>${row[0]}</span><b>${row[1]}</b></div>`).join('');
+}
+function renderPerformanceWaterfall(){
+  const svg=document.getElementById('performanceWaterfallChart');
+  if(!svg)return;
+  const data=[{label:'Başlangıç',value:70,base:true},{label:'Paket',value:6},{label:'Yorum',value:4},{label:'Şikayet',value:-5},{label:'Sosyal',value:3},{label:'Araç',value:-2}];
+  const w=420,h=238,pad=36,max=92,min=58,bar=38,gap=22;
+  const y=value=>h-pad-((value-min)/(max-min))*(h-pad*2);
+  let running=0;
+  const bars=data.map((item,index)=>{
+    const start=item.base?0:running;
+    const end=item.base?item.value:running+item.value;
+    if(item.base)running=item.value;else running=end;
+    const top=Math.min(y(start),y(end));
+    const height=Math.max(4,Math.abs(y(start)-y(end)));
+    const x=pad+index*(bar+gap);
+    const color=item.base?'#1769ff':item.value>=0?'#12a15c':'#ff3b3f';
+    const label=item.base?item.value:(item.value>0?'+':'')+item.value;
+    return `<rect x="${x}" y="${top}" width="${bar}" height="${height}" rx="7" fill="${color}" opacity=".9"/><text x="${x+bar/2-8}" y="${top-7}" fill="${color}" font-size="11" font-weight="900">${label}</text><text x="${x-4}" y="${h-10}" fill="#475467" font-size="9" font-weight="800">${item.label}</text>`;
+  }).join('');
+  svg.innerHTML=`<rect width="${w}" height="${h}" rx="12" fill="#fff"/><g stroke="#eef2f6">${[0,1,2,3].map(i=>`<line x1="${pad}" x2="${w-pad}" y1="${pad+i*40}" y2="${pad+i*40}"/>`).join('')}</g>${bars}<text x="${w-70}" y="22" fill="#101828" font-size="12" font-weight="900">Net: ${running}</text>`;
+}
+function renderExperienceControl(){
+  const svg=document.getElementById('experienceControlChart');
+  if(!svg)return;
+  const values=[86,88,84,79,82,91,87,85,83,89,84,86];
+  const w=420,h=238,pad=34,min=70,max=96,upper=91,lower=78,mean=85;
+  const x=index=>pad+index*((w-pad*2)/(values.length-1));
+  const y=value=>h-pad-((value-min)/(max-min))*(h-pad*2);
+  const points=values.map((value,index)=>`${x(index)},${y(value)}`).join(' ');
+  svg.innerHTML=`<rect width="${w}" height="${h}" rx="12" fill="#fff"/><g stroke="#eef2f6">${[0,1,2,3].map(i=>`<line x1="${pad}" x2="${w-pad}" y1="${pad+i*42}" y2="${pad+i*42}"/>`).join('')}</g><line x1="${pad}" x2="${w-pad}" y1="${y(upper)}" y2="${y(upper)}" stroke="#ff3b3f" stroke-dasharray="6 6"/><line x1="${pad}" x2="${w-pad}" y1="${y(mean)}" y2="${y(mean)}" stroke="#12a15c" stroke-dasharray="4 5"/><line x1="${pad}" x2="${w-pad}" y1="${y(lower)}" y2="${y(lower)}" stroke="#ff7a00" stroke-dasharray="6 6"/><polyline points="${points}" fill="none" stroke="#1769ff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><g>${values.map((value,index)=>`<circle cx="${x(index)}" cy="${y(value)}" r="4" fill="${value<lower?'#ff3b3f':'#1769ff'}"/>`).join('')}</g><text x="${pad}" y="20" fill="#ff3b3f" font-size="10" font-weight="900">Üst kontrol</text><text x="${pad+82}" y="20" fill="#12a15c" font-size="10" font-weight="900">Ortalama</text><text x="${pad+144}" y="20" fill="#ff7a00" font-size="10" font-weight="900">Alt kontrol</text>`;
+}
+function renderPerformanceActions(){
+  const target=document.getElementById('performanceActionCenter');
+  if(!target)return;
+  target.innerHTML=performanceActionItems.map(item=>`<div class="perf-action-row"><em>${item.priority}</em><div><strong>${item.title}</strong><small>${item.detail}</small><small style="color:#067647;font-weight:900">${item.impact}</small></div><button type="button">${item.action}</button></div>`).join('');
+}
+function renderPerformanceCommandCenter(){
+  const banner=document.getElementById('performanceStateBanner');
+  const operation=performanceFilterValue('performanceOperationFilter','all');
+  const compare=performanceFilterValue('performanceCompareFilter','previous');
+  if(banner)banner.querySelector('span').textContent=`Veri durumu: Tamamlandı · ${performancePeriodLabel()} · Operasyon: ${operation==='all'?'Tümü':operation} · Karşılaştırma: ${compare} · Kapsam: Küçük Sanayi şubesi`;
+  renderPerformanceCommandCards();
+  renderPerformanceForecast();
+  renderBranchHealth();
+  renderPerformanceBullets();
+  renderComplaintPanel();
+  renderPerformanceWaterfall();
+  renderExperienceControl();
+  renderPerformanceActions();
 }
 const crmPipelineCards=[
   {key:'lead',label:'Yeni Lead',value:186,color:'#155eef',sub:'7 günlük yeni talep'},
@@ -1373,6 +1581,7 @@ function renderPerformanceDashboard(){
   renderRadar('detailRadarChart');
   renderSummary();
   renderTrendAndRemaining();
+  renderPerformanceCommandCenter();
 }
 const appointmentDays=['Bugün','Yarın','Cmt'];
 const appointmentHours=['09:00','10:00','11:00','12:00','13:00','15:00'];
@@ -1491,8 +1700,8 @@ function openModulePage(moduleId, activeNavId){
     renderWorkOrdersModule();
   } else if(moduleId==='missingSlaPage'){
     renderMissingSlaModule();
-  } 
-  if(!['appointmentPage','performancePage'].includes(moduleId))moduleSection.classList.add('active-module');
+  }
+  if(moduleId!=='appointmentPage')moduleSection.classList.add('active-module');
   if(moduleId==='workOrdersPage')setWorkOrderFilter('open',false);
   window.scrollTo({top:0,behavior:'instant'});
 }
@@ -1554,8 +1763,14 @@ if(backToDashboard)backToDashboard.addEventListener('click',openDashboardPage);
 if(appointmentBackDashboard)appointmentBackDashboard.addEventListener('click',openDashboardPage);
 if(savePerformanceTargets)savePerformanceTargets.addEventListener('click',()=>{
   applyPerformanceInputs();
-  savePerformanceTargets.textContent='Güncellendi';
-  setTimeout(()=>{savePerformanceTargets.textContent='Hedefleri Güncelle'},1100);
+  savePerformanceTargets.textContent='Şube Hedefleri Güncellendi';
+  setTimeout(()=>{savePerformanceTargets.textContent='Şube Hedeflerini Güncelle'},1100);
+});
+document.querySelectorAll('[data-performance-filter]').forEach(select=>select.addEventListener('change',renderPerformanceDashboard));
+document.querySelector('[data-performance-retry]')?.addEventListener('click',()=>{
+  renderPerformanceDashboard();
+  const banner=document.getElementById('performanceStateBanner');
+  if(banner)banner.querySelector('span').textContent=`Veri durumu: Yenilendi · ${performancePeriodLabel()} · Kapsam: Küçük Sanayi şubesi`;
 });
 if(quickButton)quickButton.onclick=openDrawer;
 if(quickButton2)quickButton2.onclick=()=>openDrawer('full');
@@ -1722,12 +1937,30 @@ document.querySelectorAll('.quick-action-card').forEach((card)=>{
 });
 getWorkOrderRows().forEach(bindWorkOrderRowActions);
 refreshWorkOrderFilterCounts();
+function ensureDashboardWorkOrders(){
+  const dashboardPage=document.getElementById('dashboardPage');
+  const activeWorkOrders=document.getElementById('activeWorkOrders');
+  const dashboardQuickBlock=document.querySelector('.grid-a.has-new-entry');
+  const dashboardPerformance=document.getElementById('dashboardPerformance');
+  if(!dashboardPage||!activeWorkOrders)return;
+  if(activeWorkOrders.parentElement!==dashboardPage)dashboardPage.insertBefore(activeWorkOrders,dashboardPerformance||dashboardPage.firstChild);
+  if(dashboardQuickBlock&&dashboardQuickBlock.previousElementSibling!==activeWorkOrders)dashboardPage.insertBefore(dashboardQuickBlock,activeWorkOrders.nextElementSibling);
+  if(dashboardPerformance&&dashboardQuickBlock&&dashboardPerformance.previousElementSibling!==dashboardQuickBlock)dashboardPage.insertBefore(dashboardPerformance,dashboardQuickBlock.nextElementSibling);
+}
+ensureDashboardWorkOrders();
 setWorkOrderFilter('open',false);
+(() => {
+  const activeModule=document.querySelector('.module-page.active-module');
+  if(activeModule) return;
+  const dashboardPage=document.getElementById('dashboardPage');
+  if(!dashboardPage)return;
+  document.body.classList.remove('workorder-page-open','appointment-page-open','performance-page-open');
+  document.body.classList.add('module-page-open');
+  document.querySelectorAll('.module-page').forEach(modulePage=>modulePage.classList.remove('active-module'));
+  dashboardPage.classList.add('active-module');
+  document.querySelectorAll('.nav a').forEach(link=>link.classList.remove('active'));
+  document.getElementById('navDashboard')?.classList.add('active');
+})();
 </script>
 </body>
 </html>
-
-
-
-
-
