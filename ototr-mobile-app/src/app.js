@@ -19,11 +19,15 @@ const authStorageKeys = Object.freeze([
   "ototrModuleOwnership",
   "ototrFinalReportPayloads",
   "ototrTechnicalApprovalGate",
-  "ototrProfileSettingDetail"
+  "ototrProfileSettingDetail",
+  "ototrUserRole",
+  "ototrAppUserId"
 ]);
 const authSessionStorageKeys = Object.freeze([
   "ototrDebugAutoLoginAttempted",
-  "ototrDebugRealAutoLoginAttempted"
+  "ototrDebugRealAutoLoginAttempted",
+  "ototrSecretariatWorkOrderDraft",
+  "ototrSecretariatCreatedWorkOrder"
 ]);
 const routeAliases = Object.freeze({
   "": "splash",
@@ -32,6 +36,15 @@ const routeAliases = Object.freeze({
   forgot: "forgot-password",
   "forgot-password": "forgot-password",
   "reset-password": "reset-password",
+  "secretariat-work-order": "secretariat-work-order",
+  "sekreterya-is-emri": "secretariat-work-order",
+  "ruhsat-is-emri": "secretariat-work-order",
+  "registration-capture": "registration-capture",
+  "ruhsat-cek": "registration-capture",
+  "registration-review": "registration-review",
+  "ruhsat-kontrol": "registration-review",
+  "work-order-created": "work-order-created",
+  "is-emri-olustu": "work-order-created",
   branch: "branch",
   "branch-select": "branch",
   password: "forgot-password",

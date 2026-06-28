@@ -256,6 +256,10 @@ const expectedComponentRoutes = [
   "sync-error",
   "emptyState",
   "empty-state",
+  "secretariat-work-order",
+  "registration-capture",
+  "registration-review",
+  "work-order-created",
   "profile"
 ];
 
@@ -583,4 +587,3 @@ if (errors.length > 0) {
 }
 
 console.log("Alt navigasyon dogrulamasi gecti: Gorevler / İşlerim / OtoTR / Eksikler / Profil ve kırmızı Home FAB standart.");
-

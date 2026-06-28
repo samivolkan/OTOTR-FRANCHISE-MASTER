@@ -74,6 +74,22 @@ import {
   getCachedFinalReport
 } from "../services/finalReportService.js";
 import { transitionLiveWorkOrderStatus } from "../services/liveWorkOrderStatusService.js";
+import {
+  canCreateSecretariatWorkOrder,
+  captureRegistrationImage,
+  clearSecretariatDraft,
+  createWorkOrderFromRegistration,
+  fetchSecretariatWorkOrderPackages,
+  getCurrentSecretariatContext,
+  normalizeEngineNo,
+  normalizePlate,
+  normalizeVin,
+  parseRegistrationText,
+  readCreatedSecretariatWorkOrder,
+  readSecretariatDraft,
+  validateRegistrationFields,
+  writeSecretariatDraft
+} from "../services/secretariatWorkOrderService.js";
 
 const shellRoutes = new Set([
   "login",
@@ -122,6 +138,10 @@ const shellRoutes = new Set([
   "sync-error",
   "emptyState",
   "empty-state",
+  "secretariat-work-order",
+  "registration-capture",
+  "registration-review",
+  "work-order-created",
   "profile"
 ]);
 
@@ -775,6 +795,10 @@ export function createPhase2Screen(activeRoute, onNavigate, { createBottomNav } 
     "sync-error": () => renderSyncError(onNavigate),
     emptyState: () => renderEmptyState(onNavigate),
     "empty-state": () => renderEmptyState(onNavigate),
+    "secretariat-work-order": () => renderSecretariatWorkOrderEntry(onNavigate),
+    "registration-capture": () => renderRegistrationCapture(onNavigate),
+    "registration-review": () => renderRegistrationReview(onNavigate),
+    "work-order-created": () => renderWorkOrderCreated(onNavigate),
     profile: () => renderProfile(onNavigate)
   };
 
@@ -2162,6 +2186,14 @@ function renderLogin(onNavigate) {
     localStorage.setItem("ototrSupabaseUserEmail", email);
     const normalizedEmail = String(email).toLowerCase();
     localStorage.setItem("ototrUser", normalizedEmail.includes("ahmet.usta") ? "Ahmet Usta" : email);
+    const inferredRole = normalizedEmail.includes("sekreter") || normalizedEmail.includes("secretary") || normalizedEmail.includes("secretariat")
+      ? "RECEPTION_STAFF"
+      : normalizedEmail.includes("mudur") || normalizedEmail.includes("manager") || normalizedEmail.includes("portal")
+        ? "BRANCH_MANAGER"
+        : normalizedEmail.includes("admin")
+          ? "ADMIN"
+          : "TECHNICIAN";
+    localStorage.setItem("ototrUserRole", inferredRole);
     const runtimeConfig = globalThis.OTOTR_SUPABASE_CONFIG || {};
     const debugAutoBranchId = runtimeConfig.debugAutoBranchId || "";
     const debugSelectedWorkOrderId = runtimeConfig.debugSelectedWorkOrderId || "";
@@ -2816,6 +2848,23 @@ function homeFinalQuickActions(onNavigate, readyCount = 0) {
     { label: "Devam Eden Mod?l", description: "Motor Kontrol?", icon: "engine", route: "tests", badge: "", tone: "orange" },
     { label: "Tamamlamaya Haz?r", description: readyLabel, icon: "shield", route: "final-report", badge: readyCount ? String(readyCount) : "", tone: "purple" }
   ];
+  const role = String(localStorage.getItem("ototrUserRole") || "").toUpperCase();
+  const email = String(localStorage.getItem("ototrSupabaseUserEmail") || "").toLowerCase();
+  const canOpenSecretariat = ["RECEPTION_STAFF", "BRANCH_MANAGER", "BRANCH_OWNER", "ADMIN", "HQ_ADMIN"].includes(role)
+    || email.includes("sekreter")
+    || email.includes("mudur")
+    || email.includes("manager")
+    || email.includes("portal");
+  if (canOpenSecretariat) {
+    actions.unshift({
+      label: "Ruhsatla İş Emri Aç",
+      description: "Sekreterya AOK",
+      icon: "camera",
+      route: "secretariat-work-order",
+      badge: "",
+      tone: "red"
+    });
+  }
   const wrap = element("section", { className: "home-final-block home-final-actions-block" });
   wrap.append(element("h2", { text: "H?zl? Aksiyonlar" }));
   const grid = element("div", { className: "home-final-actions" });
@@ -8843,6 +8892,287 @@ function clearLockedSectionState() {
   }
   clearLockedSectionReadOnly();
   clearLockedSectionRequest();
+}
+
+function secretariatHeader(title, subtitle, onNavigate) {
+  const header = element("section", { className: "secretariat-aok-header" });
+  const back = button(icons.arrow, "secretariat-aok-back", () => onNavigate("home"), "Ana sayfaya dön", true);
+  const titleBox = element("div", { className: "secretariat-aok-title" });
+  titleBox.append(
+    element("span", { text: "Mobil AOK Sekreterya" }),
+    element("h1", { text: title }),
+    element("p", { text: subtitle })
+  );
+  header.append(back, titleBox, element("div", { className: "secretariat-aok-bell", html: icons.bell || icons.shield }));
+  return header;
+}
+
+function secretariatStatus(message = "", tone = "neutral") {
+  return element("div", {
+    className: `secretariat-aok-status tone-${tone}`,
+    text: message,
+    attrs: { role: "status", "aria-live": "polite" }
+  });
+}
+
+function createSecretariatField({ label, name, value = "", placeholder = "", inputmode = "text", maxLength = "" }) {
+  const wrap = element("label", { className: "secretariat-aok-field" });
+  const input = element("input", {
+    attrs: {
+      name,
+      value,
+      placeholder,
+      inputmode,
+      ...(maxLength ? { maxlength: String(maxLength) } : {})
+    }
+  });
+  wrap.append(element("span", { text: label }), input);
+  return { wrap, input };
+}
+
+function renderSecretariatUnauthorized(message, onNavigate) {
+  const main = element("main", { className: "phase2-main secretariat-aok-screen" });
+  main.append(secretariatHeader("Yetki Kontrolü", "Bu akış sadece sekreterya ve müdür rolleri içindir.", onNavigate));
+  const card = element("section", { className: "secretariat-aok-card" });
+  card.append(
+    element("div", { className: "secretariat-aok-large-icon", html: icons.shield }),
+    element("h2", { text: "İş emri açma yetkisi bulunamadı" }),
+    element("p", { text: message || "Canlı oturumdaki rol doğrulanamadı. Usta ekranları değişmeden kullanılabilir." }),
+    button("Ana Sayfaya Dön", "secretariat-aok-primary", () => onNavigate("home"), "Ana sayfaya dön")
+  );
+  main.append(card);
+  return main;
+}
+
+function renderSecretariatWorkOrderEntry(onNavigate) {
+  const main = element("main", { className: "phase2-main secretariat-aok-screen" });
+  main.append(secretariatHeader("Ruhsat ile Mobil Kayıt", "Sekreterya kullanıcıları ruhsat fotoğrafı ve ERP paketiyle canlı kayıt başlatır.", onNavigate));
+  const status = secretariatStatus("Yetki ve paket bilgileri kontrol ediliyor...", "neutral");
+  const card = element("section", { className: "secretariat-aok-card secretariat-aok-entry" });
+  const packageList = element("div", { className: "secretariat-aok-package-preview" });
+  const startButton = button(`${icons.camera}<span>Ruhsat Fotoğrafı Çek</span>`, "secretariat-aok-primary", () => {
+    writeSecretariatDraft({ startedFrom: "secretariat-entry" });
+    onNavigate("registration-capture");
+  }, "Ruhsat fotoğrafı çek", true);
+  const manualButton = button("Manuel Girişle Devam", "secretariat-aok-secondary", () => {
+    writeSecretariatDraft({ startedFrom: "manual", ocrText: "" });
+    onNavigate("registration-review");
+  }, "Manuel girişle devam");
+  startButton.disabled = true;
+  manualButton.disabled = true;
+  card.append(
+    element("div", { className: "secretariat-aok-large-icon", html: icons.scan || icons.camera }),
+    element("h2", { text: "Mobil AOK iş emri" }),
+    element("p", { text: "Ruhsat fotoğrafını çekin, plaka/şasi/motor bilgisini kontrol edin ve aktif ERP paketini seçin." }),
+    packageList,
+    startButton,
+    manualButton,
+    status
+  );
+  main.append(card);
+  getCurrentSecretariatContext()
+    .then(async (context) => {
+      if (!canCreateSecretariatWorkOrder(context)) {
+        status.textContent = "Bu kullanıcı sekreterya iş emri açma yetkisine sahip görünmüyor.";
+        status.className = "secretariat-aok-status tone-error";
+        return;
+      }
+      const result = await fetchSecretariatWorkOrderPackages();
+      sessionStorage.setItem("ototrSecretariatPackages", JSON.stringify(result.packages));
+      packageList.replaceChildren(...result.packages.slice(0, 4).map((item) =>
+        element("span", { text: item.name || item.code })
+      ));
+      status.textContent = result.warning || `${result.packages.length} aktif paket hazır.`;
+      status.className = `secretariat-aok-status tone-${result.source === "live" ? "success" : "warning"}`;
+      startButton.disabled = false;
+      manualButton.disabled = false;
+    })
+    .catch((error) => {
+      status.textContent = error?.message || "Sekreterya kontrolü yapılamadı.";
+      status.className = "secretariat-aok-status tone-error";
+    });
+  return main;
+}
+
+function renderRegistrationCapture(onNavigate) {
+  const main = element("main", { className: "phase2-main secretariat-aok-screen" });
+  main.append(secretariatHeader("Ruhsat Fotoğrafı", "Ruhsatı çerçeve içine alın; OCR yoksa metni yapıştırıp manuel devam edin.", onNavigate));
+  const card = element("section", { className: "secretariat-aok-card" });
+  const preview = element("div", { className: "secretariat-aok-camera-frame" });
+  preview.append(
+    element("div", { className: "secretariat-aok-frame-corners" }),
+    element("strong", { text: "Ruhsat alanı" }),
+    element("span", { text: "Plaka - Şasi No - Motor No" })
+  );
+  const status = secretariatStatus("", "neutral");
+  const ocrText = element("textarea", {
+    className: "secretariat-aok-ocr-text",
+    attrs: {
+      rows: "4",
+      placeholder: "OCR metni buraya yapıştırılabilir. Örn: 34 ABC 123 / WAUZZZ... / MOTOR: ABC12345"
+    }
+  });
+  const captureButton = button(`${icons.camera}<span>Fotoğraf Çek</span>`, "secretariat-aok-primary", async () => {
+    status.textContent = "Kamera açılıyor...";
+    status.className = "secretariat-aok-status tone-neutral";
+    try {
+      const image = await captureRegistrationImage();
+      if (image.ok && image.dataUrl) {
+        preview.style.backgroundImage = `url("${image.dataUrl}")`;
+        preview.classList.add("has-photo");
+        writeSecretariatDraft({ registrationImageDataUrl: image.dataUrl });
+        status.textContent = "Fotoğraf alındı. OCR servisi bağlı değilse alanları manuel kontrol edin.";
+        status.className = "secretariat-aok-status tone-success";
+      } else {
+        status.textContent = image.reason || "Kamera bu ortamda açılamadı.";
+        status.className = "secretariat-aok-status tone-warning";
+      }
+    } catch (error) {
+      status.textContent = error?.message || "Kamera işlemi tamamlanamadı.";
+      status.className = "secretariat-aok-status tone-error";
+    }
+  }, "Ruhsat fotoğrafı çek", true);
+  const reviewButton = button("Bilgileri Kontrol Et", "secretariat-aok-secondary", () => {
+    const parsed = parseRegistrationText(ocrText.value);
+    writeSecretariatDraft({ ocrText: ocrText.value, ...parsed });
+    onNavigate("registration-review");
+  }, "Bilgileri kontrol et");
+  card.append(preview, captureButton, element("label", { className: "secretariat-aok-field secretariat-aok-textarea-label", html: "<span>OCR / Ruhsat Metni</span>" }), ocrText, reviewButton, status);
+  main.append(card);
+  return main;
+}
+
+function readSecretariatPackagesFromSession() {
+  try {
+    const packages = JSON.parse(sessionStorage.getItem("ototrSecretariatPackages") || "[]");
+    return Array.isArray(packages) ? packages : [];
+  } catch {
+    return [];
+  }
+}
+
+function renderRegistrationReview(onNavigate) {
+  const main = element("main", { className: "phase2-main secretariat-aok-screen" });
+  main.append(secretariatHeader("Ruhsat Bilgilerini Kontrol Et", "Alanları düzeltin, ERP paketini seçin ve canlı kaydı başlatın.", onNavigate));
+  const draft = readSecretariatDraft();
+  const form = element("form", { className: "secretariat-aok-card secretariat-aok-review" });
+  const status = secretariatStatus("", "neutral");
+  const fields = {
+    plate: createSecretariatField({ label: "Plaka", name: "plate", value: draft.plate || "", placeholder: "34 ABC 123" }),
+    chassisNo: createSecretariatField({ label: "Şasi No", name: "chassisNo", value: draft.chassisNo || "", placeholder: "17 karakter VIN", maxLength: 17 }),
+    engineNo: createSecretariatField({ label: "Motor No", name: "engineNo", value: draft.engineNo || "", placeholder: "Motor no", maxLength: 20 }),
+    customerName: createSecretariatField({ label: "Müşteri Adı", name: "customerName", value: draft.customerName || "", placeholder: "Ad Soyad" }),
+    customerPhone: createSecretariatField({ label: "Telefon", name: "customerPhone", value: draft.customerPhone || "", placeholder: "5550000000", inputmode: "tel" }),
+    brand: createSecretariatField({ label: "Marka", name: "brand", value: draft.brand || "", placeholder: "BMW" }),
+    model: createSecretariatField({ label: "Model", name: "model", value: draft.model || "", placeholder: "3 Serisi" }),
+    kilometers: createSecretariatField({ label: "KM", name: "kilometers", value: draft.kilometers || "", placeholder: "45200", inputmode: "numeric" })
+  };
+  const packageGrid = element("div", { className: "secretariat-aok-packages" });
+  let selectedPackage = draft.packageCode || "";
+  const renderPackages = (packages) => {
+    packageGrid.replaceChildren();
+    packages.forEach((item) => {
+      const card = button("", `secretariat-aok-package${selectedPackage === item.code ? " is-selected" : ""}`, () => {
+        selectedPackage = item.code;
+        writeSecretariatDraft({ packageCode: item.code, packageName: item.name });
+        renderPackages(packages);
+      }, `${item.name} paketini seç`);
+      card.append(element("strong", { text: item.name }), element("span", { text: item.description || item.code }));
+      packageGrid.append(card);
+    });
+  };
+  let packageRows = readSecretariatPackagesFromSession();
+  if (!packageRows.length) {
+    fetchSecretariatWorkOrderPackages().then((result) => {
+      packageRows = result.packages;
+      sessionStorage.setItem("ototrSecretariatPackages", JSON.stringify(packageRows));
+      renderPackages(packageRows);
+    }).catch(() => renderPackages([]));
+  }
+  renderPackages(packageRows);
+  fields.plate.input.addEventListener("blur", () => { fields.plate.input.value = normalizePlate(fields.plate.input.value); });
+  fields.chassisNo.input.addEventListener("input", () => { fields.chassisNo.input.value = normalizeVin(fields.chassisNo.input.value); });
+  fields.engineNo.input.addEventListener("input", () => { fields.engineNo.input.value = normalizeEngineNo(fields.engineNo.input.value); });
+  const submit = button("Mobil Kaydı Başlat", "secretariat-aok-primary", async () => {}, "Mobil kaydı başlat");
+  submit.type = "submit";
+  form.append(
+    element("h2", { text: "Ruhsat ve müşteri bilgileri" }),
+    fields.plate.wrap,
+    fields.chassisNo.wrap,
+    fields.engineNo.wrap,
+    fields.customerName.wrap,
+    fields.customerPhone.wrap,
+    fields.brand.wrap,
+    fields.model.wrap,
+    fields.kilometers.wrap,
+    element("h3", { text: "ERP Paket Seçimi" }),
+    packageGrid,
+    submit,
+    status
+  );
+  form.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const payload = {
+      plate: fields.plate.input.value,
+      chassisNo: fields.chassisNo.input.value,
+      engineNo: fields.engineNo.input.value,
+      customerName: fields.customerName.input.value,
+      customerPhone: fields.customerPhone.input.value,
+      brand: fields.brand.input.value,
+      model: fields.model.input.value,
+      kilometers: fields.kilometers.input.value,
+      packageCode: selectedPackage,
+      packageName: packageRows.find((item) => item.code === selectedPackage)?.name || selectedPackage
+    };
+    const validation = validateRegistrationFields(payload);
+    if (!validation.ok) {
+      status.textContent = Object.values(validation.errors).join(" ");
+      status.className = "secretariat-aok-status tone-error";
+      return;
+    }
+    submit.disabled = true;
+    status.textContent = "Canlı kayıt oluşturuluyor...";
+    status.className = "secretariat-aok-status tone-neutral";
+    try {
+      await createWorkOrderFromRegistration(payload);
+      onNavigate("work-order-created");
+    } catch (error) {
+      submit.disabled = false;
+      const validationText = error?.validation ? Object.values(error.validation).join(" ") : "";
+      status.textContent = validationText || error?.message || "Canlı kayıt oluşturulamadı.";
+      status.className = "secretariat-aok-status tone-error";
+    }
+  });
+  main.append(form);
+  return main;
+}
+
+function renderWorkOrderCreated(onNavigate) {
+  const main = element("main", { className: "phase2-main secretariat-aok-screen" });
+  main.append(secretariatHeader("Mobil Kayıt Oluşturuldu", "Sekreterya kaydı canlı sisteme gönderildi.", onNavigate));
+  const created = readCreatedSecretariatWorkOrder();
+  const card = element("section", { className: "secretariat-aok-card secretariat-aok-created" });
+  card.append(
+    element("div", { className: "secretariat-aok-large-icon success", html: icons.check }),
+    element("h2", { text: created.workOrderNo || "Canlı iş emri hazır" }),
+    element("dl", {
+      html: `
+        <div><dt>Plaka</dt><dd>${created.plate || "-"}</dd></div>
+        <div><dt>Şasi No</dt><dd>${created.chassisNo || "-"}</dd></div>
+        <div><dt>Motor No</dt><dd>${created.engineNo || "-"}</dd></div>
+        <div><dt>Paket</dt><dd>${created.packageName || created.packageCode || "-"}</dd></div>
+      `
+    }),
+    button("İş Emirlerine Git", "secretariat-aok-primary", () => {
+      syncLiveWorkOrders().finally(() => onNavigate("jobs"));
+    }, "İş emirlerine git"),
+    button("Yeni İş Emri Aç", "secretariat-aok-secondary", () => {
+      clearSecretariatDraft();
+      onNavigate("secretariat-work-order");
+    }, "Yeni iş emri aç")
+  );
+  main.append(card);
+  return main;
 }
 
 function button(label, className, onClick, ariaLabel, rawHtml = false) {

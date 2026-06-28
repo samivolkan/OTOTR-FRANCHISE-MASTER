@@ -210,6 +210,21 @@ export function getInspectionPackageDefinition(packageNameOrCode = "") {
   return packageDefinitions[getCanonicalInspectionPackageCode(packageNameOrCode)] || packageDefinitions.STANDARD;
 }
 
+export function listInspectionPackageDefinitions() {
+  return Object.values(packageDefinitions).map((definition, index) => ({
+    id: definition.code.toLowerCase(),
+    code: definition.code,
+    name: definition.name,
+    description: `${definition.moduleIds.length} modül`,
+    durationMinutes: definition.durationMinutes || null,
+    moduleIds: [...definition.moduleIds],
+    includedModules: getInspectionPackageIncludedModules(definition.code),
+    isActive: true,
+    sortOrder: index + 1,
+    source: "local-catalog"
+  }));
+}
+
 export function getInspectionPackageModuleIds(packageNameOrCode = "") {
   return [...getInspectionPackageDefinition(packageNameOrCode).moduleIds];
 }
