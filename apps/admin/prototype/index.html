@@ -12,9 +12,7 @@
   <script>
     (function(){
       try{
-        var params = new URLSearchParams(window.location.search);
-        var hashRoute = (window.location.hash || '').replace(/^#\/?/, '').split('/')[0];
-        window.__OTOTR_DEALER_STANDALONE__ = params.get('portal') === 'dealer' || hashRoute === 'dealer';
+        window.__OTOTR_DEALER_STANDALONE__ = false;
         if(window.__OTOTR_DEALER_STANDALONE__){
           document.documentElement.classList.add('dealer-standalone-root');
           document.title = 'OTOTR Bayi Portalı';
@@ -16141,8 +16139,14 @@
       if(apiStatus) apiStatus.textContent='Mock API bağlanıyor';
       DB=await Backend.connect();
       if(apiStatus) apiStatus.textContent='Mock API bağlı';
-      const opensDealerPortal = new URLSearchParams(location.search).get('portal')==='dealer';
-      const initial=(location.hash || (opensDealerPortal ? '#dealer' : '#dashboard')).replace('#','');
+      const params = new URLSearchParams(location.search);
+      if(params.get('portal')==='dealer'){
+        params.delete('portal');
+        history.replaceState(null,'',location.pathname+(params.toString()?`?${params.toString()}`:'')+'#dashboard');
+      }else if((location.hash||'').replace('#','')==='dealer'){
+        history.replaceState(null,'',location.pathname+location.search+'#dashboard');
+      }
+      const initial=(location.hash || '#dashboard').replace('#','');
       const initialCanonical=initial==='expertise-report'?'report-design':initial;
       const initialHR=parseHRRoute(initialCanonical);
       const initialAcademy=parseAcademyRoute(initialCanonical);
@@ -16168,6 +16172,11 @@
     })();
     window.addEventListener('hashchange',()=>{
       const id=(location.hash||'#dashboard').replace('#','');
+      if(id==='dealer'){
+        history.replaceState(null,'',location.pathname+location.search+'#dashboard');
+        route('dashboard');
+        return;
+      }
       const canonical=id==='expertise-report'?'report-design':id;
       const hr=parseHRRoute(canonical);
       const academy=parseAcademyRoute(canonical);
