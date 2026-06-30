@@ -284,7 +284,7 @@ button,input,select,textarea{font:inherit}.app{min-height:100vh;display:grid;gri
 .package-option-card.selected{border-color:#86efac;background:#f0fdf4}
 .package-option-card.required{border-color:#c4b5fd;background:#fbfaff}
 .package-option-card .package-add-btn:not(.selected){background:#e11d1d;border-color:#e11d1d;color:#fff}
-.package-card-secondary-actions,.package-template-actions,.package-created-actions{display:flex;gap:7px;flex-wrap:wrap;align-items:center}
+  .package-card-secondary-actions,.package-template-actions,.package-created-actions{display:flex;gap:7px;flex-wrap:wrap;align-items:center;border:1px solid #e5e7eb;background:#f8fafc;border-radius:9px;padding:7px}
 .package-action-link{height:30px;border:1px solid #dbe3ee;border-radius:8px;background:#fff;color:#344054;padding:0 9px;font-size:11px;font-weight:900;cursor:pointer;white-space:nowrap}
 .package-action-link.primary{background:#eff6ff;border-color:#bfdbfe;color:#155eef}
 .package-action-link.danger{background:#fff1f3;border-color:#fecdd3;color:#d71920}
@@ -448,12 +448,12 @@ button,input,select,textarea{font:inherit}.app{min-height:100vh;display:grid;gri
 .package-builder-kpis{display:none!important}
 .package-pool-tools{display:block!important}
 .package-all-sections{display:grid;gap:14px}
-.package-test-section{display:grid;gap:9px}
-.package-test-section-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:0 2px}
+  .package-test-section{display:grid;gap:9px}
+  .package-test-section-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:0 2px}
 .package-test-section-head b{font-size:13px;color:#111827}.package-test-section-head span{font-size:11px;font-weight:850;color:#667085}
 .package-test-section-grid{display:grid;gap:9px}
-.package-card-secondary-actions{display:flex;gap:7px;flex-wrap:wrap;align-items:center}
-.package-action-link.danger{border-color:#fecdd3!important;background:#fff1f2!important;color:#d71920!important}
+  .package-card-secondary-actions,.package-template-actions,.package-created-actions{display:flex;gap:7px;flex-wrap:wrap;align-items:center;border:1px solid var(--package-line);background:#f8faff;border-radius:10px;padding:7px 8px}
+  .package-action-link.danger{border-color:#fecdd3!important;background:#fff1f2!important;color:#d71920!important}
 .package-action-link.archive{border-color:#dbe3ee!important;background:#f8fafc!important;color:#475467!important}
 .package-selected-panel .package-control-point-panel{display:none!important}
 .package-builder-layout{display:grid!important;grid-template-columns:1fr!important;gap:14px!important;align-items:stretch!important}
@@ -608,14 +608,14 @@ button,input,select,textarea{font:inherit}.app{min-height:100vh;display:grid;gri
             <div class="field"><label class="required">Model Yılı</label><input data-entry-field="year" /></div>
             <div class="vehicle-package-strip" data-package-scope="dashboard">
               <button class="package-pill is-selected" type="button" data-package-name="Paket 1" data-package-price="5500"><b>Paket 1</b><small>Temel 3 test + 5664</small><strong>5.500 TL</strong></button>
-              <button class="package-pill" type="button" data-package-name="Paket 2" data-package-price="6900"><b>Paket 2</b><small>Paket 1 + OBD/Beyin</small><strong>6.900 TL</strong></button>
-              <button class="package-pill" type="button" data-package-name="Paket 3" data-package-price="7800"><b>Paket 3</b><small>DYNO + sorgular</small><strong>7.800 TL</strong></button>
+              <button class="package-pill" type="button" data-package-name="Paket 2" data-package-price="6900"><b>Paket 2</b><small>Paket 1 + Motor Kontrol</small><strong>6.900 TL</strong></button>
+              <button class="package-pill" type="button" data-package-name="Paket 3" data-package-price="7800"><b>Paket 3</b><small>Dyno testi ve sorgular</small><strong>7.800 TL</strong></button>
               <button class="package-pill" type="button" data-package-name="Paket 4" data-package-price="9000"><b>Paket 4</b><small>Test hattı + iç/dış</small><strong>9.000 TL</strong></button>
               <button class="package-pill" type="button" data-package-name="Paket 5" data-package-price="11000"><b>Paket 5</b><small>Conta + 1 ay garanti</small><strong>11.000 TL</strong></button>
               <button class="package-pill" type="button" data-package-name="Paket 6" data-package-price="13000"><b>Paket 6</b><small>Airbag dahil tam kapsam</small><strong>13.000 TL</strong></button>
               <button class="package-pill" type="button" data-package-name="Paket 7" data-package-price="16000"><b>Paket 7</b><small>3 ay / 5000 km garanti</small><strong>16.000 TL</strong></button>
-              <button class="package-pill" type="button" data-package-name="Paket 8" data-package-price="19000"><b>Paket 8</b><small>Premium tam kapsam</small><strong>19.000 TL</strong></button>
-              <button class="package-pill" type="button" data-package-name="Paket 9" data-package-price="22000"><b>Paket 9</b><small>Luxury + 3 ay garanti</small><strong>22.000 TL</strong></button>
+              <button class="package-pill" type="button" data-package-name="Paket 8" data-package-price="19000"><b>Paket 8</b><small>Tam kapsam</small><strong>19.000 TL</strong></button>
+              <button class="package-pill" type="button" data-package-name="Paket 9" data-package-price="22000"><b>Paket 9</b><small>3 ay garanti</small><strong>22.000 TL</strong></button>
             </div>
             <div class="quick-form-note">Ek hizmetler ve garanti kapsamı artık Paket Oluşturucu şablonunun içinde yönetilir.</div>
             <div class="form-actions"><span class="entry-note">Hızlıdan tam iş emrine geçince veriler korunur.</span><div class="vehicle-entry-actions"><button class="btn" id="openFullFromDashboard" type="button">Tam İş Emrine Geç</button><button class="btn primary" type="button" id="createQuickEntry">İş Emri Aç</button></div></div>
@@ -1117,7 +1117,7 @@ button,input,select,textarea{font:inherit}.app{min-height:100vh;display:grid;gri
             <div class="package-panel-body">
               <div class="package-pool-tools">
                 <div class="package-pool-main">
-                  <div class="package-search"><span>ARA</span><input id="packageSearchInput" placeholder="Modül ara: kaporta, motor, OBD..."></div>
+                  <div class="package-search"><span>ARA</span><input id="packageSearchInput" placeholder="Modül ara: kaporta, motor, dyno..."></div>
                   <div class="package-test-point-builder">
                     <div class="package-test-point-form" id="packageTestPointForm" hidden>
                       <div class="field"><label>Ekleneceği liste</label><select data-test-point-field="target"><option value="main">Ana Testler</option><option value="extra">Ek Testler</option><option value="query">Sorgular</option><option value="warranty">Garanti Paketleri</option></select></div>
@@ -1125,7 +1125,7 @@ button,input,select,textarea{font:inherit}.app{min-height:100vh;display:grid;gri
                       <div class="field"><label>Bakılacak nokta sayısı</label><input data-test-point-field="controlPoints" type="number" min="1" step="1" placeholder="8"></div>
                       <div class="field"><label>Test fiyatı</label><input data-test-point-field="priceImpact" type="number" min="0" step="50" placeholder="0"></div>
                       <div class="field"><label>Kanıt kuralı</label><select data-test-point-field="evidence"><option>Foto kanıt</option><option>Veri kaydı</option><option>Grafik çıktı</option><option>Foto/veri kanıtı</option><option>Test hattı çıktısı</option><option>Sorgu kaydı</option><option>Merkez onayı</option><option>Kanıt önerilir</option><option>Opsiyonel</option></select></div>
-                      <div class="field"><label>Risk seviyesi</label><select data-test-point-field="risk"><option>Orta</option><option>Yüksek</option><option>Düşük</option></select></div>
+                      <div class="field"><label>Risk seviyesi</label><select data-test-point-field="risk"><option>Düşük</option><option>Yüksek</option></select></div>
                       <div class="field"><label>Onay kuralı</label><select data-test-point-field="approval"><option>Otomatik</option><option>Merkez onayı gerekli</option></select></div>
                       <div class="field wide"><label>Alt seçenekler / kontrol içerikleri</label><textarea data-test-point-field="subPoints" rows="4" placeholder="Ön sol açı&#10;Ön sağ açı&#10;İç kabin fotoğrafı"></textarea><small>Her satır bir alt kontrol başlığı olarak kaydedilir.</small></div>
                       <div class="package-test-point-actions">
@@ -1160,13 +1160,24 @@ button,input,select,textarea{font:inherit}.app{min-height:100vh;display:grid;gri
       <section class="module-page package-point-editor-page" id="packagePointEditorPage">
         <div class="module-head package-builder-head">
           <div>
-            <h1 id="packagePointEditorTitle">Test Kontrol Noktaları</h1>
-            <p id="packagePointEditorSubtitle">Seçilen testin kontrol maddeleri ve alt seçenekleri düzenlenir.</p>
+            <h1 id="packagePointEditorTitle">Test Maddeleri Yönetimi</h1>
+            <p id="packagePointEditorSubtitle">Ekspertiz şablonundaki madde ve alt maddeleri yönetin.</p>
           </div>
           <div class="package-builder-head-actions">
-            <button class="btn" data-package-points-back type="button">Paket Oluşturucuya Dön</button>
-            <button class="btn primary" data-package-point-add-toggle type="button">Yeni Madde Ekle</button>
+            <button class="btn" data-package-bulk-save type="button">Toplu Kaydet</button>
+            <button class="btn primary" data-package-point-add-toggle type="button">+ Yeni Test Tipi</button>
           </div>
+        </div>
+        <div class="package-point-filterbar">
+          <button class="package-point-select-card" data-package-points-back type="button">
+            <span class="package-point-select-icon">AR</span>
+            <span class="package-point-select-copy"><span>Test Tipi Seçin</span><b id="packagePointFilterName">Kaporta ve Boya Ekspertizi</b></span>
+            <span class="package-point-chevron">⌄</span>
+          </button>
+          <label class="package-point-search-card"><input id="packagePointSearchInput" placeholder="Ara: Madde, alt madde, ID..."><span>ARA</span></label>
+          <label class="package-point-filter-select"><span>Zorunluluk</span><select id="packagePointRequiredFilter"><option value="all">Tümü</option><option value="required">Zorunlu</option><option value="optional">Opsiyonel</option></select></label>
+          <label class="package-point-filter-select"><span>Fotoğraf Durumu</span><select id="packagePointPhotoFilter"><option value="all">Tümü</option><option value="required">Fotoğraf Zorunlu</option><option value="optional">Fotoğraf Opsiyonel</option><option value="none">Fotoğraf Yok</option></select></label>
+          <button class="package-point-filter-clear" data-package-point-clear-filters type="button">Filtreleri Temizle</button>
         </div>
         <div class="package-point-editor-layout">
           <aside class="package-point-summary">
@@ -1175,8 +1186,8 @@ button,input,select,textarea{font:inherit}.app{min-height:100vh;display:grid;gri
           </aside>
           <section class="package-point-editor-panel">
             <div class="package-point-editor-toolbar">
-              <div><h2>Kontrol Maddeleri</h2><p>Madde başlığını, alt seçenekleri ve zorunluluk bilgisini tek listede yönetin.</p></div>
-              <div class="package-point-editor-actions"><button class="btn" data-package-points-back type="button">Geri</button><button class="btn primary" data-package-point-add-toggle type="button">Yeni Madde Ekle</button></div>
+              <div><h2 id="packagePointListTitle">Kaporta ve Boya Ekspertizi</h2><p>Madde başlığını, alt seçenekleri ve zorunluluk bilgisini tek listede yönetin.</p></div>
+              <div class="package-point-editor-actions"><span class="package-point-sort">ID'ye Göre ↑</span></div>
             </div>
             <div class="package-point-add-form" id="packagePointAddForm" hidden>
               <div class="field"><label>Madde başlığı</label><input data-package-point-new-title placeholder="Örn. Turbo basınç kontrolü"></div>
@@ -1185,7 +1196,9 @@ button,input,select,textarea{font:inherit}.app{min-height:100vh;display:grid;gri
             </div>
             <div class="package-point-list" id="packagePointEditorList"></div>
           </section>
+          <section class="package-point-detail-panel" id="packagePointDetailPanel"></section>
         </div>
+        <div class="package-point-bottom-status" id="packagePointBottomStatus"></div>
       </section>
       <section class="module-page" id="staffAcademyPage">
         <div class="module-head"><div><h1>Personel & Academy</h1><p>Yük dağılımı, eğitim durumu ve performans takibi.</p></div><button class="btn" data-open-module="dashboardPage" data-open-module-nav="navDashboard">Kokpite Dön</button></div>
@@ -1250,14 +1263,14 @@ button,input,select,textarea{font:inherit}.app{min-height:100vh;display:grid;gri
             </div></div>
             <div class="entry-section"><div class="entry-section-head"><span class="step-badge">2</span><h3>Hizmet / Paket Seçimi</h3></div><div class="entry-section-body"><div class="entry-packages" data-package-scope="drawer">
               <button class="entry-package-card is-selected" type="button" data-package-name="Paket 1" data-package-price="5500"><span class="entry-package-icon">1</span><b>Paket 1</b><small>Temel 3 test + 5664</small><strong>5.500 TL</strong></button>
-              <button class="entry-package-card" type="button" data-package-name="Paket 2" data-package-price="6900"><span class="entry-package-icon">2</span><b>Paket 2</b><small>Paket 1 + OBD/Beyin</small><strong>6.900 TL</strong></button>
-              <button class="entry-package-card" type="button" data-package-name="Paket 3" data-package-price="7800"><span class="entry-package-icon">3</span><b>Paket 3</b><small>DYNO + sorgular</small><strong>7.800 TL</strong></button>
+              <button class="entry-package-card" type="button" data-package-name="Paket 2" data-package-price="6900"><span class="entry-package-icon">2</span><b>Paket 2</b><small>Paket 1 + Motor Kontrol</small><strong>6.900 TL</strong></button>
+              <button class="entry-package-card" type="button" data-package-name="Paket 3" data-package-price="7800"><span class="entry-package-icon">3</span><b>Paket 3</b><small>Dyno testi ve sorgular</small><strong>7.800 TL</strong></button>
               <button class="entry-package-card" type="button" data-package-name="Paket 4" data-package-price="9000"><span class="entry-package-icon">4</span><b>Paket 4</b><small>Test hattı + iç/dış</small><strong>9.000 TL</strong></button>
               <button class="entry-package-card" type="button" data-package-name="Paket 5" data-package-price="11000"><span class="entry-package-icon">5</span><b>Paket 5</b><small>Conta + 1 ay garanti</small><strong>11.000 TL</strong></button>
               <button class="entry-package-card" type="button" data-package-name="Paket 6" data-package-price="13000"><span class="entry-package-icon">6</span><b>Paket 6</b><small>Airbag dahil tam kapsam</small><strong>13.000 TL</strong></button>
               <button class="entry-package-card" type="button" data-package-name="Paket 7" data-package-price="16000"><span class="entry-package-icon">7</span><b>Paket 7</b><small>3 ay / 5000 km garanti</small><strong>16.000 TL</strong></button>
-              <button class="entry-package-card" type="button" data-package-name="Paket 8" data-package-price="19000"><span class="entry-package-icon">8</span><b>Paket 8</b><small>Premium tam kapsam</small><strong>19.000 TL</strong></button>
-              <button class="entry-package-card" type="button" data-package-name="Paket 9" data-package-price="22000"><span class="entry-package-icon">9</span><b>Paket 9</b><small>Luxury + 3 ay garanti</small><strong>22.000 TL</strong></button>
+              <button class="entry-package-card" type="button" data-package-name="Paket 8" data-package-price="19000"><span class="entry-package-icon">8</span><b>Paket 8</b><small>Tam kapsam</small><strong>19.000 TL</strong></button>
+              <button class="entry-package-card" type="button" data-package-name="Paket 9" data-package-price="22000"><span class="entry-package-icon">9</span><b>Paket 9</b><small>3 ay garanti</small><strong>22.000 TL</strong></button>
             </div></div></div>
             <div class="entry-section"><div class="entry-section-head"><span class="step-badge">3</span><h3>Ek Testler / Kapsam</h3></div><div class="entry-section-body">
               <div class="entry-alert">Seçili ana paketin içinde olmayan ek hizmetleri buradan ekleyin. Paket kapsamındaki hizmetler tekrar satılamaz.</div>
@@ -1273,7 +1286,7 @@ button,input,select,textarea{font:inherit}.app{min-height:100vh;display:grid;gri
         <div class="entry-two-col"><div class="entry-section"><div class="entry-section-head"><span class="step-badge">1</span><h3>Araç Bilgileri</h3></div><div class="entry-section-body entry-grid"><div class="field"><label class="required">Plaka</label><input data-entry-target="plate"></div><div class="field"><label class="required">Şasi No</label><input data-entry-target="vin"></div><div class="field"><label class="required">Motor No</label><input data-entry-target="engineNo"></div><div class="field"><label class="required">Marka</label><input data-entry-target="brand"></div><div class="field"><label class="required">Model</label><input data-entry-target="model"></div><div class="field"><label class="required">Alt Paket</label><input data-entry-target="variant"></div><div class="field"><label class="required">Model Yılı</label><input data-entry-target="year"></div></div></div><div class="entry-section"><div class="entry-section-head"><span class="step-badge">1B</span><h3>Araç Özellikleri</h3></div><div class="entry-section-body entry-grid"><div class="field"><label>Giriş KM</label><input data-entry-target="km"></div><div class="field"><label>Yakıt Tipi</label><select data-entry-target="fuel"><option>Benzin</option><option>Dizel</option><option>Hybrid</option><option>Elektrik</option></select></div><div class="field"><label>Vites Tipi</label><select data-entry-target="transmission"><option>Otomatik</option><option>Manuel</option></select></div><div class="field"><label>Yedek Anahtar</label><select data-entry-target="spareKey"><option>Var</option><option>Yok</option></select></div><div class="entry-system-checks"><div class="entry-system-check warn"><b>Tramer Sorgusu</b><span>Sorgulama yapılamadı. Lütfen manuel sorgulama ile veri giriniz.</span></div><div class="entry-system-check warn"><b>KM Sorgusu</b><span>Sorgulama yapılamadı. Lütfen manuel sorgulama ile veri giriniz.</span></div></div></div></div></div>
         <div class="entry-two-col"><div class="entry-section"><div class="entry-section-head"><span class="step-badge">2</span><h3>Müşteri Bilgileri</h3></div><div class="entry-section-body entry-grid"><div class="field"><label>Ad Soyad</label><input data-entry-target="customer" placeholder="Ad soyad"></div><div class="field"><label>Telefon</label><input data-entry-target="phone" placeholder="05xx xxx xx xx"></div><div class="field"><label>Geliş Kanalı</label><select data-entry-target="channel"><option>Walk-in</option><option>Telefon</option><option>Web</option><option>Galeri</option><option>Randevu</option><option>WhatsApp</option><option>Referans</option></select></div><div class="field"><label>Müşteri Tipi</label><select data-entry-target="customerType"><option>Bireysel</option><option>Kurumsal</option><option>Galeri</option></select></div><div class="field"><label>İletişim İzni</label><select data-entry-target="contactPermission"><option>Evet</option><option>Hayır</option></select></div><div class="field"><label>T.C. / Vergi No</label><input data-entry-target="taxNo"></div><div class="field"><label>Rapor Alıcısı</label><input data-entry-target="reportRecipient" placeholder="Müşteri / aracı getiren"></div></div></div>
         <div class="entry-section"><div class="entry-section-head"><span class="step-badge">3</span><h3>Satıcı Bilgileri</h3></div><div class="entry-section-body entry-grid four"><div class="field"><label>Ad Soyad / Unvan</label><input data-entry-target="sellerName" placeholder="Satıcı adı"></div><div class="field"><label>Telefon</label><input data-entry-target="sellerPhone" value="0533 210 47 24"></div><div class="field wide"><label>T.C. / Vergi No</label><input data-entry-target="sellerTaxNo" placeholder="11 haneli T.C. kimlik no"></div><div class="field"><label>Satıcı Tipi</label><select data-entry-target="sellerType"><option>Bireysel</option><option>Kurumsal</option><option>Galeri</option></select></div><div class="field"><label>İletişim İzni</label><select data-entry-target="sellerPermission"><option>Evet</option><option>Hayır</option></select></div><div class="entry-status-bar"><span>Yeni Satıcı</span><span>18 puan · ilk satıcı kaydı · 40 puanda Güvenilir Satıcı</span></div></div></div></div>
-        <div class="entry-two-col"><div class="entry-section"><div class="entry-section-head"><span class="step-badge">4</span><h3>Hizmet / Paket Seçimi</h3></div><div class="entry-section-body"><div class="entry-packages" data-package-scope="full"><button class="entry-package-card" type="button" data-package-name="Paket 1" data-package-price="5500"><span class="entry-package-icon">1</span><b>Paket 1</b><small>Temel 3 test + 5664</small><strong>5.500 TL</strong></button><button class="entry-package-card" type="button" data-package-name="Paket 2" data-package-price="6900"><span class="entry-package-icon">2</span><b>Paket 2</b><small>Paket 1 + OBD/Beyin</small><strong>6.900 TL</strong></button><button class="entry-package-card" type="button" data-package-name="Paket 3" data-package-price="7800"><span class="entry-package-icon">3</span><b>Paket 3</b><small>DYNO + sorgular</small><strong>7.800 TL</strong></button><button class="entry-package-card" type="button" data-package-name="Paket 4" data-package-price="9000"><span class="entry-package-icon">4</span><b>Paket 4</b><small>Test hattı + iç/dış</small><strong>9.000 TL</strong></button><button class="entry-package-card" type="button" data-package-name="Paket 5" data-package-price="11000"><span class="entry-package-icon">5</span><b>Paket 5</b><small>Conta + 1 ay garanti</small><strong>11.000 TL</strong></button><button class="entry-package-card" type="button" data-package-name="Paket 6" data-package-price="13000"><span class="entry-package-icon">6</span><b>Paket 6</b><small>Airbag dahil tam kapsam</small><strong>13.000 TL</strong></button><button class="entry-package-card" type="button" data-package-name="Paket 7" data-package-price="16000"><span class="entry-package-icon">7</span><b>Paket 7</b><small>3 ay / 5000 km garanti</small><strong>16.000 TL</strong></button><button class="entry-package-card" type="button" data-package-name="Paket 8" data-package-price="19000"><span class="entry-package-icon">8</span><b>Paket 8</b><small>Premium tam kapsam</small><strong>19.000 TL</strong></button><button class="entry-package-card" type="button" data-package-name="Paket 9" data-package-price="22000"><span class="entry-package-icon">9</span><b>Paket 9</b><small>Premium + 3 ay garanti</small><strong>22.000 TL</strong></button></div></div></div>
+        <div class="entry-two-col"><div class="entry-section"><div class="entry-section-head"><span class="step-badge">4</span><h3>Hizmet / Paket Seçimi</h3></div><div class="entry-section-body"><div class="entry-packages" data-package-scope="full"><button class="entry-package-card" type="button" data-package-name="Paket 1" data-package-price="5500"><span class="entry-package-icon">1</span><b>Paket 1</b><small>Temel 3 test + 5664</small><strong>5.500 TL</strong></button><button class="entry-package-card" type="button" data-package-name="Paket 2" data-package-price="6900"><span class="entry-package-icon">2</span><b>Paket 2</b><small>Paket 1 + Motor Kontrol</small><strong>6.900 TL</strong></button><button class="entry-package-card" type="button" data-package-name="Paket 3" data-package-price="7800"><span class="entry-package-icon">3</span><b>Paket 3</b><small>Dyno testi ve sorgular</small><strong>7.800 TL</strong></button><button class="entry-package-card" type="button" data-package-name="Paket 4" data-package-price="9000"><span class="entry-package-icon">4</span><b>Paket 4</b><small>Test hattı + iç/dış</small><strong>9.000 TL</strong></button><button class="entry-package-card" type="button" data-package-name="Paket 5" data-package-price="11000"><span class="entry-package-icon">5</span><b>Paket 5</b><small>Conta + 1 ay garanti</small><strong>11.000 TL</strong></button><button class="entry-package-card" type="button" data-package-name="Paket 6" data-package-price="13000"><span class="entry-package-icon">6</span><b>Paket 6</b><small>Airbag dahil tam kapsam</small><strong>13.000 TL</strong></button><button class="entry-package-card" type="button" data-package-name="Paket 7" data-package-price="16000"><span class="entry-package-icon">7</span><b>Paket 7</b><small>3 ay / 5000 km garanti</small><strong>16.000 TL</strong></button><button class="entry-package-card" type="button" data-package-name="Paket 8" data-package-price="19000"><span class="entry-package-icon">8</span><b>Paket 8</b><small>Tam kapsam</small><strong>19.000 TL</strong></button><button class="entry-package-card" type="button" data-package-name="Paket 9" data-package-price="22000"><span class="entry-package-icon">9</span><b>Paket 9</b><small>3 ay garanti</small><strong>22.000 TL</strong></button></div></div></div>
         <div class="entry-section"><div class="entry-section-head"><span class="step-badge">5</span><h3>Ek Testler / Kapsam</h3></div><div class="entry-section-body">
           <div class="entry-alert">Seçili ana paketin içinde olmayan ek hizmetleri buradan ekleyin. Paket kapsamındaki hizmetler tekrar satılamaz.</div>
           <div class="entry-addon-grid full-addon-grid" data-addon-scope="full"></div>
@@ -1351,31 +1364,31 @@ const packageManualControlPointRows={
   ]
 };
 const packageExtraServices=[
-  {id:'obdBrain',name:'OBD/Beyin Testi',short:'OBD',category:'extraTests',schemaGroupCodes:['OBD_ECU_TEST'],description:'Motor, şanzıman, ABS, airbag ve elektronik kontrol ünitelerindeki hata kayıtları okunur.',controlPoints:18,evidence:'Veri kaydı',risk:'Orta',priceImpact:0,priceLabel:'Paket içi',approval:'Otomatik',defaultSelected:false,requiredForGuaranteed:true},
-  {id:'dynoTest',name:'DYNO Testi',short:'DYN',category:'extraTests',schemaGroupCodes:['DYNO_ROAD_TEST'],description:'Motor performansı ve güç aktarım değerleri dyno cihaz çıktısıyla kontrol edilir.',controlPoints:14,evidence:'Grafik çıktı',risk:'Orta',priceImpact:0,priceLabel:'Paket içi',approval:'Otomatik',defaultSelected:false,requiredForGuaranteed:true},
+  {id:'obdBrain',name:'Motor Kontrol Testi',short:'MK',category:'extraTests',schemaGroupCodes:['OBD_ECU_TEST'],description:'Motor, şanzıman, ABS, airbag ve elektronik kontrol ünitelerindeki hata kayıtları okunur.',controlPoints:18,evidence:'Veri kaydı',risk:'Düşük',priceImpact:0,priceLabel:'Paket içi',approval:'Otomatik',defaultSelected:false,requiredForGuaranteed:true},
+  {id:'dynoTest',name:'Dyno Testi',short:'DY',category:'extraTests',schemaGroupCodes:['DYNO_ROAD_TEST'],description:'Motor performansı ve güç aktarım değerleri dyno cihaz çıktısıyla kontrol edilir.',controlPoints:14,evidence:'Grafik çıktı',risk:'Düşük',priceImpact:0,priceLabel:'Paket içi',approval:'Otomatik',defaultSelected:false,requiredForGuaranteed:true},
   {id:'airbagTest',name:'Airbag Testi',short:'AB',category:'extraTests',schemaGroupCodes:['AIRBAG_CHECK'],description:'Airbag beyni, hata kayıtları, müdahale izleri ve güvenlik sistemi kontrolleri.',controlPoints:10,evidence:'Veri kaydı',risk:'Yüksek',priceImpact:0,priceLabel:'Paket içi',approval:'Otomatik',defaultSelected:false},
   {id:'interiorExpertise',name:'İç Ekspertiz',short:'İÇ',category:'extraTests',schemaGroupCodes:['INTERIOR_CHECKUP'],description:'Döşeme, trim, multimedya, klima, cam, koltuk ve iç donanım durum kontrolleri.',controlPoints:14,evidence:'Foto kanıt',risk:'Düşük',priceImpact:0,priceLabel:'Paket içi',approval:'Otomatik',defaultSelected:false},
   {id:'exteriorExpertise',name:'Dış Ekspertiz',short:'DIŞ',category:'extraTests',schemaGroupCodes:['EXTERIOR_CONDITION'],description:'Far, stop, cam, jant, lastik, dış kozmetik durum ve aksesuar kontrolleri.',controlPoints:14,evidence:'Foto kanıt',risk:'Düşük',priceImpact:0,priceLabel:'Paket içi',approval:'Otomatik',defaultSelected:false},
   {id:'interiorExterior',name:'İç ve Dış Ekspertiz',short:'İD',category:'extraTests',schemaGroupCodes:['INTERIOR_CHECKUP','EXTERIOR_CONDITION'],description:'İç ve dış kozmetik ekspertiz kalemlerini tek paket başlığı altında birleştirir.',controlPoints:28,evidence:'Foto kanıt',risk:'Düşük',priceImpact:0,priceLabel:'Paket içi',approval:'Otomatik',defaultSelected:false},
   {id:'gasketLeak',name:'Conta Kaçak Testi',short:'CK',category:'extraTests',schemaGroupCodes:['HEAD_GASKET_LEAK_TEST'],description:'Conta kaçağı, soğutma basıncı, yağ/su karışımı ve kaçak riskleri kontrol edilir.',controlPoints:12,evidence:'Foto/veri kanıtı',risk:'Yüksek',priceImpact:0,priceLabel:'Paket içi',approval:'Otomatik',defaultSelected:false,requiredForGuaranteed:true},
-  {id:'brakeSuspension',name:'Fren Süspansiyon Testi',short:'FS',category:'extraTests',schemaGroupCodes:['BRAKE_SUSPENSION_TEST'],description:'Fren kuvveti, sapma, süspansiyon dengesi ve test hattı ölçümleri ayrı modül olarak çalışır.',controlPoints:16,evidence:'Test hattı çıktısı',risk:'Orta',priceImpact:0,priceLabel:'Paket içi',approval:'Otomatik',defaultSelected:false,requiredForGuaranteed:true},
+  {id:'brakeSuspension',name:'Fren Süspansiyon Testi',short:'FS',category:'extraTests',schemaGroupCodes:['BRAKE_SUSPENSION_TEST'],description:'Fren kuvveti, sapma, süspansiyon dengesi ve test hattı ölçümleri ayrı modül olarak çalışır.',controlPoints:16,evidence:'Test hattı çıktısı',risk:'Düşük',priceImpact:0,priceLabel:'Paket içi',approval:'Otomatik',defaultSelected:false,requiredForGuaranteed:true},
   {id:'roadDynoTransmission',name:'Dyno - Yol Testi - Şanzıman Kontrolü',short:'DYŞ',category:'extraTests',schemaGroupCodes:['DYNO_ROAD_TEST'],description:'Yol testi, şanzıman geçişleri, çekiş, titreşim ve sürüş davranışı birlikte kontrol edilir.',controlPoints:18,evidence:'Kanıt önerilir',risk:'Yüksek',priceImpact:0,priceLabel:'Paket içi',approval:'Otomatik',defaultSelected:false},
-  {id:'debtQueries',name:'Borç Sorguları',short:'BOR',category:'queries',description:'Araç borç, rehin, haciz ve sorgu kontrol adımlarını paket kapsamına ekler.',controlPointRows:packageManualControlPointRows.debtQueries,controlPoints:3,evidence:'Sorgu kaydı',risk:'Orta',priceImpact:0,priceLabel:'Paket içi',approval:'Otomatik',defaultSelected:false},
-  {id:'tramer5664',name:'5664 Tramer Sorgusu',short:'5664',category:'queries',description:'Araç hasar geçmişi ve tramer kaydı sorgusunu rapora ekler.',controlPointRows:packageManualControlPointRows.tramer5664,controlPoints:3,evidence:'Sorgu kaydı',risk:'Orta',priceImpact:0,priceLabel:'Paket içi',approval:'Otomatik',defaultSelected:true},
-  {id:'kmQuery',name:'Kilometre Sorgusu',short:'KM',category:'queries',description:'Kilometre geçmişi ve tutarlılık kontrolünü pakete ekler.',controlPointRows:packageManualControlPointRows.kmQuery,controlPoints:3,evidence:'Sorgu kaydı',risk:'Orta',priceImpact:0,priceLabel:'Paket içi',approval:'Otomatik',defaultSelected:false},
+  {id:'debtQueries',name:'Borç Sorguları',short:'BOR',category:'queries',description:'Araç borç, rehin, haciz ve sorgu kontrol adımlarını paket kapsamına ekler.',controlPointRows:packageManualControlPointRows.debtQueries,controlPoints:3,evidence:'Sorgu kaydı',risk:'Düşük',priceImpact:0,priceLabel:'Paket içi',approval:'Otomatik',defaultSelected:false},
+  {id:'tramer5664',name:'5664 Tramer Sorgusu',short:'5664',category:'queries',description:'Araç hasar geçmişi ve tramer kaydı sorgusunu rapora ekler.',controlPointRows:packageManualControlPointRows.tramer5664,controlPoints:3,evidence:'Sorgu kaydı',risk:'Düşük',priceImpact:0,priceLabel:'Paket içi',approval:'Otomatik',defaultSelected:true},
+  {id:'kmQuery',name:'Kilometre Sorgusu',short:'KM',category:'queries',description:'Kilometre geçmişi ve tutarlılık kontrolünü pakete ekler.',controlPointRows:packageManualControlPointRows.kmQuery,controlPoints:3,evidence:'Sorgu kaydı',risk:'Düşük',priceImpact:0,priceLabel:'Paket içi',approval:'Otomatik',defaultSelected:false},
   {id:'mechanicalWarranty1m',name:'Mekanik Garantisi 1 ay / 1000 km',short:'G1',category:'warranties',description:'1 ay / 1000 km mekanik garanti kuralını paket kapsamına ekler.',controlPointRows:packageManualControlPointRows.mechanicalWarranty1m,controlPoints:3,evidence:'Merkez onayı',risk:'Yüksek',priceImpact:0,priceLabel:'Paket içi',approval:'Merkez onayı gerekli',defaultSelected:false,recommendedForGuaranteed:true},
   {id:'mechanicalWarranty3m5k',name:'Mekanik Garantisi 3 ay / 5000 km',short:'G3',category:'warranties',description:'3 ay / 5000 km mekanik garanti kuralını paket kapsamına ekler.',controlPointRows:packageManualControlPointRows.mechanicalWarranty3m5k,controlPoints:3,evidence:'Merkez onayı',risk:'Yüksek',priceImpact:0,priceLabel:'Paket içi',approval:'Merkez onayı gerekli',defaultSelected:false,recommendedForGuaranteed:true}
 ];
 const packageTemplates=[
   {id:'package1',name:'Paket 1',description:'Kaporta/boya, motor, alt/ön mekanik ve 5664 sorgusu ile temel başlangıç kapsamı.',price:5500,category:'Standart Paket',warrantyDuration:'Yok',warrantyKm:'Yok',mainTests:['bodyPaint','engineTest','underFrontMechanical'],extraServices:['tramer5664']},
-  {id:'package2',name:'Paket 2',description:'Paket 1 kapsamına OBD/Beyin Testi eklenmiş elektronik kontrol paketi.',price:6900,category:'Standart Paket',warrantyDuration:'Yok',warrantyKm:'Yok',mainTests:['bodyPaint','engineTest','underFrontMechanical'],extraServices:['obdBrain','tramer5664']},
-  {id:'package3',name:'Paket 3',description:'OBD/Beyin, DYNO, borç, 5664 ve kilometre sorguları dahil orta seviye kapsam.',price:7800,category:'Standart Paket',warrantyDuration:'Yok',warrantyKm:'Yok',mainTests:['bodyPaint','engineTest','underFrontMechanical'],extraServices:['obdBrain','dynoTest','debtQueries','tramer5664','kmQuery']},
+  {id:'package2',name:'Paket 2',description:'Paket 1 kapsamına Motor Kontrol Testi eklenmiş elektronik kontrol paketi.',price:6900,category:'Standart Paket',warrantyDuration:'Yok',warrantyKm:'Yok',mainTests:['bodyPaint','engineTest','underFrontMechanical'],extraServices:['obdBrain','tramer5664']},
+  {id:'package3',name:'Paket 3',description:'Motor kontrol, dyno, borç, 5664 ve kilometre sorguları dahil kapsam.',price:7800,category:'Standart Paket',warrantyDuration:'Yok',warrantyKm:'Yok',mainTests:['bodyPaint','engineTest','underFrontMechanical'],extraServices:['obdBrain','dynoTest','debtQueries','tramer5664','kmQuery']},
   {id:'package4',name:'Paket 4',description:'Paket 3 üzerine fren süspansiyon testi, iç ekspertiz ve dış ekspertiz eklenir.',price:9000,category:'Standart Paket',warrantyDuration:'Yok',warrantyKm:'Yok',mainTests:['bodyPaint','engineTest','underFrontMechanical'],extraServices:['obdBrain','dynoTest','debtQueries','brakeSuspension','interiorExpertise','exteriorExpertise','tramer5664','kmQuery']},
   {id:'package5',name:'Paket 5',description:'Paket 4 kapsamına conta kaçak testi ve 1 ay / 1000 km mekanik garanti eklenir.',price:11000,category:'Garantili Paket',warrantyDuration:'1 Ay',warrantyKm:'1000 KM',mainTests:['bodyPaint','engineTest','underFrontMechanical'],extraServices:['obdBrain','dynoTest','debtQueries','brakeSuspension','interiorExpertise','exteriorExpertise','gasketLeak','tramer5664','kmQuery','mechanicalWarranty1m']},
   {id:'package6',name:'Paket 6',description:'Conta kaçak, Airbag ve Dyno-Yol-Şanzıman kontrolü dahil, garanti hariç tam ekspertiz kapsamı.',price:13000,category:'Standart Paket',warrantyDuration:'Yok',warrantyKm:'Yok',mainTests:['bodyPaint','engineTest','underFrontMechanical'],extraServices:['obdBrain','dynoTest','debtQueries','brakeSuspension','interiorExpertise','exteriorExpertise','gasketLeak','airbagTest','roadDynoTransmission','tramer5664','kmQuery']},
   {id:'package7',name:'Paket 7',description:'Paket 6 kapsamına 3 ay / 5000 km mekanik garanti kuralı eklenmiş garantili paket.',price:16000,category:'Garantili Paket',warrantyDuration:'3 Ay',warrantyKm:'5000 KM',mainTests:['bodyPaint','engineTest','underFrontMechanical'],extraServices:['obdBrain','dynoTest','debtQueries','brakeSuspension','interiorExpertise','exteriorExpertise','gasketLeak','airbagTest','roadDynoTransmission','tramer5664','kmQuery','mechanicalWarranty3m5k']},
-  {id:'package8',name:'Paket 8',description:'Paket 7 test kapsamını garanti olmadan premium tam kapsam şablonu olarak sunar.',price:19000,category:'Luxury Paket',warrantyDuration:'Yok',warrantyKm:'Yok',mainTests:['bodyPaint','engineTest','underFrontMechanical'],extraServices:['obdBrain','dynoTest','debtQueries','brakeSuspension','interiorExpertise','exteriorExpertise','gasketLeak','airbagTest','roadDynoTransmission','tramer5664','kmQuery']},
-  {id:'package9',name:'Paket 9',description:'Premium tam kapsam ve 3 ay / 5000 km mekanik garanti ile en geniş şablon.',price:22000,category:'Luxury Paket',warrantyDuration:'3 Ay',warrantyKm:'5000 KM',mainTests:['bodyPaint','engineTest','underFrontMechanical'],extraServices:['obdBrain','dynoTest','debtQueries','brakeSuspension','interiorExpertise','exteriorExpertise','gasketLeak','airbagTest','roadDynoTransmission','tramer5664','kmQuery','mechanicalWarranty3m5k']}
+  {id:'package8',name:'Paket 8',description:'Paket 7 test kapsamını garanti olmadan tam kapsam şablonu olarak sunar.',price:19000,category:'Luxury Paket',warrantyDuration:'Yok',warrantyKm:'Yok',mainTests:['bodyPaint','engineTest','underFrontMechanical'],extraServices:['obdBrain','dynoTest','debtQueries','brakeSuspension','interiorExpertise','exteriorExpertise','gasketLeak','airbagTest','roadDynoTransmission','tramer5664','kmQuery']},
+  {id:'package9',name:'Paket 9',description:'Tam kapsam ve 3 ay / 5000 km mekanik garanti ile en geniş şablon.',price:22000,category:'Luxury Paket',warrantyDuration:'3 Ay',warrantyKm:'5000 KM',mainTests:['bodyPaint','engineTest','underFrontMechanical'],extraServices:['obdBrain','dynoTest','debtQueries','brakeSuspension','interiorExpertise','exteriorExpertise','gasketLeak','airbagTest','roadDynoTransmission','tramer5664','kmQuery','mechanicalWarranty3m5k']}
 ];
 const packageWorkflowSteps=[
   {id:'mainModules',label:'Ana Test Modülleri',caption:'Raporu oluşturan kontroller',tab:'mainTests',category:'mainModules'},
@@ -1759,7 +1772,7 @@ function packageBuilderSerializableTestItem(item){
     priceImpact:packageBuilderItemPrice(item),
     priceLabel:item.priceLabel,
     evidence:item.evidence||'Opsiyonel',
-    risk:item.risk||'Orta',
+    risk:packageBuilderNormalizeRisk(item.risk||'Düşük'),
     approval:item.approval||'Otomatik',
     subPoints:Array.isArray(item.subPoints)?item.subPoints:[],
     controlPointRows:Array.isArray(item.controlPointRows)?item.controlPointRows:undefined,
@@ -1868,6 +1881,10 @@ const packageBuilderState={
   editingPackageId:null,
   editingTestId:null,
   activePointTestId:'bodyPaint',
+  activePointId:null,
+  pointSearch:'',
+  pointRequiredFilter:'all',
+  pointPhotoFilter:'all',
   selectedMainTests:new Set(packageMainTests.filter(item=>item.defaultSelected).map(item=>item.id)),
   selectedExtraServices:new Set(packageExtraServices.filter(item=>item.defaultSelected).map(item=>item.id)),
   createdPackages:packageBuilderReadPackages(),
@@ -3651,7 +3668,10 @@ function packageBuilderTotals(){
   return {info,selectedTests,selectedExtras,mainTotal,extraTotal,testPriceTotal,totalControlPoints,salesPrice,estimatedProfit,evidencePercent:packageBuilderEvidencePercent(selectedTests,info)};
 }
 function packageBuilderRiskTone(risk){
-  return risk==='Yüksek'?'red':risk==='Orta'?'orange':'green';
+  return String(risk)==='Yüksek'?'red':'green';
+}
+function packageBuilderNormalizeRisk(risk){
+  return String(risk)==='Yüksek'?'Yüksek':'Düşük';
 }
 function packageBuilderApprovalTone(approval){
   return String(approval).includes('Merkez')?'purple':'green';
@@ -3674,7 +3694,7 @@ function packageBuilderReadNewTestPoint(){
     controlPoints:Number(read('controlPoints')||0),
     priceImpact:Number(read('priceImpact')||0),
     evidence:read('evidence')||'Foto kanıt',
-    risk:read('risk')||'Orta',
+    risk:packageBuilderNormalizeRisk(read('risk')||'Düşük'),
     approval:read('approval')||'Otomatik',
     subPoints
   };
@@ -3688,7 +3708,7 @@ function packageBuilderResetNewTestPointForm(hide=false){
   form.querySelector('[data-test-point-field="controlPoints"]').value='';
   form.querySelector('[data-test-point-field="priceImpact"]').value='';
   form.querySelector('[data-test-point-field="evidence"]').value='Foto kanıt';
-  form.querySelector('[data-test-point-field="risk"]').value='Orta';
+  form.querySelector('[data-test-point-field="risk"]').value='Düşük';
   form.querySelector('[data-test-point-field="approval"]').value='Otomatik';
   form.querySelector('[data-test-point-field="subPoints"]').value='';
   const saveButton=document.getElementById('packageTestPointSaveButton');
@@ -3706,7 +3726,7 @@ function packageBuilderOpenTestEdit(testId){
   form.querySelector('[data-test-point-field="controlPoints"]').value=packageBuilderItemControlPointCount(item)||Number(item.controlPoints||0)||'';
   form.querySelector('[data-test-point-field="priceImpact"]').value=packageBuilderItemPrice(item);
   form.querySelector('[data-test-point-field="evidence"]').value=item.evidence||'Opsiyonel';
-  form.querySelector('[data-test-point-field="risk"]').value=item.risk||'Orta';
+  form.querySelector('[data-test-point-field="risk"]').value=packageBuilderNormalizeRisk(item.risk||'Düşük');
   form.querySelector('[data-test-point-field="approval"]').value=item.approval||'Otomatik';
   const rows=packageBuilderPointRowsForItem(item);
   const subPoints=Array.isArray(item.subPoints)&&item.subPoints.length?item.subPoints:(rows.length?rows.map(row=>row.title):[]);
@@ -3732,7 +3752,7 @@ function packageBuilderApplyNewTestTargetDefaults(target){
   const approval=form.querySelector('[data-test-point-field="approval"]');
   if(normalized==='query'){
     if(evidence)evidence.value='Sorgu kaydı';
-    if(risk)risk.value='Orta';
+    if(risk)risk.value='Düşük';
     if(approval)approval.value='Otomatik';
   }else if(normalized==='warranty'){
     if(evidence)evidence.value='Merkez onayı';
@@ -3754,7 +3774,7 @@ function packageBuilderBuildTestItemFromData(data,id,existing=null){
     controlPoints:data.controlPoints,
     priceImpact:Math.max(0,Number(data.priceImpact||0)),
     evidence:data.evidence,
-    risk:data.risk,
+    risk:packageBuilderNormalizeRisk(data.risk),
     subPoints:data.subPoints,
     custom:Boolean(existing?.custom)||String(id).startsWith('custom-'),
     defaultSelected:false
@@ -3894,7 +3914,7 @@ function renderPackageMainTestCard(item){
       <div class="package-option-title"><span class="package-option-icon">${escapeHtml(item.short)}</span><div><b>${escapeHtml(item.name)}</b><div class="package-option-meta" style="margin-top:5px"><span class="package-chip ${item.requiredForGuaranteed?'red':'blue'}">${escapeHtml(badge)}</span>${guaranteedRequired?'<span class="package-chip orange">Garantili paket için önerilen zorunlu</span>':''}</div></div></div>
       <button class="package-add-btn ${selected?'selected':''}" data-package-toggle-main="${item.id}" type="button">${selected?'Eklendi ✓':'+ Ekle'}</button>
     </div>
-    <div class="package-option-meta"><span class="package-chip blue">${pointCount} nokta</span><span class="package-chip purple">${packageBuilderItemPriceLabel(item)}</span><span class="package-chip green">${escapeHtml(item.evidence)}</span><span class="package-chip ${packageBuilderRiskTone(item.risk)}">${escapeHtml(item.risk)} risk</span></div>
+    <div class="package-option-meta"><span class="package-chip blue">${pointCount} nokta</span><span class="package-chip purple">${packageBuilderItemPriceLabel(item)}</span><span class="package-chip green">${escapeHtml(item.evidence)}</span><span class="package-chip ${packageBuilderRiskTone(item.risk)}">${escapeHtml(packageBuilderNormalizeRisk(item.risk))} risk</span></div>
     ${packageBuilderRenderTestActions(item)}
   </article>`;
 }
@@ -3902,7 +3922,7 @@ function renderPackageExtraServiceCard(item){
   const selected=packageBuilderState.selectedExtraServices.has(item.id);
   const recommended=packageBuilderIsGuaranteed() && item.recommendedForGuaranteed;
   const pointCount=packageBuilderItemControlPointCount(item);
-  const optionBadge=item.category==='queries'?'Sorgu':item.category==='warranties'?'Garanti':item.requiredForGuaranteed?'Premium':recommended?'AI Önerisi':'Opsiyon';
+  const optionBadge=item.category==='queries'?'Sorgu':item.category==='warranties'?'Garanti':recommended?'AI Önerisi':'Opsiyon';
   const badgeTone=item.category==='queries'?'blue':item.category==='warranties'?'purple':item.requiredForGuaranteed||recommended?'purple':'blue';
   const meta=[
     pointCount>0 ? `${pointCount} nokta` : 'Sorgu / garanti kalemi',
@@ -3915,7 +3935,7 @@ function renderPackageExtraServiceCard(item){
       <div class="package-option-title"><span class="package-option-icon">${escapeHtml(item.short)}</span><div><b>${escapeHtml(item.name)}</b><div class="package-option-meta" style="margin-top:5px"><span class="package-chip ${badgeTone}">${escapeHtml(optionBadge)}</span>${recommended?'<span class="package-chip orange">Garantili paket önerisi</span>':''}</div></div></div>
       <button class="package-add-btn ${selected?'selected':''}" data-package-toggle-extra="${item.id}" type="button">${selected?'Eklendi ✓':'+ Ekle'}</button>
     </div>
-    <div class="package-option-meta">${meta.map((value,index)=>`<span class="package-chip ${index===0?'blue':index===1?'purple':index===2?'green':packageBuilderApprovalTone(item.approval)}">${escapeHtml(value)}</span>`).join('')}${item.risk?`<span class="package-chip ${packageBuilderRiskTone(item.risk)}">${escapeHtml(item.risk)} risk</span>`:''}</div>
+    <div class="package-option-meta">${meta.map((value,index)=>`<span class="package-chip ${index===0?'blue':index===1?'purple':index===2?'green':packageBuilderApprovalTone(item.approval)}">${escapeHtml(value)}</span>`).join('')}${item.risk?`<span class="package-chip ${packageBuilderRiskTone(item.risk)}">${escapeHtml(packageBuilderNormalizeRisk(item.risk))} risk</span>`:''}</div>
     ${packageBuilderRenderTestActions(item)}
   </article>`;
 }
@@ -4023,6 +4043,66 @@ function renderPackageControlPointPanel(){
       }).join('')}
     </div>`;
 }
+function packageBuilderPointSearchText(row){
+  return `${row.title} ${row.legacyNoktaId} ${row.groupLabel} ${(row.subPoints||[]).join(' ')}`.toLocaleLowerCase('tr-TR');
+}
+function packageBuilderFilterPointRows(rows){
+  const search=String(packageBuilderState.pointSearch||'').trim().toLocaleLowerCase('tr-TR');
+  return rows.filter(row=>{
+    const requiredMatch=packageBuilderState.pointRequiredFilter==='all'
+      || (packageBuilderState.pointRequiredFilter==='required'&&row.isRequired)
+      || (packageBuilderState.pointRequiredFilter==='optional'&&!row.isRequired);
+    const photoMatch=packageBuilderState.pointPhotoFilter==='all'
+      || (packageBuilderState.pointPhotoFilter==='required'&&row.requiresMedia&&Number(row.requiredImageCount||0)>0)
+      || (packageBuilderState.pointPhotoFilter==='optional'&&row.requiresMedia&&!Number(row.requiredImageCount||0))
+      || (packageBuilderState.pointPhotoFilter==='none'&&!row.requiresMedia);
+    return requiredMatch && photoMatch && (!search || packageBuilderPointSearchText(row).includes(search));
+  });
+}
+function packageBuilderPointPhotoLabel(row){
+  if(row.requiresMedia&&Number(row.requiredImageCount||0)>0)return 'Foto Zorunlu';
+  if(row.requiresMedia)return 'Foto Ops.';
+  return 'Foto Yok';
+}
+function packageBuilderPointTypeIcon(item){
+  const name=String(item?.name||'').toLocaleLowerCase('tr-TR');
+  if(name.includes('kaporta')||name.includes('boya'))return 'AR';
+  if(name.includes('motor'))return 'MT';
+  if(name.includes('fren'))return 'FS';
+  if(name.includes('airbag'))return 'AB';
+  if(name.includes('cam'))return 'CA';
+  if(name.includes('iç'))return 'IC';
+  return item?.short||'TT';
+}
+function renderPackagePointTypeList(activeItem){
+  const summaryBody=document.getElementById('packagePointSummaryBody');
+  if(!summaryBody)return;
+  const items=packageBuilderAllTestItems().filter(item=>packageBuilderPointRowsForItem(item).length);
+  summaryBody.innerHTML=`<div class="package-test-type-head">Test Tipleri</div><div class="package-test-type-list">${items.map(item=>{
+    const count=packageBuilderPointRowsForItem(item).length;
+    return `<button class="package-test-type-button ${item.id===activeItem?.id?'active':''}" data-package-point-test-select="${escapeHtml(item.id)}" type="button"><span class="package-test-type-icon">${escapeHtml(packageBuilderPointTypeIcon(item))}</span><span>${escapeHtml(item.name)}</span><b class="package-test-type-count">${escapeHtml(String(count))}</b></button>`;
+  }).join('')}<button class="package-test-type-button" data-package-point-add-toggle type="button"><span class="package-test-type-icon">+</span><span>Yeni Test Tipi Ekle</span><b class="package-test-type-count">+</b></button></div>`;
+}
+function renderPackagePointDetail(item,row,index){
+  const detail=document.getElementById('packagePointDetailPanel');
+  if(!detail)return;
+  if(!item||!row){
+    detail.innerHTML='<div class="package-point-empty">Düzenlemek için soldaki listeden bir madde seçin.</div>';
+    return;
+  }
+  const subPoints=Array.isArray(row.subPoints)&&row.subPoints.length?row.subPoints:['Kontrol sonucu girilecek'];
+  detail.innerHTML=`<article data-package-point-row="${escapeHtml(row.id)}" data-package-point-test="${escapeHtml(item.id)}">
+    <div class="package-point-detail-head"><div><h2>Madde Düzenle</h2></div><span class="package-point-save-state">Kaydedilmedi</span><span class="package-point-detail-id">ID: #${escapeHtml(String(row.legacyNoktaId||index+1))}</span></div>
+    <div class="package-point-toggle-strip">
+      <div class="package-point-toggle-card"><div class="package-point-tooltip">Bu madde rapor oluştururken boş bırakılamaz.</div><div class="package-point-switch-row"><button class="package-point-switch red ${row.isRequired?'on':''}" data-package-point-toggle-required="${escapeHtml(row.id)}" type="button" aria-label="Zorunlu madde"></button><span>Zorunlu Madde</span></div></div>
+      <div class="package-point-toggle-card"><div class="package-point-tooltip">Bu madde için fotoğraf yüklemek opsiyoneldir.</div><div class="package-point-switch-row"><button class="package-point-switch orange ${row.requiresMedia&&!Number(row.requiredImageCount||0)?'on':''}" data-package-point-toggle-photo="${escapeHtml(row.id)}" type="button" aria-label="Fotoğraf opsiyonel"></button><span>Fotoğraf Opsiyonel</span></div></div>
+      <div class="package-point-toggle-card"><div class="package-point-tooltip">Bu madde için en az 1 fotoğraf yüklemek zorunludur.</div><div class="package-point-switch-row"><button class="package-point-switch ${row.requiresMedia&&Number(row.requiredImageCount||0)>0?'on':''}" data-package-point-toggle-photo="${escapeHtml(row.id)}" type="button" aria-label="Fotoğraf zorunlu"></button><span>Fotoğraf Zorunlu</span></div></div>
+    </div>
+    <div class="package-point-detail-body"><div class="package-point-detail-grid"><label class="package-point-detail-field">Madde Adı<input data-package-point-title value="${escapeHtml(row.title)}" aria-label="${escapeHtml(item.name)} madde başlığı"></label><label class="package-point-detail-field">Sıra<select aria-label="Sıra"><option>${escapeHtml(String(index+1))}</option></select></label></div></div>
+    <div class="package-subitem-section"><div class="package-subitem-head"><b>Alt Maddeler (${subPoints.length})</b><button data-package-point-add-subitem type="button">+ Alt Madde Ekle</button></div><div class="package-subitem-list">${subPoints.map((point,subIndex)=>`<div class="package-subitem-row"><span class="package-subitem-drag">::</span><span class="package-subitem-index">${subIndex+1}</span><textarea class="package-subitem-input" data-package-point-subitem>${escapeHtml(point)}</textarea><button class="package-subitem-icon-btn" type="button">D</button><button class="package-subitem-icon-btn danger" data-package-point-remove-subitem type="button">S</button></div>`).join('')}</div><textarea data-package-point-subpoints hidden>${escapeHtml(subPoints.join('\n'))}</textarea></div>
+    <div class="package-point-detail-actions"><button class="btn" data-package-points-back type="button">İptal</button><div><button class="btn" data-package-point-revert type="button">Değişiklikleri Geri Al</button> <button class="btn primary" data-package-point-save="${escapeHtml(row.id)}" type="button">Kaydet</button></div></div>
+  </article>`;
+}
 function renderPackagePointEditorPage(){
   const page=document.getElementById('packagePointEditorPage');
   if(!page)return;
@@ -4031,29 +4111,32 @@ function renderPackagePointEditorPage(){
   const subtitle=document.getElementById('packagePointEditorSubtitle');
   const summaryName=document.getElementById('packagePointSummaryName');
   const summaryDesc=document.getElementById('packagePointSummaryDesc');
-  const summaryBody=document.getElementById('packagePointSummaryBody');
   const list=document.getElementById('packagePointEditorList');
+  const detail=document.getElementById('packagePointDetailPanel');
+  const filterName=document.getElementById('packagePointFilterName');
+  const listTitle=document.getElementById('packagePointListTitle');
+  const bottomStatus=document.getElementById('packagePointBottomStatus');
+  if(title)title.textContent='Test Maddeleri Yönetimi';
+  if(subtitle)subtitle.textContent='Ekspertiz şablonundaki madde ve alt maddeleri yönetin.';
   if(!item){
-    if(title)title.textContent='Test Kontrol Noktaları';
-    if(subtitle)subtitle.textContent='Önce paket oluşturucuda bir test seçin.';
     if(summaryName)summaryName.textContent='Test seçilmedi';
     if(summaryDesc)summaryDesc.textContent='Maddeler ekranı test kartından açılır.';
-    if(summaryBody)summaryBody.innerHTML='<div class="package-point-empty">Düzenlenecek test bulunamadı.</div>';
-    if(list)list.innerHTML='<div class="package-point-empty">Kontrol maddelerini görmek için bir test kartındaki Maddeler butonunu kullanın.</div>';
+    renderPackagePointTypeList(null);
+    if(list)list.innerHTML='<div class="package-point-empty">Kontrol maddelerini görmek için bir test seçin.</div>';
+    if(detail)detail.innerHTML='<div class="package-point-empty">Düzenlemek için bir test seçin.</div>';
     return;
   }
-  const rows=packageBuilderPointRowsForItem(item);
-  if(title)title.textContent=`${item.name} Maddeleri`;
-  if(subtitle)subtitle.textContent='Test edilecek noktaları ve alt seçenekleri buradan düzenleyin.';
+  const allRows=packageBuilderPointRowsForItem(item);
+  const rows=packageBuilderFilterPointRows(allRows);
+  if(!packageBuilderState.activePointId||!allRows.some(row=>row.id===packageBuilderState.activePointId)){
+    packageBuilderState.activePointId=rows[0]?.id||allRows[0]?.id||null;
+  }
+  const selectedRow=allRows.find(row=>row.id===packageBuilderState.activePointId)||rows[0]||allRows[0]||null;
   if(summaryName)summaryName.textContent=item.name;
   if(summaryDesc)summaryDesc.textContent=item.description||'Kontrol maddeleri paket kurgusuna göre yönetilir.';
-  if(summaryBody)summaryBody.innerHTML=[
-    ['Kategori',item.category==='mainModules'?'Ana Test':'Ek Hizmet'],
-    ['Madde sayısı',`${rows.length} madde`],
-    ['Kanıt',item.evidence||'Opsiyonel'],
-    ['Risk',item.risk||'Orta'],
-    ['Fiyat',packageBuilderItemPriceLabel(item)]
-  ].map(([label,value])=>`<div class="package-point-summary-row"><span>${escapeHtml(label)}</span><b>${escapeHtml(value)}</b></div>`).join('');
+  if(filterName)filterName.textContent=item.name;
+  if(listTitle)listTitle.textContent=`${item.name} (${allRows.length} madde)`;
+  renderPackagePointTypeList(item);
   const addForm=document.getElementById('packagePointAddForm');
   if(addForm){
     addForm.querySelector('[data-package-point-new-title]')?.setAttribute('data-package-point-test',item.id);
@@ -4061,24 +4144,18 @@ function renderPackagePointEditorPage(){
   }
   if(!list)return;
   if(!rows.length){
-    list.innerHTML='<div class="package-point-empty">Bu test için madde yok. Yeni Madde Ekle ile ilk kontrol noktasını oluşturabilirsiniz.</div>';
+    list.innerHTML='<div class="package-point-empty">Bu filtrede gösterilecek madde yok. Filtreleri temizleyip tekrar deneyin.</div>';
+    renderPackagePointDetail(item,selectedRow,0);
     return;
   }
-  list.innerHTML=rows.map((row,index)=>`<article class="package-point-row" data-package-point-row="${escapeHtml(row.id)}" data-package-point-test="${escapeHtml(item.id)}">
-    <div class="package-point-row-meta">
-      <span class="package-chip blue">#${escapeHtml(String(row.legacyNoktaId||index+1))}</span>
-      <span class="package-chip purple">${escapeHtml(row.groupLabel)}</span>
-      <button class="package-point-toggle ${row.isRequired?'is-required':'is-optional'}" data-package-point-toggle-required="${escapeHtml(row.id)}" type="button">${row.isRequired?'Zorunlu':'Opsiyon'}</button>
-      <button class="package-point-toggle ${row.requiresMedia?'is-photo-required':'is-photo-optional'}" data-package-point-toggle-photo="${escapeHtml(row.id)}" type="button">${row.requiresMedia?'Fotoğraf Zorunlu':'Fotoğraf Opsiyonel'}</button>
-      ${row.custom?'<span class="package-chip blue">Manuel</span>':''}
-    </div>
-    <label>Madde<input data-package-point-title value="${escapeHtml(row.title)}" aria-label="${escapeHtml(item.name)} madde başlığı"></label>
-    <label>Alt maddeler<textarea data-package-point-subpoints aria-label="${escapeHtml(item.name)} alt maddeler">${escapeHtml(row.subPoints.join('\n'))}</textarea></label>
-    <div class="package-point-row-actions">
-      <button class="package-action-link primary" data-package-point-save="${escapeHtml(row.id)}" type="button">Kaydet</button>
-      <button class="package-action-link danger" data-package-point-delete="${escapeHtml(row.id)}" type="button">Sil</button>
-    </div>
+  list.innerHTML=rows.map((row,index)=>`<article class="package-point-row ${row.id===selectedRow?.id?'is-active':''}" data-package-point-row="${escapeHtml(row.id)}" data-package-point-test="${escapeHtml(item.id)}" data-package-point-select="${escapeHtml(row.id)}">
+    <div class="package-point-row-meta"><span class="package-point-id">#${escapeHtml(String(row.legacyNoktaId||index+1))}</span></div>
+    <div class="package-point-row-title"><b>${escapeHtml(row.title)}</b><span>${escapeHtml(row.groupLabel)}</span></div>
+    <div class="package-point-row-badges"><span class="package-point-status-box red">${row.isRequired?'Zorunlu':'Opsiyon'}</span><span class="package-point-status-box orange">${escapeHtml(packageBuilderPointPhotoLabel(row))}</span><span class="package-chip blue">${escapeHtml(String(row.subPoints.length))} alt madde</span></div>
+    <span class="package-point-kebab">⋮</span>
   </article>`).join('');
+  renderPackagePointDetail(item,selectedRow,Math.max(0,allRows.findIndex(row=>row.id===selectedRow?.id)));
+  if(bottomStatus)bottomStatus.innerHTML=`<span>Toplam ${escapeHtml(String(allRows.length))} madde</span><span><strong>${escapeHtml(String(allRows.filter(row=>row.isRequired).length))}</strong> zorunlu</span><span><strong>${escapeHtml(String(allRows.filter(row=>row.requiresMedia&&Number(row.requiredImageCount||0)>0).length))}</strong> fotoğraf zorunlu</span><span><strong>${escapeHtml(String(allRows.filter(row=>row.requiresMedia&&!Number(row.requiredImageCount||0)).length))}</strong> fotoğraf opsiyonel</span><span>Son kaydedilme: ${new Date().toLocaleTimeString('tr-TR',{hour:'2-digit',minute:'2-digit'})}</span>`;
 }
 function renderPackageTestPriceEditor(){
   const target=document.getElementById('packageTestPriceEditor');
@@ -4268,9 +4345,16 @@ function packageBuilderResetPointAddForm(hide=false){
 }
 function packageBuilderOpenPointEditor(testId){
   if(testId)packageBuilderState.activePointTestId=testId;
+  packageBuilderState.activePointId=null;
   renderSelectedPackageContentPanel();
   renderPackagePointEditorPage();
   openModulePage('packagePointEditorPage','navPackageBuilder');
+}
+function packageBuilderSyncPointSubitems(row){
+  if(!row)return;
+  const hidden=row.querySelector('[data-package-point-subpoints]');
+  const values=[...row.querySelectorAll('[data-package-point-subitem]')].map(input=>input.value.trim()).filter(Boolean);
+  if(hidden)hidden.value=values.join('\n');
 }
 function wirePackageBuilderPage(){
   const page=document.getElementById('packageBuilderPage');
@@ -4359,6 +4443,70 @@ function wirePackagePointEditorPage(){
   if(!page||page.dataset.packagePointEditorWired)return;
   page.dataset.packagePointEditorWired='1';
   page.addEventListener('click',event=>{
+    const testSelect=event.target.closest('[data-package-point-test-select]');
+    if(testSelect){
+      event.preventDefault();
+      packageBuilderState.activePointTestId=testSelect.dataset.packagePointTestSelect;
+      packageBuilderState.activePointId=null;
+      renderPackagePointEditorPage();
+      return;
+    }
+    const pointSelect=event.target.closest('[data-package-point-select]');
+    if(pointSelect&&!event.target.closest('button,textarea,input,select')){
+      event.preventDefault();
+      packageBuilderState.activePointId=pointSelect.dataset.packagePointSelect;
+      renderPackagePointEditorPage();
+      return;
+    }
+    const clearFilters=event.target.closest('[data-package-point-clear-filters]');
+    if(clearFilters){
+      event.preventDefault();
+      packageBuilderState.pointSearch='';
+      packageBuilderState.pointRequiredFilter='all';
+      packageBuilderState.pointPhotoFilter='all';
+      const search=document.getElementById('packagePointSearchInput');
+      const required=document.getElementById('packagePointRequiredFilter');
+      const photo=document.getElementById('packagePointPhotoFilter');
+      if(search)search.value='';
+      if(required)required.value='all';
+      if(photo)photo.value='all';
+      renderPackagePointEditorPage();
+      return;
+    }
+    const addSubitem=event.target.closest('[data-package-point-add-subitem]');
+    if(addSubitem){
+      event.preventDefault();
+      const row=addSubitem.closest('[data-package-point-row]');
+      const list=row?.querySelector('.package-subitem-list');
+      if(list){
+        const next=list.querySelectorAll('[data-package-point-subitem]').length+1;
+        list.insertAdjacentHTML('beforeend',`<div class="package-subitem-row"><span class="package-subitem-drag">::</span><span class="package-subitem-index">${next}</span><textarea class="package-subitem-input" data-package-point-subitem>Yeni alt madde</textarea><button class="package-subitem-icon-btn" type="button">D</button><button class="package-subitem-icon-btn danger" data-package-point-remove-subitem type="button">S</button></div>`);
+        packageBuilderSyncPointSubitems(row);
+      }
+      return;
+    }
+    const removeSubitem=event.target.closest('[data-package-point-remove-subitem]');
+    if(removeSubitem){
+      event.preventDefault();
+      const row=removeSubitem.closest('[data-package-point-row]');
+      removeSubitem.closest('.package-subitem-row')?.remove();
+      row?.querySelectorAll('.package-subitem-index').forEach((node,index)=>{node.textContent=String(index+1);});
+      packageBuilderSyncPointSubitems(row);
+      return;
+    }
+    const bulkSave=event.target.closest('[data-package-bulk-save]');
+    if(bulkSave){
+      event.preventDefault();
+      const activeRow=page.querySelector('#packagePointDetailPanel [data-package-point-row]');
+      if(activeRow){
+        packageBuilderSyncPointSubitems(activeRow);
+        packageBuilderSavePointOverride(activeRow.dataset.packagePointTest,activeRow.dataset.packagePointRow,activeRow.querySelector('[data-package-point-title]')?.value,activeRow.querySelector('[data-package-point-subpoints]')?.value);
+      }
+      packageBuilderShowToast('Görünen madde kaydedildi.');
+      renderPackagePointEditorPage();
+      renderPackageBuilderPage();
+      return;
+    }
     const back=event.target.closest('[data-package-points-back]');
     if(back){event.preventDefault();openModulePage('packageBuilderPage','navPackageBuilder');return;}
     const toggle=event.target.closest('[data-package-point-add-toggle]');
@@ -4413,6 +4561,7 @@ function wirePackagePointEditorPage(){
       event.preventDefault();
       const row=save.closest('[data-package-point-row]');
       if(row){
+        packageBuilderSyncPointSubitems(row);
         packageBuilderSavePointOverride(row.dataset.packagePointTest,row.dataset.packagePointRow,row.querySelector('[data-package-point-title]')?.value,row.querySelector('[data-package-point-subpoints]')?.value);
         renderPackagePointEditorPage();
         renderPackageBuilderPage();
@@ -4431,6 +4580,31 @@ function wirePackagePointEditorPage(){
         packageBuilderShowToast('Kontrol maddesi silindi.');
       }
       return;
+    }
+  });
+  page.addEventListener('input',event=>{
+    const search=event.target.closest('#packagePointSearchInput');
+    if(search){
+      packageBuilderState.pointSearch=search.value;
+      renderPackagePointEditorPage();
+      return;
+    }
+    const subitem=event.target.closest('[data-package-point-subitem]');
+    if(subitem)packageBuilderSyncPointSubitems(subitem.closest('[data-package-point-row]'));
+  });
+  page.addEventListener('change',event=>{
+    const required=event.target.closest('#packagePointRequiredFilter');
+    if(required){
+      packageBuilderState.pointRequiredFilter=required.value;
+      packageBuilderState.activePointId=null;
+      renderPackagePointEditorPage();
+      return;
+    }
+    const photo=event.target.closest('#packagePointPhotoFilter');
+    if(photo){
+      packageBuilderState.pointPhotoFilter=photo.value;
+      packageBuilderState.activePointId=null;
+      renderPackagePointEditorPage();
     }
   });
 }
