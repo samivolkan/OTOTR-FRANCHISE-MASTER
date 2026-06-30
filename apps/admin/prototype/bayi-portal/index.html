@@ -262,9 +262,20 @@ button,input,select,textarea{font:inherit}.app{min-height:100vh;display:grid;gri
 .package-test-point-form textarea{width:100%;min-height:92px;border:1px solid #d0d5dd;border-radius:9px;padding:9px 10px;font:700 12px/1.45 inherit;resize:vertical;background:#fff;color:#101828}
 .package-test-point-form small{display:block;margin-top:5px;color:#667085;font-size:10.5px;font-weight:750}
 .package-test-point-actions{grid-column:1/-1;display:flex;justify-content:flex-end;gap:8px;flex-wrap:wrap}
+.package-price-editor{border-top:1px solid #e4e7ec;margin-top:12px;padding-top:12px;display:grid;gap:8px}
+.package-price-editor-head{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
+.package-price-editor-head b{display:block;font-size:12px;color:#101828}
+.package-price-editor-head span{display:block;margin-top:2px;color:#667085;font-size:10.5px;line-height:1.35}
+.package-price-total{font-size:11px;font-weight:950;color:#d71920;white-space:nowrap}
+.package-price-row{border:1px solid #e4e7ec;border-radius:10px;background:#fff;padding:9px;display:grid;grid-template-columns:minmax(0,1fr) 112px;gap:8px;align-items:center}
+.package-price-row b{display:block;font-size:11.5px;color:#101828;line-height:1.25}
+.package-price-row span{display:block;margin-top:2px;color:#667085;font-size:10px;line-height:1.25}
+.package-price-row input{height:34px;border:1px solid #d0d5dd;border-radius:9px;padding:0 9px;text-align:right;font-weight:850;color:#101828;background:#fff;min-width:0}
+.package-actions{grid-template-columns:1fr}
+.package-actions .btn{height:auto;min-height:40px;white-space:normal;line-height:1.2;padding:10px 12px}
 .package-subpoint-list{display:flex;gap:5px;flex-wrap:wrap;margin-top:8px}
 .package-subpoint-list span{border:1px solid #dbe3ee;border-radius:999px;background:#f8fafc;color:#475467;padding:4px 7px;font-size:10.5px;font-weight:800}
-@media(max-width:760px){.package-test-point-form{grid-template-columns:1fr}.package-test-point-head{align-items:flex-start;flex-direction:column}.package-test-point-actions{justify-content:stretch}}
+@media(max-width:760px){.package-test-point-form{grid-template-columns:1fr}.package-test-point-head{align-items:flex-start;flex-direction:column}.package-test-point-actions{justify-content:stretch}.package-price-row{grid-template-columns:1fr}.package-price-row input{text-align:left}}
 </style>
 </head>
 <body class="module-page-open">
@@ -290,7 +301,6 @@ button,input,select,textarea{font:inherit}.app{min-height:100vh;display:grid;gri
       <a href="#" id="navCustomerExperience"><span class="nav-icon">★</span>Müşteri Deneyimi</a>
       <a href="#" id="navPackageBuilder"><span class="nav-icon">PK</span>Paket Oluşturucu</a>
       <a href="#" id="navStaffAcademy"><span class="nav-icon">👤</span>Personel & Academy</a>
-      <a href="#" id="navEquipment"><span class="nav-icon">⚙</span>Ekipman & Kalibrasyon</a>
       <a href="#" id="navPerformance"><span class="nav-icon">◉</span>Performans</a>
       <a href="#" id="navBranchKpi"><span class="nav-icon">📊</span>Şube KPI</a>
     </nav>
@@ -835,7 +845,7 @@ button,input,select,textarea{font:inherit}.app{min-height:100vh;display:grid;gri
         <div class="module-head package-builder-head">
           <div>
             <h1>Paket İçeriği Oluşturucu</h1>
-            <p>Yeni ekspertiz paketinin ana testleri, ek testleri, fiyatı ve merkez onay kuralı tek ekranda yönetilir.</p>
+            <p>Yeni ekspertiz paketinin test türleri, test fiyatları, taban fiyatı ve merkez onay kuralı tek ekranda yönetilir.</p>
           </div>
           <div class="package-builder-head-actions">
             <button class="btn" data-open-module="dashboardPage" data-open-module-nav="navDashboard" type="button">Kokpite Dön</button>
@@ -844,17 +854,12 @@ button,input,select,textarea{font:inherit}.app{min-height:100vh;display:grid;gri
         </div>
         <div class="package-builder-layout" aria-label="Paket oluşturma sihirbazı">
           <aside class="package-panel">
-            <div class="package-panel-head"><div><div class="package-panel-title">Yeni Paket Bilgileri</div><div class="package-panel-sub">Şablon fiyat, kanal, hedef müşteri ve iskonto sınırı.</div></div><span class="package-chip blue">Taslak</span></div>
+            <div class="package-panel-head"><div><div class="package-panel-title">Paket Ayarları</div><div class="package-panel-sub">Paket adı, kategori, taban fiyat ve garanti limiti.</div></div><span class="package-chip blue">Taslak</span></div>
             <div class="package-panel-body">
               <div class="package-info-grid">
                 <div class="field wide"><label>Paket adı</label><input data-package-info="name" value="Paket 1"></div>
                 <div class="field"><label>Paket kategorisi</label><select data-package-info="category"><option>Standart Paket</option><option>Garantili Paket</option><option>Luxury Paket</option><option>Kurumsal / Filo Paket</option><option>Galeri Paketi</option></select></div>
-                <div class="field"><label>Hedef müşteri</label><select data-package-info="target"><option>Bireysel + Galeri</option><option>Bireysel</option><option>Galeri</option><option>Filo / Kurumsal</option></select></div>
-                <div class="field"><label>Satış kanalı</label><select data-package-info="channel"><option>Bayii Portal + Merkez</option><option>Bayii Portal</option><option>Merkez</option><option>Web + Bayii Portal</option></select></div>
-                <div class="field"><label>Paket fiyatı</label><input data-package-info="price" type="number" min="0" step="50" value="5500"></div>
-                <div class="field"><label>KDV durumu</label><select data-package-info="vat" disabled><option>KDV Dahil</option></select></div>
-                <div class="field"><label>Maks. bayi iskonto oranı</label><input data-package-info="discount" type="number" min="0" max="10" value="10"></div>
-                <div class="field"><label>Paket durumu</label><select data-package-info="status"><option>Taslak</option><option>Merkez Onayı Bekliyor</option><option>Aktif</option><option>Pasif</option></select></div>
+                <div class="field"><label>Taban paket fiyatı</label><input data-package-info="price" type="number" min="0" step="50" value="5500"></div>
                 <div class="field"><label>Garanti süresi</label><select data-package-info="warrantyDuration"><option>Yok</option><option>1 Ay</option><option>3 Ay</option></select></div>
                 <div class="field"><label>KM limiti</label><select data-package-info="warrantyKm"><option>Yok</option><option>1000 KM</option><option>5000 KM</option></select></div>
               </div>
@@ -870,13 +875,14 @@ button,input,select,textarea{font:inherit}.app{min-height:100vh;display:grid;gri
                   <div class="package-search"><span>ARA</span><input id="packageSearchInput" placeholder="Modül ara: kaporta, motor, OBD..."></div>
                   <div class="package-test-point-builder">
                     <div class="package-test-point-head">
-                      <div><b>Yeni Test Noktası</b><span>Ana test mi ek test mi olacağını, nokta sayısını ve alt kontrol içeriklerini tanımla.</span></div>
-                      <button class="package-add-btn" data-test-point-action="toggle" type="button">Test Noktası Ekle</button>
+                      <div><b>Yeni Test Türü</b><span>Ana test mi ek test mi olacağını, nokta sayısını ve alt kontrol içeriklerini tanımla.</span></div>
+                      <button class="package-add-btn" data-test-point-action="toggle" type="button">Test Türü Ekle</button>
                     </div>
                     <div class="package-test-point-form" id="packageTestPointForm" hidden>
                       <div class="field"><label>Test türü</label><select data-test-point-field="target"><option value="main">Ana Test</option><option value="extra">Ek Test</option></select></div>
-                      <div class="field wide"><label>Test noktası adı</label><input data-test-point-field="name" placeholder="Aracı 360 derece fotoğraflama"></div>
+                      <div class="field wide"><label>Test türü adı</label><input data-test-point-field="name" placeholder="Aracı 360 derece fotoğraflama"></div>
                       <div class="field"><label>Bakılacak nokta sayısı</label><input data-test-point-field="controlPoints" type="number" min="1" step="1" placeholder="8"></div>
+                      <div class="field"><label>Test fiyatı</label><input data-test-point-field="priceImpact" type="number" min="0" step="50" placeholder="0"></div>
                       <div class="field"><label>Kanıt kuralı</label><select data-test-point-field="evidence"><option>Foto kanıt</option><option>Veri kaydı</option><option>Grafik çıktı</option><option>Kanıt önerilir</option><option>Opsiyonel</option></select></div>
                       <div class="field"><label>Risk seviyesi</label><select data-test-point-field="risk"><option>Orta</option><option>Yüksek</option><option>Düşük</option></select></div>
                       <div class="field"><label>Onay kuralı</label><select data-test-point-field="approval"><option>Otomatik</option><option>Merkez onayı gerekli</option></select></div>
@@ -896,6 +902,7 @@ button,input,select,textarea{font:inherit}.app{min-height:100vh;display:grid;gri
             <div class="package-panel-head"><div><div class="package-panel-title">Paket İçeriği</div><div class="package-panel-sub">Seçilen ana testler, ek testler ve canlı fiyat özeti.</div></div><span class="package-chip green" id="packageStatusChip">Taslak</span></div>
             <div class="package-panel-body">
               <div class="package-selected-list" id="selectedPackageContentPanel"></div>
+              <div class="package-price-editor" id="packageTestPriceEditor"></div>
               <div class="package-summary" id="packagePriceSummary"></div>
               <div class="package-validation" id="packageValidationPanel"></div>
               <div class="package-actions">
@@ -909,9 +916,6 @@ button,input,select,textarea{font:inherit}.app{min-height:100vh;display:grid;gri
       </section>
       <section class="module-page" id="staffAcademyPage">
         <div class="module-head"><div><h1>Personel & Academy</h1><p>Yük dağılımı, eğitim durumu ve performans takibi.</p></div><button class="btn" data-open-module="dashboardPage" data-open-module-nav="navDashboard">Kokpite Dön</button></div>
-      </section>
-      <section class="module-page" id="equipmentPage">
-        <div class="module-head"><div><h1>Ekipman & Kalibrasyon</h1><p>Cihaz durumu, kalibrasyon takvimi ve bakımı.</p></div><button class="btn" data-open-module="dashboardPage" data-open-module-nav="navDashboard">Kokpite Dön</button></div>
       </section>
       <section class="module-page" id="branchKpiPage">
         <div class="module-head"><div><h1>Şube KPI</h1><p>Şube bazlı KPI karşılaştırma tablosu.</p></div><button class="btn" data-open-module="dashboardPage" data-open-module-nav="navDashboard">Kokpite Dön</button></div>
@@ -1071,7 +1075,7 @@ const packageTemplates=[
   {id:'package9',name:'Paket 9',description:'Premium tam kapsam ve 3 ay / 5000 km mekanik garanti ile en geniş şablon.',price:22000,category:'Luxury Paket',warrantyDuration:'3 Ay',warrantyKm:'5000 KM',mainTests:['bodyPaint','engineTest','underFrontMechanical'],extraServices:['obdBrain','dynoTest','debtQueries','brakeSuspension','interiorExpertise','exteriorExpertise','gasketLeak','airbagTest','roadDynoTransmission','tramer5664','kmQuery','mechanicalWarranty3m5k']}
 ];
 const packageRules=[
-  {title:'Bayi fiyatı değiştiremez',description:'Bayi satış ekranında fiyat sabit kalır; yalnızca izin verilen iskonto uygulanır.'},
+  {title:'Fiyat test bazında yönetilir',description:'Paket satış fiyatı taban fiyat ve seçilen test türlerinin fiyat toplamından oluşur.'},
   {title:'Dyno, fren ve süspansiyon ayrı modüllerdir',description:'DYNO Testi ile Fren Süspansiyon Testi aynı kartta birleştirilmez; şablonlarda ayrı takip edilir.'},
   {title:'Kanıt oranı minimum %80',description:'Garantili pakette kritik modüller fotoğraf, veri veya grafik kanıtı üretmelidir.'},
   {title:'Merkez onayı zorunlu',description:'Mekanik garanti aktifse paket merkez onayına gönderilir.'}
@@ -1082,6 +1086,7 @@ const packageCategories=[
 ];
 const packageBuilderStorageKey='ototr-package-builder-drafts-v1';
 const packageBuilderCustomTestStorageKey='ototr-package-builder-custom-tests-v1';
+const packageBuilderTestPriceStorageKey='ototr-package-builder-test-prices-v1';
 function packageBuilderSlug(value){
   const mapped=String(value||'test').trim().toLocaleLowerCase('tr-TR')
     .replace(/ğ/g,'g').replace(/ü/g,'u').replace(/ş/g,'s').replace(/ı/g,'i').replace(/ö/g,'o').replace(/ç/g,'c');
@@ -1094,6 +1099,46 @@ function packageBuilderShort(value){
 function packageBuilderCustomExists(id){
   return [...packageMainTests,...packageExtraServices].some(item=>item.id===id);
 }
+function packageBuilderAllTestItems(){
+  return [...packageMainTests,...packageExtraServices];
+}
+function packageBuilderItemPrice(item){
+  return Math.max(0,Number(item?.priceImpact||0));
+}
+function packageBuilderItemPriceLabel(item){
+  return formatTL(packageBuilderItemPrice(item));
+}
+function packageBuilderReadTestPrices(){
+  try{
+    const saved=JSON.parse(localStorage.getItem(packageBuilderTestPriceStorageKey)||'{}');
+    return saved&&typeof saved==='object'&&!Array.isArray(saved)?saved:{};
+  }catch(err){return {};}
+}
+const packageBuilderTestPrices=packageBuilderReadTestPrices();
+function packageBuilderFindTestItem(id){
+  return packageBuilderAllTestItems().find(item=>item.id===id);
+}
+function packageBuilderSaveTestPrices(){
+  localStorage.setItem(packageBuilderTestPriceStorageKey,JSON.stringify(packageBuilderTestPrices));
+}
+function packageBuilderApplyTestPrices(){
+  packageBuilderAllTestItems().forEach(item=>{
+    if(Object.prototype.hasOwnProperty.call(packageBuilderTestPrices,item.id)){
+      item.priceImpact=packageBuilderItemPrice({priceImpact:packageBuilderTestPrices[item.id]});
+    }else{
+      item.priceImpact=packageBuilderItemPrice(item);
+    }
+  });
+}
+function packageBuilderSetTestPrice(id,value,refresh=true){
+  const item=packageBuilderFindTestItem(id);
+  if(!item)return;
+  const nextPrice=Math.max(0,Number(value||0));
+  item.priceImpact=nextPrice;
+  packageBuilderTestPrices[id]=nextPrice;
+  packageBuilderSaveTestPrices();
+  if(refresh)packageBuilderRefresh();
+}
 function packageBuilderAppendCustomTest(record){
   const target=record?.target==='main'?'main':'extra';
   const source=record?.item;
@@ -1103,6 +1148,7 @@ function packageBuilderAppendCustomTest(record){
     custom:true,
     category:target==='main'?'mainModules':'extraTests',
     controlPoints:Number(source.controlPoints||0),
+    priceImpact:packageBuilderItemPrice(source),
     subPoints:Array.isArray(source.subPoints)?source.subPoints.filter(Boolean):[],
     defaultSelected:false
   };
@@ -1133,10 +1179,12 @@ function packageBuilderSaveCustomTestRecord(record){
   }catch(err){}
 }
 packageBuilderLoadCustomTests();
+packageBuilderApplyTestPrices();
 const packageBuilderState={
   activeTab:'mainTests',
   activeCategory:'mainModules',
   search:'',
+  status:'Taslak',
   selectedMainTests:new Set(packageMainTests.filter(item=>item.defaultSelected).map(item=>item.id)),
   selectedExtraServices:new Set(packageExtraServices.filter(item=>item.defaultSelected).map(item=>item.id)),
   createdPackages:[],
@@ -2764,18 +2812,19 @@ function packageBuilderInfo(){
   return {
     name:read('name').trim(),
     category:read('category'),
-    target:read('target'),
-    channel:read('channel'),
+    target:'Bireysel + Galeri',
+    channel:'Bayii Portal + Merkez',
     price:Number(read('price')||0),
     vat:'KDV Dahil',
-    discount:Number(read('discount')||0),
-    status:read('status') || 'Taslak',
+    discount:0,
+    status:read('status') || packageBuilderState.status || 'Taslak',
     warrantyDuration:read('warrantyDuration'),
     warrantyKm:read('warrantyKm')
   };
 }
 function packageBuilderSetInfo(next){
   Object.entries(next).forEach(([key,value])=>{
+    if(key==='status')packageBuilderState.status=value;
     const input=document.querySelector(`[data-package-info="${key}"]`);
     if(input)input.value=value;
   });
@@ -2800,11 +2849,13 @@ function packageBuilderTotals(){
   const info=packageBuilderInfo();
   const selectedTests=packageBuilderSelectedMainTests();
   const selectedExtras=packageBuilderSelectedExtraServices();
-  const extraTotal=selectedExtras.reduce((sum,item)=>sum+Number(item.priceImpact||0),0);
+  const mainTotal=selectedTests.reduce((sum,item)=>sum+packageBuilderItemPrice(item),0);
+  const extraTotal=selectedExtras.reduce((sum,item)=>sum+packageBuilderItemPrice(item),0);
+  const testPriceTotal=mainTotal+extraTotal;
   const totalControlPoints=[...selectedTests,...selectedExtras].reduce((sum,item)=>sum+Number(item.controlPoints||0),0);
-  const salesPrice=Number(info.price||0)+extraTotal;
+  const salesPrice=Number(info.price||0)+testPriceTotal;
   const estimatedProfit=Math.max(0,Math.round(((salesPrice*.28)-(totalControlPoints*8))/50)*50);
-  return {info,selectedTests,selectedExtras,extraTotal,totalControlPoints,salesPrice,estimatedProfit,evidencePercent:packageBuilderEvidencePercent(selectedTests,info)};
+  return {info,selectedTests,selectedExtras,mainTotal,extraTotal,testPriceTotal,totalControlPoints,salesPrice,estimatedProfit,evidencePercent:packageBuilderEvidencePercent(selectedTests,info)};
 }
 function packageBuilderRiskTone(risk){
   return risk==='Yüksek'?'red':risk==='Orta'?'orange':'green';
@@ -2827,6 +2878,7 @@ function packageBuilderReadNewTestPoint(){
     target:read('target')==='main'?'main':'extra',
     name:read('name'),
     controlPoints:Number(read('controlPoints')||0),
+    priceImpact:Number(read('priceImpact')||0),
     evidence:read('evidence')||'Foto kanıt',
     risk:read('risk')||'Orta',
     approval:read('approval')||'Otomatik',
@@ -2839,6 +2891,7 @@ function packageBuilderResetNewTestPointForm(hide=false){
   form.querySelector('[data-test-point-field="target"]').value='main';
   form.querySelector('[data-test-point-field="name"]').value='';
   form.querySelector('[data-test-point-field="controlPoints"]').value='';
+  form.querySelector('[data-test-point-field="priceImpact"]').value='';
   form.querySelector('[data-test-point-field="evidence"]').value='Foto kanıt';
   form.querySelector('[data-test-point-field="risk"]').value='Orta';
   form.querySelector('[data-test-point-field="approval"]').value='Otomatik';
@@ -2847,7 +2900,7 @@ function packageBuilderResetNewTestPointForm(hide=false){
 }
 function packageBuilderCreateTestPoint(){
   const data=packageBuilderReadNewTestPoint();
-  if(!data.name){packageBuilderShowToast('Test noktası adı girilmeli.');return;}
+  if(!data.name){packageBuilderShowToast('Test türü adı girilmeli.');return;}
   if(!data.controlPoints||data.controlPoints<1){packageBuilderShowToast('Bakılacak nokta sayısı 1 veya daha büyük olmalı.');return;}
   if(!data.subPoints.length){packageBuilderShowToast('En az 1 alt kontrol içeriği girilmeli.');return;}
   const id=`custom-${data.target}-${Date.now()}-${packageBuilderSlug(data.name)}`;
@@ -2857,18 +2910,19 @@ function packageBuilderCreateTestPoint(){
     short:packageBuilderShort(data.name),
     description:`${data.subPoints.length} alt kontrol: ${data.subPoints.slice(0,3).join(', ')}${data.subPoints.length>3?'...':''}`,
     controlPoints:data.controlPoints,
+    priceImpact:Math.max(0,Number(data.priceImpact||0)),
     evidence:data.evidence,
     risk:data.risk,
     subPoints:data.subPoints
   };
   if(data.target==='extra'){
-    item.priceImpact=0;
-    item.priceLabel='Paket içi';
+    item.priceLabel=packageBuilderItemPriceLabel(item);
     item.approval=data.approval;
   }
   const record={target:data.target,item};
   packageBuilderAppendCustomTest(record);
   packageBuilderSaveCustomTestRecord(record);
+  packageBuilderSetTestPrice(id,item.priceImpact,false);
   packageBuilderState.search='';
   const search=document.getElementById('packageSearchInput');
   if(search)search.value='';
@@ -2883,7 +2937,7 @@ function packageBuilderCreateTestPoint(){
   }
   packageBuilderResetNewTestPointForm(true);
   packageBuilderRefresh();
-  packageBuilderShowToast(`${data.name} test noktası eklendi.`);
+  packageBuilderShowToast(`${data.name} test türü eklendi.`);
 }
 function renderPackageRulePanel(){
   const panel=document.getElementById('packageRulePanel');
@@ -2898,7 +2952,7 @@ function renderPackageBuilderKpis(){
   const extraControlPoints=totals.selectedExtras.reduce((sum,item)=>sum+Number(item.controlPoints||0),0);
   const items=[
     {label:'Seçilen Ana Test',value:`${totals.selectedTests.length} Modül`,note:`${mainControlPoints} ana kontrol noktası`,tone:'blue'},
-    {label:'Ek Test',value:`${totals.selectedExtras.length} Kalem`,note:`${extraControlPoints} ek kontrol · Fiyat etkisi ${formatTL(totals.extraTotal)}`,tone:'green'},
+    {label:'Ek Test',value:`${totals.selectedExtras.length} Kalem`,note:`${extraControlPoints} ek kontrol · Test fiyatı ${formatTL(totals.testPriceTotal)}`,tone:'green'},
     {label:'Kanıt Zorunluluğu',value:`%${totals.evidencePercent}`,note:packageBuilderIsGuaranteed(totals.info)?'Garantili paket kuralı':'Standart kanıt kuralı',tone:totals.evidencePercent>=80?'green':'orange'},
     {label:'Tahmini Kâr',value:formatTL(totals.estimatedProfit),note:`Satış ${formatTL(totals.salesPrice)}`,tone:'orange'}
   ];
@@ -2939,14 +2993,15 @@ function renderPackageMainTestCard(item){
     </div>
     <p>${escapeHtml(item.description)}</p>
     ${packageBuilderRenderSubPoints(item)}
-    <div class="package-option-meta"><span class="package-chip blue">${item.controlPoints} kontrol noktası</span><span class="package-chip green">${escapeHtml(item.evidence)}</span><span class="package-chip ${packageBuilderRiskTone(item.risk)}">${escapeHtml(item.risk)} risk</span></div>
+    <div class="package-option-meta"><span class="package-chip blue">${item.controlPoints} kontrol noktası</span><span class="package-chip purple">${packageBuilderItemPriceLabel(item)}</span><span class="package-chip green">${escapeHtml(item.evidence)}</span><span class="package-chip ${packageBuilderRiskTone(item.risk)}">${escapeHtml(item.risk)} risk</span></div>
   </article>`;
 }
 function renderPackageExtraServiceCard(item){
   const selected=packageBuilderState.selectedExtraServices.has(item.id);
   const recommended=packageBuilderIsGuaranteed() && item.recommendedForGuaranteed;
   const meta=[
-    Number(item.controlPoints||0)>0 ? `${item.controlPoints} kontrol noktası` : item.priceLabel,
+    Number(item.controlPoints||0)>0 ? `${item.controlPoints} kontrol noktası` : 'Sorgu / garanti kalemi',
+    packageBuilderItemPriceLabel(item),
     item.evidence,
     item.approval
   ].filter(Boolean);
@@ -2957,7 +3012,7 @@ function renderPackageExtraServiceCard(item){
     </div>
     <p>${escapeHtml(item.description)}</p>
     ${packageBuilderRenderSubPoints(item)}
-    <div class="package-option-meta">${meta.map((value,index)=>`<span class="package-chip ${index===0?'blue':index===1?'green':packageBuilderApprovalTone(item.approval)}">${escapeHtml(value)}</span>`).join('')}${item.risk?`<span class="package-chip ${packageBuilderRiskTone(item.risk)}">${escapeHtml(item.risk)} risk</span>`:''}</div>
+    <div class="package-option-meta">${meta.map((value,index)=>`<span class="package-chip ${index===0?'blue':index===1?'purple':index===2?'green':packageBuilderApprovalTone(item.approval)}">${escapeHtml(value)}</span>`).join('')}${item.risk?`<span class="package-chip ${packageBuilderRiskTone(item.risk)}">${escapeHtml(item.risk)} risk</span>`:''}</div>
   </article>`;
 }
 function renderPackageTemplates(){
@@ -2982,9 +3037,8 @@ function packageBuilderValidation(){
   const totals=packageBuilderTotals();
   const errors=[];
   if(!totals.info.name)errors.push('Paket adı boş bırakılamaz.');
-  if(!totals.info.price)errors.push('Paket fiyatı boş veya 0 olamaz.');
+  if(!totals.salesPrice)errors.push('Paket satış fiyatı veya test fiyatları toplamı 0 olamaz.');
   if(!totals.selectedTests.length)errors.push('En az 1 ana test seçilmelidir.');
-  if(totals.info.discount>10)errors.push('Maksimum bayi iskonto oranı %10’u geçemez.');
   if(packageBuilderIsGuaranteed(totals.info)){
     if(!totals.info.warrantyDuration || totals.info.warrantyDuration==='Yok')errors.push('Garantili paket için garanti süresi zorunlu.');
     if(!totals.info.warrantyKm || totals.info.warrantyKm==='Yok')errors.push('Garantili paket için km limiti zorunlu.');
@@ -3000,14 +3054,33 @@ function renderSelectedPackageContentPanel(){
   if(!target)return;
   const totals=packageBuilderTotals();
   const rows=[
-    ...totals.selectedTests.map(item=>({type:'main',id:item.id,short:item.short,name:item.name,sub:`${item.controlPoints} kontrol · ${item.evidence}`})),
-    ...totals.selectedExtras.map(item=>({type:'extra',id:item.id,short:item.short,name:item.name,sub:Number(item.controlPoints||0)>0 ? `${item.controlPoints} kontrol · ${item.evidence}` : `${item.priceLabel} · ${item.approval}`}))
+    ...totals.selectedTests.map(item=>({type:'main',id:item.id,short:item.short,name:item.name,sub:`${item.controlPoints} kontrol · ${item.evidence} · ${packageBuilderItemPriceLabel(item)}`})),
+    ...totals.selectedExtras.map(item=>({type:'extra',id:item.id,short:item.short,name:item.name,sub:Number(item.controlPoints||0)>0 ? `${item.controlPoints} kontrol · ${item.evidence} · ${packageBuilderItemPriceLabel(item)}` : `${packageBuilderItemPriceLabel(item)} · ${item.approval}`}))
   ];
   if(!rows.length){
     target.innerHTML='<div class="package-empty">Henüz paket içeriği seçilmedi.</div>';
     return;
   }
   target.innerHTML=rows.map(row=>`<div class="package-selected-item"><span class="package-selected-item-icon">${escapeHtml(row.short)}</span><div><b>${escapeHtml(row.name)}</b><span>${escapeHtml(row.sub)}</span></div><button class="package-remove-btn" data-package-remove-${row.type}="${row.id}" type="button" aria-label="${escapeHtml(row.name)} çıkar">×</button></div>`).join('');
+}
+function renderPackageTestPriceEditor(){
+  const target=document.getElementById('packageTestPriceEditor');
+  if(!target)return;
+  const totals=packageBuilderTotals();
+  const items=[
+    ...totals.selectedTests.map(item=>({...item,typeLabel:'Ana test'})),
+    ...totals.selectedExtras.map(item=>({...item,typeLabel:'Ek test'}))
+  ];
+  if(!items.length){
+    target.innerHTML='';
+    return;
+  }
+  target.innerHTML=`
+    <div class="package-price-editor-head">
+      <div><b>Test Fiyatları</b><span>Seçilen her test türü için paket fiyatına eklenecek tutarı belirle.</span></div>
+      <div class="package-price-total">${formatTL(totals.testPriceTotal)}</div>
+    </div>
+    ${items.map(item=>`<label class="package-price-row"><span><b>${escapeHtml(item.name)}</b><span>${escapeHtml(item.typeLabel)} · ${Number(item.controlPoints||0)} kontrol</span></span><input data-package-test-price="${escapeHtml(item.id)}" type="number" min="0" step="50" value="${packageBuilderItemPrice(item)}" aria-label="${escapeHtml(item.name)} fiyatı"></label>`).join('')}`;
 }
 function renderPackagePriceSummary(){
   const target=document.getElementById('packagePriceSummary');
@@ -3017,8 +3090,9 @@ function renderPackagePriceSummary(){
     <div class="package-summary-row"><span>Ana test modülü sayısı</span><b>${totals.selectedTests.length}</b></div>
     <div class="package-summary-row"><span>Ek test sayısı</span><b>${totals.selectedExtras.length}</b></div>
     <div class="package-summary-row"><span>Toplam kontrol noktası</span><b>${totals.totalControlPoints}</b></div>
-    <div class="package-summary-row"><span>KDV durumu</span><b>KDV Dahil</b></div>
-    <div class="package-summary-row"><span>Ek test fiyat etkisi</span><b>${formatTL(totals.extraTotal)}</b></div>
+    <div class="package-summary-row"><span>Taban paket fiyatı</span><b>${formatTL(totals.info.price)}</b></div>
+    <div class="package-summary-row"><span>Ana test fiyat toplamı</span><b>${formatTL(totals.mainTotal)}</b></div>
+    <div class="package-summary-row"><span>Ek test fiyat toplamı</span><b>${formatTL(totals.extraTotal)}</b></div>
     <div class="package-summary-row"><span>Tahmini kâr</span><b>${formatTL(totals.estimatedProfit)}</b></div>
     <div class="package-summary-row total"><span>Paket satış fiyatı</span><b>${formatTL(totals.salesPrice)}</b></div>`;
 }
@@ -3035,7 +3109,7 @@ function renderPackageValidationPanel(){
   panel.classList.toggle('invalid',Boolean(validation.errors.length));
   panel.innerHTML=validation.errors.length
     ? `<b>Eksik kritik alanlar</b><ul>${validation.errors.map(error=>`<li>${escapeHtml(error)}</li>`).join('')}</ul>`
-    : '<b>Paket oluşturulabilir</b><ul><li>Fiyat, ana testler, kanıt oranı ve iskonto sınırı uygun.</li><li>API TODO: POST /api/packages/draft ve POST /api/packages/submit-approval bağlanacak.</li></ul>';
+    : '<b>Paket oluşturulabilir</b><ul><li>Taban fiyat, test fiyatları, ana testler ve kanıt oranı uygun.</li><li>API TODO: POST /api/packages/draft ve POST /api/packages/submit-approval bağlanacak.</li></ul>';
 }
 function renderPackageCreatedList(){
   const target=document.getElementById('packageCreatedList');
@@ -3044,7 +3118,7 @@ function renderPackageCreatedList(){
     target.innerHTML='<div class="package-empty">Paket listesine henüz yeni kayıt eklenmedi.</div>';
     return;
   }
-  target.innerHTML=packageBuilderState.createdPackages.map(item=>`<div class="package-created-item"><b>${escapeHtml(item.name)} · ${escapeHtml(item.status)}</b><span>${escapeHtml(item.mainCount)} ana test · ${escapeHtml(item.extraCount)} ek test · ${escapeHtml(formatTL(item.salesPrice))}</span></div>`).join('');
+  target.innerHTML=packageBuilderState.createdPackages.map(item=>`<div class="package-created-item"><b>${escapeHtml(item.name)} · ${escapeHtml(item.status)}</b><span>${escapeHtml(item.mainCount)} ana test · ${escapeHtml(item.extraCount)} ek test · Test fiyatı ${escapeHtml(formatTL(item.testPriceTotal||0))} · ${escapeHtml(formatTL(item.salesPrice))}</span></div>`).join('');
 }
 function renderPackageBuilderPage(){
   const page=document.getElementById('packageBuilderPage');
@@ -3054,14 +3128,13 @@ function renderPackageBuilderPage(){
   renderPackageCategoryMenu();
   renderPackagePool();
   renderSelectedPackageContentPanel();
+  renderPackageTestPriceEditor();
   renderPackagePriceSummary();
   renderPackageValidationPanel();
   renderPackageCreatedList();
   packageBuilderState.rendered=true;
 }
 function packageBuilderRefresh(){
-  const discount=document.querySelector('[data-package-info="discount"]');
-  if(discount&&Number(discount.value)>10)discount.value='10';
   renderPackageBuilderPage();
 }
 function applyPackageTemplate(templateId){
@@ -3083,7 +3156,7 @@ function packageBuilderSubmit(mode){
   const status=mode==='approval'?'Merkez Onayı Bekliyor':'Taslak';
   packageBuilderSetInfo({status});
   const totals=packageBuilderTotals();
-  const record={name:totals.info.name,status,mainCount:totals.selectedTests.length,extraCount:totals.selectedExtras.length,salesPrice:totals.salesPrice,createdAt:new Date().toLocaleString('tr-TR')};
+  const record={name:totals.info.name,status,mainCount:totals.selectedTests.length,extraCount:totals.selectedExtras.length,basePrice:totals.info.price,testPriceTotal:totals.testPriceTotal,salesPrice:totals.salesPrice,createdAt:new Date().toLocaleString('tr-TR')};
   packageBuilderState.createdPackages=[record,...packageBuilderState.createdPackages].slice(0,4);
   localStorage.setItem(packageBuilderStorageKey,JSON.stringify(packageBuilderState.createdPackages));
   renderPackageBuilderPage();
@@ -3123,6 +3196,21 @@ function wirePackageBuilderPage(){
     if(template){event.preventDefault();applyPackageTemplate(template.dataset.packageTemplate);return;}
     const submit=event.target.closest('[data-package-submit]');
     if(submit){event.preventDefault();packageBuilderSubmit(submit.dataset.packageSubmit);return;}
+  });
+  page.addEventListener('change',event=>{
+    const priceInput=event.target.closest('[data-package-test-price]');
+    if(!priceInput)return;
+    packageBuilderSetTestPrice(priceInput.dataset.packageTestPrice,priceInput.value);
+  });
+  page.addEventListener('input',event=>{
+    const priceInput=event.target.closest('[data-package-test-price]');
+    if(!priceInput)return;
+    packageBuilderSetTestPrice(priceInput.dataset.packageTestPrice,priceInput.value,false);
+    renderSelectedPackageContentPanel();
+    renderPackagePriceSummary();
+    renderPackageValidationPanel();
+    const priceTotal=page.querySelector('#packageTestPriceEditor .package-price-total');
+    if(priceTotal)priceTotal.textContent=formatTL(packageBuilderTotals().testPriceTotal);
   });
   document.querySelectorAll('[data-package-info]').forEach(input=>{
     input.addEventListener('input',packageBuilderRefresh);
@@ -3196,7 +3284,6 @@ const navWarranty=document.getElementById('navWarranty');
 const navCustomerExperience=document.getElementById('navCustomerExperience');
 const navPackageBuilder=document.getElementById('navPackageBuilder');
 const navStaffAcademy=document.getElementById('navStaffAcademy');
-const navEquipment=document.getElementById('navEquipment');
 const navBranchKpi=document.getElementById('navBranchKpi');
 const navOpenWorkOrder=document.getElementById('navOpenWorkOrder');
 const backToDashboard=document.getElementById('backToDashboard');
@@ -3218,7 +3305,6 @@ if(navWarranty)navWarranty.addEventListener('click',event=>{event.preventDefault
 if(navCustomerExperience)navCustomerExperience.addEventListener('click',event=>{event.preventDefault();closeDrawer();openModulePage('customerExperiencePage','navCustomerExperience')});
 if(navPackageBuilder)navPackageBuilder.addEventListener('click',event=>{event.preventDefault();closeDrawer();openModulePage('packageBuilderPage','navPackageBuilder')});
 if(navStaffAcademy)navStaffAcademy.addEventListener('click',event=>{event.preventDefault();closeDrawer();openModulePage('staffAcademyPage','navStaffAcademy')});
-if(navEquipment)navEquipment.addEventListener('click',event=>{event.preventDefault();closeDrawer();openModulePage('equipmentPage','navEquipment')});
 if(navBranchKpi)navBranchKpi.addEventListener('click',event=>{event.preventDefault();closeDrawer();openModulePage('branchKpiPage','navBranchKpi')});
 if(navOpenWorkOrder)navOpenWorkOrder.addEventListener('click',event=>{event.preventDefault();closeDrawer();openDrawer('quick')});
 ['reportSearchInput','reportDateFrom','reportDateTo','reportTypeFilter','reportStatusFilter','reportPackageFilter','reportChannelFilter','reportOutputFilter'].forEach(id=>{
