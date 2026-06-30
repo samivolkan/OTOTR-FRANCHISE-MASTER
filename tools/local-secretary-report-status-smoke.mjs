@@ -95,6 +95,39 @@ function findCase(rows, caseId) {
   return (Array.isArray(rows) ? rows : []).find((row) => row.expertise_case_id === caseId);
 }
 
+async function completeAllTasks(status, token, caseId) {
+  const tasks = await authedGet(
+    status,
+    token,
+    "/inspection_tasks?select=id,task_key,status,owner_user_id&expertise_case_id=eq." + caseId + "&order=created_at.asc"
+  );
+  if (!Array.isArray(tasks) || tasks.length === 0) {
+    throw new Error(`Expected generated tasks before secretary report-status smoke, got ${JSON.stringify(tasks).slice(0, 260)}`);
+  }
+
+  let completedCount = 0;
+  for (const task of tasks) {
+    if (task.status === "COMPLETED") {
+      completedCount += 1;
+      continue;
+    }
+    if (!task.owner_user_id) {
+      await authedPost(status, token, "/rpc/claim_inspection_task", {
+        target_task_id: task.id
+      });
+    }
+    const submitted = await authedPost(status, token, "/rpc/submit_inspection_task", {
+      target_task_id: task.id
+    });
+    const submittedTask = Array.isArray(submitted) ? submitted[0] : submitted;
+    if (submittedTask?.status !== "COMPLETED") {
+      throw new Error(`Expected task ${task.task_key} to complete, got ${JSON.stringify(submittedTask).slice(0, 260)}`);
+    }
+    completedCount += 1;
+  }
+  console.log(`PASS completed all generated technical tasks: ${completedCount}`);
+}
+
 async function main() {
   ensureLocalRoleFixtures();
   const status = runSupabaseStatus();
@@ -192,6 +225,8 @@ async function main() {
   });
   console.log("PASS evidence metadata persisted");
 
+  await completeAllTasks(status, technicianToken, caseId);
+
   const draftReport = await authedPost(status, technicianToken, "/rpc/generate_mobile_final_report", {
     target_case_id: caseId,
     lock_report: false
@@ -209,10 +244,10 @@ async function main() {
   if (!after || after.final_report_id !== draft.id || after.final_report_status !== "DRAFT") {
     throw new Error(`Expected secretary list to show draft report, got ${JSON.stringify(after).slice(0, 320)}`);
   }
-  if (after.can_submit !== true) {
-    throw new Error(`Expected secretary draft to be print-lockable in simplified flow, got ${JSON.stringify(after).slice(0, 320)}`);
+  if (after.final_report_summary?.canSubmit !== true || after.can_submit !== false) {
+    throw new Error(`Expected secretary draft to show technically ready summary but not final print approval before LOCKED status, got ${JSON.stringify(after).slice(0, 320)}`);
   }
-  console.log("PASS secretary list shows mobile final report DRAFT with simplified ready state");
+  console.log("PASS secretary list shows mobile final report DRAFT with technically ready summary");
 }
 
 main().catch((error) => {

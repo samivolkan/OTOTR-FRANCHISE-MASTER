@@ -1090,3 +1090,41 @@ Notes:
 
 - Kanit dosyasi:
   - `C:\Users\Samivolkannnn\Documents\performance-page-check.png`
+
+## 2026-06-26 - Bayii Portal Randevu otomasyon ve kapasite sayfasi
+
+- Yapilanlar:
+  - `apps/admin/prototype/bayi-portal/index.html` icindeki `Randevu & Kapasite` sayfasi 3 gunluk kapasite, slot cakismasi, hazir cevap otomasyonu, aksiyon gecmisi ve CRM takip kuyrugu ile genisletildi.
+  - Randevu state'i kanal, oncelik, CRM aksiyonu ve history alanlariyla genisletildi.
+  - Yeni randevu formuna kanal ve oncelik alanlari eklendi.
+  - Hazir cevap sablonlari SMS/WhatsApp/CRM kuyrugu olarak prototipte guvenli sekilde uretildi; canli entegrasyon veya secret kullanilmadi.
+  - Sol menu randevu acilisindaki gorunurluk cakismasi duzeltildi.
+
+- Dogrulama:
+  - `git diff --check -- apps/admin/prototype/bayi-portal/index.html`: gecti; yalnizca mevcut CRLF uyarisi goruldu.
+  - `node tools\test-demo-data.mjs`: gecti.
+  - `node tools\test-vin-service.mjs`: gecti.
+  - `node tools\test-index.mjs`: gecti.
+  - Playwright smoke: `http://127.0.0.1:8791/bayi-portal/index.html?portal=dealer#dealer` uzerinde `Randevu & Kapasite` acildi; 3 kapasite karti, hazir cevap kartlari, timeline ve CRM kuyruğu render oldu; ayni saate yeni randevu eklenince cakisma hesabi gorundu.
+
+- Kanit dosyalari:
+  - `apps/admin/prototype/bayi-portal/dealer-appointments-automation-check-1440x900.png`
+  - `apps/admin/prototype/bayi-portal/dealer-appointments-automation-viewport-1440x900.png`
+
+## 2026-06-26 - Bayii Portal Randevu V2 tasarim secenegi
+
+- Yapilanlar:
+  - `apps/admin/prototype/bayi-portal/index.html` icine V1 sayfasini bozmadan ayri `Randevu V2` menusu ve `appointmentV2Page` modulu eklendi.
+  - V2 sayfasi komuta merkezi, V1/V2 kiyas, KPI seridi, akilli randevu sihirbazi, canli kapasite takvimi, hazir cevap otomasyonu, randevu listesi, Lead -> Randevu kanban'i, SLA/gorev merkezi ve is emri taslagi akisiyla tasarlandi.
+  - Paketsiz randevu engeli, usta/lift/dyno/yol testi cakisma kontrolu, kapora uyarisi, KVKK/ticari izin, no-show geri kazanimi ve is emrine donusum kurallari UI seviyesinde gorunur hale getirildi.
+
+- Dogrulama:
+  - `git diff --check -- apps/admin/prototype/bayi-portal/index.html TEST_RESULTS.md`: gecti; yalnizca mevcut CRLF uyarisi goruldu.
+  - `node tools\test-demo-data.mjs` (`apps/admin/prototype` altinda): gecti.
+  - `node tools\test-vin-service.mjs` (`apps/admin/prototype` altinda): gecti.
+  - `node tools\test-index.mjs` (`apps/admin/prototype` altinda): gecti.
+  - Playwright smoke: `http://127.0.0.1:8791/bayi-portal/index.html?portal=dealer#dealer` uzerinde V1 `Randevu & Kapasite` once acildi, ardindan V2 `Randevu V2` aktif menusuyle acildi; 8 KPI, 5 sihirbaz adimi, 4 liste satiri, 7 kanban kolonu ve 3 kiyas satiri render oldu.
+
+- Kanit dosyalari:
+  - `apps/admin/prototype/bayi-portal/dealer-appointments-v2-viewport-1440x900.png`
+  - `apps/admin/prototype/bayi-portal/dealer-appointments-v2-full-1440x900.png`

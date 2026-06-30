@@ -102,8 +102,10 @@ async function authedGet(status, token, pathName) {
 
 async function main() {
   const status = runSupabaseStatus();
+  console.log("PASS local Supabase status loaded for dealer auto-sync smoke");
   const managerToken = await signIn(status, accounts.manager);
   const technicianToken = await signIn(status, accounts.technician);
+  console.log("PASS local manager and technician sessions opened for dealer auto-sync smoke");
 
   const require = createRequire(import.meta.url);
   const playwrightPath = require.resolve("playwright", {
@@ -121,6 +123,10 @@ async function main() {
 
   const browser = await chromium.launch({ headless: true, executablePath });
   const context = await browser.newContext({ viewport: { width: 1440, height: 1000 } });
+  await context.addInitScript(({ url, key }) => {
+    localStorage.setItem("ototr-dealer-supabase-config-v1", JSON.stringify({ url, key }));
+    window.OTOTR_SUPABASE_CONFIG = { url, key };
+  }, { url: status.API_URL, key: status.ANON_KEY });
   const page = await context.newPage();
   const errors = [];
   page.on("console", (msg) => {
@@ -129,14 +135,21 @@ async function main() {
   page.on("pageerror", (error) => errors.push(error.message));
 
   await page.goto(dealerUrl, { waitUntil: "load" });
+  console.log(`PASS dealer portal loaded: ${dealerUrl}`);
   await page.waitForFunction(() => (
     typeof window.dealerSupabaseSignIn === "function"
     && typeof window.dealerSyncSupabaseWorkOrders === "function"
   ), null, { timeout: 10000 });
+  console.log("PASS dealer portal live functions available");
+  await page.evaluate(({ url, key }) => {
+    localStorage.setItem("ototr-dealer-supabase-config-v1", JSON.stringify({ url, key }));
+  }, { url: status.API_URL, key: status.ANON_KEY });
+  console.log("PASS local Supabase runtime config injected for dealer portal smoke");
   await page.evaluate(async ({ email, password }) => {
     await window.dealerSupabaseSignIn(email, password);
     await window.dealerSyncSupabaseWorkOrders({ silent: true, noRender: true });
   }, accounts.manager);
+  console.log("PASS dealer portal signed in and initial sync requested");
   await page.waitForFunction(() => {
     try {
       return Boolean(JSON.parse(localStorage.getItem("ototr-dealer-supabase-session-v1") || "{}").access_token);
@@ -167,12 +180,14 @@ async function main() {
     package_type: "STANDARD",
     work_order_notes: "Manual refresh kullanmadan portal sync smoke"
   });
+  console.log(`PASS work order created for dealer auto-sync smoke: ${caseId}`);
 
   await authedPost(status, technicianToken, "/rpc/transition_mobile_work_order_status", {
     target_case_id: caseId,
     next_status: "IN_PROGRESS",
     transition_reason: "Dealer auto sync smoke technician start"
   });
+  console.log("PASS work order moved to technical entry for dealer auto-sync smoke");
 
   const expectedTaskKey = getInspectionTaskKeyForModule("motor");
   const motorTasks = await authedGet(
@@ -207,6 +222,7 @@ async function main() {
   if (!saved?.id || saved.result !== "NORMAL") {
     throw new Error(`Expected NORMAL technician answer, got ${JSON.stringify(saved).slice(0, 240)}`);
   }
+  console.log(`PASS technician answer saved for dealer auto-sync smoke: ${saved.id}`);
 
   try {
     await page.waitForFunction(({ title, expectedPlate }) => {
