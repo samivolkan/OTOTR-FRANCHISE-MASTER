@@ -1211,12 +1211,6 @@ button,input,select,textarea{font:inherit}.app{min-height:100vh;display:grid;gri
           <div>
             <h1>Paket Oluştur v2</h1>
           </div>
-          <div class="package-builder-head-actions">
-            <span class="package-update-stamp" id="packageBuilderUpdateStamp">Son güncelleme: 01.07.2026 02:34</span>
-            <button class="btn" data-open-module="dashboardPage" data-open-module-nav="navDashboard" type="button">Kokpite Dön</button>
-            <button class="btn" data-package-open-points="bodyPaint" type="button">Test Maddeleri</button>
-            <button class="btn primary" data-package-submit="approval" type="button">Merkez Onayına Gönder</button>
-          </div>
         </div>
         <div class="package-wizard-steps" aria-label="Paket oluşturma adımları">
           <div class="package-wizard-step done"><span>1</span><b>Paket Bilgileri</b></div>
@@ -4451,7 +4445,6 @@ function packageBuilderCollectPointOptions(rowEl){
     technicianNote:rowEl.querySelector('[data-package-point-technician-note]')?.value||'',
     customerNote:rowEl.querySelector('[data-package-point-customer-note]')?.value||'',
     internalNote:rowEl.querySelector('[data-package-point-internal-note]')?.value||'',
-    requiresManagerApproval:Boolean(rowEl.querySelector('[data-package-point-manager-approval]')?.checked),
     lockedByCenter:Boolean(rowEl.querySelector('[data-package-point-locked]')?.checked),
     packageRules
   };
@@ -4646,7 +4639,7 @@ function renderPackagePointDetail(item,row,index){
       <label class="package-point-v2-field">Admin notu<input data-package-point-admin-note value="${escapeHtml(row.adminNote||'')}" placeholder="İç not"></label>
       <label class="package-point-v2-field">Usta açıklaması<input data-package-point-technician-note value="${escapeHtml(row.technicianNote||'')}" placeholder="Mobilde görünecek kısa not"></label>
     </div></div>
-    <div class="package-subitem-section"><div class="package-subitem-head"><b>Alt Maddeler (${subPoints.length})</b><button data-package-point-add-subitem type="button">+ Alt Madde Ekle</button></div><div class="package-subitem-list">${subPoints.map((point,subIndex)=>`<div class="package-subitem-row v2"><span class="package-subitem-drag" draggable="true" title="Tutup taşı" aria-label="Alt maddeyi tutup taşı">⋮⋮</span><span class="package-subitem-index" draggable="true" title="Tutup taşı">${subIndex+1}</span><textarea class="package-subitem-input" data-package-point-subitem>${escapeHtml(point)}</textarea><select class="package-subitem-type"><option>Normal seçenek</option><option>Olumlu sonuç</option><option>Kusur seçeneği</option><option>Kritik kusur</option><option>Bilgi notu</option><option>Yönetici onayı gerektiren sonuç</option></select><label class="package-subitem-rule"><input type="checkbox"> Foto</label><label class="package-subitem-rule"><input type="checkbox"> Açıklama</label><label class="package-subitem-rule"><input type="checkbox"> Kritik</label><button class="package-subitem-icon-btn danger" data-package-point-remove-subitem type="button" aria-label="Alt maddeyi sil">Sil</button></div>`).join('')}</div><textarea data-package-point-subpoints hidden>${escapeHtml(subPoints.join('\n'))}</textarea></div>
+    <div class="package-subitem-section"><div class="package-subitem-head"><b>Alt Maddeler (${subPoints.length})</b><button data-package-point-add-subitem type="button">+ Alt Madde Ekle</button></div><div class="package-subitem-list">${subPoints.map((point,subIndex)=>`<div class="package-subitem-row v2"><span class="package-subitem-drag" draggable="true" title="Tutup taşı" aria-label="Alt maddeyi tutup taşı">⋮⋮</span><span class="package-subitem-index" draggable="true" title="Tutup taşı">${subIndex+1}</span><textarea class="package-subitem-input" data-package-point-subitem>${escapeHtml(point)}</textarea><select class="package-subitem-type"><option>Normal seçenek</option><option>Olumlu sonuç</option><option>Kusur seçeneği</option><option>Kritik kusur</option><option>Bilgi notu</option></select><label class="package-subitem-rule"><input type="checkbox"> Foto</label><label class="package-subitem-rule"><input type="checkbox"> Açıklama</label><label class="package-subitem-rule"><input type="checkbox"> Kritik</label><button class="package-subitem-icon-btn danger" data-package-point-remove-subitem type="button" aria-label="Alt maddeyi sil">Sil</button></div>`).join('')}</div><textarea data-package-point-subpoints hidden>${escapeHtml(subPoints.join('\n'))}</textarea></div>
     <div class="package-point-v2-section"><h3>Paket Bağlantısı</h3>${packageBuilderRenderPackageRules(item.id,row)}</div>
     <div class="package-point-v2-section"><h3>Rapor Çıktısı</h3><div class="package-point-v2-grid">
       <label class="package-point-v2-field">Rapor bölümü<input data-package-point-report-section value="${escapeHtml(row.reportSection||row.groupLabel||'')}" placeholder="Örn. Kaporta ve Boya"></label>
@@ -4654,7 +4647,6 @@ function renderPackagePointDetail(item,row,index){
       <label class="package-point-v2-field">Görünüm kuralı<select data-package-point-report-visibility><option value="always" ${row.reportVisibility==='always'?'selected':''}>Her zaman göster</option><option value="only_if_issue" ${row.reportVisibility==='only_if_issue'?'selected':''}>Sadece sorun varsa göster</option><option value="only_if_selected" ${row.reportVisibility==='only_if_selected'?'selected':''}>Sadece seçildiyse göster</option><option value="internal_only" ${row.reportVisibility==='internal_only'?'selected':''}>Sadece iç kontrolde göster</option><option value="hidden" ${row.reportVisibility==='hidden'?'selected':''}>Raporda gösterme</option></select></label>
       <label class="package-point-v2-field">Müşteri bilgilendirme metni<textarea data-package-point-customer-note>${escapeHtml(row.customerNote||'')}</textarea></label>
       <label class="package-point-v2-field">Teknik not<textarea data-package-point-internal-note>${escapeHtml(row.internalNote||'')}</textarea></label>
-      <label class="package-point-v2-field"><span>Yönetici onayı</span><label class="package-subitem-rule"><input data-package-point-manager-approval type="checkbox" ${row.requiresManagerApproval?'checked':''}> Kritik sonuçta onay iste</label></label>
     </div></div>
     <div class="package-point-v2-section"><h3>Yetki ve Kalite</h3><label class="package-subitem-rule"><input data-package-point-locked type="checkbox" ${row.lockedByCenter?'checked':''}> Merkez şablonu - bayi değiştiremez</label><div class="package-point-quality-list">${issues.length?issues.map(issue=>`<div class="package-point-quality-item">${escapeHtml(issue.text)}</div>`).join(''):'<div class="package-point-quality-item ok">Şablon kontrolünde kritik eksik yok.</div>'}</div></div>
     <div class="package-point-v2-section"><h3>Değişiklik Geçmişi</h3><div class="package-point-history">${history.length?history.map(item=>`<div class="package-point-history-row"><b>${escapeHtml(item.by||'Merkez')}</b> · ${escapeHtml(item.at||'')} · ${escapeHtml(item.fields||'Güncellendi')}</div>`).join(''):`<div class="package-point-history-row"><b>Son güncelleme</b> · ${escapeHtml(row.lastModifiedAt||'Henüz kaydedilmedi')} · ${escapeHtml(row.lastModifiedBy||'Merkez')}</div>`}</div></div>
@@ -5258,7 +5250,7 @@ function wirePackagePointEditorPage(){
       const list=row?.querySelector('.package-subitem-list');
       if(list){
         const next=list.querySelectorAll('[data-package-point-subitem]').length+1;
-        list.insertAdjacentHTML('beforeend',`<div class="package-subitem-row v2"><span class="package-subitem-drag" draggable="true" title="Tutup taşı" aria-label="Alt maddeyi tutup taşı">⋮⋮</span><span class="package-subitem-index" draggable="true" title="Tutup taşı">${next}</span><textarea class="package-subitem-input" data-package-point-subitem>Yeni alt madde</textarea><select class="package-subitem-type"><option>Normal seçenek</option><option>Olumlu sonuç</option><option>Kusur seçeneği</option><option>Kritik kusur</option><option>Bilgi notu</option><option>Yönetici onayı gerektiren sonuç</option></select><label class="package-subitem-rule"><input type="checkbox"> Foto</label><label class="package-subitem-rule"><input type="checkbox"> Açıklama</label><label class="package-subitem-rule"><input type="checkbox"> Kritik</label><button class="package-subitem-icon-btn danger" data-package-point-remove-subitem type="button" aria-label="Alt maddeyi sil">Sil</button></div>`);
+        list.insertAdjacentHTML('beforeend',`<div class="package-subitem-row v2"><span class="package-subitem-drag" draggable="true" title="Tutup taşı" aria-label="Alt maddeyi tutup taşı">⋮⋮</span><span class="package-subitem-index" draggable="true" title="Tutup taşı">${next}</span><textarea class="package-subitem-input" data-package-point-subitem>Yeni alt madde</textarea><select class="package-subitem-type"><option>Normal seçenek</option><option>Olumlu sonuç</option><option>Kusur seçeneği</option><option>Kritik kusur</option><option>Bilgi notu</option></select><label class="package-subitem-rule"><input type="checkbox"> Foto</label><label class="package-subitem-rule"><input type="checkbox"> Açıklama</label><label class="package-subitem-rule"><input type="checkbox"> Kritik</label><button class="package-subitem-icon-btn danger" data-package-point-remove-subitem type="button" aria-label="Alt maddeyi sil">Sil</button></div>`);
         packageBuilderSyncPointSubitems(row);
       }
       return;
@@ -5449,7 +5441,7 @@ function wirePackagePointEditorPage(){
       renderPackagePointEditorPage();
       return;
     }
-    const detailChange=event.target.closest('[data-package-point-status],[data-package-point-requirement-mode],[data-package-point-photo-mode-select],[data-package-rule],[data-package-point-manager-approval],[data-package-point-locked]');
+    const detailChange=event.target.closest('[data-package-point-status],[data-package-point-requirement-mode],[data-package-point-photo-mode-select],[data-package-rule],[data-package-point-locked]');
     if(detailChange){
       const state=page.querySelector('.package-point-save-state');
       if(state)state.textContent='Kaydedilmedi';
