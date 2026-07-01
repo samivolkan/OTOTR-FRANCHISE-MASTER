@@ -92,7 +92,11 @@ export const referenceRouteOrder = Object.freeze([
   "approval-waiting",
   "offline-sync",
   "sync-error",
-  "empty-state"
+  "empty-state",
+  "secretariat-work-order",
+  "registration-capture",
+  "registration-review",
+  "work-order-created"
 ]);
 export const referenceScreens = Object.freeze(
   Object.fromEntries(finalScreenRoutes.map((screen) => [screen.routeId, screen.imagePath]))
@@ -183,6 +187,10 @@ export const phase2ComponentRoutes = Object.freeze([
   "sync-error",
   "emptyState",
   "empty-state",
+  "secretariat-work-order",
+  "registration-capture",
+  "registration-review",
+  "work-order-created",
   "profile"
 ]);
 

@@ -14,8 +14,8 @@ const MODULE_MAPPINGS = Object.freeze({
   "alt-on-mekanik": Object.freeze({
     mobileModuleId: "alt-on-mekanik",
     backendTaskKey: "MECHANICAL_CHECKUP",
-    portalDisplayName: "Alt / On / Mekanik",
-    reportSection: "Alt On Mekanik Ekspertizi"
+    portalDisplayName: "Alt / Ön / Mekanik",
+    reportSection: "Alt / Ön / Mekanik Ekspertizi"
   }),
   "fren-suspansiyon": Object.freeze({
     mobileModuleId: "fren-suspansiyon",
@@ -27,7 +27,7 @@ const MODULE_MAPPINGS = Object.freeze({
     mobileModuleId: "obd-beyin",
     backendTaskKey: "OBD_ECU_TEST",
     portalDisplayName: "OBD / Beyin",
-    reportSection: "OBD ve Beyin Kontrolu"
+    reportSection: "OBD ve Beyin Kontrolü"
   }),
   "dyno-yol": Object.freeze({
     mobileModuleId: "dyno-yol",
@@ -38,26 +38,26 @@ const MODULE_MAPPINGS = Object.freeze({
   "genel-kondisyon-dis": Object.freeze({
     mobileModuleId: "genel-kondisyon-dis",
     backendTaskKey: "EXTERIOR_CONDITION",
-    portalDisplayName: "Dis Kondisyon",
-    reportSection: "Dis Kondisyon Ekspertizi"
+    portalDisplayName: "Dış Kondisyon",
+    reportSection: "Dış Kondisyon Ekspertizi"
   }),
   "ic-ekspertiz": Object.freeze({
     mobileModuleId: "ic-ekspertiz",
     backendTaskKey: "INTERIOR_CHECKUP",
-    portalDisplayName: "Ic Ekspertiz",
-    reportSection: "Ic Ekspertiz ve Donanim"
+    portalDisplayName: "İç Ekspertiz",
+    reportSection: "İç Ekspertiz ve Donanım"
   }),
   airbag: Object.freeze({
     mobileModuleId: "airbag",
     backendTaskKey: "AIRBAG_CHECK",
     portalDisplayName: "Airbag",
-    reportSection: "Airbag ve Guvenlik Sistemi"
+    reportSection: "Airbag ve Güvenlik Sistemi"
   }),
   "conta-kacak": Object.freeze({
     mobileModuleId: "conta-kacak",
     backendTaskKey: "HEAD_GASKET_LEAK_TEST",
-    portalDisplayName: "Conta Kacak",
-    reportSection: "Conta Kacak Testi"
+    portalDisplayName: "Conta Kaçak",
+    reportSection: "Conta Kaçak Testi"
   })
 });
 

@@ -1,4 +1,7 @@
-﻿export const workOrderStatusLabels = Object.freeze({
+﻿import { getCachedLiveWorkOrders } from "../services/liveWorkOrdersService.js";
+import { getSupabaseRuntimeConfig, isAccessTokenExpired } from "../services/supabaseSessionService.js";
+
+export const workOrderStatusLabels = Object.freeze({
   waiting_start_proof: "Kanıt Bekliyor",
   start_proof_incomplete: "Kanıt Eksik",
   in_progress: "Devam Ediyor",
@@ -211,24 +214,110 @@ export function getWorkOrderTargetRoute(workOrder) {
   return "job-detail";
 }
 
+const selectedWorkOrderStorageKey = "ototrSelectedWorkOrder";
+const selectedWorkOrderSnapshotStorageKey = "ototrSelectedWorkOrderSnapshot";
+
+function readSelectedWorkOrderSnapshot() {
+  try {
+    const parsed = JSON.parse(localStorage.getItem(selectedWorkOrderSnapshotStorageKey) || "{}");
+    return parsed && typeof parsed === "object" ? parsed : {};
+  } catch {
+    return {};
+  }
+}
+
+function findMatchingWorkOrder(orders, selected = {}) {
+  const candidates = new Set([
+    selected.id,
+    selected.expertiseCaseId,
+    selected.workOrderNo,
+    selected.plate
+  ].filter(Boolean).map(String));
+  if (!candidates.size) return null;
+  return orders.find((order) => [
+    order.id,
+    order.expertiseCaseId,
+    order.workOrderNo,
+    order.plate
+  ].some((value) => value && candidates.has(String(value)))) || null;
+}
+
+function createSelectedWorkOrderSnapshot(workOrder = {}) {
+  return {
+    id: workOrder.id || workOrder.expertiseCaseId || workOrder.workOrderNo || workOrder.plate || "",
+    expertiseCaseId: workOrder.expertiseCaseId || "",
+    workOrderNo: workOrder.workOrderNo || "",
+    plate: workOrder.plate || "",
+    brand: workOrder.brand || "",
+    model: workOrder.model || "",
+    brandModel: workOrder.brandModel || "",
+    year: workOrder.year || "",
+    packageName: workOrder.packageName || "",
+    packageCode: workOrder.packageCode || "",
+    packageModuleIds: workOrder.packageModuleIds || [],
+    packageTaskKeys: workOrder.packageTaskKeys || [],
+    km: workOrder.km || "",
+    vin: workOrder.vin || "",
+    status: workOrder.status || "",
+    progress: workOrder.progress || 0,
+    completedItems: workOrder.completedItems || 0,
+    totalItems: workOrder.totalItems || 60,
+    missingCount: workOrder.missingCount || 0,
+    photoCount: workOrder.photoCount || 0,
+    branchName: workOrder.branchName || "",
+    assignedTechnician: workOrder.assignedTechnician || "",
+    plannedTime: workOrder.plannedTime || "",
+    createdAt: workOrder.createdAt || "",
+    customerVisibleName: workOrder.customerVisibleName || "",
+    returnReason: workOrder.returnReason || null,
+    image: workOrder.image || "bmw",
+    source: workOrder.source || "snapshot"
+  };
+}
+
 export function getSelectedWorkOrder() {
-  const selectedId = localStorage.getItem("ototrSelectedWorkOrder");
+  const selectedId = localStorage.getItem(selectedWorkOrderStorageKey);
+  const selectedSnapshot = readSelectedWorkOrderSnapshot();
   const orders = getRuntimeWorkOrders();
-  return orders.find((order) => order.id === selectedId) || orders[0] || mockWorkOrders[0];
+  const selected = findMatchingWorkOrder(orders, { id: selectedId, ...selectedSnapshot });
+  if (selected) return selected;
+  if (hasUsableAuthState() && (selectedSnapshot.id || selectedSnapshot.plate || selectedSnapshot.expertiseCaseId)) {
+    return applyLocalWorkOrderStatusOverrides([selectedSnapshot])[0] || selectedSnapshot;
+  }
+  if (orders.length) return orders[0];
+  if (!hasUsableAuthState()) return null;
+  return mockWorkOrders[0];
 }
 
 export function setSelectedWorkOrder(workOrder) {
-  localStorage.setItem("ototrSelectedWorkOrder", workOrder.id);
+  if (!workOrder) return;
+  const snapshot = createSelectedWorkOrderSnapshot(workOrder);
+  localStorage.setItem(selectedWorkOrderStorageKey, snapshot.id);
+  localStorage.setItem(selectedWorkOrderSnapshotStorageKey, JSON.stringify(snapshot));
 }
 
 export function getRuntimeWorkOrders() {
   const liveOrders = getCachedLiveWorkOrders();
-  return applyLocalWorkOrderStatusOverrides(liveOrders.length ? liveOrders : mockWorkOrders);
+  if (liveOrders.length) return applyLocalWorkOrderStatusOverrides(liveOrders);
+  if (!hasUsableAuthState()) return [];
+  return applyLocalWorkOrderStatusOverrides(mockWorkOrders);
+}
+
+function hasUsableAuthState() {
+  if (localStorage.getItem("ototrAuth") !== "true") return false;
+  const config = getSupabaseRuntimeConfig();
+  if (config.accessToken && !isAccessTokenExpired(config.accessToken)) return true;
+  return Boolean(config.refreshToken);
 }
 
 function applyLocalWorkOrderStatusOverrides(orders) {
   return orders.map((order) => {
-    const status = localStorage.getItem(`ototrWorkOrderStatus:${order.id}`);
+    if (order.source === "supabase") return order;
+    const status = [
+      order.id,
+      order.expertiseCaseId,
+      order.workOrderNo
+    ].filter(Boolean).map((key) => localStorage.getItem(`ototrWorkOrderStatus:${key}`)).find(Boolean);
     if (!status || status === order.status) return order;
     return {
       ...order,
@@ -251,4 +340,4 @@ export function getVehicleImagePath(workOrder) {
   };
   return images[workOrder.image] || images.bmw;
 }
-import { getCachedLiveWorkOrders } from "../services/liveWorkOrdersService.js";
+

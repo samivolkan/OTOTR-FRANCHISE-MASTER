@@ -52,6 +52,13 @@ export type LiveBodyInspectionAnswer = {
   micron: number;
 };
 
+export type LiveVehicleHistoryAlert = {
+  severity: 'INFO' | 'WARNING' | 'CRITICAL' | string;
+  title: string;
+  body: string;
+  source?: string;
+};
+
 export type LiveWorkOrder = {
   id: string;
   caseId: string;
@@ -65,6 +72,13 @@ export type LiveWorkOrder = {
   vehicle: LiveVehicle;
   tasks: LiveTask[];
   evidence: LiveEvidence[];
+  acceptance?: {
+    historyStatus: 'UNCHECKED' | 'CLEAR' | 'INFO' | 'WARNING' | 'CRITICAL' | string;
+    historyText: string;
+    alerts: LiveVehicleHistoryAlert[];
+    crmMatch?: string;
+    consentStatus?: string;
+  };
   gates: {
     managerApproved: boolean;
     secretaryReady: boolean;

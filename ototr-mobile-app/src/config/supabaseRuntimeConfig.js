@@ -1,8 +1,8 @@
 globalThis.OTOTR_SUPABASE_CONFIG = {
-  "profile": "production",
-  "url": "https://bsjkohwbtrfwrqcyhsfz.supabase.co",
-  "publishableKey": "sb_publishable_2vkXvrJrWhex-e0wFdM3Bg_nVlqGGuE",
-  "evidenceBucket": "ototr-evidence",
+  "profile": "local",
+  "url": "http://10.0.2.2:55321",
+  "publishableKey": "sb_publishable_ACJWlzQHlZjBrEguHvfOxg_3BJgxAaH",
+  "evidenceBucket": "report-media",
   "registerEvidenceMetadata": true,
   "debugLoginEnabled": false,
   "debugAutoLoginEnabled": false,
@@ -10,5 +10,7 @@ globalThis.OTOTR_SUPABASE_CONFIG = {
   "debugRealAutoLoginEmail": "",
   "debugRealAutoLoginPassword": "",
   "allowFakeSupabaseSession": false,
-  "debugAutoBranchId": ""
+  "debugAutoBranchId": "",
+  "debugStartupRoute": "",
+  "debugSelectedWorkOrderId": ""
 };

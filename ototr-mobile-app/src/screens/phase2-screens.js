@@ -74,6 +74,22 @@ import {
   getCachedFinalReport
 } from "../services/finalReportService.js";
 import { transitionLiveWorkOrderStatus } from "../services/liveWorkOrderStatusService.js";
+import {
+  canCreateSecretariatWorkOrder,
+  captureRegistrationImage,
+  clearSecretariatDraft,
+  createWorkOrderFromRegistration,
+  fetchSecretariatWorkOrderPackages,
+  getCurrentSecretariatContext,
+  normalizeEngineNo,
+  normalizePlate,
+  normalizeVin,
+  parseRegistrationText,
+  readCreatedSecretariatWorkOrder,
+  readSecretariatDraft,
+  validateRegistrationFields,
+  writeSecretariatDraft
+} from "../services/secretariatWorkOrderService.js";
 
 const shellRoutes = new Set([
   "login",
@@ -122,6 +138,10 @@ const shellRoutes = new Set([
   "sync-error",
   "emptyState",
   "empty-state",
+  "secretariat-work-order",
+  "registration-capture",
+  "registration-review",
+  "work-order-created",
   "profile"
 ]);
 
@@ -586,112 +606,112 @@ const moduleForms = Object.freeze(moduleCatalog.map((module) => ({
 
 const inspectionDisplayTitles = Object.freeze({
   motor: [
-    "Motor Yağ Kaçağı Var mı?",
-    "Motor Üst Kapak Durumu",
-    "Turbo Hortumları Sağlam mı?",
-    "Radyatör ve Soğutma Kaçağı",
-    "Motor Çalışma Sesi Normal mi?",
-    "Şase No / Motor No Kontrolü",
-    "Akü ve Şarj Durumu",
-    "Kayış ve Gergi Kontrolü",
-    "Sıvı Seviyeleri Uygun mu?",
-    "Motor Arıza Lambası Yanıyor mu?"
+    "Motor Ya\u011f Ka\u00e7a\u011f\u0131 Var m\u0131?",
+    "Motor \u00dcst Kapak Durumu",
+    "Turbo Hortumlar\u0131 Sa\u011flam m\u0131?",
+    "Radyat\u00f6r ve So\u011futma Ka\u00e7a\u011f\u0131",
+    "Motor \u00c7al\u0131\u015fma Sesi Normal mi?",
+    "\u015ease No / Motor No Kontrol\u00fc",
+    "Ak\u00fc ve \u015earj Durumu",
+    "Kay\u0131\u015f ve Gergi Kontrol\u00fc",
+    "S\u0131v\u0131 Seviyeleri Uygun mu?",
+    "Motor Ar\u0131za Lambas\u0131 Yan\u0131yor mu?"
   ],
   mechanic: [
-    "Ön Takım Boşluğu Var mı?",
-    "Aks Körükleri Sağlam mı?",
-    "Rot / Rotil Kontrolü",
-    "Alt Salıncak Burçları",
-    "Amortisör Kaçağı Var mı?",
-    "Direksiyon Kutusu Boşluğu",
-    "Şanzıman Alt Kaçak Kontrolü",
-    "Egzoz Hattı ve Askıları",
+    "\u00d6n Tak\u0131m Bo\u015flu\u011fu Var m\u0131?",
+    "Aks K\u00f6r\u00fckleri Sa\u011flam m\u0131?",
+    "Rot / Rotil Kontrol\u00fc",
+    "Alt Sal\u0131ncak Bur\u00e7lar\u0131",
+    "Amortis\u00f6r Ka\u00e7a\u011f\u0131 Var m\u0131?",
+    "Direksiyon Kutusu Bo\u015flu\u011fu",
+    "\u015eanz\u0131man Alt Ka\u00e7ak Kontrol\u00fc",
+    "Egzoz Hatt\u0131 ve Ask\u0131lar\u0131",
     "Karter Koruma Durumu",
-    "Diferansiyel / Aktarma Kontrolü"
+    "Diferansiyel / Aktarma Kontrol\u00fc"
   ],
   brakeSuspension: [
-    "Ön Fren Balataları",
-    "Arka Fren Balataları",
-    "Disk Yüzey Durumu",
-    "Fren Hidrolik Kaçağı",
+    "\u00d6n Fren Balatalar\u0131",
+    "Arka Fren Balatalar\u0131",
+    "Disk Y\u00fczey Durumu",
+    "Fren Hidrolik Ka\u00e7a\u011f\u0131",
     "El Freni Tutuyor mu?",
-    "Ön Amortisör Performansı",
-    "Arka Amortisör Performansı",
-    "Süspansiyon Ses Kontrolü"
+    "\u00d6n Amortis\u00f6r Performans\u0131",
+    "Arka Amortis\u00f6r Performans\u0131",
+    "S\u00fcspansiyon Ses Kontrol\u00fc"
   ],
   kaporta: [
-    "Araç Genelinde Dolu Hasarı Mevcut mu?",
-    "Sağ Ön Kapı İçi",
-    "Sağ Ön Şasi Ucu",
-    "Sol Ön Kapı İçi",
-    "Sol Ön Şasi Ucu",
-    "Araç Alt Ön Kısım Fotoğrafı",
-    "Gösterge Panelinde Airbag Işığı Yanıyor mu?",
-    "Ön Tampon Durumu",
-    "Motor Kaputu Boya Kontrolü",
-    "Sağ Ön Çamurluk",
-    "Sol Ön Çamurluk",
-    "Sağ Arka Kapı",
-    "Sol Arka Kapı",
-    "Sağ Arka Çamurluk",
-    "Sol Arka Çamurluk",
-    "Bagaj Kapağı",
-    "Tavan Sacı",
-    "Şasi Podye Kontrolü"
+    "Ara\u00e7 Genelinde Dolu Hasar\u0131 Mevcut mu?",
+    "Sa\u011f \u00d6n Kap\u0131 \u0130\u00e7i",
+    "Sa\u011f \u00d6n \u015easi Ucu",
+    "Sol \u00d6n Kap\u0131 \u0130\u00e7i",
+    "Sol \u00d6n \u015easi Ucu",
+    "Ara\u00e7 Alt \u00d6n K\u0131s\u0131m Foto\u011fraf\u0131",
+    "G\u00f6sterge Panelinde Airbag I\u015f\u0131\u011f\u0131 Yan\u0131yor mu?",
+    "\u00d6n Tampon Durumu",
+    "Motor Kaputu Boya Kontrol\u00fc",
+    "Sa\u011f \u00d6n \u00c7amurluk",
+    "Sol \u00d6n \u00c7amurluk",
+    "Sa\u011f Arka Kap\u0131",
+    "Sol Arka Kap\u0131",
+    "Sa\u011f Arka \u00c7amurluk",
+    "Sol Arka \u00c7amurluk",
+    "Bagaj Kapa\u011f\u0131",
+    "Tavan Sac\u0131",
+    "\u015easi Podye Kontrol\u00fc"
   ],
   electric: [
-    "Farlar ve Aydınlatma Çalışıyor mu?",
-    "Sinyal / Dörtlü Kontrolü",
-    "Cam Düğmeleri Çalışıyor mu?",
-    "Merkezi Kilit Çalışıyor mu?",
-    "Klima Paneli Çalışıyor mu?",
-    "Multimedya Ekranı Açılıyor mu?",
-    "Park Sensörü / Kamera Kontrolü",
-    "OBD Ön Elektrik Hatası Var mı?"
+    "Farlar ve Ayd\u0131nlatma \u00c7al\u0131\u015f\u0131yor mu?",
+    "Sinyal / D\u00f6rtl\u00fc Kontrol\u00fc",
+    "Cam D\u00fc\u011fmeleri \u00c7al\u0131\u015f\u0131yor mu?",
+    "Merkezi Kilit \u00c7al\u0131\u015f\u0131yor mu?",
+    "Klima Paneli \u00c7al\u0131\u015f\u0131yor mu?",
+    "Multimedya Ekran\u0131 A\u00e7\u0131l\u0131yor mu?",
+    "Park Sens\u00f6r\u00fc / Kamera Kontrol\u00fc",
+    "OBD \u00d6n Elektrik Hatas\u0131 Var m\u0131?"
   ],
   brain: [
-    "Motor ECU Hata Kodu Var mı?",
-    "Şanzıman Modülü Hata Kodu",
-    "ABS / ESP Hata Kaydı",
-    "Airbag Modülü Hata Kaydı",
-    "BCM / Gövde Kontrol Modülü",
-    "Kilometre / Beyin Uyuşmazlığı",
-    "Silinen Arıza Tekrarlıyor mu?",
-    "OBD Genel Sistem Sağlığı"
+    "Motor ECU Hata Kodu Var m\u0131?",
+    "\u015eanz\u0131man Mod\u00fcl\u00fc Hata Kodu",
+    "ABS / ESP Hata Kayd\u0131",
+    "Airbag Mod\u00fcl\u00fc Hata Kayd\u0131",
+    "BCM / G\u00f6vde Kontrol Mod\u00fcl\u00fc",
+    "Kilometre / Beyin Uyu\u015fmazl\u0131\u011f\u0131",
+    "Silinen Ar\u0131za Tekrarl\u0131yor mu?",
+    "OBD Genel Sistem Sa\u011fl\u0131\u011f\u0131"
   ],
   roadTest: [
-    "Yol Testinde Çekiş ve Yürüyen Kontrolü"
+    "Yol Testinde \u00c7eki\u015f ve Y\u00fcr\u00fcyen Kontrol\u00fc"
   ],
   interiorExterior: [
-    "Ön Cam Durumu",
+    "\u00d6n Cam Durumu",
     "Arka Cam Durumu",
-    "Sağ Aynalar ve Kumanda",
+    "Sa\u011f Aynalar ve Kumanda",
     "Sol Aynalar ve Kumanda",
-    "Torpido ve İç Trim",
-    "Tavan Döşemesi",
-    "Sürücü Koltuğu Mekanizması",
-    "Yolcu Koltuğu Mekanizması",
+    "Torpido ve \u0130\u00e7 Trim",
+    "Tavan D\u00f6\u015femesi",
+    "S\u00fcr\u00fcc\u00fc Koltu\u011fu Mekanizmas\u0131",
+    "Yolcu Koltu\u011fu Mekanizmas\u0131",
     "Arka Koltuk ve Emniyetler",
-    "Kapı Döşemeleri",
-    "Bagaj İç Trim",
-    "Jant ve Lastik Görseli",
+    "Kap\u0131 D\u00f6\u015femeleri",
+    "Bagaj \u0130\u00e7 Trim",
+    "Jant ve Lastik G\u00f6rseli",
     "Yedek Lastik / Stepne",
-    "Kriko / Bijon Takımı",
-    "Dış Plastik Aksam",
+    "Kriko / Bijon Tak\u0131m\u0131",
+    "D\u0131\u015f Plastik Aksam",
     "Silecekler ve Fiskiyeler"
   ],
   airbag: [
-    "Airbag Lambası Sabit Yanıyor mu?",
-    "Kemer Uyarı Sistemi Çalışıyor mu?",
-    "SRS Hata Kaydı Var mı?",
-    "Direksiyon Airbag Kapağı Durumu",
-    "Yolcu Airbag Bölgesi Durumu"
+    "Airbag Lambas\u0131 Sabit Yan\u0131yor mu?",
+    "Kemer Uyar\u0131 Sistemi \u00c7al\u0131\u015f\u0131yor mu?",
+    "SRS Hata Kayd\u0131 Var m\u0131?",
+    "Direksiyon Airbag Kapa\u011f\u0131 Durumu",
+    "Yolcu Airbag B\u00f6lgesi Durumu"
   ],
   conta: [
-    "Conta Kaçak Testi Yapıldı mı?",
-    "Suya Yağ Karışımı Belirtisi Var mı?",
-    "Egzoz Dumanı Anormal mi?",
-    "Basınç / Kaçak Bulgusu Var mı?"
+    "Conta Ka\u00e7ak Testi Yap\u0131ld\u0131 m\u0131?",
+    "Suya Ya\u011f Kar\u0131\u015f\u0131m\u0131 Belirtisi Var m\u0131?",
+    "Egzoz Duman\u0131 Anormal mi?",
+    "Bas\u0131n\u00e7 / Ka\u00e7ak Bulgusu Var m\u0131?"
   ]
 });
 
@@ -775,6 +795,10 @@ export function createPhase2Screen(activeRoute, onNavigate, { createBottomNav } 
     "sync-error": () => renderSyncError(onNavigate),
     emptyState: () => renderEmptyState(onNavigate),
     "empty-state": () => renderEmptyState(onNavigate),
+    "secretariat-work-order": () => renderSecretariatWorkOrderEntry(onNavigate),
+    "registration-capture": () => renderRegistrationCapture(onNavigate),
+    "registration-review": () => renderRegistrationReview(onNavigate),
+    "work-order-created": () => renderWorkOrderCreated(onNavigate),
     profile: () => renderProfile(onNavigate)
   };
 
@@ -843,7 +867,7 @@ function renderApprovedReferenceRoute(referenceRoute, onNavigate) {
   const frame = element("section", {
     className: "approved-reference-frame",
     attrs: {
-      "aria-label": `${meta?.title ?? "OTOTR ekran"} approved referans yerleşimi`
+      "aria-label": `${meta?.title ?? "OTOTR ekran"} approved referans yerleÅŸimi`
     }
   });
 
@@ -932,6 +956,17 @@ function recordWorkflowStep(step, patch = {}) {
 
 const moduleFormStorageKey = "ototrModuleFormState";
 const evidenceCaptureStorageKey = "ototrEvidenceCaptures";
+const finalWrapUpModuleKey = "final-wrapup";
+const finalWrapUpSlotDefinitions = Object.freeze([
+  { key: "front-panel", title: "Ön Panel", hint: "Araç ön yüzünü tam kadraj alın", required: true },
+  { key: "rear-panel", title: "Arka Panel", hint: "Araç arka yüzünü tam kadraj alın", required: true },
+  { key: "right-frame", title: "Sağ Kadraj", hint: "Aracın sağ yanını tam boy çekin", required: true },
+  { key: "left-frame", title: "Sol Kadraj", hint: "Aracın sol yanını tam boy çekin", required: true },
+  { key: "interior-rear", title: "Araç İçi Arka Kadraj", hint: "Arka koltuk ve iç trim görünmeli", required: true },
+  { key: "interior-front", title: "Araç İçi Ön Kadraj", hint: "Direksiyon, konsol ve ön koltuklar görünmeli", required: true },
+  { key: "left-front-roof", title: "Sol Ön Tavan", hint: "Sol ön tavan ve sac yüzey görünmeli", required: true },
+  { key: "right-rear-roof", title: "Sağ Arka Tavan", hint: "Sağ arka tavan ve sac yüzey görünmeli", required: true }
+]);
 
 function getEvidenceCaptureStore() {
   try {
@@ -952,7 +987,7 @@ function getSelectedEvidenceSlot() {
   const selectedItemTitle = workflow.selectedItemTitle || "";
   const selectedModuleTitle = workflow.selectedModuleTitle || workflow.selectedModule || "";
   const testSlotTitle = selectedItemTitle
-    ? `${selectedItemTitle} Fotoğraf`
+    ? `${selectedItemTitle} FotoÄŸraf`
     : "";
   return {
     slotTitle: workflow.selectedEvidenceSlot || testSlotTitle || "Manuel kanıt",
@@ -1023,6 +1058,79 @@ function saveCapturedEvidence(source, payload = {}) {
   return { item, store: nextStore };
 }
 
+function getWrapUpPhotoCaptures(order = getSelectedWorkOrder()) {
+  const workOrderId = order?.id || "";
+  const expertiseCaseId = order?.expertiseCaseId || order?.id || "";
+  const latestByField = new Map();
+  getEvidenceCaptureStore()
+    .filter((item) => item.moduleKey === finalWrapUpModuleKey)
+    .filter((item) => item.workOrderId === workOrderId || item.expertiseCaseId === expertiseCaseId)
+    .forEach((item) => {
+      const fieldKey = item.fieldKey || "";
+      if (!fieldKey) return;
+      const current = latestByField.get(fieldKey);
+      if (!current || new Date(item.createdAt || 0).getTime() >= new Date(current.createdAt || 0).getTime()) {
+        latestByField.set(fieldKey, item);
+      }
+    });
+  return finalWrapUpSlotDefinitions.map((slot) => {
+    const fieldKey = `wrapup.${slot.key}`;
+    const capture = latestByField.get(fieldKey) || null;
+    return {
+      ...slot,
+      fieldKey,
+      capture,
+      status: capture ? (capture.syncStatus === "uploaded" ? "Yüklendi" : "Hazır") : "Eksik",
+      tone: capture ? "success" : "warning"
+    };
+  });
+}
+
+function getWrapUpPhotoProgress(order = getSelectedWorkOrder()) {
+  const slots = getWrapUpPhotoCaptures(order);
+  const required = slots.filter((slot) => slot.required).length;
+  const ready = slots.filter((slot) => slot.required && slot.capture).length;
+  const missingSlots = slots.filter((slot) => slot.required && !slot.capture);
+  return {
+    slots,
+    required,
+    ready,
+    missing: missingSlots.length,
+    missingSlots,
+    percent: required ? Math.round((ready / required) * 100) : 0,
+    complete: required > 0 && missingSlots.length === 0
+  };
+}
+
+function clearWrapUpPhotoCapture(slotKey, order = getSelectedWorkOrder()) {
+  const fieldKey = `wrapup.${slotKey}`;
+  const expertiseCaseId = order?.expertiseCaseId || order?.id || "";
+  const workOrderId = order?.id || "";
+  return setEvidenceCaptureStore(
+    getEvidenceCaptureStore().filter((item) => !(
+      item.moduleKey === finalWrapUpModuleKey
+      && item.fieldKey === fieldKey
+      && (item.workOrderId === workOrderId || item.expertiseCaseId === expertiseCaseId)
+    ))
+  );
+}
+
+function saveWrapUpPhotoCapture(slot, payload = {}, order = getSelectedWorkOrder()) {
+  clearWrapUpPhotoCapture(slot.key, order);
+  return saveCapturedEvidence("final-wrapup", {
+    ...payload,
+    slotTitle: slot.title,
+    moduleTitle: "Çevre Fotoğrafları",
+    moduleKey: finalWrapUpModuleKey,
+    workOrderId: order.id,
+    expertiseCaseId: order.expertiseCaseId || order.id,
+    fieldKey: `wrapup.${slot.key}`,
+    reportFieldKey: `wrapup.${slot.key}`,
+    plate: order.plate,
+    note: `${slot.title} kapanış fotoğrafı cihazdan eklendi.`
+  }).item;
+}
+
 function clearLastEvidenceCapture() {
   try {
     const last = JSON.parse(sessionStorage.getItem("ototrLastEvidenceCapture") || "null");
@@ -1050,6 +1158,16 @@ function getStatusEvidenceCaptures(formKey, item) {
   return Array.isArray(captures) ? captures.slice(0, 3) : [];
 }
 
+function getStatusEvidenceCaptureCount(formKey, item) {
+  const state = getModuleItemState(formKey, item);
+  const captureCount = getStatusEvidenceCaptures(formKey, item).length;
+  if (captureCount > 0) return captureCount;
+  const readySlots = Array.isArray(state.readyPhotoSlots)
+    ? state.readyPhotoSlots.length
+    : Number(state.readyPhotoSlots || 0);
+  return Math.max(0, readySlots);
+}
+
 function setStatusEvidenceCapture(formKey, item, slotIndex, capture) {
   const captures = getStatusEvidenceCaptures(formKey, item);
   const nextCaptures = captures.filter((entry) => Number(entry.slotIndex) !== slotIndex);
@@ -1057,8 +1175,8 @@ function setStatusEvidenceCapture(formKey, item, slotIndex, capture) {
     id: capture.id,
     slotIndex,
     previewUrl: capture.previewUrl || "",
-    fileName: capture.fileName || `${slotIndex}. fotoğraf`,
-    sizeText: capture.sizeText || "Hazır",
+    fileName: capture.fileName || `${slotIndex}. foto\u011fraf`,
+    sizeText: capture.sizeText || "Haz\u0131r",
     syncStatus: capture.syncStatus || "pending",
     createdAt: capture.createdAt || new Date().toISOString()
   });
@@ -1088,7 +1206,7 @@ function saveStatusSelectionEvidenceCapture(selectedModule, selectedItem, slotIn
   const fieldKey = `${selectedModule.formKey}.${itemKey}.photo_${slotIndex}`;
   const { item } = saveCapturedEvidence("status-selection", {
     ...payload,
-    slotTitle: `${selectedItem.title || selectedModule.title} Fotoğraf ${slotIndex}`,
+    slotTitle: `${selectedItem.title || selectedModule.title} FotoÄŸraf ${slotIndex}`,
     slotIndex,
     moduleTitle: selectedModule.title,
     moduleKey: selectedModule.formKey,
@@ -1172,29 +1290,80 @@ function getEvidenceSyncStats() {
   };
 }
 
+function getLocalEvidenceCompletionState() {
+  const modules = getBaseTaskModules();
+  const blockers = [];
+  let answerCount = 0;
+  let riskyAnswerCount = 0;
+  let notDoneAnswerCount = 0;
+  let requiredPhotoCount = 0;
+  let readyPhotoCount = 0;
+
+  modules.forEach((module) => {
+    const form = expertiseModuleForms[module.formKey];
+    if (!form) return;
+    const progress = getModuleFormProgress(module.formKey, form);
+    answerCount += progress.completed;
+    riskyAnswerCount += progress.missingEvidence;
+    notDoneAnswerCount += Math.max(0, progress.total - progress.completed);
+    requiredPhotoCount += progress.requiredEvidence;
+    readyPhotoCount += progress.readyEvidenceRequired;
+
+    if (progress.total > 0 && progress.completed < progress.total) {
+      blockers.push([`${module.title} modülü tamamlanmadı`, "warning"]);
+    }
+
+    form.items.forEach((item, index) => {
+      const itemState = getModuleItemState(module.formKey, item);
+      if (!isModuleItemComplete(item, itemState)) return;
+      if (!isInspectionItemPhotoRequired(item, index)) return;
+      if (getStatusEvidenceCaptureCount(module.formKey, item) > 0) return;
+      const displayItem = getInspectionDisplayItem(module.formKey, item, index);
+      blockers.push([`${module.title} · ${displayItem.title} için zorunlu fotoğraf eksik`, "warning"]);
+    });
+  });
+
+  const wrapUp = getWrapUpPhotoProgress();
+  wrapUp.missingSlots.forEach((slot) => {
+    blockers.push([`Kapanış çevre fotoğrafı eksik: ${slot.title}`, "warning"]);
+  });
+
+  return {
+    blockers,
+    answerCount,
+    riskyAnswerCount,
+    notDoneAnswerCount,
+    requiredPhotoCount: requiredPhotoCount + wrapUp.required,
+    readyPhotoCount: readyPhotoCount + wrapUp.ready,
+    wrapUp
+  };
+}
+
 function getEvidenceApprovalGate() {
   const stats = getEvidenceSyncStats();
   const order = getSelectedWorkOrder();
   const liveGate = getCachedTechnicalApprovalGate(order.expertiseCaseId || order.id);
-  const requiredSlotCount = 0;
-  const blockers = liveGate?.blockers?.length
-    ? liveGate.blockers.map((item) => [item.label || "Canlı tamamlama blokajı", item.tone || "warning"])
-    : [];
+  const localGate = getLocalEvidenceCompletionState();
+  const blockers = [...localGate.blockers];
+  if (stats.failed > 0) {
+    blockers.push([`${stats.failed} kanıt yükleme hatası var`, "red"]);
+  }
 
   return {
     ...stats,
     source: liveGate?.source || "local",
-    total: Math.max(stats.total, liveGate?.uploadedEvidenceCount ?? 0),
-    answerCount: liveGate?.answerCount ?? 0,
-    riskyAnswerCount: liveGate?.riskyAnswerCount ?? 0,
-    notDoneAnswerCount: liveGate?.notDoneAnswerCount ?? 0,
-    requiredSlotCount,
-    uploaded: liveGate?.uploadedEvidenceCount ?? stats.uploaded,
-    uploadedEvidenceCount: liveGate?.uploadedEvidenceCount ?? stats.uploaded,
-    pendingEvidenceCount: liveGate?.pendingEvidenceCount ?? stats.pending,
-    failedEvidenceCount: liveGate?.failedEvidenceCount ?? stats.failed,
-    canSubmit: liveGate ? Boolean(liveGate.canSubmit) : blockers.length === 0,
-    blockers
+    total: Math.max(stats.total, liveGate?.uploadedEvidenceCount || 0, localGate.readyPhotoCount),
+    answerCount: Math.max(Number(liveGate?.answerCount || 0), localGate.answerCount),
+    riskyAnswerCount: Math.max(Number(liveGate?.riskyAnswerCount || 0), localGate.riskyAnswerCount),
+    notDoneAnswerCount: Math.max(Number(liveGate?.notDoneAnswerCount || 0), localGate.notDoneAnswerCount),
+    requiredSlotCount: localGate.requiredPhotoCount,
+    uploaded: liveGate?.uploadedEvidenceCount || stats.uploaded,
+    uploadedEvidenceCount: liveGate?.uploadedEvidenceCount || stats.uploaded,
+    pendingEvidenceCount: liveGate?.pendingEvidenceCount || stats.pending,
+    failedEvidenceCount: liveGate?.failedEvidenceCount || stats.failed,
+    canSubmit: blockers.length === 0,
+    blockers,
+    wrapUp: localGate.wrapUp
   };
 }
 
@@ -1203,7 +1372,7 @@ async function refreshTechnicalApprovalGateForCurrentOrder() {
   return fetchTechnicalApprovalGate(order.expertiseCaseId || order.id).catch((error) => ({
     ok: false,
     status: "error",
-    reason: error?.message || "Teknik onay kontrolü alınamadı."
+    reason: error?.message || "Tamamlama durumu alınamadı."
   }));
 }
 
@@ -1255,7 +1424,7 @@ function writeModuleStateOverrideStore(nextStore) {
 function getModuleStateOverride(order, formKey) {
   if (!order?.id || !formKey) return null;
   const store = readModuleStateOverrideStore();
-  return store[moduleTaskStoreKey(order, formKey)] || store[formKey] || null;
+  return store[moduleTaskStoreKey(order, formKey)] || null;
 }
 
 function setModuleStateOverride(order, formKey, value) {
@@ -1264,7 +1433,6 @@ function setModuleStateOverride(order, formKey, value) {
   const key = moduleTaskStoreKey(order, formKey);
   if (value) {
     store[key] = value;
-    store[formKey] = value;
   } else {
     delete store[key];
     delete store[formKey];
@@ -1288,7 +1456,8 @@ function scheduleModuleTaskCompletionSync(formKey) {
   const form = expertiseModuleForms[formKey];
   const order = getSelectedWorkOrder();
   if (!form || !order?.id) return;
-  const existingTimer = moduleTaskSyncTimers.get(formKey);
+  const timerKey = moduleTaskStoreKey(order, formKey);
+  const existingTimer = moduleTaskSyncTimers.get(timerKey);
   if (existingTimer) clearTimeout(existingTimer);
   const timer = setTimeout(async () => {
     const progress = getModuleFormProgress(formKey, form);
@@ -1315,7 +1484,7 @@ function scheduleModuleTaskCompletionSync(formKey) {
     }
     markModuleTaskCompleted(order, formKey, false);
   }, 280);
-  moduleTaskSyncTimers.set(formKey, timer);
+  moduleTaskSyncTimers.set(timerKey, timer);
 }
 
 async function releaseActiveModuleOwnership(onNavigate, reason = "Usta testi bıraktı.") {
@@ -1376,8 +1545,12 @@ function setModuleFormStore(nextStore) {
   return nextStore;
 }
 
+function moduleFormStoreKey(formKey, order = getSelectedWorkOrder()) {
+  return `${order.expertiseCaseId || order.id || order.plate || "current"}:${formKey}`;
+}
+
 function getModuleFormState(formKey) {
-  return getModuleFormStore()[formKey] || {};
+  return getModuleFormStore()[moduleFormStoreKey(formKey)] || {};
 }
 
 function getModuleItemKey(item) {
@@ -1391,6 +1564,11 @@ function queueMobileInspectionAnswerSave(formKey, item) {
   const readyPhotoSlots = Array.isArray(state.readyPhotoSlots)
     ? state.readyPhotoSlots
     : Number(state.readyPhotoSlots || 0) > 0 ? [1] : [];
+  const form = expertiseModuleForms[formKey];
+  const itemIndex = Array.isArray(form?.items)
+    ? form.items.findIndex((entry, index) => getModuleItemKey(getInspectionDisplayItem(formKey, entry, index)) === getModuleItemKey(item))
+    : -1;
+  const evidenceRequired = isInspectionItemPhotoRequired(item, itemIndex >= 0 ? itemIndex : 0);
   saveMobileInspectionAnswer({
     expertiseCaseId: order.expertiseCaseId || order.id,
     moduleKey: formKey,
@@ -1400,7 +1578,7 @@ function queueMobileInspectionAnswerSave(formKey, item) {
     inputValues: state.inputs || {},
     description: state.description || "",
     readyPhotoCount: Math.max(statusEvidenceCaptures.length, readyPhotoSlots.length),
-    requiredPhotoCount: 0
+    requiredPhotoCount: evidenceRequired ? 1 : 0
   }).then((result) => {
     setModuleItemState(formKey, item, {
       liveAnswerSaved: Boolean(result.ok),
@@ -1435,7 +1613,8 @@ function getModuleItemState(formKey, item) {
 
 function setModuleItemState(formKey, item, patch) {
   const store = getModuleFormStore();
-  const moduleState = store[formKey] || {};
+  const scopedFormKey = moduleFormStoreKey(formKey);
+  const moduleState = store[scopedFormKey] || {};
   const itemKey = getModuleItemKey(item);
   const nextItemState = {
     ...(moduleState[itemKey] || {}),
@@ -1448,13 +1627,17 @@ function setModuleItemState(formKey, item, patch) {
   };
   const nextStore = setModuleFormStore({
     ...store,
-    [formKey]: nextModuleState
+    [scopedFormKey]: nextModuleState
   });
-  return nextStore[formKey][itemKey];
+  return nextStore[scopedFormKey][itemKey];
 }
 
 function isModuleItemComplete(item, state = {}) {
   if (state.completed === true) return true;
+  const hasRecordedAnswer = Boolean(state.selectedOption)
+    || Boolean(state.description)
+    || Object.values(state.inputs || {}).some((value) => Boolean(String(value || "").trim()));
+  if (!hasRecordedAnswer) return false;
   const hasRequiredOption = item.options.length === 0 || Boolean(state.selectedOption);
   const requiredInputsOk = item.inputs.length === 0 || item.inputs.every((input) => {
     const key = input.name || input.label || "Ek alan";
@@ -1466,15 +1649,21 @@ function isModuleItemComplete(item, state = {}) {
 function getModuleFormProgress(formKey, form) {
   const moduleState = getModuleFormState(formKey);
   const completed = form.items.filter((item) => isModuleItemComplete(item, moduleState[getModuleItemKey(item)])).length;
-  const requiredEvidence = 0;
-  const readyEvidence = form.items.filter((item) => {
+  const requiredEvidence = form.items.filter((item, index) => {
     const itemState = moduleState[getModuleItemKey(item)] || {};
-    const statusCaptures = itemState.statusEvidenceCaptures;
-    if (Array.isArray(statusCaptures) && statusCaptures.length > 0) return true;
-    const readySlots = itemState.readyPhotoSlots;
-    return (Array.isArray(readySlots) ? readySlots.length : Number(readySlots || 0)) > 0;
+    return isModuleItemComplete(item, itemState) && isInspectionItemPhotoRequired(item, index);
   }).length;
-  const missingEvidence = 0;
+  const readyEvidence = form.items.filter((item) => getStatusEvidenceCaptureCount(formKey, item) > 0).length;
+  const readyEvidenceRequired = form.items.filter((item, index) => {
+    if (!isInspectionItemPhotoRequired(item, index)) return false;
+    return getStatusEvidenceCaptureCount(formKey, item) > 0;
+  }).length;
+  const missingEvidence = form.items.filter((item, index) => {
+    const itemState = moduleState[getModuleItemKey(item)] || {};
+    if (!isModuleItemComplete(item, itemState)) return false;
+    if (!isInspectionItemPhotoRequired(item, index)) return false;
+    return getStatusEvidenceCaptureCount(formKey, item) === 0;
+  }).length;
   const percent = form.items.length ? Math.round((completed / form.items.length) * 100) : 0;
   return {
     completed,
@@ -1482,6 +1671,7 @@ function getModuleFormProgress(formKey, form) {
     percent,
     requiredEvidence,
     readyEvidence,
+    readyEvidenceRequired,
     missingEvidence
   };
 }
@@ -1591,7 +1781,7 @@ function updateReferenceWorkflowState(sourceRoute, actionArea, targetRoute) {
     }
   };
 
-  const routePatch = patchByRoute[sourceRoute] ?? { workflowStep: `${sourceRoute}_${actionArea}` };
+  const routePatch = patchByRoute[sourceRoute] || { workflowStep: `${sourceRoute}_${actionArea}` };
   if (routePatch.workOrderStatus) {
     localStorage.setItem(`ototrWorkOrderStatus:${order.id}`, routePatch.workOrderStatus);
   }
@@ -1612,7 +1802,7 @@ function renderHomeOptimized(onNavigate) {
   if (activeOrders.length) sections.push(homeStandardOrderSection("Aktif İş Emirleri", activeOrders, onNavigate));
   if (waitingOrders.length) sections.push(homeStandardOrderSection("Bekleyen İş Emirleri", waitingOrders, onNavigate));
   if (missingOrders.length) sections.push(homeStandardOrderSection("Eksik / Uyarı Olan İşler", missingOrders, onNavigate));
-  if (technicalOrders.length) sections.push(homeStandardOrderSection("Tamamlanan İşler", technicalOrders, onNavigate));
+  if (technicalOrders.length) sections.push(homeStandardOrderSection("Tamamlanan \u0130\u015fler", technicalOrders, onNavigate));
   sections.push(homeFinalQuickActions(onNavigate, technicalOrders.length));
   main.append(...sections);
   return main;
@@ -1666,7 +1856,7 @@ function createAuthImageAction(onNavigate, { route, altRoute, label, style, onTa
     className: "auth-image-action",
     attrs: {
       type: "button",
-      "aria-label": label ?? `${route ?? altRoute} aksiyonu`,
+      "aria-label": label || `${route || altRoute || "Auth"} aksiyonu`,
       style
     }
   });
@@ -1766,7 +1956,7 @@ function focusAuthInput(field) {
     } catch {
       field.focus();
     }
-    const valueLength = field.value?.length ?? 0;
+    const valueLength = field.value?.length || 0;
     if (typeof field.setSelectionRange === "function") {
       try {
         field.setSelectionRange(valueLength, valueLength);
@@ -1887,7 +2077,7 @@ function renderAuthImageScreen(onNavigate, { imagePath, alt, controls = [] } = {
     className: "auth-image-screen-image",
     attrs: {
       src: imagePath,
-      alt: alt ?? "OTOTR Terminal arayüzü",
+      alt: alt || "OTOTR Terminal arayüzü",
       decoding: "async",
       draggable: "false"
     }
@@ -1919,13 +2109,7 @@ function renderSplash(onNavigate) {
       loading: "eager"
     }
   });
-  const loading = element("div", {
-    className: "splash-loading-lock",
-    html: `
-      <span class="splash-loading-track" aria-hidden="true"><i class="splash-loading-fill"></i></span>
-    `
-  });
-  media.append(image, loading);
+  media.append(image);
   main.append(media);
   return main;
 }
@@ -1974,15 +2158,15 @@ function renderLogin(onNavigate) {
       type: "password",
       name: "password",
       autocomplete: "current-password",
-      placeholder: "Şifrenizi girin",
-      "aria-label": "Şifre",
+      placeholder: "\u015eifrenizi girin",
+      "aria-label": "\u015eifre",
       "data-auth-field": "password"
     }
   });
-  const passwordToggle = button(`${icons.eye}<span class="sr-only">Şifreyi göster veya gizle</span>`, "login-production-eye", () => {
+  const passwordToggle = button(`${icons.eye}<span class="sr-only">\u015eifreyi göster veya gizle</span>`, "login-production-eye", () => {
     password.type = password.type === "password" ? "text" : "password";
     passwordToggle.setAttribute("aria-pressed", password.type === "text" ? "true" : "false");
-  }, "Şifreyi göster veya gizle", true);
+  }, "\u015eifreyi göster veya gizle", true);
   passwordToggle.type = "button";
   passwordToggle.setAttribute("aria-pressed", "false");
   const remember = element("input", {
@@ -2002,10 +2186,18 @@ function renderLogin(onNavigate) {
     localStorage.setItem("ototrSupabaseUserEmail", email);
     const normalizedEmail = String(email).toLowerCase();
     localStorage.setItem("ototrUser", normalizedEmail.includes("ahmet.usta") ? "Ahmet Usta" : email);
+    const inferredRole = normalizedEmail.includes("sekreter") || normalizedEmail.includes("secretary") || normalizedEmail.includes("secretariat")
+      ? "RECEPTION_STAFF"
+      : normalizedEmail.includes("mudur") || normalizedEmail.includes("manager") || normalizedEmail.includes("portal")
+        ? "BRANCH_MANAGER"
+        : normalizedEmail.includes("admin")
+          ? "ADMIN"
+          : "TECHNICIAN";
+    localStorage.setItem("ototrUserRole", inferredRole);
     const runtimeConfig = globalThis.OTOTR_SUPABASE_CONFIG || {};
-    const debugAutoBranchId = runtimeConfig.allowFakeSupabaseSession === true ? runtimeConfig.debugAutoBranchId || "" : "";
-    const debugSelectedWorkOrderId = runtimeConfig.allowFakeSupabaseSession === true ? runtimeConfig.debugSelectedWorkOrderId || "" : "";
-    const debugStartupRoute = runtimeConfig.allowFakeSupabaseSession === true ? runtimeConfig.debugStartupRoute || "" : "";
+    const debugAutoBranchId = runtimeConfig.debugAutoBranchId || "";
+    const debugSelectedWorkOrderId = runtimeConfig.debugSelectedWorkOrderId || "";
+    const debugStartupRoute = runtimeConfig.debugStartupRoute || "";
     if (debugAutoBranchId && !localStorage.getItem("ototrBranch")) {
       const debugBranch = getBranchById(debugAutoBranchId);
       if (debugBranch) {
@@ -2081,12 +2273,12 @@ function renderLogin(onNavigate) {
     event.preventDefault();
     submitLogin();
   });
-  const submit = button(`${icons.key}<span>Giriş Yap</span>${icons.arrow}`, "login-production-submit", submitLogin, "Giriş Yap", true);
+  const submit = button(`${icons.key}<span>Giri\u015f Yap</span>${icons.arrow}`, "login-production-submit", submitLogin, "Giri\u015f Yap", true);
   submit.type = "button";
   const forgot = element("a", {
     className: "login-production-forgot",
-    text: "Şifremi Unuttum",
-    attrs: { href: "#forgot-password", "aria-label": "Şifremi Unuttum" }
+    text: "\u015eifremi Unuttum",
+    attrs: { href: "#forgot-password", "aria-label": "\u015eifremi Unuttum" }
   });
   forgot.addEventListener("click", (event) => {
     event.preventDefault();
@@ -2119,9 +2311,9 @@ function renderLogin(onNavigate) {
     });
   };
   const debugLoginButton = debugLoginEnabled
-    ? button("Test Girişi: Ahmet Usta", "login-production-debug", () => {
+    ? button("Test GiriÅŸi: Ahmet Usta", "login-production-debug", () => {
       triggerDebugSession();
-    }, "Ahmet Usta test girişi", true)
+    }, "Ahmet Usta test giriÅŸi", true)
     : null;
   if (debugLoginButton) debugLoginButton.type = "button";
   const usernameField = element("label", { className: "login-production-field login-production-username" });
@@ -2132,7 +2324,7 @@ function renderLogin(onNavigate) {
   );
   const passwordField = element("label", { className: "login-production-field login-production-password" });
   passwordField.append(
-    element("span", { className: "login-production-label", text: "Şifre" }),
+    element("span", { className: "login-production-label", text: "\u015eifre" }),
     element("span", { className: "login-production-field-icon", html: icons.key }),
     password,
     passwordToggle
@@ -2347,7 +2539,7 @@ function ForgotPasswordScreen(onNavigate) {
 
   const title = element("section", {
     className: "forgot-password-title",
-    html: "<h1>Şifremi Unuttum</h1><p>Telefon veya e-posta ile doğrulama alın</p>"
+    html: "<h1>\u015eifremi Unuttum</h1><p>Telefon veya e-posta ile doğrulama alın</p>"
   });
 
   const form = element("form", { className: "forgot-password-form", attrs: { novalidate: "novalidate" } });
@@ -2367,9 +2559,9 @@ function ForgotPasswordScreen(onNavigate) {
     field,
     status,
     button(`<span>Doğrulama Kodu Gönder</span>${icons.arrow}`, "forgot-password-primary", sendResetCode, "Doğrulama Kodu Gönder", true),
-    button(`${icons.headset}<span>Teknik Desteğe Ulaş</span>`, "forgot-password-secondary", () => {
+    button(`${icons.headset}<span>Teknik DesteÄŸe UlaÅŸ</span>`, "forgot-password-secondary", () => {
       setStatus("info", "Teknik destek talebi için yönlendirme hazırlanıyor.");
-    }, "Teknik Desteğe Ulaş", true)
+    }, "Teknik DesteÄŸe UlaÅŸ", true)
   );
 
   main.append(header, hero, title, form, element("div", { className: "forgot-password-wave", attrs: { "aria-hidden": "true" } }));
@@ -2377,21 +2569,21 @@ function ForgotPasswordScreen(onNavigate) {
 }
 
 function renderResetPassword(onNavigate) {
-  const main = screenMain("Şifre Sıfırlama", "Yeni şifrenizi belirleyin", onNavigate, false);
+  const main = screenMain("\u015eifre Sıfırlama", "Yeni şifrenizi belirleyin", onNavigate, false);
   const target = localStorage.getItem("ototrResetTarget") ?? "ahmet.usta@ototr.test";
-  const password = element("input", { attrs: { type: "password", placeholder: "Yeni şifre", autocomplete: "new-password" } });
-  const repeat = element("input", { attrs: { type: "password", placeholder: "Yeni şifre tekrar", autocomplete: "new-password" } });
+  const password = element("input", { attrs: { type: "password", placeholder: "Yeni ÅŸifre", autocomplete: "new-password" } });
+  const repeat = element("input", { attrs: { type: "password", placeholder: "Yeni ÅŸifre tekrar", autocomplete: "new-password" } });
   const status = element("p", { className: "auth-message", attrs: { role: "status", "aria-live": "polite" } });
   main.append(
     bannerCard("Reset hedefi", `${target} için demo sıfırlama akışı. Canlı şifre servisi bu fazda bağlı değildir.`, "warning"),
-    createSection("Yeni Şifre", "", [
-      passwordVisibilityField("Yeni şifre", password),
+    createSection("Yeni \u015eifre", "", [
+      passwordVisibilityField("Yeni ÅŸifre", password),
       passwordVisibilityField("Tekrar", repeat),
       status
     ]),
     actionRow([
       button("Vazgeç", "secondary-button full-width", () => onNavigate("login")),
-      button("Şifreyi Güncelle", "primary-button full-width", () => {
+      button("\u015eifreyi Güncelle", "primary-button full-width", () => {
         if (!password.value || password.value.length < 6 || password.value !== repeat.value) {
           status.className = "auth-message auth-message-error";
           status.textContent = "Şifreler aynı olmalı ve en az 6 karakter içermeli.";
@@ -2410,12 +2602,12 @@ function renderResetPassword(onNavigate) {
 function passwordVisibilityField(label, inputNode) {
   const wrap = element("label", { className: "form-field password-visibility-field" });
   const inputWrap = element("span", { className: "password-visibility-wrap" });
-  const toggle = button(`${icons.eye}<span class="sr-only">Şifreyi göster veya gizle</span>`, "password-visibility-toggle", () => {
+  const toggle = button(`${icons.eye}<span class="sr-only">\u015eifreyi göster veya gizle</span>`, "password-visibility-toggle", () => {
     const isHidden = inputNode.getAttribute("type") === "password";
     inputNode.setAttribute("type", isHidden ? "text" : "password");
     toggle.setAttribute("aria-pressed", isHidden ? "true" : "false");
     inputNode.focus();
-  }, "Şifreyi göster veya gizle", true);
+  }, "\u015eifreyi göster veya gizle", true);
 
   toggle.setAttribute("aria-pressed", "false");
   inputWrap.append(inputNode, toggle);
@@ -2432,7 +2624,7 @@ function homeApprovedHotspots(onNavigate) {
   const layer = element("div", { className: "home-approved-hotspots" });
   [
     ["Bildirimler", "notifications", "bell"],
-    ["Tüm aktif iş emirleri", "jobs", "all-active"],
+    ["Tüm aktif i? emirleri", "jobs", "all-active"],
     ["Aktif iş emrini aç", "tests", "featured"],
     ["Tüm bekleyen araçlar", "jobs", "all-waiting"],
     ["Bekleyen araç 1", "start-proof", "waiting-1"],
@@ -2505,7 +2697,7 @@ function homeFinalReferenceRows(waitingOrders = [], missingOrders = [], technica
 function homeFinalFeatured(onNavigate, featuredOrder) {
   const wrap = element("section", { className: "home-final-block" });
   wrap.append(homeFinalSectionTitle("Aktif İş Emirleri", "Tümünü Gör", () => onNavigate("jobs")));
-  const order = featuredOrder ?? getRuntimeWorkOrders()[0];
+  const order = featuredOrder || getRuntimeWorkOrders()[0];
   const targetRoute = getWorkOrderTargetRoute(order);
   const card = button("", "home-final-featured-card", () => {
     setSelectedWorkOrder(order);
@@ -2589,7 +2781,7 @@ function homeFinalVehicleImagePath(order) {
     megane: "./src/assets/home-reference/row-car-renault-ref.png",
     peugeot: "./src/assets/home-reference/row-car-peugeot-ref.png"
   };
-  return images[order.image] ?? getVehicleImagePath(order);
+  return images[order.image] || getVehicleImagePath(order);
 }
 
 function homeFinalRowTone(order) {
@@ -2601,7 +2793,7 @@ function homeFinalRowTone(order) {
     technical_review: "info",
     completed: "success"
   };
-  return tones[order.status] ?? workOrderStatusTones[order.status] ?? "info";
+  return tones[order.status] || workOrderStatusTones[order.status] || "info";
 }
 
 function homeFinalStatusLabel(order) {
@@ -2613,7 +2805,7 @@ function homeFinalStatusLabel(order) {
     technical_review: "Tamamlandı",
     completed: "Tamamlandı"
   };
-  return labels[order.status] ?? workOrderStatusLabels[order.status] ?? order.status;
+  return labels[order.status] || workOrderStatusLabels[order.status] || order.status;
 }
 
 function homeFinalEmptyListState(message) {
@@ -2632,7 +2824,7 @@ function homeFinalBrandLabel(brand) {
     volkswagen: "VW",
     ford: "FOR"
   };
-  return labels[brand] ?? brand.toUpperCase();
+  return labels[brand] || brand.toUpperCase();
 }
 
 function homeFinalBrandGraphic(order) {
@@ -2649,15 +2841,32 @@ function homeFinalBrandGraphic(order) {
 }
 
 function homeFinalQuickActions(onNavigate, readyCount = 0) {
-  const readyLabel = `${readyCount} iş emri hazır`;
+  const readyLabel = `${readyCount} i? emri haz?r`;
   const actions = [
-    { label: "İş Emri Tara", description: "İş emrini tara", icon: "scan", route: "start-proof", badge: "", tone: "red" },
-    { label: "Durum Gir", description: "Fotoğraf opsiyonel", icon: "camera", route: "tests", badge: "", tone: "blue" },
-    { label: "Devam Eden Modül", description: "Motor Kontrolü", icon: "engine", route: "tests", badge: "", tone: "orange" },
-    { label: "Tamamlamaya Hazır", description: readyLabel, icon: "shield", route: "final-report", badge: readyCount ? String(readyCount) : "", tone: "purple" }
+    { label: "?? Emri Tara", description: "i? emrini tara", icon: "scan", route: "start-proof", badge: "", tone: "red" },
+    { label: "Durum Gir", description: "Foto?raf opsiyonel", icon: "camera", route: "tests", badge: "", tone: "blue" },
+    { label: "Devam Eden Mod?l", description: "Motor Kontrol?", icon: "engine", route: "tests", badge: "", tone: "orange" },
+    { label: "Tamamlamaya Haz?r", description: readyLabel, icon: "shield", route: "final-report", badge: readyCount ? String(readyCount) : "", tone: "purple" }
   ];
+  const role = String(localStorage.getItem("ototrUserRole") || "").toUpperCase();
+  const email = String(localStorage.getItem("ototrSupabaseUserEmail") || "").toLowerCase();
+  const canOpenSecretariat = ["RECEPTION_STAFF", "BRANCH_MANAGER", "BRANCH_OWNER", "ADMIN", "HQ_ADMIN"].includes(role)
+    || email.includes("sekreter")
+    || email.includes("mudur")
+    || email.includes("manager")
+    || email.includes("portal");
+  if (canOpenSecretariat) {
+    actions.unshift({
+      label: "Ruhsatla İş Emri Aç",
+      description: "Sekreterya AOK",
+      icon: "camera",
+      route: "secretariat-work-order",
+      badge: "",
+      tone: "red"
+    });
+  }
   const wrap = element("section", { className: "home-final-block home-final-actions-block" });
-  wrap.append(element("h2", { text: "Hızlı Aksiyonlar" }));
+  wrap.append(element("h2", { text: "H?zl? Aksiyonlar" }));
   const grid = element("div", { className: "home-final-actions" });
   actions.forEach((item) => {
     const action = button("", `home-final-action tone-${item.tone}`, () => onNavigate(item.route), item.label);
@@ -2709,8 +2918,7 @@ function renderJobs(onNavigate) {
   const matchesFilter = (order, filter) => {
     if (filter === "waiting") return order.status === "waiting_start_proof" || order.status === "start_proof_incomplete";
     if (filter === "devam") return order.status === "in_progress";
-    if (filter === "tamamlanan") return order.status === "completed";
-    if (filter === "technical") return order.status === "technical_review";
+    if (filter === "tamamlanan" || filter === "technical") return isCompletedWorkOrder(order);
     if (filter === "eksik") return order.status === "test_missing" || order.status === "returned_for_correction" || order.missingCount > 0;
     return true;
   };
@@ -2778,8 +2986,8 @@ function createJobsEmptyState(onNavigate, onReset, activeFilter) {
 function renderDetail(onNavigate) {
   ensureLiveWorkOrdersSync(onNavigate);
   const order = getSelectedWorkOrder();
-  const statusLabel = workOrderStatusLabels[order.status] ?? order.status;
-  const statusTone = workOrderStatusTones[order.status] ?? "neutral";
+  const statusLabel = workOrderStatusLabels[order.status] || order.status;
+  const statusTone = workOrderStatusTones[order.status] || "neutral";
   const actionMap = {
     waiting_start_proof: ["İşe Başlama Kanıtına Git", "start-proof"],
     start_proof_incomplete: ["Kanıtı Tamamla", "start-proof"],
@@ -2800,12 +3008,12 @@ function renderDetail(onNavigate) {
     }),
     createSection("Araç Bilgileri", "İş emri bayi/ERP tarafından açılmıştır. Usta yeni iş emri oluşturamaz.", [
       summaryTileGrid([
-        ["VIN", order.vin ?? "-"],
-        ["KM", order.km ?? "-"],
-        ["Paket", order.packageName ?? "-"],
-        ["Eksik Sayısı", `${order.missingCount ?? 0}`],
-        ["Fotoğraf", `${order.photoCount ?? 0}`],
-        ["Planlanan Süre", order.plannedTime ?? "-"]
+        ["VIN", order.vin || "-"],
+        ["KM", order.km || "-"],
+        ["Paket", order.packageName || "-"],
+        ["Eksik Sayısı", `${order.missingCount || 0}`],
+        ["FotoÄŸraf", `${order.photoCount || 0}`],
+        ["Planlanan Süre", order.plannedTime || "-"]
       ])
     ]),
     createSection("Paket / Test Listesi", "Ekspertiz başlıkları araç paketine göre hazırlandı ve görev modüllerine bağlandı.", [
@@ -2826,7 +3034,7 @@ function renderStart(onNavigate) {
     brandModel: order.brandModel.toUpperCase(),
     vin: order.vin,
     currentKm: order.km.replace(/\s*km$/i, ""),
-    transmissionType: order.transmissionType ?? order.vitesTipi ?? "",
+    transmissionType: order.transmissionType || order.vitesTipi || "",
     lastSystemKm: "92.450",
     imagePath: getVehicleImagePath(order)
   };
@@ -2847,7 +3055,7 @@ function renderStart(onNavigate) {
 function startProofHeader(onNavigate) {
   const header = element("header", { className: "start-proof-header app-header phase2-top-header" });
   header.append(
-    button("‹", "icon-button start-proof-back", () => onNavigate("job-detail"), "Geri dön"),
+    button("⬹", "icon-button start-proof-back", () => onNavigate("job-detail"), "Geri dön"),
     element("h1", { text: "İşe Başlama Kanıtı" }),
     element("span", { className: "start-proof-header-spacer", attrs: { "aria-hidden": "true" } })
   );
@@ -3074,7 +3282,16 @@ function startProofAction(onNavigate) {
   const submit = button(`${icons.check}<span>İş Emri Tamamla, Teste Başla</span>`, "start-proof-primary-cta", async () => {
     if (submit.dataset.ready === "true") {
       const order = getSelectedWorkOrder();
-      localStorage.setItem(`ototrWorkOrderStatus:${order.id}`, "in_progress");
+      [order.id, order.expertiseCaseId, order.workOrderNo].filter(Boolean).forEach((key) => {
+        localStorage.setItem(`ototrWorkOrderStatus:${key}`, "in_progress");
+      });
+      setSelectedWorkOrder({
+        ...order,
+        status: "in_progress",
+        progress: Math.max(Number(order.progress || 0), 2),
+        completedItems: Math.max(Number(order.completedItems || 0), 1),
+        totalItems: order.totalItems || 60
+      });
       submit.dataset.syncing = "true";
       submit.querySelector("span").textContent = "Kanıtlar kaydediliyor...";
       const syncResult = await syncPendingEvidenceCaptureStoreWithTimeout().catch((error) => ({
@@ -3096,9 +3313,9 @@ function startProofAction(onNavigate) {
         currentCaseId: order.expertiseCaseId || order.id,
         expertiseCaseId: order.expertiseCaseId || order.id,
         startProofEvidenceCount: 3,
-        evidenceSyncAttempted: syncResult.attemptedCount ?? 0,
-        evidenceUploadedCount: syncResult.uploadedCount ?? 0,
-        evidenceFailedCount: syncResult.failedCount ?? 0,
+        evidenceSyncAttempted: syncResult.attemptedCount || 0,
+        evidenceUploadedCount: syncResult.uploadedCount || 0,
+        evidenceFailedCount: syncResult.failedCount || 0,
         evidenceSyncTimedOut: Boolean(syncResult.timedOut),
         liveStatusUpdated: Boolean(statusResult.ok),
         liveStatusResult: statusResult.status,
@@ -3234,7 +3451,7 @@ function renderSectionOwnedSuccess(onNavigate) {
       ["Saat", "12.05.2025 09:18"]
     ]),
     extraActionStack([
-      button("Kontrole Başla", "primary-button full-width", () => onNavigate("moduleControl")),
+      button("Kontrole BaÅŸla", "primary-button full-width", () => onNavigate("moduleControl")),
       button("Başlıklara Dön", "secondary-button full-width", () => onNavigate("tests"))
     ])
   );
@@ -3249,7 +3466,7 @@ function renderManagerTakeoverSuccess(onNavigate) {
       ["Başlık", lockedSection.sectionName],
       ["Sahiplenen Usta", lockedSection.lockedBy],
       ["Talep Durumu", "Müdür onayı bekliyor"],
-      ["İşlem", "Devralma talebi"]
+      ["?lem", "Devralma talebi"]
     ]),
     extraTimeline([
       ["Talep oluşturuldu", "Tamamlandı", "success"],
@@ -3296,12 +3513,12 @@ function renderSaveAndContinue(onNavigate) {
 }
 
 function renderUnsavedChangesWarning(onNavigate) {
-  const main = extraStateMain("Kaydedilmemiş Değişiklik Var", "Bu formdan çıkarsan son düzenlemelerin kaybolabilir.", "warning", "alert");
+  const main = extraStateMain("Kaydedilmemiş De?işiklik Var", "Bu formdan çıkarsan son düzenlemelerin kaybolabilir.", "warning", "alert");
   main.append(
     extraChecklist([
       ["Seçilen durum alanı kaydedilmedi", "warning"],
       ["Açıklama alanında yeni metin var", "warning"],
-      ["Kanıt slotu değişikliği bekliyor", "warning"]
+      ["Kanıt slotu de?işiklişi bekliyor", "warning"]
     ]),
     extraActionStack([
       button("Kaydet ve Çık", "primary-button full-width", () => onNavigate("save-success")),
@@ -3313,11 +3530,11 @@ function renderUnsavedChangesWarning(onNavigate) {
 }
 
 function renderDiscardChangesConfirm(onNavigate) {
-  const main = extraStateMain("Kaydetmeden Çıkış Onayı", "Bu işlem geri alınamaz. Kaydedilmeyen değişiklikler silinecek.", "red", "xCircle");
+  const main = extraStateMain("Kaydetmeden Çıkı? Onayı", "Bu işlem geri alınamaz. Kaydedilmeyen değişiklikler silinecek.", "red", "xCircle");
   main.append(
     extraInfoGrid([
       ["Hedef", "Ekspertiz Başlıkları"],
-      ["Silinecek değişiklik", "3 alan"],
+      ["Silinecek deÄŸiÅŸiklik", "3 alan"],
       ["Korunan veri", "Son kayıtlı form"],
       ["Durum", "İkinci onay gerekli"]
     ]),
@@ -3348,37 +3565,147 @@ function renderSectionCompletedSuccess(onNavigate) {
 }
 
 function renderAllSectionsCompleted(onNavigate) {
-  const main = extraStateMain("Tüm Başlıklar Tamamlandı", "Zorunlu ekspertiz başlıkları tamamlandı. İş özeti hazır.", "success", "clipboard");
+  const aggregate = getTaskModulesAggregate();
+  const evidenceGate = getEvidenceApprovalGate();
+  const main = extraStateMain("Tüm Modüller Tamamlandı", "Zorunlu test akışı bitti. Kapanış fotoğrafları ve rapor teslim adımına geçebilirsiniz.", "success", "clipboard");
   main.append(
     extraInfoGrid([
-      ["Başlık", "7/7 tamamlandı"],
-      ["Kanıt", "18 fotoğraf"],
-      ["Eksik / Uyarı", "2 takip maddesi"],
-      ["Rapor", "Oluşturulabilir"]
+      ["Modül", `${getNormalizedTaskModules().filter((module) => module.complete).length}/${getNormalizedTaskModules().length}`],
+      ["Test Maddesi", `${aggregate.completedItems}/${aggregate.totalItems}`],
+      ["Eksik Kanıt", String(evidenceGate.riskyAnswerCount || 0)],
+      ["Kapanış", evidenceGate.wrapUp?.complete ? "Hazır" : "Fotoğraf bekliyor"]
     ]),
     extraActionStack([
-      button("Rapor Oluştur", "primary-button full-width", () => onNavigate("report-created")),
-      button("İş Özetine Geç", "secondary-button full-width", () => onNavigate("summary")),
-      button("Başlıklara Dön", "secondary-button full-width", () => onNavigate("tests"))
+      button("Çevre Fotoğraflarına Geç", "primary-button full-width", () => onNavigate("report-created")),
+      button("Final Kontrole Geç", "secondary-button full-width", () => onNavigate("final-report")),
+      button("Görev Modüllerine Dön", "secondary-button full-width", () => onNavigate("tests"))
     ])
   );
   return main;
 }
 
 function renderReportCreatedSuccess(onNavigate) {
-  const main = extraStateMain("Rapor Oluşturuldu", "Rapor taslağı son kontrol için görüntülenebilir hale geldi.", "success", "report");
+  const order = getSelectedWorkOrder();
+  const main = screenMain("Çevre Fotoğrafları", `${order.plate} · Rapor teslim öncesi zorunlu kapanış kanıtları`, onNavigate, true);
+  const feedback = element("p", {
+    className: "camera-flow-status",
+    text: "Araç çevre ve iç kadraj fotoğraflarını tamamlayın. Hepsi hazır olduğunda sekreteryaya gönderme adımı açılır."
+  });
+  const fallbackInput = element("input", {
+    className: "camera-file-input",
+    attrs: { type: "file", accept: "image/*", capture: "environment", "aria-label": "Kapanış fotoğrafı seç" }
+  });
+  let activeSlot = finalWrapUpSlotDefinitions[0];
+
+  const renderCards = () => {
+    const wrapUp = getWrapUpPhotoProgress(order);
+    const list = element("div", { className: "wrapup-photo-list" });
+    wrapUp.slots.forEach((slot) => {
+      const card = element("article", { className: `wrapup-photo-card${slot.capture ? " is-complete" : ""}` });
+      const preview = slot.capture?.previewUrl
+        ? `<img src="${slot.capture.previewUrl}" alt="${slot.title}">`
+        : `<span>${icons.camera}</span>`;
+      card.append(
+        element("div", {
+          className: "wrapup-photo-preview",
+          html: `${preview}<b>${slot.capture ? icons.check : icons.camera}</b>`
+        }),
+        element("div", {
+          className: "wrapup-photo-copy",
+          html: `<strong>${slot.title}</strong><p>${slot.hint}</p><small>${slot.capture ? (slot.capture.syncStatus === "uploaded" ? "Yüklendi" : "Hazır") : "Zorunlu kapanış kanıtı"}</small>`
+        }),
+        element("div", { className: "wrapup-photo-actions" })
+      );
+      const actions = card.querySelector(".wrapup-photo-actions");
+      actions.append(
+        button(slot.capture ? "Değiştir" : "Çek", "secondary-button", () => captureSlot(slot)),
+        slot.capture
+          ? button("Sil", "ghost-button", () => {
+            clearWrapUpPhotoCapture(slot.key, order);
+            feedback.textContent = `${slot.title} kaldırıldı. Kapanış için yeniden ekleyin.`;
+            rerender();
+          })
+          : element("span", { className: "wrapup-photo-required-chip", text: "Zorunlu" })
+      );
+      list.append(card);
+    });
+    return { wrapUp, list };
+  };
+
+  const openFallbackPicker = (slot) => {
+    activeSlot = slot;
+    fallbackInput.onchange = () => {
+      const file = fallbackInput.files?.[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        saveWrapUpPhotoCapture(slot, {
+          dataUrl: String(reader.result || ""),
+          fileName: file.name,
+          mimeType: file.type || "image/jpeg",
+          sizeBytes: file.size,
+          sizeText: formatEvidenceSize(file.size)
+        }, order);
+        feedback.textContent = `${slot.title} hazırlandı. Kapanış kuyruğuna eklendi.`;
+        fallbackInput.value = "";
+        rerender();
+      };
+      reader.onerror = () => {
+        feedback.textContent = "Görsel okunamadı. Lütfen tekrar deneyin.";
+      };
+      reader.readAsDataURL(file);
+    };
+    fallbackInput.click();
+  };
+
+  const captureSlot = (slot) => {
+    activeSlot = slot;
+    captureEvidenceFromNative("camera", (sourceLabel, payload) => {
+      saveWrapUpPhotoCapture(slot, payload, order);
+      feedback.textContent = `${slot.title} ${sourceLabel.toLowerCase()} olarak kaydedildi.`;
+      rerender();
+    }, () => openFallbackPicker(slot), feedback);
+  };
+
+  const shell = element("section", { className: "wrapup-photo-shell" });
+  const rerender = () => {
+    const { wrapUp, list } = renderCards();
+    shell.replaceChildren(
+      createSection("Kapanış Kadrajları", "Otorapor benzeri kapanış tesliminde araç çevresi ve iç mekan fotoğrafları zorunludur.", [list]),
+      createSection("İlerleme", "", [
+        summaryTileGrid([
+          ["Hazır", `${wrapUp.ready}/${wrapUp.required}`],
+          ["Eksik", String(wrapUp.missing)],
+          ["Durum", wrapUp.complete ? "Teslime Hazır" : "Çekim Bekliyor"],
+          ["Senkron", getEvidenceSyncStats().pending ? "Kuyrukta" : "Güncel"]
+        ])
+      ])
+    );
+  };
+
+  rerender();
   main.append(
-    extraInfoGrid([
-      ["Rapor No", finalReportPreviewData.reportNo],
-      ["Plaka", getSelectedWorkOrder().plate],
-      ["Başlık", "7 modül"],
-      ["Kanıt", "18 fotoğraf"]
-    ]),
+    shell,
+    feedback,
     extraActionStack([
-      button("Raporu Gör", "primary-button full-width", () => onNavigate("final-report")),
-      button("Raporu İndir", "secondary-button full-width", () => onNavigate("unauthorized")),
-      button("Rapor Geçmişi", "text-button full-width", () => onNavigate("reports"))
-    ])
+      button("Görev Modüllerine Dön", "secondary-button full-width", () => onNavigate("tests")),
+      button("Çekilenleri Gönder", "primary-button full-width", async () => {
+        const wrapUp = getWrapUpPhotoProgress(order);
+        if (!wrapUp.complete) {
+          feedback.textContent = `Eksik kapanış kadrajları var: ${wrapUp.missingSlots.map((slot) => slot.title).join(", ")}`;
+          return;
+        }
+        feedback.textContent = "Kapanış fotoğrafları senkronize ediliyor...";
+        await syncPendingEvidenceCaptureStoreWithTimeout(4500);
+        recordWorkflowStep("wrapup_photos_completed", {
+          currentOrderId: order.id,
+          wrapUpPhotoCount: wrapUp.ready,
+          workOrderStatus: "wrapup_ready"
+        });
+        onNavigate("final-report");
+      })
+    ]),
+    fallbackInput
   );
   return main;
 }
@@ -3413,7 +3740,7 @@ function renderEvidenceSyncQueue(onNavigate) {
     ])
     : [
       ["Şasi fotoğrafı yüklendi", "success"],
-      ["Kaporta sağ ön bekliyor", "warning"],
+      ["Kaporta sa? ön bekliyor", "warning"],
       ["OBD ekranı bağlantı bekliyor", "warning"],
       ["Video yükleme başarısız", "red"]
     ];
@@ -3564,11 +3891,11 @@ function renderPreApprovalCheck(onNavigate) {
 }
 
 function renderTechnicalApprovalSubmitted(onNavigate) {
-  const main = extraStateMain("İş Emri Tamamlandı", "Rapor kilitlendi ve iş emri kapanışına alındı.", "success", "send");
+  const main = extraStateMain("İş Emri Tamamlandı", "Rapor hazırlandı ve iş emri kapanışa alındı.", "success", "send");
   const evidenceGate = getEvidenceApprovalGate();
   main.append(
     extraTimeline([
-      ["Rapor kilitlendi", "Tamamlandı", "success"],
+      ["Rapor hazır", "Tamamlandı", "success"],
       ["İş emri durumu", "Kapandı", "success"],
       ["Şube görünümü", "Hazır", "neutral"],
       ["Sonuç bildirimi", "Hazır", "neutral"]
@@ -3656,7 +3983,7 @@ function renderUnauthorizedAction(onNavigate) {
     extraChecklist([
       ["Onaylı rapor düzenlenemez", "red"],
       ["Rapor indirme yetkisi sınırlı", "warning"],
-      ["İş emri sana atanmamış olabilir", "warning"]
+      ["İş emri sana atanmamı? olabilir", "warning"]
     ]),
     extraActionStack([
       button("Geri Dön", "primary-button full-width", () => onNavigate("summary")),
@@ -3677,32 +4004,292 @@ function renderOperationFailed(onNavigate) {
     ]),
     extraActionStack([
       button("Tekrar Dene", "primary-button full-width", () => onNavigate("evidence-sync-queue")),
-      button("Destek Talebi Oluştur", "secondary-button full-width", () => onNavigate("help"))
+      button("Destek Talebi Olu?tur", "secondary-button full-width", () => onNavigate("help"))
     ])
   );
   return main;
 }
 
 function renderProfileSettingDetail(onNavigate) {
-  const main = screenMain("Profil Ayar Detayı", "Profil ana sayfası bozulmadan detay ekranı", onNavigate, true);
+  const detail = getProfileSettingDetailData();
+  const main = screenMain(detail.title, detail.subtitle, onNavigate, true);
   main.classList.add("phase1-extra-standard");
   main.append(
-    createSection("Ayarlar", "Mock state ile kaydedilebilir profil ayarları.", [
-      extraChecklist([
-        ["Profil Bilgileri", "neutral"],
-        ["Şifre Değiştir", "neutral"],
-        ["Bildirim Ayarları", "neutral"],
-        ["Fotoğraf & Kamera Ayarları", "neutral"],
-        ["Rapor Ayarları", "neutral"],
-        ["Senkronizasyon", "neutral"]
-      ])
+    createSection(detail.sectionTitle, detail.description, [
+      extraChecklist(detail.rows)
     ]),
     extraActionStack([
-      button("Ayarı Kaydet", "primary-button full-width", () => onNavigate("save-success")),
-      button("Profile Dön", "secondary-button full-width", () => onNavigate("profile"))
+      button(detail.primaryLabel, "primary-button full-width", () => onNavigate(detail.primaryRoute)),
+      button("Profil'e Dön", "secondary-button full-width", () => onNavigate("profile"))
     ])
   );
   return main;
+}
+
+function setProfileSettingDetail(key) {
+  localStorage.setItem("ototrProfileSettingDetail", key);
+}
+
+function getProfileSettingDetailData() {
+  const key = localStorage.getItem("ototrProfileSettingDetail") || "personal";
+  const details = {
+    account: {
+      title: "Hesap & Yetkiler",
+      subtitle: "Kimlik, kurumsal kayıt, rol ve güvenlik",
+      sectionTitle: "Hesap Alanları",
+      description: "ERP çalışan kimliği, iş emri teknisyen kimliği ve mobil kullanıcı kimliği tek profilde eşleşir.",
+      primaryLabel: "Rol & Yetkileri Aç",
+      primaryRoute: "permissions",
+      rows: [
+        ["Personel No: EMP-004821", "neutral"],
+        ["Teknisyen ID: TX-2024-0158", "success"],
+        ["Kullanıcı ID: USR-9A7F-221", "neutral"],
+        ["IAM subject eÅŸleÅŸti", "success"],
+        ["Kişisel bilgi talebi: 1 kayıt İK onayında", "warning"]
+      ]
+    },
+    personal: {
+      title: "KiÅŸisel Bilgilerim",
+      subtitle: "Usta hesap ve iletiÅŸim bilgileri",
+      sectionTitle: "Profil Bilgileri",
+      description: "ERP ana verileri mobilde doğrudan düzenlenmez. Telefon, e-posta ve adres değişiklikleri talep olarak açılır.",
+      primaryLabel: "DeÄŸiÅŸiklik Talebi OluÅŸtur",
+      primaryRoute: "profile",
+      rows: [
+        ["Ad Soyad: Mehmet Demir", "neutral"],
+        ["DoÄŸum Tarihi: 12.04.1988", "neutral"],
+        ["Cep Telefonu: +90 555 123 45 67", "success"],
+        ["KiÅŸisel E-posta: mehmet.demir@example.com", "success"],
+        ["Adres: Kartal / İstanbul", "neutral"],
+        ["Acil durum kiÅŸisi: AyÅŸe Demir", "neutral"]
+      ]
+    },
+    corporate: {
+      title: "Kurumsal Bilgiler",
+      subtitle: "Organizasyon ve ERP çalışan kaydı",
+      sectionTitle: "ERP Ana Kaydı",
+      description: "Şirket, şube, ekip, yönetici ve maliyet merkezi ERP/İK kaynağından gelir ve mobilde salt okunur gösterilir.",
+      primaryLabel: "Hatalı Bilgi Bildir",
+      primaryRoute: "help",
+      rows: [
+        ["Şirket: OtoTR Otomotiv A.Ş.", "neutral"],
+        ["Şube: İstanbul Merkez Servis", "success"],
+        ["Departman: Ekspertiz Operasyonları · Ekip A", "neutral"],
+        ["Ünvan: Kıdemli Ekspertiz Teknisyeni", "neutral"],
+        ["Bağlı yönetici: Mehmet Yılmaz", "neutral"],
+        ["Maliyet merkezi: TR-IST-SRV-021", "neutral"]
+      ]
+    },
+    security: {
+      title: "Güvenlik & Cihazlar",
+      subtitle: "Oturum, doğrulama ve cihaz yönetimi",
+      sectionTitle: "Hesabınız güvenli",
+      description: "Biyometrik giriş ve iki adımlı doğrulama etkin. Aktif cihazlar IAM üzerinden takip edilir.",
+      primaryLabel: "Şifreyi Değiştir",
+      primaryRoute: "reset-password",
+      rows: [
+        ["Güvenlik skoru: %88", "success"],
+        ["Biyometrik giriÅŸ: Parmak izi etkin", "success"],
+        ["İki adımlı doğrulama: Kurumsal doğrulayıcı", "success"],
+        ["Uygulama PIN'i: 6 haneli PIN", "neutral"],
+        ["Bu cihaz: Pixel · Android 15", "success"],
+        ["Kurumsal tablet: Galaxy Tab Active", "neutral"]
+      ]
+    },
+    notifications: {
+      title: "Bildirim Tercihleri",
+      subtitle: "İş emri ve teslim bildirimleri",
+      sectionTitle: "Bildirim Kanalları",
+      description: "Bildirimler sağ üst çan üzerinden takip edilir. Alt navigasyonda bildirim sekmesi bulunmaz.",
+      primaryLabel: "Bildirimleri Aç",
+      primaryRoute: "notifications",
+      rows: [
+        ["Yeni iÅŸ emri bildirimi", "success"],
+        ["Eksik kanıt uyarısı", "warning"],
+        ["Teslim geri bildirimi", "success"],
+        ["Senkronizasyon hatası", "warning"]
+      ]
+    },
+    language: {
+      title: "Dil Seçimi",
+      subtitle: "Uygulama dili",
+      sectionTitle: "Aktif Dil",
+      description: "Bu APK için kullanıcı arayüzü Türkçe olarak sabitlenmiştir.",
+      primaryLabel: "Profile Dön",
+      primaryRoute: "profile",
+      rows: [
+        ["Türkçe aktif", "success"],
+        ["Türkçe dışı kullanıcı metni kullanılmaz", "success"]
+      ]
+    },
+    appearance: {
+      title: "Görünüm",
+      subtitle: "OTOTR açık tema standardı",
+      sectionTitle: "Tema Durumu",
+      description: "Mobil uygulama açık kurumsal tema ile çalışır. Koyu tema seçimi bu kapsamda sunulmaz.",
+      primaryLabel: "Profile Dön",
+      primaryRoute: "profile",
+      rows: [
+        ["Açık tema aktif", "success"],
+        ["Beyaz / kırık beyaz zemin", "success"],
+        ["OTOTR kırmızı aksiyon rengi", "success"],
+        ["Koyu tema yok", "success"]
+      ]
+    },
+    camera: {
+      title: "Fotoğraf & Kamera Ayarları",
+      subtitle: "Kanıt fotoğrafı kullanım bilgileri",
+      sectionTitle: "Kanıt Standardı",
+      description: "Gerçek kamera entegrasyonu canlı fazda bağlanır. Bu ekranda APK içi kanıt akışı bilgisi gösterilir.",
+      primaryLabel: "Kanıt Ekranına Git",
+      primaryRoute: "evidence",
+      rows: [
+        ["Şasi fotoğrafı zorunlu", "warning"],
+        ["Plaka fotoğrafı zorunlu", "warning"],
+        ["KM ekran fotoğrafı zorunlu", "warning"],
+        ["Offline kayıt cihazda korunur", "success"]
+      ]
+    },
+    report: {
+      title: "Rapor Ayarları",
+      subtitle: "Rapor önizleme ve teslim kuralları",
+      sectionTitle: "Rapor Kuralı",
+      description: "Teknisyen raporu doğrudan sekreteryaya teslim edecek şekilde hazırlar.",
+      primaryLabel: "Rapor Önizlemeye Git",
+      primaryRoute: "final-report",
+      rows: [
+        ["Teknik Onaya Gönder akışı korunur", "success"],
+        ["Teknisyen onay aksiyonu bulunmaz", "success"],
+        ["Engelleyici eksikler bloklar", "warning"],
+        ["PDF/indirme yetkisi role bağlıdır", "neutral"]
+      ]
+    },
+    sync: {
+      title: "Senkronizasyon",
+      subtitle: "Offline kayıt ve gönderim durumu",
+      sectionTitle: "Senkron Durumu",
+      description: "Bağlantı yokken girilen form ve kanıtlar cihazda tutulur; bağlantı gelince gönderim kuyruğuna alınır.",
+      primaryLabel: "Senkronizasyonu Aç",
+      primaryRoute: "offline-sync",
+      rows: [
+        ["Offline kayıt aktif", "success"],
+        ["FotoÄŸraf kuyruÄŸu korunur", "success"],
+        ["Hatalı kayıtlar uyarı listesine düşer", "warning"],
+        ["Canlı servis bağlanınca otomatik gönderim yapılır", "neutral"]
+      ]
+    },
+    support: {
+      title: "Yardım & Destek",
+      subtitle: "Usta destek merkezi",
+      sectionTitle: "Destek Konuları",
+      description: "İşe başlama, eksik kanıt, teslim ve senkronizasyon konularında hızlı yardım içerikleri.",
+      primaryLabel: "Yardım Merkezini Aç",
+      primaryRoute: "help",
+      rows: [
+        ["İşe başlama kanıtı", "neutral"],
+        ["Eksik kanıt tamamlama", "warning"],
+        ["Rapor teslim süreci", "neutral"],
+        ["Senkronizasyon hatası", "warning"]
+      ]
+    },
+    performance: {
+      title: "Performans",
+      subtitle: "Hedefler ve puan detayı",
+      sectionTitle: "Güncel Performans",
+      description: "Usta performansı iş emri tamamlama, kanıt kalitesi, SLA ve müşteri memnuniyetiyle hesaplanır.",
+      primaryLabel: "İşlerime Git",
+      primaryRoute: "jobs",
+      rows: [
+        ["Performans puanı: 4.8", "success"],
+        ["Tamamlanan iÅŸ emri: 128", "success"],
+        ["Onay oranı: %96", "success"],
+        ["Müşteri puanı: 4.8", "success"],
+        ["Günlük ortalama: 12 iş emri", "neutral"]
+      ]
+    },
+    hr: {
+      title: "İnsan Kaynakları",
+      subtitle: "İzin, bordro ve özlük",
+      sectionTitle: "Özlük Akışı",
+      description: "İzin, vardiya, bordro, masraf ve zimmet işlemleri çalışan talepleriyle aynı merkezden izlenir.",
+      primaryLabel: "Talep Merkezi",
+      primaryRoute: "profile",
+      rows: [
+        ["Kalan yıllık izin: 12 gün", "neutral"],
+        ["Bordro: ERP/İK kaynağından gelir", "neutral"],
+        ["Masraf talebi: 1 tamamlandı", "success"],
+        ["Zimmet: Kurumsal tablet kayıtlı", "neutral"]
+      ]
+    },
+    academy: {
+      title: "Akademi",
+      subtitle: "EÄŸitim ve sertifikalar",
+      sectionTitle: "EÄŸitim Durumu",
+      description: "Zorunlu eğitim, sertifika yenileme ve duyuru onayları çalışan merkezi aksiyonlarına düşer.",
+      primaryLabel: "Yardım Merkezini Aç",
+      primaryRoute: "help",
+      rows: [
+        ["Zorunlu eğitim: 1 kayıt bekliyor", "warning"],
+        ["Sertifika takibi: Güncel", "success"],
+        ["Duyuru onayı: 1 bekleyen", "warning"],
+        ["Academy tamamlama: %91", "success"]
+      ]
+    },
+    requests: {
+      title: "Taleplerim & Onaylar",
+      subtitle: "Tüm çalışan işlemleri tek akışta",
+      sectionTitle: "Açık Talepler",
+      description: "Profil, izin, masraf ve destek kayıtları ortak durum sözlüğüyle izlenir.",
+      primaryLabel: "Yeni Talep BaÅŸlat",
+      primaryRoute: "help",
+      rows: [
+        ["#PRF-2026-0418 · Cep telefonu değişikliği · İK onayında", "warning"],
+        ["#IZN-2026-1184 · Yıllık izin talebi · Yönetici onayı", "warning"],
+        ["#SUP-2026-0672 · Senkronizasyon desteği · Yanıt geldi", "neutral"],
+        ["#MSF-2026-0529 · Ulaşım masrafı · Tamamlandı", "success"]
+      ]
+    },
+    contact: {
+      title: "Bize Ulaşın",
+      subtitle: "Destek iletişim kanalları",
+      sectionTitle: "İletişim",
+      description: "Canlı WhatsApp/SMS entegrasyonu bu APK'da başlatılmaz. Destek akışı yardım ekranına yönlenir.",
+      primaryLabel: "Destek Al",
+      primaryRoute: "help",
+      rows: [
+        ["Teknik destek talebi", "neutral"],
+        ["Bayi yöneticisi üzerinden hesap desteği", "neutral"],
+        ["Canlı SMS / WhatsApp entegrasyonu yok", "success"]
+      ]
+    },
+    version: {
+      title: "Sürüm Bilgisi",
+      subtitle: "APK ve uygulama bilgileri",
+      sectionTitle: "Uygulama Sürümü",
+      description: "Debug APK için sürüm ve build bilgisi.",
+      primaryLabel: "Profile Dön",
+      primaryRoute: "profile",
+      rows: [
+        [`Sürüm: ${technicianProfile.appVersion}`, "neutral"],
+        ["Uygulama adı: OTOTR", "success"],
+        ["Paket: com.ototr.usta", "neutral"]
+      ]
+    },
+    privacy: {
+      title: "Kullanım Koşulları & Gizlilik",
+      subtitle: "Veri güvenliği ve kullanım notları",
+      sectionTitle: "Gizlilik Notları",
+      description: "Canlı müşteri verisi yazdırılmaz. Demo veriler ve cihaz içi kayıt akışı ayrıdır.",
+      primaryLabel: "Profile Dön",
+      primaryRoute: "profile",
+      rows: [
+        ["Gizli veri ekrana yazdırılmaz", "success"],
+        ["Canlı müşteri verisi bu fazda bağlı değil", "neutral"],
+        ["Offline kayıt cihazda korunur", "success"]
+      ]
+    }
+  };
+  return details[key] || details.personal;
 }
 
 function renderModules(onNavigate) {
@@ -3774,12 +4361,12 @@ function taskModulesMetrics(modules = getNormalizedTaskModules()) {
 }
 
 function getTaskModulesAggregate(modules = getNormalizedTaskModules()) {
-  const totalItems = modules.reduce((sum, module) => sum + Math.max(0, Number(module.totalItems ?? module.itemCount ?? 0)), 0);
+  const totalItems = modules.reduce((sum, module) => sum + Math.max(0, Number(module.totalItems || module.itemCount || 0)), 0);
   const completedItems = modules.reduce((sum, module) => {
-    const total = Math.max(0, Number(module.totalItems ?? module.itemCount ?? 0));
+    const total = Math.max(0, Number(module.totalItems || module.itemCount || 0));
     const completed = module.complete || module.progress >= 100
       ? total
-      : Math.max(0, Number(module.completedItems ?? 0));
+      : Math.max(0, Number(module.completedItems || 0));
     return sum + Math.min(total, completed);
   }, 0);
   return {
@@ -3813,14 +4400,19 @@ function getBaseTaskModules() {
       no: index + 1,
       title: module.subtitle || module.title,
       subtitle: `${module.itemCount} madde · ${form?.groupTitles?.length || 1} alt başlık`,
-      count: `${progress.completed} / ${module.itemCount} madde`,
+      count: progress.missingEvidence > 0
+        ? `${progress.completed} / ${module.itemCount} madde · ${progress.missingEvidence} kanıt eksik`
+        : `${progress.completed} / ${module.itemCount} madde`,
       itemCount: module.itemCount || progress.total || 0,
       totalItems: progress.total || module.itemCount || 0,
       completedItems: progress.completed || 0,
-      status: module.status || "Bekliyor",
+      status: progress.completed >= (progress.total || 0) && progress.missingEvidence > 0
+        ? "Kanıt Bekliyor"
+        : (module.status || "Bekliyor"),
       tone: resolveModuleControlTone(module.tone, module.status),
       icon: resolveModuleControlIcon(module.id),
       progress: progress.percent,
+      missingEvidence: progress.missingEvidence,
       formKey,
       routeId: module.routeId || "moduleControl",
       owner: module.owner,
@@ -3838,15 +4430,20 @@ function getNormalizedTaskModules() {
     const override = getModuleStateOverride(order, module.formKey || "kaporta");
     const claimed = getClaimedModuleOwner(module.formKey || "kaporta");
     const released = Boolean(override?.releasedAt);
-    const taskCompleted = module.progress >= 100
-      || isModuleTaskCompleted(order, module.formKey || "kaporta")
-      || override?.status === "Tamamlandı"
-      || module.status === "Tamamlandı";
+    const hasCompleteFormProgress = module.progress >= 100 && module.totalItems > 0;
+    const hasExplicitCompletedState = (
+      isModuleTaskCompleted(order, module.formKey || "kaporta")
+      || String(override?.status || "").includes("Tamamland")
+      || String(module.status || "").includes("Tamamland")
+    );
+    const taskCompleted = hasExplicitCompletedState || (hasCompleteFormProgress && module.missingEvidence === 0);
     const effectiveOwner = released
       ? (override?.owner || "Atama Bekliyor")
       : (claimed?.owner || override?.owner || module.owner);
     const effectiveStatus = taskCompleted
       ? "Tamamlandı"
+      : module.missingEvidence > 0 && hasCompleteFormProgress
+      ? "Kanıt Bekliyor"
       : released
       ? (override?.status || "Bekliyor")
       : (claimed?.owner ? "Devam Ediyor" : (override?.status || module.status));
@@ -3861,7 +4458,7 @@ function getNormalizedTaskModules() {
       count: taskCompleted ? `${module.itemCount} / ${module.itemCount} madde` : module.count,
       completedItems: taskCompleted ? module.totalItems : module.completedItems,
       totalItems: module.totalItems,
-      tone: taskCompleted ? "success" : resolveModuleControlTone(module.tone, effectiveStatus),
+      tone: taskCompleted ? "success" : module.missingEvidence > 0 && hasCompleteFormProgress ? "orange" : resolveModuleControlTone(module.tone, effectiveStatus),
       complete: taskCompleted,
       progress: effectiveProgress,
       lockedBy: effectiveLockedBy,
@@ -3973,7 +4570,7 @@ function claimInspectionModule(module) {
       selectedModuleFormKey: formKey,
       selectedModule: module.title,
       liveResult: "error",
-      errorMessage: error?.message || "Modül sahipliği senkronize edilemedi."
+      errorMessage: error?.message || "Modül sahiplişi senkronize edilemedi."
     });
   });
   return { owner, claimedAt };
@@ -4094,7 +4691,7 @@ function renderManagerTakeoverRequest(onNavigate) {
 
   const assigneeSelect = element("select", {
     className: "manager-takeover-select",
-    attrs: { "aria-label": "Devredilecek kişi", required: "true" }
+    attrs: { "aria-label": "Devredilecek kiÅŸi", required: "true" }
   });
   assigneeSelect.append(new Option("Müdür Onayı Bekle", "Müdür Onayı Bekle", true, true));
 
@@ -4254,13 +4851,13 @@ function renderManagerTakeoverRequest(onNavigate) {
 }
 
 function renderPermissionDenied(onNavigate) {
-  const main = screenMain("Yetki Yok", "Erişim engeli", onNavigate, true);
+  const main = screenMain("Yetki Yok", "EriÅŸim engeli", onNavigate, true);
   main.append(
     bannerCard("Yetki sınırı", "Bu modül için sadece izleme yetkiniz var. Müdür rolü devralma kararı verebilir.", "red"),
     createSection("Ne Yapabilirsiniz?", "", [
       checklistRow("Bayi veya müdür onayı", "Gerekli", "warning"),
       checklistRow("Modül geçmişi görüntüleme", "Açık", "success"),
-      checklistRow("Değişiklik talebi", "Bildirim iletilir", "neutral")
+      checklistRow("De?iÅŸiklik talebi", "Bildirim iletilir", "neutral")
     ]),
     actionRow([
       button("Bildirimlere Git", "secondary-button full-width", () => onNavigate("notifications")),
@@ -4309,7 +4906,7 @@ function renderModuleControl(onNavigate) {
       const item = getInspectionDisplayItem(selectedModule.formKey, rawItem, index);
       const summary = summarizeInspectionItemState(selectedModule.formKey, rawItem);
       const stateKey = summary.tone === "success" ? "completed" : summary.tone === "red" ? "missing" : "warning";
-      const category = item.groupTitle || item.groupName || "Diğer";
+      const category = item.groupTitle || item.groupName || "DiÄŸer";
       const matchesState = activeFilter.value === "all" || stateKey === activeFilter.value;
       const matchesCategory = activeFilter.category === "all" || category === activeFilter.category;
       const matchesQuery = !query || `${item.title || ""} ${item.description || ""}`.toLocaleLowerCase("tr-TR").includes(query);
@@ -4417,7 +5014,7 @@ function renderModuleControl(onNavigate) {
     element("section", { className: "inspection-module-sticky-summary", html: `
       <article><span>Toplam Madde</span><strong>${moduleProgress.total}</strong></article>
       <article><span>Tamamlanan</span><strong class="ok">${moduleProgress.completed}</strong></article>
-      <article><span>Fotoğraf</span><strong class="warn">${moduleProgress.readyEvidence}</strong></article>
+      <article><span>FotoÄŸraf</span><strong class="warn">${moduleProgress.readyEvidence}</strong></article>
       <article><span>Bekleyen</span><strong class="danger">${pendingCount}</strong></article>
     ` })
   );
@@ -4506,12 +5103,13 @@ async function submitCurrentInspectionModule(selectedModule, onNavigate) {
   const order = getSelectedWorkOrder();
   const formKey = selectedModule.formKey;
   const progress = getModuleFormProgress(formKey, selectedModule.form);
-  if (progress.total > 0 && progress.completed < progress.total) {
+  if (progress.total > 0 && (progress.completed < progress.total || progress.missingEvidence > 0)) {
     recordWorkflowStep("module_submit_blocked", {
       selectedModule: selectedModule.title,
       selectedModuleFormKey: formKey,
       completed: progress.completed,
       total: progress.total,
+      missingEvidence: progress.missingEvidence,
       currentOrderId: order.id
     });
     onNavigate("moduleControl");
@@ -4638,7 +5236,7 @@ function getInspectionItemReportHistory(item, index, selectedModule) {
   return {
     date: index % 2 === 0 ? "12.03.2025" : "18.11.2024",
     status: index % 2 === 0 ? "İşlemli" : "Boyalı",
-    note: `${item?.title || "Kontrol maddesi"} önceki ekspertiz raporunda kayıt altına alınmış.`,
+    note: `${item?.title || "Kontrol maddesi"} önceki ekspertiz raporunda kayıt altına alınmı?.`,
     photos: [
       "./src/assets/design-reference/inspection-flow/evidence-hood-main.png",
       "./src/assets/design-reference/inspection-flow/panel-door-front.png"
@@ -4719,12 +5317,10 @@ function renderInspectionModuleItemRow(item, index, selectedModule, onNavigate) 
       </div>
       <span class="inspection-panel-actions">
         <span class="inspection-panel-status tone-${state.tone}">${state.label}</span>
-        <span class="inspection-panel-history-slot">
           ${hasHistory ? `<button type="button" class="inspection-panel-history" aria-label="${displayItem.title || "Madde"} geçmiş rapor detayı">${icons.clock}</button>` : ""}
         </span>
-        <button type="button" class="inspection-panel-camera${photoStateClass}" aria-label="${displayItem.title || "Madde"} fotoğraf ekle">${icons.camera}${photoRequired && photoCount === 0 ? "<b>*</b>" : ""}</button>
+        <button type="button" class="inspection-panel-camera${photoStateClass}" aria-label="${displayItem.title || "Madde"} fotoÄŸraf ekle">${icons.camera}${photoRequired && photoCount === 0 ? "<b>*</b>" : ""}</button>
       </span>
-      <i class="inspection-panel-arrow">${icons.arrow}</i>
     `;
   row.addEventListener("click", openStatus);
   row.addEventListener("keydown", (event) => {
@@ -4799,7 +5395,6 @@ function renderKaportaPanelRow(panel, onNavigate) {
       <small>${panel.badge}</small>
     </span>
     <span class="inspection-panel-photo"><img src="${panel.image}" alt=""><b>${panel.tone === "success" ? icons.check : icons.warning}</b></span>
-    <span class="inspection-panel-arrow">${icons.arrow}</span>
   `;
   return row;
 }
@@ -4867,7 +5462,7 @@ function renderModuleControlRow(module, onNavigate) {
     onNavigate(route);
   }, `${module.title} modülünü aç`);
   row.append(
-    element("span", { className: "detail-module-icon", html: icons[module.icon] ?? icons.clipboard }),
+    element("span", { className: "detail-module-icon", html: icons[module.icon] || icons.clipboard }),
     element("strong", { text: module.title }),
     element("em", { text: module.count }),
     element("small", { text: module.status }),
@@ -4916,7 +5511,7 @@ function moduleControlSummaryCard(order, modules) {
 function moduleControlSummaryRows(modules) {
   const completed = modules.filter((module) => module.status === "Tamamlandı");
   const inProgress = modules.filter((module) => module.status === "Devam Ediyor" || module.status === "Usta Üzerinde");
-  const warning = modules.filter((module) => ["Eksik / Uyarı", "Eksik Var", "Teknik Onaya Geçici", "Düzeltme Gerekiyor"].includes(module.status));
+  const warning = modules.filter((module) => ["Eksik / Uyarı", "Eksik Var", "Geçici Tamamlandı", "Düzeltme Gerekiyor"].includes(module.status));
 
   return [
     { value: String(completed.length), label: "Tamamlanan", tone: "success", icon: "check" },
@@ -4927,9 +5522,9 @@ function moduleControlSummaryRows(modules) {
 }
 
 function moduleControlApprovalCard() {
-  return createSection("Teknik Kural", technicalApprovalFlow.blockingRule, [
-    checklistRow("Final aksiyon", technicalApprovalTerminology.technicianFinalAction, "success"),
-    checklistRow("Tamamlama kuralı", technicalApprovalFlow.blockingRule, "warning")
+  return createSection("Tamamlama Kuralı", "İş emri, tüm modüller ve gerekli kanıtlar tamamlandığında kapanır.", [
+    checklistRow("Final akış", "Usta modülleri bitirir, iş emri tamamlanır.", "success"),
+    checklistRow("Kapanış şartı", "Eksik modül veya eksik kanıt varsa iş emri kapanmaz.", "warning")
   ]);
 }
 
@@ -4997,7 +5592,7 @@ function renderItemDetail(onNavigate) {
     ] || icons.car;
   const itemRequirements = [];
   if (firstItem.optionCount > 0) itemRequirements.push("Zorunlu");
-  if (getStatusEvidenceCaptures(selectedModule.formKey, firstItem).length > 0) itemRequirements.push("Fotoğraf");
+  if (getStatusEvidenceCaptures(selectedModule.formKey, firstItem).length > 0) itemRequirements.push("FotoÄŸraf");
   if (firstItem.hasDescription) itemRequirements.push("Not");
   if (firstItem.inputs?.length) itemRequirements.push("Ek Alan");
   const main = element("main", { className: "phase2-main inspection-item-screen" });
@@ -5012,10 +5607,10 @@ function renderItemDetail(onNavigate) {
           <div class="inspection-item-requirements">
             ${itemRequirements.map((label) => `<span>${label}</span>`).join("")}
           </div>
-          <button type="button" class="inspection-item-status" ${isReadOnly ? "disabled" : ""}>${moduleProgress.completed}/${moduleProgress.total} Tamamlandı ${icons.check}</button>
+            <button type="button" class="inspection-item-status" ${isReadOnly ? "disabled" : ""}>${moduleProgress.completed}/${moduleProgress.total} Tamamlandı ${icons.check}</button>
         </div>
         <button type="button" class="inspection-item-photo" aria-label="Fotoğrafları görüntüle"><img src="./src/assets/design-reference/inspection-flow/detail-hood-main.png" alt=""><b>1 / ${evidenceCount}</b></button>
-      <button type="button" class="inspection-item-next-photo" aria-label="Sonraki fotoğraf">${icons.arrow}</button>
+      <button type="button" class="inspection-item-next-photo" aria-label="Sonraki fotoÄŸraf">${icons.arrow}</button>
       <dl>
         <div><dt>Modül</dt><dd>${selectedModule.title}</dd></div>
         <div><dt>Kontrol</dt><dd>${(formItems.findIndex((item) => getModuleItemKey(item) === getModuleItemKey(firstItem)) + 1) || 1} / ${selectedModule.form?.itemCount || formItems.length || 1}</dd></div>
@@ -5072,11 +5667,17 @@ function renderInspectionChecklist(onNavigate, isReadOnly, selectedModule = getS
     const desc = item.helpText || item.description || "Detay kontrolü yapılır.";
     const itemState = moduleState[getModuleItemKey(item)];
     const isComplete = isModuleItemComplete(item, itemState);
-    const rowStatus = isComplete ? "Tamamlandı" : itemState?.selectedOption || "Devam Ediyor";
+    const missingRequiredEvidence = isComplete && isInspectionItemPhotoRequired(item, index) && getStatusEvidenceCaptureCount(selectedModule.formKey, item) === 0;
+    const rowStatus = missingRequiredEvidence
+      ? "Kanıt Eksik"
+      : isComplete
+      ? "Tamamlandı"
+      : itemState?.selectedOption || "Devam Ediyor";
     const row = button("", "inspection-checklist-row", () => {
       if (!isReadOnly) openInspectionItemStatus(item, index, selectedModule, onNavigate, "itemDetail");
     }, `${title} durum seçimi`);
-    row.innerHTML = `<span>${isComplete ? icons.check : icons.clipboard}</span><div><strong>${title}</strong><em>${desc}</em></div><b>${rowStatus}</b>${icons.arrow}`;
+    row.innerHTML = `<span>${missingRequiredEvidence ? icons.camera : isComplete ? icons.check : icons.clipboard}</span><div><strong>${title}</strong><em>${desc}</em></div><b>${rowStatus}</b>`;
+    if (missingRequiredEvidence) row.classList.add("has-missing-evidence");
     list.append(row);
   });
   section.append(list);
@@ -5084,16 +5685,19 @@ function renderInspectionChecklist(onNavigate, isReadOnly, selectedModule = getS
 }
 
 function renderInspectionEvidence(onNavigate, isReadOnly, selectedModule = getSelectedInspectionModule()) {
-  const progress = getModuleFormProgress(selectedModule.formKey, selectedModule.form);
+  const selectedItem = getSelectedInspectionItem(selectedModule);
+  const selectedIndex = getSelectedInspectionItemIndex(selectedModule, selectedItem);
+  const evidenceRequired = isInspectionItemPhotoRequired(selectedItem, selectedIndex);
+  const evidenceReadyCount = Math.min(evidenceRequired ? 1 : 3, getStatusEvidenceCaptureCount(selectedModule.formKey, selectedItem));
   const section = element("section", { className: "inspection-item-section inspection-evidence-section" });
-  section.append(element("div", { className: "inspection-item-section-head", html: `<h2>Fotoğraflar <small>Opsiyonel</small></h2><span>${progress.readyEvidence} / 3</span><button type="button" aria-label="Daralt">${icons.arrow}</button>` }));
+  section.append(element("div", { className: "inspection-item-section-head", html: `<h2>Foto?raflar <small>${evidenceRequired ? "Zorunlu en az 1" : "Opsiyonel"}</small></h2><span>${evidenceReadyCount} / ${evidenceRequired ? 1 : 3}</span><button type="button" aria-label="Daralt">${icons.arrow}</button>` }));
   const grid = element("div", { className: "inspection-evidence-grid" });
   grid.append(
-    button(`<img src="./src/assets/design-reference/inspection-flow/evidence-hood-main.png" alt=""><b>${icons.check}</b><strong>Ana Görünüm</strong><em>12.05.2025 09:24</em>`, "inspection-evidence-slot is-filled", () => onNavigate("photoApproval"), "Ana görünüm", true),
-    button(`${icons.camera}<strong>Fotoğraf 2</strong><em>Opsiyonel</em>`, "inspection-evidence-slot", () => !isReadOnly && onNavigate("camera"), "İkinci fotoğraf", true),
-    button(`${icons.camera}<strong>Fotoğraf 3</strong><em>Opsiyonel</em>`, "inspection-evidence-slot", () => !isReadOnly && onNavigate("camera"), "Üçüncü fotoğraf", true)
+    button(`<img src="./src/assets/design-reference/inspection-flow/evidence-hood-main.png" alt=""><b>${icons.check}</b><strong>Ana G?r?n?m</strong><em>12.05.2025 09:24</em>`, "inspection-evidence-slot is-filled", () => onNavigate("photoApproval"), "Ana g?r?n?m", true),
+    button(`${icons.camera}<strong>Foto?raf 2</strong><em>Opsiyonel</em>`, "inspection-evidence-slot", () => !isReadOnly && onNavigate("camera"), "?kinci foto?raf", true),
+    button(`${icons.camera}<strong>Foto?raf 3</strong><em>Opsiyonel</em>`, "inspection-evidence-slot", () => !isReadOnly && onNavigate("camera"), "???nc? foto?raf", true)
   );
-  section.append(grid, element("p", { className: "inspection-evidence-info", html: `${icons.info}<span>Fotoğraf eklemek isteğe bağlıdır; durum ekranından eklenenler Uygula sonrası arka planda gönderilir.</span>` }));
+  section.append(grid, element("p", { className: "inspection-evidence-info", html: `${icons.info}<span>${evidenceRequired ? "Bu madde i?in en az 1 kan?t foto?raf? gerekiyor. Foto?raf olmadan mod?l tamamlanmaz." : "Foto?raf eklemek iste?e ba?l?d?r; durum ekran?ndan eklenenler Uygula sonras? arka planda g?nderilir."}</span>` }));
   return section;
 }
 
@@ -5106,13 +5710,13 @@ function moduleFormProgressCard(module, progress) {
         <span>${icons.check}</span>
         <div>
           <h2>${module.title} İlerleme</h2>
-          <p class="module-form-progress-summary">${progress.completed}/${progress.total} madde tamamlandı · ${progress.readyEvidence} opsiyonel fotoğraf eklendi</p>
+          <p class="module-form-progress-summary">${progress.completed}/${progress.total} madde tamamlandı · ${progress.readyEvidenceRequired}/${progress.requiredEvidence} zorunlu kanıt hazır</p>
         </div>
         <strong class="module-form-progress-percent">%${progress.percent}</strong>
       </div>
       <i class="module-form-progress-line"><b style="width:${progress.percent}%"></b></i>
       <div class="module-form-progress-kpis">
-        <article><b data-module-form-kpi="missingEvidence">${progress.missingEvidence}</b><span>Zorunlu yok</span></article>
+        <article><b data-module-form-kpi="missingEvidence">${progress.missingEvidence}</b><span>Eksik kanıt</span></article>
         <article><b>${module.form.descriptionItemCount}</b><span>Açıklama alanı</span></article>
         <article><b>${module.form.items.slice(0, 8).length}</b><span>Bu ekranda görünen</span></article>
       </div>
@@ -5130,7 +5734,7 @@ function refreshCurrentModuleFormProgress(formKey) {
   const percent = card.querySelector(".module-form-progress-percent");
   const line = card.querySelector(".module-form-progress-line b");
   const missing = card.querySelector('[data-module-form-kpi="missingEvidence"]');
-  if (summary) summary.textContent = `${progress.completed}/${progress.total} madde tamamlandı · ${progress.readyEvidence} opsiyonel fotoğraf eklendi`;
+  if (summary) summary.textContent = `${progress.completed}/${progress.total} madde tamamlandı · ${progress.readyEvidenceRequired}/${progress.requiredEvidence} zorunlu kanıt hazır`;
   if (percent) percent.textContent = `%${progress.percent}`;
   if (line) line.style.width = `${progress.percent}%`;
   if (missing) missing.textContent = String(progress.missingEvidence);
@@ -5176,9 +5780,9 @@ function summarizeInspectionItemState(formKey, item) {
   const state = getModuleItemState(formKey, item);
   const isComplete = isModuleItemComplete(item, state);
   const optionLabel = state.selectedOption || "";
-  if (isComplete) return { label: optionLabel || "İyi", tone: "success", icon: icons.check };
+  if (isComplete) return { label: optionLabel || "\u0130yi", tone: "success", icon: icons.check };
   if (optionLabel) return { label: optionLabel, tone: "warning", icon: icons.alert };
-  return { label: "Boş", tone: "neutral", icon: icons.info };
+  return { label: "Bo\u015f", tone: "neutral", icon: icons.info };
 }
 
 function getInspectionDisplayItem(formKey, item, index) {
@@ -5243,11 +5847,11 @@ function moduleSubtitleForFormKey(formKey) {
     "obd-beyin": "OBD / beyin tarama ve hata kaydı",
     brain: "OBD / beyin tarama ve hata kaydı",
     airbag: "Airbag ve güvenlik sistemi kontrolü",
-    "genel-kondisyon-dis": "Genel kondisyon ve dış ekipman kontrolü",
+    "genel-kondisyon-dis": "Genel kondisyon ve dı? ekipman kontrolü",
     "ic-ekspertiz": "İç trim, donanım ve güvenlik kontrolü",
-    interiorExterior: "İç / dış donanım ve genel kondüsyon",
-    roadTest: "Yol testi ve sürüş dinamiği",
-    "dyno-yol": "Dyno / yol testi ve sürüş dinamiği",
+    interiorExterior: "İç / dı? donanım ve genel kondüsyon",
+    roadTest: "Yol testi ve sürü? dinamişi",
+    "dyno-yol": "Dyno / yol testi ve sürü? dinamişi",
     "kaporta-boya": "Kaporta - boya ekspertiz ve check-up",
     kaporta: "Kaporta - boya ekspertiz ve check-up",
     "conta-kacak": "Conta kaçak test akışı",
@@ -5344,13 +5948,17 @@ function queueStatusEvidenceBackgroundSync(selectedModule, selectedItem) {
 function renderStatusSelectionEvidence(selectedModule, selectedItem) {
   const section = element("section", { className: "status-selection-evidence-panel" });
   const grid = element("div", { className: "status-selection-photo-grid" });
+  const itemIndex = getSelectedInspectionItemIndex(selectedModule, selectedItem);
+  const evidenceRequired = isInspectionItemPhotoRequired(selectedItem, itemIndex);
   const status = element("p", {
     className: "status-selection-evidence-status",
-    text: "Fotoğraf eklemek opsiyoneldir. Eklenenler Uygula sonrası arka planda senkronize edilir."
+    text: evidenceRequired
+      ? "Bu madde i?in en az 1 zorunlu foto?raf gerekiyor. Foto?raf olmadan mod?l tamamlanmaz."
+      : "Foto?raf eklemek opsiyoneldir. Eklenenler Uygula sonras? arka planda senkronize edilir."
   });
   const fallbackInput = element("input", {
     className: "status-selection-file-input",
-    attrs: { type: "file", accept: "image/*", capture: "environment", "aria-label": "Durum seçimi fotoğrafı seç" }
+    attrs: { type: "file", accept: "image/*", capture: "environment", "aria-label": "Durum se?imi foto?raf? se?" }
   });
   let activeSlotIndex = 1;
 
@@ -5367,12 +5975,12 @@ function renderStatusSelectionEvidence(selectedModule, selectedItem) {
           sizeBytes: file.size,
           sizeText: formatEvidenceSize(file.size)
         });
-        status.textContent = `${sourceLabel} ${activeSlotIndex}. slota eklendi. Senkron Uygula sonrası arka planda başlar.`;
+        status.textContent = `${sourceLabel} ${activeSlotIndex}. slota eklendi. Senkron Uygula sonras? arka planda ba?lar.`;
         fallbackInput.value = "";
         renderSlots();
       };
       reader.onerror = () => {
-        status.textContent = "Görsel okunamadı. Lütfen tekrar deneyin.";
+        status.textContent = "G?rsel okunamad?. L?tfen tekrar deneyin.";
       };
       reader.readAsDataURL(file);
     };
@@ -5381,17 +5989,17 @@ function renderStatusSelectionEvidence(selectedModule, selectedItem) {
 
   const captureSlot = (slotIndex) => {
     activeSlotIndex = slotIndex;
-    status.textContent = `${slotIndex}. fotoğraf için kamera açılıyor...`;
+    status.textContent = `${slotIndex}. foto?raf i?in kamera a??l?yor...`;
     captureEvidenceFromNative("camera", (sourceLabel, payload) => {
       saveStatusSelectionEvidenceCapture(selectedModule, selectedItem, slotIndex, payload);
-      status.textContent = `${slotIndex}. fotoğraf eklendi. Uygula dediğinizde kayıt arka planda gönderilir.`;
+      status.textContent = `${slotIndex}. foto?raf eklendi. Uygula dedi?inizde kay?t arka planda g?nderilir.`;
       renderSlots();
     }, openFallbackPicker, status);
   };
 
   const clearSlot = (slotIndex) => {
     clearStatusEvidenceCapture(selectedModule.formKey, selectedItem, slotIndex);
-    status.textContent = `${slotIndex}. fotoğraf kaldırıldı.`;
+    status.textContent = `${slotIndex}. foto?raf kald?r?ld?.`;
     renderSlots();
   };
 
@@ -5407,29 +6015,32 @@ function renderStatusSelectionEvidence(selectedModule, selectedItem) {
         card.append(
           element("div", {
             className: "status-selection-photo-preview",
-            html: `${capture.previewUrl ? `<img src="${capture.previewUrl}" alt="${slotIndex}. fotoğraf önizleme">` : icons.camera}<b>${icons.check}</b>`
+            html: `${capture.previewUrl ? `<img src="${capture.previewUrl}" alt="${slotIndex}. foto?raf ?nizleme">` : icons.camera}<b>${icons.check}</b>`
           }),
           element("div", {
             className: "status-selection-photo-copy",
-            html: `<strong>Fotoğraf ${slotIndex}</strong><span>${capture.syncStatus === "uploaded" ? "Yüklendi" : "Arka plan kuyruğu"}</span><small>${capture.sizeText || "Hazır"}</small>`
+            html: `<strong>Foto?raf ${slotIndex}</strong><span>${capture.syncStatus === "uploaded" ? "Y?klendi" : "Arka plan kuyru?u"}</span><small>${capture.sizeText || "Haz?r"}</small>`
           }),
           element("div", { className: "status-selection-photo-actions" })
         );
         card.querySelector(".status-selection-photo-actions").append(
-          button("Değiştir", "status-selection-photo-change", () => captureSlot(slotIndex)),
+          button("De?i?tir", "status-selection-photo-change", () => captureSlot(slotIndex)),
           button("Sil", "status-selection-photo-remove", () => clearSlot(slotIndex))
         );
       } else {
         card.append(
-          button(`${icons.camera}<strong>Fotoğraf ${slotIndex}</strong><span>Ekle</span>`, "status-selection-photo-add", () => captureSlot(slotIndex), `${slotIndex}. fotoğraf ekle`, true)
+          button(`${icons.camera}<strong>Foto?raf ${slotIndex}</strong><span>Ekle</span>`, "status-selection-photo-add", () => captureSlot(slotIndex), `${slotIndex}. foto?raf ekle`, true)
         );
+        if (evidenceRequired && slotIndex === 1) {
+          card.querySelector("span").textContent = "Zorunlu";
+        }
       }
       grid.append(card);
     });
   };
 
   section.append(
-    element("div", { className: "status-selection-section-head", html: `<h2>Fotoğraflar</h2><span>Opsiyonel 0-3</span>` }),
+    element("div", { className: "status-selection-section-head", html: `<h2>Foto?raflar</h2><span>${evidenceRequired ? "En az 1 zorunlu" : "Opsiyonel 0-3"}</span>` }),
     grid,
     status,
     fallbackInput
@@ -5445,6 +6056,8 @@ function renderStatusModal(onNavigate) {
   const isMechanicDesign = isMechanicInspectionModule(selectedModule.formKey);
   const workflow = getWorkflowState();
   const statusReturnRoute = workflow.statusSelectionReturnRoute || "itemDetail";
+  const selectedItemIndex = getSelectedInspectionItemIndex(selectedModule, selectedItem);
+  const evidenceRequired = isInspectionItemPhotoRequired(selectedItem, selectedItemIndex);
   const closeStatusSelection = (targetRoute) => {
     setWorkflowState({ statusSelectionReturnRoute: "" });
     onNavigate(targetRoute);
@@ -5456,7 +6069,7 @@ function renderStatusModal(onNavigate) {
     "Sorunsuz": "Madde kontrol edildi ve sorun tespit edilmedi.",
     "Kontrol Gerekli": "Madde için ek kontrol, açıklama veya kanıt gerekli.",
     "Kusurlu": "Maddede kusur veya onarım gerektiren durum var.",
-    "İşlemli": "Maddede daha önce işlem uygulanmış.",
+    "İşlemli": "Maddede daha önce işlem uygulanmı?.",
     "Uygulanamaz": "Bu madde araç veya koşullar için uygulanamaz."
   };
   const options = resolveStatusSelectionOptions(selectedModule, selectedItem).map((label) => ({
@@ -5517,12 +6130,14 @@ function renderStatusModal(onNavigate) {
     button("Uygula", "status-selection-apply", () => {
       const selectedStatus = options.find((option) => option.key === selected)?.title || "Sorunsuz";
       const captures = getStatusEvidenceCaptures(selectedModule.formKey, selectedItem);
+      const hasRequiredEvidence = !evidenceRequired || captures.length > 0;
       const order = getSelectedWorkOrder();
       setModuleItemState(selectedModule.formKey, selectedItem, {
         selectedOption: selectedStatus,
         description: noteInput.value.trim(),
         syncInlineStatus: "Senkron bekliyor",
         completed: true,
+        needsEvidenceAttention: !hasRequiredEvidence,
         reportAnswer: {
           reportId: order.expertiseCaseId || order.id,
           moduleId: selectedModule.formKey,
@@ -5534,6 +6149,8 @@ function renderStatusModal(onNavigate) {
           note: noteInput.value.trim(),
           photos: [1, 2, 3].map((slotIndex) => captures.find((capture) => Number(capture.slotIndex) === slotIndex) || null),
           completed: true,
+          requiredPhotoCount: evidenceRequired ? 1 : 0,
+          readyPhotoCount: captures.length,
           updatedAt: new Date().toISOString()
         }
       });
@@ -5570,7 +6187,7 @@ function renderEvidence(onNavigate) {
         });
         onNavigate("tests");
       }),
-      button("Senkron Kuyruğu", "secondary-button full-width", () => onNavigate("evidence-sync-queue")),
+      button("Senkron KuyruÄŸu", "secondary-button full-width", () => onNavigate("evidence-sync-queue")),
       button("Eksik Uyarıları Gör", "primary-button full-width", () => {
         recordWorkflowStep("evidence_missing_review", {
           missingEvidenceCount: evidenceSlots.filter((slot) => slot.status === "Eksik").length
@@ -5870,7 +6487,7 @@ function renderPermissions(onNavigate) {
     permissionsRolesSummaryCard(),
     permissionsRolesListCard(),
     permissionsRolesInfoCard(),
-    button(`${icons.key}<span>Yetki Talebi Oluştur</span>${icons.arrow}`, "permissions-request-button", () => onNavigate("help"), "Yetki Talebi Oluştur", true)
+    button(`${icons.key}<span>Yetki Talebi Olu?tur</span>${icons.arrow}`, "permissions-request-button", () => onNavigate("help"), "Yetki Talebi Olu?tur", true)
   );
   return main;
 }
@@ -5911,7 +6528,7 @@ function permissionsRolesSummaryCard() {
   ];
   const card = element("section", { className: "permissions-summary-card permissions-card" });
   items.forEach(([icon, value, label, tone]) => {
-    card.append(element("article", { className: `tone-${tone}`, html: `<span>${icons[icon] ?? icons.alert}</span><strong>${value}</strong><small>${label}</small>` }));
+    card.append(element("article", { className: `tone-${tone}`, html: `<span>${icons[icon] || icons.alert}</span><strong>${value}</strong><small>${label}</small>` }));
   });
   return card;
 }
@@ -5925,7 +6542,7 @@ function permissionsRolesListCard() {
       element("button", {
         className: `permissions-row tone-${statusTone}`,
         attrs: { type: "button", "aria-label": item.title },
-        html: `<i>${icons[iconMap[index]] ?? icons.shield}</i><strong>${item.title}</strong><span><b></b>${item.status}</span>${icons.arrow}`
+        html: `<i>${icons[iconMap[index]] || icons.shield}</i><strong>${item.title}</strong><span><b></b>${item.status}</span>${icons.arrow}`
       })
     );
   });
@@ -6133,7 +6750,7 @@ function renderMissingIssues(onNavigate) {
   const issues = [
     { order: getRuntimeWorkOrders()[0], title: "Sol Ön Lastik Aşınmış", detail: "Diş derinliği yasal sınırın altında.", module: "Lastikler", route: "tests", tone: "critical", severity: "Kritik", badge: "Eksik", photo: moduleIssueDefaultPhoto["Lastikler"], evidence: "Fotoğraf Ekle", date: "12.05.2025 09:24" },
     { order: getRuntimeWorkOrders()[0], title: "Ön Fren Diskleri Aşınmış", detail: "Fren disk yüzeyi aşınma sınırının altında.", module: "Fren", route: "photoApproval", tone: "critical", severity: "Kritik", badge: "Eksik", photo: moduleIssueDefaultPhoto["Fren"], evidence: "Fotoğraf Ekle", date: "12.05.2025 09:18" },
-    { order: getRuntimeWorkOrders()[0], title: "Arka Tampon Boya Çizgisi", detail: "Boya çizik ve lokal onarım gerektiriyor.", module: "Kaporta", route: "tests", tone: "warning", severity: "Uyarı", badge: "Uyarı", photo: moduleIssueDefaultPhoto["Kaporta"], evidence: "1 Fotoğraf", done: true, date: "12.05.2025 09:12" },
+    { order: getRuntimeWorkOrders()[0], title: "Arka Tampon Boya ?izgisi", detail: "Boya çizik ve lokal onarım gerektiriyor.", module: "Kaporta", route: "tests", tone: "warning", severity: "Uyarı", badge: "Uyarı", photo: moduleIssueDefaultPhoto["Kaporta"], evidence: "1 Fotoğraf", done: true, date: "12.05.2025 09:12" },
     { order: getRuntimeWorkOrders()[0], title: "Sürücü Koltuk Döşemesi", detail: "Döşemede yıpranma ve deformasyon var.", module: "İç Mekan", route: "tests", tone: "warning", severity: "Uyarı", badge: "Uyarı", photo: moduleIssueDefaultPhoto["İç Mekan"], evidence: "Fotoğraf Ekle", date: "12.05.2025 09:10" },
     { order: getRuntimeWorkOrders()[0], title: "Sağ Ön Far Ayar", detail: "Far yükseklik ayarı uygun değil.", module: "Aydınlatma", route: "summary", tone: "resolved", severity: "Çözüldü", badge: "Çözüldü", photo: moduleIssueDefaultPhoto["Aydınlatma"], evidence: "2 Fotoğraf", done: true, date: "12.05.2025 08:55" }
   ].map((issue) => ({
@@ -6169,7 +6786,7 @@ function renderMissingIssues(onNavigate) {
     renderList();
   }, "Kritik filtreyi aç veya kapat", true);
   filterButton.setAttribute("aria-pressed", "false");
-  const primaryAction = button(`<span>İşleme Devam Et</span>${icons.arrow}`, "missing-alerts-primary-action", () => {
+  const primaryAction = button(`<span>?leme Devam Et</span>${icons.arrow}`, "missing-alerts-primary-action", () => {
     const first = filteredIssues()[0];
     if (first) {
       setSelectedWorkOrder(first.order);
@@ -6210,7 +6827,7 @@ function renderMissingIssues(onNavigate) {
       list.append(
         element("article", {
           className: "missing-alerts-empty",
-          html: `<span>${icons.check}</span><strong>Bu filtrede uyarı yok</strong><p>Filtreleri değiştirerek diğer eksik ve uyarıları görüntüleyebilirsiniz.</p>`
+          html: `<span>${icons.check}</span><strong>Bu filtrede uyarı yok</strong><p>Filtreleri değiştirerek dişer eksik ve uyarıları görüntüleyebilirsiniz.</p>`
         })
       );
       return;
@@ -6336,12 +6953,13 @@ function renderFinalReportPreview(onNavigate) {
   refreshFinalReportForCurrentOrder();
   const order = getSelectedWorkOrder();
   const liveReport = getCachedFinalReport(order.expertiseCaseId || order.id);
-  const main = screenMain("Final Rapor Önizleme", `${finalReportPreviewData.reportNo} / ${finalReportPreviewData.revision}`, onNavigate, true);
+  const main = screenMain("Rapor Teslim Önizleme", `${finalReportPreviewData.reportNo} / ${finalReportPreviewData.revision}`, onNavigate, true);
   const evidenceGate = getEvidenceApprovalGate();
   const closeState = getFinalReportCloseState(liveReport, evidenceGate);
+  const wrapUp = evidenceGate.wrapUp || getWrapUpPhotoProgress(order);
   main.append(
     reportScoreCard(liveReport, closeState),
-    createSection("Rapor Bölümleri", "İş emri kapanışı öncesi son kontrol.", [reportSectionGrid(liveReport, closeState)]),
+    createSection("Rapor Bölümleri", "Sekreteryaya göndermeden önce son kontrol.", [reportSectionGrid(liveReport, closeState)]),
     ...(liveReport ? [
       createSection("Canlı Rapor Taslağı", "Backend final rapor payload özeti.", [liveFinalReportSummary(liveReport, closeState)])
     ] : []),
@@ -6349,12 +6967,20 @@ function renderFinalReportPreview(onNavigate) {
       evidenceReportSummary(evidenceGate),
       evidenceCaptureList(evidenceGate.captures)
     ]),
+    createSection("Kapanış Fotoğrafları", "Araç çevre ve iç mekan kadrajları tamamlanmadan teslim açılamaz.", [
+      summaryTileGrid([
+        ["Hazır", `${wrapUp.ready}/${wrapUp.required}`],
+        ["Eksik", String(wrapUp.missing)],
+        ["Durum", wrapUp.complete ? "Hazır" : "Bekliyor"],
+        ["Akış", "Usta > Sekreterya"]
+      ])
+    ]),
     createSection("Kaporta Boya Özeti", "", [panelGrid()]),
     createSection("Alan Doğrulama Notları", "", [listSummary(fieldValidationHints.map((item) => `${item.label} · ${item.rule}`), "warning")]),
     createSection("Kritik Uyarılar", "", [listSummary(finalApprovalWarnings.map((item) => `${item.title} · ${item.module}`), "red")]),
     createSection("Doğrulama Bekleyen Seçenekler", "", [listSummary(unresolvedSelectedOptions.map((item) => `${item.warningLabel} · ${item.itemTitle}`), "warning")]),
     ...(evidenceGate.canSubmit ? [] : [
-      createSection("Tamamlama Blokajları", "Eksik modül veya eksik kanıt varken iş emri kapatılamaz.", [
+      createSection("Tamamlama Blokajları", "Eksik modül, zorunlu kanıt veya çevre fotoğrafı varken iş emri sekreteryaya gönderilemez.", [
         extraChecklist(evidenceGate.blockers.length ? evidenceGate.blockers : [["Kanıt kontrolü bekliyor", "warning"]])
       ])
     ]),
@@ -6366,14 +6992,11 @@ function renderFinalReportPreview(onNavigate) {
         });
         onNavigate("blockingIssues");
       }),
-      button("İş Emrini Tamamla", "primary-button full-width", async () => {
+      button("Sekreteryaya Yolla", "primary-button full-width", async () => {
         await refreshTechnicalApprovalGateForCurrentOrder();
         const currentGate = getEvidenceApprovalGate();
         const hasVisualBlockers = finalApprovalWarnings.length > 0 || unresolvedSelectedOptions.length > 0;
-        const gateAllowsSubmit = currentGate.source === "supabase"
-          ? currentGate.canSubmit
-          : currentGate.canSubmit;
-        const canSubmit = gateAllowsSubmit && !hasVisualBlockers;
+        const canSubmit = Boolean(currentGate.canSubmit) && !hasVisualBlockers;
         const order = getSelectedWorkOrder();
         const finalReportResult = canSubmit
           ? await refreshFinalReportForCurrentOrder({ lockReport: true })
@@ -6382,14 +7005,14 @@ function renderFinalReportPreview(onNavigate) {
           ? await transitionLiveWorkOrderStatusWithTimeout({
             expertiseCaseId: order.expertiseCaseId || order.id,
             nextStatus: "completed",
-            reason: "Mobil final rapor tamamlandı ve iş emri kapatıldı."
+            reason: "Mobil final rapor tamamlandı ve sekreteryaya gönderildi."
           }).catch((error) => ({
             ok: false,
             status: "error",
             reason: error?.message || "Canlı durum güncellemesi tamamlanamadı."
           }))
           : { ok: false, status: "blocked" };
-        recordWorkflowStep(canSubmit ? "final_report_completed_directly" : "final_report_blocked", {
+        recordWorkflowStep(canSubmit ? "final_report_sent_to_secretary" : "final_report_blocked", {
           reportNo: finalReportPreviewData.reportNo,
           canCloseWorkOrder: canSubmit,
           blockerCount: finalApprovalWarnings.length,
@@ -6431,7 +7054,7 @@ function renderTechnicalApprovalQueue(onNavigate) {
     createSection("Rapor Listesi", "", [list]),
     actionRow([
       button("Rapor Detayı", "secondary-button full-width", () => onNavigate("reports")),
-      button("Kilitli Raporu Gör", "primary-button full-width", () => onNavigate("summary"))
+      button("Raporu Gör", "primary-button full-width", () => onNavigate("summary"))
     ])
   );
   return main;
@@ -6493,7 +7116,7 @@ function renderRevisionRequested(onNavigate) {
   main.append(
     bannerCard("Kapanış kontrolü notu", revisionRequestData.reviewerNote, "warning"),
     createSection("Düzeltilecek Başlıklar", "", [listSummary(revisionRequestData.sectionsToRevise, "warning")]),
-    createSection("Eksik Fotoğraflar", "", [listSummary(revisionRequestData.missingPhotos, "red")]),
+    createSection("Eksik FotoÄŸraflar", "", [listSummary(revisionRequestData.missingPhotos, "red")]),
     createSection("Eksik Açıklamalar", "", [listSummary(revisionRequestData.missingDescriptions, "warning")]),
     createSection("Çözümsüz Seçenek Uyarıları", "", [listSummary(revisionRequestData.unresolvedWarnings.map((item) => `${item.warningLabel} · ${item.itemTitle}`), "warning")]),
     actionRow([
@@ -6510,9 +7133,9 @@ function renderApprovalWaiting(onNavigate) {
     reportNo: approvalSentWaitingData.reportNo,
     workOrderStatus: "completed"
   });
-  const main = screenMain("İş Emri Tamamlandı", `${approvalSentWaitingData.reportNo} / ${approvalSentWaitingData.status}`, onNavigate, true);
+  const main = screenMain("Sekreteryaya Gönderildi", `${approvalSentWaitingData.reportNo} / ${approvalSentWaitingData.status}`, onNavigate, true);
   main.append(
-    bannerCard("Rapor kilitlendi", "İlgili başlıklar salt okunur durumdadır. Basım ve teslim işlemi bayi portalından yapılır.", "success"),
+    bannerCard("Rapor hazır", "İlgili başlıklar salt okunur durumdadır. Basım ve teslim işlemi bayi portalından yapılır.", "success"),
     createSection("Kapanış Durumu", "", [
       summaryTileGrid([
         ["Durum", approvalSentWaitingData.status],
@@ -6529,7 +7152,7 @@ function renderApprovalWaiting(onNavigate) {
         });
         onNavigate("reports");
       }),
-      button("Kilitli Raporu Gör", "secondary-button full-width", () => onNavigate("approved-locked-report")),
+      button("Raporu Gör", "secondary-button full-width", () => onNavigate("approved-locked-report")),
       button("İşlerime Dön", "primary-button full-width", () => {
         recordWorkflowStep("completed_jobs_requested", {
           reportNo: approvalSentWaitingData.reportNo,
@@ -6545,12 +7168,12 @@ function renderApprovalWaiting(onNavigate) {
 function renderReportApproved(onNavigate) {
   const main = screenMain(reportApprovedData.statusTitle, `${reportApprovedData.reportNo} / ${reportApprovedData.approvedAt}`, onNavigate, true);
   main.append(
-    bannerCard(reportApprovedData.completionLabel, `Kayıt: ${reportApprovedData.reviewer}`, "success"),
-    createSection("Paylaşım Hazırlığı", "", [listSummary(reportApprovedData.shareActions, "success")]),
+    bannerCard("Rapor Sekreteryaya Aktarıldı", `Kayıt: ${reportApprovedData.reviewer}`, "success"),
+    createSection("Teslim Hazırlığı", "", [listSummary(reportApprovedData.shareActions, "success")]),
     createSection("Rapor Geçmişi", "", [listSummary(reportHistory.map((item) => `${item.title} · ${item.detail}`), "neutral")]),
     actionRow([
       button("Rapor Geçmişine Dön", "secondary-button full-width", () => onNavigate("reports")),
-      button("Kilitli Raporu Gör", "secondary-button full-width", () => onNavigate("approved-locked-report")),
+      button("Raporu Gör", "secondary-button full-width", () => onNavigate("approved-locked-report")),
       button("Müşteri Özeti", "primary-button full-width", () => onNavigate("customer-summary"))
     ])
   );
@@ -6560,10 +7183,12 @@ function renderReportApproved(onNavigate) {
 function renderSummary(onNavigate) {
   const order = getSelectedWorkOrder();
   const statusLabel = "Tamamlandı";
-  const tone = order.status === "completed" ? "success" : "warning";
+  const summaryComplete = isCompletedWorkOrder(order) || Number(order.progress || 0) >= 100;
+  const displayMissingCount = summaryComplete ? 0 : Number(order.missingCount || 0);
+  const tone = summaryComplete ? "success" : "warning";
   const main = screenMain("Rapor Özeti", `${order.plate} / ${statusLabel}`, onNavigate, true);
   main.append(
-    bannerCard(statusLabel, "Teknisyen burada tamamlanan iş emrinin özetini ve kilitli raporu görür.", tone),
+    bannerCard(statusLabel, "Teknisyen burada tamamlanan iş emrinin özetini ve hazır raporu görür.", tone),
     createSection("Araç Bilgileri", "", [
       summaryTileGrid([
         ["Plaka", order.plate],
@@ -6571,16 +7196,16 @@ function renderSummary(onNavigate) {
         ["VIN", order.vin],
         ["KM", order.km],
         ["İlerleme", `%${order.progress}`],
-        ["Eksik", order.missingCount > 0 ? `${order.missingCount} eksik` : "Yok"]
+        ["Eksik", displayMissingCount > 0 ? `${displayMissingCount} eksik` : "Yok"]
       ])
     ]),
     createSection("Test İlerleme Özeti", "", [
-      listSummary(["Kaporta / Boya tamamlandı", "Motor ve mekanik kontrol edildi", "Fotoğraf sayısı: 18", "Başlama kanıtı görüntülenebilir"], order.missingCount > 0 ? "warning" : "success")
+      listSummary(["Kaporta / Boya tamamlandı", "Motor ve mekanik kontrol edildi", "Fotoğraf sayısı: 18", "Başlama kanıtı görüntülenebilir"], displayMissingCount > 0 ? "warning" : "success")
     ]),
     actionRow([
       button("Başlama Kanıtı Görüntüle", "secondary-button full-width", () => onNavigate("start-proof")),
-      button("Rapor Oluştur", "secondary-button full-width", () => onNavigate("report-created")),
-      button("Kilitli Raporu Gör", "secondary-button full-width", () => onNavigate("approved-locked-report")),
+      button("Kapanış Fotoğrafları", "secondary-button full-width", () => onNavigate("report-created")),
+      button("Raporu Gör", "secondary-button full-width", () => onNavigate("approved-locked-report")),
       button("İşlerime Dön", "primary-button full-width", () => onNavigate("jobs"))
     ])
   );
@@ -6612,34 +7237,94 @@ function renderNotifications(onNavigate) {
 }
 
 function renderProfile(onNavigate) {
-  const main = element("main", { className: "phase2-main profile-settings-main" });
+  const main = element("main", { className: "phase2-main profile-settings-main employee-center-main" });
   const logoutModal = profileLogoutModal(onNavigate);
   main.append(
     profileSettingsHeader(onNavigate),
-    profileHeroCard(),
-    profileStatsCard(),
-    profileSettingsSection("Hesap Ayarları", [
-      ["Kişisel Bilgilerim", "Ad, soyad, iletişim ve kimlik bilgileri", "user", "profile"],
-      ["Şifre & Güvenlik", "Şifre değiştir, iki adımlı doğrulama", "key", "reset-password"],
-      ["Bildirim Tercihleri", "Bildirim ayarlarını yönet", "bell", "notifications"],
-      ["Dil Seçimi", "Uygulama dili tercihi", "globe", "profile", "Türkçe"]
-    ], onNavigate),
-    profileSettingsSection("Uygulama Ayarları", [
-      ["Görünüm", "Açık / Koyu tema seçimi", "sliders", "profile", "Açık", "pill"],
-      ["Fotoğraf & Kamera Ayarları", "Kamera kalitesi ve depolama ayarları", "camera", "profile"],
-      ["Rapor Ayarları", "Rapor şablonları ve içerik tercihleri", "report", "reports"],
-      ["Senkronizasyon", "Veri senkronizasyon ayarları", "sync", "offline-sync", "Otomatik"]
-    ], onNavigate),
-    profileSettingsSection("Destek & Hakkında", [
-      ["Yardım & Destek", "Sık sorulan sorular ve destek", "info", "help"],
-      ["Bize Ulaşın", "İletişim kanallarımız", "headset", "help"],
-      ["Sürüm Bilgisi", "Uygulama versiyonu ve yenilikler", "info", "profile", technicianProfile.appVersion],
-      ["Kullanım Koşulları & Gizlilik Politikası", "Koşullar ve gizlilik detayları", "shield", "profile"]
-    ], onNavigate),
+    employeeCenterHeroCard(),
+    employeeCenterSyncLine(),
+    employeeCenterPendingPanel(onNavigate),
+    employeeCenterAreas(onNavigate),
+    employeeCenterDataSource(onNavigate),
+    employeeCenterRequests(onNavigate),
     profileLogoutCard(() => logoutModal.classList.add("is-open")),
     logoutModal
   );
   return main;
+}
+
+function employeeCenterSetDetail(key, onNavigate) {
+  setProfileSettingDetail(key);
+  onNavigate("profile-setting-detail");
+}
+
+function employeeCenterHeroCard() {
+  return element("section", {
+    className: "employee-center-hero profile-glass-card",
+    html: `
+      <div class="employee-center-avatar"><span>MD</span><i>${icons.check}</i></div>
+      <div class="employee-center-copy">
+        <h2>${technicianProfile.name}</h2>
+        <p>${technicianProfile.title}</p>
+        <div class="employee-center-chips"><span class="is-green">Aktif</span><span>Merkez Servis</span></div>
+      </div>
+      <button type="button" class="employee-center-score" aria-label="Performans puanı">
+        <strong>${technicianProfile.performanceScore}</strong>
+        <span>Performans</span>
+      </button>
+    `
+  });
+}
+
+function employeeCenterSyncLine() {
+  return element("div", {
+    className: "employee-center-sync",
+    html: `<span>${icons.sync}ERP verisi güncel</span><span>Son eşitleme 10:42</span>`
+  });
+}
+
+function employeeCenterPendingPanel(onNavigate) {
+  return button(
+    `${icons.clock}<span><strong>3 işlem aksiyon bekliyor</strong><small>Onay, eğitim ve duyuru kayıtları</small><em><b>Profil değişikliği</b><b>Zorunlu eğitim</b><b>Duyuru onayı</b></em></span><i>3</i>`,
+    "employee-center-pending",
+    () => employeeCenterSetDetail("requests", onNavigate),
+    "Bekleyen işlemleri aç",
+    true
+  );
+}
+
+function employeeCenterAreas(onNavigate) {
+  const section = element("section", { className: "employee-center-section" });
+  section.append(
+    element("div", { className: "employee-center-section-head", html: "<h2>İşlem Alanları</h2><span>Rolünüze göre</span>" })
+  );
+  const grid = element("div", { className: "employee-center-grid" });
+  [
+    ["Hesap & Yetkiler", "Kimlik, rol ve cihazlar", "user", "1 bekliyor", "blue", () => employeeCenterSetDetail("account", onNavigate)],
+    ["Uygulama Ayarları", "Bildirim, kamera ve senkron", "sliders", "Normal", "green", () => employeeCenterSetDetail("sync", onNavigate)],
+    ["Performans", "Hedefler ve puan detayı", "gauge", "4.8 · +%6", "mint", () => employeeCenterSetDetail("performance", onNavigate)],
+    ["İnsan Kaynakları", "İzin, bordro ve özlük", "briefcase", "12 gün", "orange", () => employeeCenterSetDetail("hr", onNavigate)],
+    ["Akademi", "EÄŸitim ve sertifikalar", "book", "1 zorunlu", "purple", () => employeeCenterSetDetail("academy", onNavigate)],
+    ["Destek", "Talep, yardım ve sistem durumu", "headset", "0 açık", "cyan", () => employeeCenterSetDetail("support", onNavigate)]
+  ].forEach(([title, desc, icon, badge, tone, action]) => {
+    grid.append(button(`${icons[icon] || icons.user}<b>${title}</b><small>${desc}</small><em>${badge}</em>`, `employee-center-tile tone-${tone}`, action, title, true));
+  });
+  section.append(grid);
+  return section;
+}
+
+function employeeCenterDataSource(onNavigate) {
+  const section = element("section", { className: "employee-center-section" });
+  section.append(element("div", { className: "employee-center-section-head", html: "<h2>Veri Kaynağı</h2><span>ERP bağlantılı</span>" }));
+  section.append(button(`${icons.sync}<span><strong>ERP ve kimlik eşlemesi başarılı</strong><small>Çalışan, teknisyen ve kullanıcı kimlikleri bağlı. Son eşitleme: Bugün 10:42</small></span>${icons.arrow}`, "employee-center-source", () => employeeCenterSetDetail("corporate", onNavigate), "ERP veri kaynağını aç", true));
+  return section;
+}
+
+function employeeCenterRequests(onNavigate) {
+  const section = element("section", { className: "employee-center-section" });
+  section.append(element("div", { className: "employee-center-section-head", html: "<h2>Ortak İşlem Merkezi</h2><span>2 açık</span>" }));
+  section.append(button(`${icons.clipboard}<span><strong>Taleplerim ve Onaylar</strong><small>Profil, izin, masraf ve destek taleplerini tek yerde izle.</small></span><em>2 açık</em>`, "employee-center-request-card", () => employeeCenterSetDetail("requests", onNavigate), "Taleplerim ve onaylar", true));
+  return section;
 }
 
 function homeReferenceHeader(onNavigate) {
@@ -6763,7 +7448,7 @@ function premiumGreetingCard(onNavigate) {
     iconWrap("user"),
     element("div", {
       className: "premium-greeting-copy",
-      html: `<small>Merhaba,</small><h2>${technicianSession.name}</h2><p>${technicianSession.role} · ${technicianSession.activeBranch}</p><span>Bugün 3 randevu, 1 tamamlanmaya hazır iş var</span>`
+      html: `<small>Merhaba,</small><h2>${technicianSession.name}</h2><p>${technicianSession.role} · ${technicianSession.activeBranch}</p><span>Bugün 3 randevu, 1 tamamlanmaya hazır i? var</span>`
     }),
     statusBadge(technicianSession.accountStatus, "success")
   );
@@ -6793,10 +7478,20 @@ function featuredWorkOrderCard(order, onNavigate) {
       html: `<small>Öne çıkan iş emri</small><h2>${order.plaka}</h2><p>${order.marka} ${order.model} · ${order["yıl"]} · ${order.kilometre}</p><span>${order["işEmriNo"]} · ${order.bayi}</span>`
     }),
     element("div", { className: "car-visual", html: carSilhouette() }),
-    segmentedSemiGauge(order.ilerleme ?? 65, "İlerleme"),
+    segmentedSemiGauge(order.ilerleme || 65, "İlerleme"),
     button("Devam Et", "primary-button full-width", () => onNavigate(order.birincilAksiyon === "İşe Başla" ? "start-proof" : "tests"))
   );
   return card;
+}
+
+function isCompletedWorkOrder(order = {}) {
+  const status = String(order.status || "").toLowerCase();
+  const totalItems = Number(order.totalItems || 0);
+  const completedItems = Number(order.completedItems || 0);
+  return status === "completed"
+    || status === "technical_review"
+    || Number(order.progress || 0) >= 100
+    || (totalItems > 0 && completedItems >= totalItems);
 }
 
 function jobsKpiStrip(onSelectFilter) {
@@ -6804,7 +7499,7 @@ function jobsKpiStrip(onSelectFilter) {
     if (filter === "devam") return order.status === "in_progress";
     if (filter === "waiting") return order.status === "waiting_start_proof" || order.status === "start_proof_incomplete";
     if (filter === "eksik") return order.status === "test_missing" || order.status === "returned_for_correction" || order.missingCount > 0;
-    if (filter === "technical") return order.status === "technical_review";
+    if (filter === "tamamlanan") return isCompletedWorkOrder(order);
     return true;
   }).length;
   const strip = element("section", { className: "jobs-kpi-strip jobs-approved-kpis", attrs: { "aria-label": "İş emri durum özeti" } });
@@ -6812,7 +7507,7 @@ function jobsKpiStrip(onSelectFilter) {
     { label: "Aktif", value: countByFilter("devam"), icon: "clipboard", tone: "info", filter: "devam" },
     { label: "Bekleyen", value: countByFilter("waiting"), icon: "clock", tone: "success", filter: "waiting" },
     { label: "Eksik-Uyarı", value: countByFilter("eksik"), icon: "alert", tone: "orange", filter: "eksik" },
-    { label: "Tamamlanan", value: countByFilter("technical"), icon: "shield", tone: "purple", filter: "technical" }
+    { label: "Tamamlanan", value: countByFilter("tamamlanan"), icon: "shield", tone: "purple", filter: "tamamlanan" }
   ].forEach((item) => {
     const card = button("", `jobs-approved-kpi tone-${item.tone}`, () => onSelectFilter?.(item.filter), `${item.label} filtresini aç`);
     card.dataset.filter = item.filter;
@@ -6865,7 +7560,7 @@ function detailSpecCards() {
 function detailConnectedProgress(order) {
   const card = element("section", { className: "detail-connected-progress section-card" });
   card.append(
-    detailProgressRing(order.ilerleme ?? 65),
+    detailProgressRing(order.ilerleme || 65),
     element("div", {
       className: "detail-progress-flow",
       html: `
@@ -6968,17 +7663,11 @@ function bodyPanelHero() {
 function getFinalReportCloseState(liveReport = null, evidenceGate = getEvidenceApprovalGate()) {
   const payload = liveReport?.payload || {};
   const summary = payload.summary || {};
-  const liveGate = payload.gate || {};
   const hasVisualBlockers = finalApprovalWarnings.length > 0 || unresolvedSelectedOptions.length > 0;
-  const liveCanSubmit = Boolean(liveGate.canSubmit || summary.canSubmit);
-  const effectiveCanSubmit = evidenceGate?.source === "supabase"
-    ? Boolean(evidenceGate?.canSubmit) && liveCanSubmit
-    : Boolean(evidenceGate?.canSubmit);
   return {
     hasVisualBlockers,
-    canClose: effectiveCanSubmit && !hasVisualBlockers,
+    canClose: Boolean(evidenceGate?.canSubmit) && !hasVisualBlockers,
     evidenceGate,
-    liveGate,
     summary
   };
 }
@@ -6987,12 +7676,13 @@ function reportScoreCard(liveReport = null, closeState = getFinalReportCloseStat
   const payload = liveReport?.payload || {};
   const vehicle = payload.vehicle || finalReportPreviewData.vehicleCard;
   const summary = closeState.summary || payload.summary || {};
+  const reportStatusLabel = formatFinalReportStatus(liveReport?.status);
   const card = element("section", { className: "detail-progress-card section-card" });
   card.append(
     segmentedSemiGauge(closeState.canClose ? 96 : 82, "Rapor Hazırlık Skoru"),
     element("div", {
       className: "featured-work-copy",
-      html: `<h2>${finalReportPreviewData.coverTitle}</h2><p>${vehicle.plate || finalReportPreviewData.vehicleCard.plate} · ${vehicle.brandModel || `${vehicle.brand || ""} ${vehicle.model || ""}`.trim() || finalReportPreviewData.vehicleCard.brandModel}</p><span>${liveReport ? `${summary.answerCount || 0} canlı cevap · ${summary.evidenceCount || 0} kanıt · ${liveReport.status || "DRAFT"}` : finalApprovalGate.blockingMessage}</span>`
+      html: `<h2>${finalReportPreviewData.coverTitle}</h2><p>${vehicle.plate || finalReportPreviewData.vehicleCard.plate} · ${vehicle.brandModel || `${vehicle.brand || ""} ${vehicle.model || ""}`.trim() || finalReportPreviewData.vehicleCard.brandModel}</p><span>${liveReport ? `${summary.answerCount || 0} canlı cevap · ${summary.evidenceCount || 0} kanıt · ${reportStatusLabel}` : finalApprovalGate.blockingMessage}</span>`
     })
   );
   return card;
@@ -7004,20 +7694,20 @@ function reportSectionGrid(liveReport = null, closeState = getFinalReportCloseSt
   let rows;
   if (liveReport) {
     rows = [
-      ["Canl? Cevap", summary.answerCount || 0],
+      ["Canlı Cevap", summary.answerCount || 0],
       ["Riskli Madde", summary.riskyAnswerCount || 0],
       ["Kontrol Edilemeyen", summary.notDoneAnswerCount || 0],
-      ["Kan?t", summary.evidenceCount || 0],
-      ["Gate", closeState.canClose ? "Ge?ti" : "Blokaj"],
-      ["Rapor", liveReport.status || "DRAFT"]
+      ["Kanıt", summary.evidenceCount || 0],
+      ["Kontrol", closeState.canClose ? "Hazır" : "Eksik Var"],
+      ["Rapor", formatFinalReportStatus(liveReport.status)]
     ];
   } else {
     rows = [
-      ["M??teri ?zeti", customerSummaryData.customer],
-      ["?? Teknik Not", "1 not"],
+      ["Müşteri Özeti", customerSummaryData.customer],
+      ["İç Teknik Not", "1 not"],
       ["Kritik Bulgular", customerSummaryData.criticalFindings.length],
-      ["?yi Durumlar", customerSummaryData.goodFindings.length],
-      ["Foto?raf Say?s?", customerSummaryData.photoCount],
+      ["İyi Durumlar", customerSummaryData.goodFindings.length],
+      ["Fotoğraf Sayısı", customerSummaryData.photoCount],
       ["Eksik", `${customerSummaryData.missingItems} alan`]
     ];
   }
@@ -7025,6 +7715,15 @@ function reportSectionGrid(liveReport = null, closeState = getFinalReportCloseSt
     grid.append(element("article", { className: "premium-kpi-card compact", html: `<strong>${value}</strong><span>${label}</span>` }));
   });
   return grid;
+}
+
+function formatFinalReportStatus(status = "") {
+  const normalized = String(status || "").toUpperCase();
+  if (normalized === "LOCKED") return "Rapor Hazır";
+  if (normalized === "DRAFT") return "Taslak";
+  if (["SUBMITTED", "REPORT_GATE_READY", "MANAGER_REVIEW", "TECHNICAL_REVIEW"].includes(normalized)) return "İşlemde";
+  if (["APPROVED", "COMPLETED", "DELIVERED"].includes(normalized)) return "Tamamlandı";
+  return status || "Taslak";
 }
 
 function liveFinalReportSummary(liveReport, closeState = getFinalReportCloseState(liveReport)) {
@@ -7085,7 +7784,7 @@ function profileHeroCard() {
         <p>${technicianProfile.title}</p>
         <small>${icons.briefcase}Teknisyen ID: ${technicianProfile.technicianId}</small>
         <small>${icons.report}${technicianProfile.email}</small>
-        <small>${icons.phone ?? icons.headset}${technicianProfile.phone}</small>
+        <small>${icons.phone || icons.headset}${technicianProfile.phone}</small>
       </div>
       <div class="profile-performance-box">
         ${icons.shield}
@@ -7115,7 +7814,7 @@ function profileStatsCard() {
   ];
   const card = element("section", { className: "profile-stats-card profile-glass-card" });
   stats.forEach(([icon, label, value, tone]) => {
-    card.append(element("article", { className: `tone-${tone}`, html: `<span>${icons[icon] ?? icons.shield}</span><strong>${value}</strong><small>${label}</small>` }));
+    card.append(element("article", { className: `tone-${tone}`, html: `<span>${icons[icon] || icons.shield}</span><strong>${value}</strong><small>${label}</small>` }));
   });
   return card;
 }
@@ -7147,9 +7846,10 @@ function profileSettingsSection(title, rows, onNavigate) {
   const section = element("section", { className: "profile-settings-section profile-glass-card" });
   section.append(element("h2", { text: title }));
   const list = element("div", { className: "profile-settings-list" });
-  rows.forEach(([label, description, icon, route, value = "", tone = "default"]) => {
+  rows.forEach(([label, description, icon, route, value = "", tone = "default", detailKey = ""]) => {
     list.append(profileMenuButton(label, icon, () => {
       if (route === "branch") setBranchReturnRoute("profile");
+      if (route === "profile-setting-detail" && detailKey) setProfileSettingDetail(detailKey);
       onNavigate(route);
     }, tone, value, description));
   });
@@ -7160,7 +7860,7 @@ function profileSettingsSection(title, rows, onNavigate) {
 function profileMenuButton(label, icon, onClick, tone = "default", value = "", description = "") {
   const valueClass = tone === "pill" ? "profile-row-pill" : "profile-row-value";
   return button(
-    `<i>${icons[icon] ?? icons.user}</i><span><strong>${label}</strong>${description ? `<small>${description}</small>` : ""}</span>${value ? `<em class="${valueClass}">${value}</em>` : ""}${icons.arrow}`,
+    `<i>${icons[icon] || icons.user}</i><span><strong>${label}</strong>${description ? `<small>${description}</small>` : ""}</span>${value ? `<em class="${valueClass}">${value}</em>` : ""}${icons.arrow}`,
     `profile-settings-row tone-${tone}`,
     onClick,
     label,
@@ -7174,7 +7874,7 @@ function profilePermissionsSection(onNavigate) {
   const chips = element("div", { className: "profile-permission-chips" });
   const authorityIcons = ["car", "engine", "sliders", "gauge"];
   technicianProfile.authorities.forEach((label, index) => {
-    const icon = authorityIcons[index] ?? "shield";
+    const icon = authorityIcons[index] || "shield";
     chips.append(button(`${icons[icon]}<span>${label}</span><b>${icons.check}</b>`, "profile-permission-chip", () => onNavigate("permissions"), label, true));
   });
   section.append(chips);
@@ -7249,7 +7949,7 @@ function extraStateMain(title, description, tone = "success", iconName = "check"
       className: "phase1-extra-hero",
       html: `
         <div class="phase1-extra-logo" aria-label="OTOTR"><span>OTO</span><b>TR</b></div>
-        <span class="phase1-extra-icon">${icons[iconName] ?? icons.check}</span>
+        <span class="phase1-extra-icon">${icons[iconName] || icons.check}</span>
         <h1>${title}</h1>
         <p>${description}</p>
       `
@@ -7312,7 +8012,7 @@ function screenMain(title, subtitle, onNavigate, showBack = false) {
 function topHeader(title, subtitle, onNavigate, showBack = false) {
   const header = element("header", { className: "app-header phase2-top-header" });
   const left = showBack
-    ? button("‹", "icon-button", () => onNavigate(getBackRouteForTitle(title)), "Geri dön")
+    ? button("⬹", "icon-button", () => onNavigate(getBackRouteForTitle(title)), "Geri dön")
     : element("span", { className: "header-logo", text: "OTOTR" });
   const copy = element("div", { className: "phase2-header-copy" });
   copy.append(element("h1", { text: title }), element("p", { text: subtitle }));
@@ -7347,7 +8047,7 @@ function getBackRouteForTitle(title) {
     "İptal Edilen İş Detayı": "jobs",
     "Profil Ayar Detayı": "profile"
   };
-  return backRoutes[title] ?? "home";
+  return backRoutes[title] || "home";
 }
 
 function heroCard() {
@@ -7356,7 +8056,7 @@ function heroCard() {
     element("div", { className: "avatar-badge", html: icons.user }),
     element("div", {
       className: "hero-card-copy",
-      html: `<span>Hoş geldiniz</span><h2>${technicianSession.name}</h2><p>${technicianSession.role}</p>`
+      html: `<span>HoÅŸ geldiniz</span><h2>${technicianSession.name}</h2><p>${technicianSession.role}</p>`
     }),
     statusBadge(technicianSession.accountStatus, "success")
   );
@@ -7448,7 +8148,7 @@ function toolsRow(onSearch, onFilterWaiting, onInputReady) {
     className: "jobs-approved-search-input",
     attrs: {
       type: "search",
-      placeholder: "Plaka, şasi veya iş emri ara",
+      placeholder: "Plaka, ÅŸasi veya iÅŸ emri ara",
       "aria-label": "İş emri ara",
       autocomplete: "off",
       autocorrect: "off",
@@ -7497,7 +8197,7 @@ function workOrderCard(order, onNavigate) {
     event.preventDefault();
     openDetail();
   });
-  const progress = jobsProgressRing(order.ilerleme ?? 65);
+  const progress = jobsProgressRing(order.ilerleme || 65);
   const copy = element("div", { className: "order-card-main jobs-approved-card-copy" });
   const plateRow = element("div", { className: "jobs-approved-plate-row" });
   plateRow.append(element("h3", { text: order.plaka }));
@@ -7511,7 +8211,7 @@ function workOrderCard(order, onNavigate) {
     badgeRow,
     element("strong", { text: `${order.marka} ${order.model}` }),
     element("p", { text: `${order["yıl"]} · ${order.paket} · ${order.kilometre}` }),
-    element("small", { text: order["başlamaDurumu"] })
+    element("small", { text: order["baÅŸlamaDurumu"] })
   );
   card.append(
     element("i", { className: `jobs-approved-status-bar tone-${order.durumTone}`, attrs: { "aria-hidden": "true" } }),
@@ -7527,8 +8227,8 @@ function workOrderCard(order, onNavigate) {
 }
 
 function jobsApprovedCard(order, onNavigate) {
-  const statusLabel = workOrderStatusLabels[order.status] ?? order.status;
-  const statusTone = workOrderStatusTones[order.status] ?? "neutral";
+  const statusLabel = workOrderStatusLabels[order.status] || order.status;
+  const statusTone = workOrderStatusTones[order.status] || "neutral";
   const targetRoute = getWorkOrderTargetRoute(order);
   const progressSnapshot = getHomeWorkOrderProgress(order);
   const card = element("article", {
@@ -7585,6 +8285,19 @@ function jobsApprovedCard(order, onNavigate) {
 }
 
 function getHomeWorkOrderProgress(order = {}) {
+  if (order.progressSource === "supabase-live" || order.source === "supabase") {
+    const total = Math.max(1, Number(order.totalItems || 0));
+    const completed = Math.min(total, Math.max(0, Number(order.completedItems || 0)));
+    const percent = Math.round((completed / total) * 100);
+    return {
+      ...order,
+      percent: Math.min(100, Math.max(0, percent)),
+      progress: Math.min(100, Math.max(0, percent)),
+      completedItems: completed,
+      totalItems: total
+    };
+  }
+
   const selectedOrder = getSelectedWorkOrder();
   const modules = getNormalizedTaskModules();
   const aggregate = getTaskModulesAggregate(modules);
@@ -7669,7 +8382,7 @@ function jobsVehicleImage(order) {
 function jobsProgressRing(value, tone = "red", order = {}) {
   const safeValue = Math.min(100, Math.max(0, value));
   const total = order.totalItems || 60;
-  const completed = order.completedItems ?? Math.round((safeValue / 100) * total);
+  const completed = order.completedItems || Math.round((safeValue / 100) * total);
   const segmentCount = 34;
   const filledCount = Math.round((segmentCount * safeValue) / 100);
   const startAngle = -130;
@@ -7723,7 +8436,7 @@ function detailInfoGrid(order) {
     ["Müşteri", order["müşteriAdı"]],
     ["Öncelik", order["öncelik"]],
     ["Atanmış Usta", order["atanmışUsta"]],
-    ["Başlama Durumu", order["başlamaDurumu"]],
+    ["BaÅŸlama Durumu", order["baÅŸlamaDurumu"]],
     ["Tamamlanma Durumu", order.teknikOnayDurumu],
     ["Kanıt Sayısı", `${order["kanıtSayısı"]}`]
   ].forEach(([label, value]) => {
@@ -7734,7 +8447,7 @@ function detailInfoGrid(order) {
 
 function approvalRuleCard() {
   const card = element("section", { className: "approval-rule section-card" });
-  card.append(iconWrap("shield"), element("div", { html: `<h2>Tamamlama Kuralı</h2><p>${technicalApprovalFlow.blockingRule}</p><p>${technicalApprovalFlow.unlockRule}</p>` }));
+  card.append(iconWrap("shield"), element("div", { html: "<h2>Tamamlama Kuralı</h2><p>Tüm modüller ve gerekli kanıtlar girildiğinde iş emri kapanır.</p><p>Eksik madde veya eksik kanıt varsa sistem işi açık tutar.</p>" }));
   return card;
 }
 
@@ -7774,7 +8487,7 @@ function panelGrid() {
     grid.append(
       element("article", {
         className: `panel-card tone-${panel.tone}`,
-        html: `<strong>${panel.title}</strong><span>${panel.status}</span><small>${panel.photoSlots} kanıt slotu · Nokta ${panel.noktaId ?? "-"}</small>`
+        html: `<strong>${panel.title}</strong><span>${panel.status}</span><small>${panel.photoSlots} kanıt slotu · Nokta ${panel.noktaId || "-"}</small>`
       })
     );
   });
@@ -7813,7 +8526,7 @@ function formItemCard(item, isOpen = false, formKey = "kaporta") {
     inputGrid(item, formKey),
     descriptionField(item, formKey),
     photoSlotGrid(item, formKey),
-    element("p", { className: "critical-proof-note", text: "Fotoğraf ekleme bu fazda opsiyoneldir." })
+    element("p", { className: "critical-proof-note", text: "FotoÄŸraf ekleme bu fazda opsiyoneldir." })
   );
   summary.addEventListener("click", () => card.classList.toggle("open"));
   card.append(summary, body);
@@ -7999,7 +8712,7 @@ function evidenceCard(slot, onNavigate) {
 function issueCard(issue) {
   return element("article", {
     className: `section-card issue-card tone-${issue.tone}`,
-    html: `<div class="module-detail-head"><strong>${issue.title}</strong><span class="status-chip tone-${issue.tone}">${issue.module ?? issue.severity}</span></div><p>${issue.detail}</p>`
+    html: `<div class="module-detail-head"><strong>${issue.title}</strong><span class="status-chip tone-${issue.tone}">${issue.severity || issue.module || ""}</span></div><p>${issue.detail}</p>`
   });
 }
 
@@ -8025,9 +8738,10 @@ function createSection(title, description, children) {
 }
 
 function bannerCard(title, text, tone) {
+  const bannerIcon = tone === "success" ? icons.check : icons.alert;
   return element("section", {
     className: `section-card banner-card tone-${tone}`,
-    html: `<div class="banner-card-icon">${icons.alert}</div><div><h2>${title}</h2><p>${text}</p></div>`
+    html: `<div class="banner-card-icon">${bannerIcon}</div><div><h2>${title}</h2><p>${text}</p></div>`
   });
 }
 
@@ -8102,7 +8816,7 @@ function statusBadge(label, tone = "neutral") {
 }
 
 function iconWrap(iconName) {
-  return element("span", { className: "phase2-icon", html: icons[iconName] ?? icons.clipboard });
+  return element("span", { className: "phase2-icon", html: icons[iconName] || icons.clipboard });
 }
 
 function getLockedSectionData() {
@@ -8178,6 +8892,287 @@ function clearLockedSectionState() {
   }
   clearLockedSectionReadOnly();
   clearLockedSectionRequest();
+}
+
+function secretariatHeader(title, subtitle, onNavigate) {
+  const header = element("section", { className: "secretariat-aok-header" });
+  const back = button(icons.arrow, "secretariat-aok-back", () => onNavigate("home"), "Ana sayfaya dön", true);
+  const titleBox = element("div", { className: "secretariat-aok-title" });
+  titleBox.append(
+    element("span", { text: "Mobil AOK Sekreterya" }),
+    element("h1", { text: title }),
+    element("p", { text: subtitle })
+  );
+  header.append(back, titleBox, element("div", { className: "secretariat-aok-bell", html: icons.bell || icons.shield }));
+  return header;
+}
+
+function secretariatStatus(message = "", tone = "neutral") {
+  return element("div", {
+    className: `secretariat-aok-status tone-${tone}`,
+    text: message,
+    attrs: { role: "status", "aria-live": "polite" }
+  });
+}
+
+function createSecretariatField({ label, name, value = "", placeholder = "", inputmode = "text", maxLength = "" }) {
+  const wrap = element("label", { className: "secretariat-aok-field" });
+  const input = element("input", {
+    attrs: {
+      name,
+      value,
+      placeholder,
+      inputmode,
+      ...(maxLength ? { maxlength: String(maxLength) } : {})
+    }
+  });
+  wrap.append(element("span", { text: label }), input);
+  return { wrap, input };
+}
+
+function renderSecretariatUnauthorized(message, onNavigate) {
+  const main = element("main", { className: "phase2-main secretariat-aok-screen" });
+  main.append(secretariatHeader("Yetki Kontrolü", "Bu akış sadece sekreterya ve müdür rolleri içindir.", onNavigate));
+  const card = element("section", { className: "secretariat-aok-card" });
+  card.append(
+    element("div", { className: "secretariat-aok-large-icon", html: icons.shield }),
+    element("h2", { text: "İş emri açma yetkisi bulunamadı" }),
+    element("p", { text: message || "Canlı oturumdaki rol doğrulanamadı. Usta ekranları değişmeden kullanılabilir." }),
+    button("Ana Sayfaya Dön", "secretariat-aok-primary", () => onNavigate("home"), "Ana sayfaya dön")
+  );
+  main.append(card);
+  return main;
+}
+
+function renderSecretariatWorkOrderEntry(onNavigate) {
+  const main = element("main", { className: "phase2-main secretariat-aok-screen" });
+  main.append(secretariatHeader("Ruhsat ile Mobil Kayıt", "Sekreterya kullanıcıları ruhsat fotoğrafı ve ERP paketiyle canlı kayıt başlatır.", onNavigate));
+  const status = secretariatStatus("Yetki ve paket bilgileri kontrol ediliyor...", "neutral");
+  const card = element("section", { className: "secretariat-aok-card secretariat-aok-entry" });
+  const packageList = element("div", { className: "secretariat-aok-package-preview" });
+  const startButton = button(`${icons.camera}<span>Ruhsat Fotoğrafı Çek</span>`, "secretariat-aok-primary", () => {
+    writeSecretariatDraft({ startedFrom: "secretariat-entry" });
+    onNavigate("registration-capture");
+  }, "Ruhsat fotoğrafı çek", true);
+  const manualButton = button("Manuel Girişle Devam", "secretariat-aok-secondary", () => {
+    writeSecretariatDraft({ startedFrom: "manual", ocrText: "" });
+    onNavigate("registration-review");
+  }, "Manuel girişle devam");
+  startButton.disabled = true;
+  manualButton.disabled = true;
+  card.append(
+    element("div", { className: "secretariat-aok-large-icon", html: icons.scan || icons.camera }),
+    element("h2", { text: "Mobil AOK iş emri" }),
+    element("p", { text: "Ruhsat fotoğrafını çekin, plaka/şasi/motor bilgisini kontrol edin ve aktif ERP paketini seçin." }),
+    packageList,
+    startButton,
+    manualButton,
+    status
+  );
+  main.append(card);
+  getCurrentSecretariatContext()
+    .then(async (context) => {
+      if (!canCreateSecretariatWorkOrder(context)) {
+        status.textContent = "Bu kullanıcı sekreterya iş emri açma yetkisine sahip görünmüyor.";
+        status.className = "secretariat-aok-status tone-error";
+        return;
+      }
+      const result = await fetchSecretariatWorkOrderPackages();
+      sessionStorage.setItem("ototrSecretariatPackages", JSON.stringify(result.packages));
+      packageList.replaceChildren(...result.packages.slice(0, 4).map((item) =>
+        element("span", { text: item.name || item.code })
+      ));
+      status.textContent = result.warning || `${result.packages.length} aktif paket hazır.`;
+      status.className = `secretariat-aok-status tone-${result.source === "live" ? "success" : "warning"}`;
+      startButton.disabled = false;
+      manualButton.disabled = false;
+    })
+    .catch((error) => {
+      status.textContent = error?.message || "Sekreterya kontrolü yapılamadı.";
+      status.className = "secretariat-aok-status tone-error";
+    });
+  return main;
+}
+
+function renderRegistrationCapture(onNavigate) {
+  const main = element("main", { className: "phase2-main secretariat-aok-screen" });
+  main.append(secretariatHeader("Ruhsat Fotoğrafı", "Ruhsatı çerçeve içine alın; OCR yoksa metni yapıştırıp manuel devam edin.", onNavigate));
+  const card = element("section", { className: "secretariat-aok-card" });
+  const preview = element("div", { className: "secretariat-aok-camera-frame" });
+  preview.append(
+    element("div", { className: "secretariat-aok-frame-corners" }),
+    element("strong", { text: "Ruhsat alanı" }),
+    element("span", { text: "Plaka - Şasi No - Motor No" })
+  );
+  const status = secretariatStatus("", "neutral");
+  const ocrText = element("textarea", {
+    className: "secretariat-aok-ocr-text",
+    attrs: {
+      rows: "4",
+      placeholder: "OCR metni buraya yapıştırılabilir. Örn: 34 ABC 123 / WAUZZZ... / MOTOR: ABC12345"
+    }
+  });
+  const captureButton = button(`${icons.camera}<span>Fotoğraf Çek</span>`, "secretariat-aok-primary", async () => {
+    status.textContent = "Kamera açılıyor...";
+    status.className = "secretariat-aok-status tone-neutral";
+    try {
+      const image = await captureRegistrationImage();
+      if (image.ok && image.dataUrl) {
+        preview.style.backgroundImage = `url("${image.dataUrl}")`;
+        preview.classList.add("has-photo");
+        writeSecretariatDraft({ registrationImageDataUrl: image.dataUrl });
+        status.textContent = "Fotoğraf alındı. OCR servisi bağlı değilse alanları manuel kontrol edin.";
+        status.className = "secretariat-aok-status tone-success";
+      } else {
+        status.textContent = image.reason || "Kamera bu ortamda açılamadı.";
+        status.className = "secretariat-aok-status tone-warning";
+      }
+    } catch (error) {
+      status.textContent = error?.message || "Kamera işlemi tamamlanamadı.";
+      status.className = "secretariat-aok-status tone-error";
+    }
+  }, "Ruhsat fotoğrafı çek", true);
+  const reviewButton = button("Bilgileri Kontrol Et", "secretariat-aok-secondary", () => {
+    const parsed = parseRegistrationText(ocrText.value);
+    writeSecretariatDraft({ ocrText: ocrText.value, ...parsed });
+    onNavigate("registration-review");
+  }, "Bilgileri kontrol et");
+  card.append(preview, captureButton, element("label", { className: "secretariat-aok-field secretariat-aok-textarea-label", html: "<span>OCR / Ruhsat Metni</span>" }), ocrText, reviewButton, status);
+  main.append(card);
+  return main;
+}
+
+function readSecretariatPackagesFromSession() {
+  try {
+    const packages = JSON.parse(sessionStorage.getItem("ototrSecretariatPackages") || "[]");
+    return Array.isArray(packages) ? packages : [];
+  } catch {
+    return [];
+  }
+}
+
+function renderRegistrationReview(onNavigate) {
+  const main = element("main", { className: "phase2-main secretariat-aok-screen" });
+  main.append(secretariatHeader("Ruhsat Bilgilerini Kontrol Et", "Alanları düzeltin, ERP paketini seçin ve canlı kaydı başlatın.", onNavigate));
+  const draft = readSecretariatDraft();
+  const form = element("form", { className: "secretariat-aok-card secretariat-aok-review" });
+  const status = secretariatStatus("", "neutral");
+  const fields = {
+    plate: createSecretariatField({ label: "Plaka", name: "plate", value: draft.plate || "", placeholder: "34 ABC 123" }),
+    chassisNo: createSecretariatField({ label: "Şasi No", name: "chassisNo", value: draft.chassisNo || "", placeholder: "17 karakter VIN", maxLength: 17 }),
+    engineNo: createSecretariatField({ label: "Motor No", name: "engineNo", value: draft.engineNo || "", placeholder: "Motor no", maxLength: 20 }),
+    customerName: createSecretariatField({ label: "Müşteri Adı", name: "customerName", value: draft.customerName || "", placeholder: "Ad Soyad" }),
+    customerPhone: createSecretariatField({ label: "Telefon", name: "customerPhone", value: draft.customerPhone || "", placeholder: "5550000000", inputmode: "tel" }),
+    brand: createSecretariatField({ label: "Marka", name: "brand", value: draft.brand || "", placeholder: "BMW" }),
+    model: createSecretariatField({ label: "Model", name: "model", value: draft.model || "", placeholder: "3 Serisi" }),
+    kilometers: createSecretariatField({ label: "KM", name: "kilometers", value: draft.kilometers || "", placeholder: "45200", inputmode: "numeric" })
+  };
+  const packageGrid = element("div", { className: "secretariat-aok-packages" });
+  let selectedPackage = draft.packageCode || "";
+  const renderPackages = (packages) => {
+    packageGrid.replaceChildren();
+    packages.forEach((item) => {
+      const card = button("", `secretariat-aok-package${selectedPackage === item.code ? " is-selected" : ""}`, () => {
+        selectedPackage = item.code;
+        writeSecretariatDraft({ packageCode: item.code, packageName: item.name });
+        renderPackages(packages);
+      }, `${item.name} paketini seç`);
+      card.append(element("strong", { text: item.name }), element("span", { text: item.description || item.code }));
+      packageGrid.append(card);
+    });
+  };
+  let packageRows = readSecretariatPackagesFromSession();
+  if (!packageRows.length) {
+    fetchSecretariatWorkOrderPackages().then((result) => {
+      packageRows = result.packages;
+      sessionStorage.setItem("ototrSecretariatPackages", JSON.stringify(packageRows));
+      renderPackages(packageRows);
+    }).catch(() => renderPackages([]));
+  }
+  renderPackages(packageRows);
+  fields.plate.input.addEventListener("blur", () => { fields.plate.input.value = normalizePlate(fields.plate.input.value); });
+  fields.chassisNo.input.addEventListener("input", () => { fields.chassisNo.input.value = normalizeVin(fields.chassisNo.input.value); });
+  fields.engineNo.input.addEventListener("input", () => { fields.engineNo.input.value = normalizeEngineNo(fields.engineNo.input.value); });
+  const submit = button("Mobil Kaydı Başlat", "secretariat-aok-primary", async () => {}, "Mobil kaydı başlat");
+  submit.type = "submit";
+  form.append(
+    element("h2", { text: "Ruhsat ve müşteri bilgileri" }),
+    fields.plate.wrap,
+    fields.chassisNo.wrap,
+    fields.engineNo.wrap,
+    fields.customerName.wrap,
+    fields.customerPhone.wrap,
+    fields.brand.wrap,
+    fields.model.wrap,
+    fields.kilometers.wrap,
+    element("h3", { text: "ERP Paket Seçimi" }),
+    packageGrid,
+    submit,
+    status
+  );
+  form.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const payload = {
+      plate: fields.plate.input.value,
+      chassisNo: fields.chassisNo.input.value,
+      engineNo: fields.engineNo.input.value,
+      customerName: fields.customerName.input.value,
+      customerPhone: fields.customerPhone.input.value,
+      brand: fields.brand.input.value,
+      model: fields.model.input.value,
+      kilometers: fields.kilometers.input.value,
+      packageCode: selectedPackage,
+      packageName: packageRows.find((item) => item.code === selectedPackage)?.name || selectedPackage
+    };
+    const validation = validateRegistrationFields(payload);
+    if (!validation.ok) {
+      status.textContent = Object.values(validation.errors).join(" ");
+      status.className = "secretariat-aok-status tone-error";
+      return;
+    }
+    submit.disabled = true;
+    status.textContent = "Canlı kayıt oluşturuluyor...";
+    status.className = "secretariat-aok-status tone-neutral";
+    try {
+      await createWorkOrderFromRegistration(payload);
+      onNavigate("work-order-created");
+    } catch (error) {
+      submit.disabled = false;
+      const validationText = error?.validation ? Object.values(error.validation).join(" ") : "";
+      status.textContent = validationText || error?.message || "Canlı kayıt oluşturulamadı.";
+      status.className = "secretariat-aok-status tone-error";
+    }
+  });
+  main.append(form);
+  return main;
+}
+
+function renderWorkOrderCreated(onNavigate) {
+  const main = element("main", { className: "phase2-main secretariat-aok-screen" });
+  main.append(secretariatHeader("Mobil Kayıt Oluşturuldu", "Sekreterya kaydı canlı sisteme gönderildi.", onNavigate));
+  const created = readCreatedSecretariatWorkOrder();
+  const card = element("section", { className: "secretariat-aok-card secretariat-aok-created" });
+  card.append(
+    element("div", { className: "secretariat-aok-large-icon success", html: icons.check }),
+    element("h2", { text: created.workOrderNo || "Canlı iş emri hazır" }),
+    element("dl", {
+      html: `
+        <div><dt>Plaka</dt><dd>${created.plate || "-"}</dd></div>
+        <div><dt>Şasi No</dt><dd>${created.chassisNo || "-"}</dd></div>
+        <div><dt>Motor No</dt><dd>${created.engineNo || "-"}</dd></div>
+        <div><dt>Paket</dt><dd>${created.packageName || created.packageCode || "-"}</dd></div>
+      `
+    }),
+    button("İş Emirlerine Git", "secretariat-aok-primary", () => {
+      syncLiveWorkOrders().finally(() => onNavigate("jobs"));
+    }, "İş emirlerine git"),
+    button("Yeni İş Emri Aç", "secretariat-aok-secondary", () => {
+      clearSecretariatDraft();
+      onNavigate("secretariat-work-order");
+    }, "Yeni iş emri aç")
+  );
+  main.append(card);
+  return main;
 }
 
 function button(label, className, onClick, ariaLabel, rawHtml = false) {

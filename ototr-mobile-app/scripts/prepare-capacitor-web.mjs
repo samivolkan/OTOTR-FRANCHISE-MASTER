@@ -1,6 +1,7 @@
-import { cp, mkdir, rm } from "node:fs/promises";
+import { cp, mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { build } from "esbuild";
 
 const scriptDir = dirname(fileURLToPath(import.meta.url));
 const appRoot = resolve(scriptDir, "..");
@@ -40,6 +41,37 @@ async function copyTarget(relativePath) {
   });
 }
 
+async function bundleCapacitorApp() {
+  const entryPoint = resolve(appRoot, "src/app.js");
+  const outputPath = resolve(webRoot, "app.bundle.js");
+  ensureInsideApp(entryPoint);
+  ensureInsideApp(outputPath);
+
+  await build({
+    entryPoints: [entryPoint],
+    bundle: true,
+    format: "iife",
+    platform: "browser",
+    target: ["chrome120"],
+    outfile: outputPath,
+    sourcemap: false,
+    minify: false
+  });
+}
+
+async function rewriteCapacitorIndexHtml() {
+  const indexPath = resolve(webRoot, "index.html");
+  ensureInsideApp(indexPath);
+
+  const original = await readFile(indexPath, "utf8");
+  const updated = original.replace(
+    '<script type="module" src="./src/app.js"></script>',
+    '<script src="./app.bundle.js"></script>'
+  );
+
+  await writeFile(indexPath, updated, "utf8");
+}
+
 await recreateWebRoot();
 
 for (const target of copyTargets) {
@@ -60,5 +92,8 @@ for (const relativePath of buildOnlyExclusions) {
   ensureInsideApp(targetPath);
   await rm(targetPath, { recursive: true, force: true });
 }
+
+await bundleCapacitorApp();
+await rewriteCapacitorIndexHtml();
 
 console.log("Capacitor web staging hazirlandi: www");

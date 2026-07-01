@@ -1,6 +1,6 @@
 import { shouldUseNativeHttp, supabaseRequest } from "./supabaseHttpClient.js";
 
-const defaultEvidenceBucket = "ototr-evidence";
+const defaultEvidenceBucket = "report-media";
 
 function getRuntimeConfig() {
   const runtimeConfig = globalThis.OTOTR_SUPABASE_CONFIG || {};

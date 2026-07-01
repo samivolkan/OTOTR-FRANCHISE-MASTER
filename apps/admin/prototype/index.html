@@ -12,9 +12,7 @@
   <script>
     (function(){
       try{
-        var params = new URLSearchParams(window.location.search);
-        var hashRoute = (window.location.hash || '').replace(/^#\/?/, '').split('/')[0];
-        window.__OTOTR_DEALER_STANDALONE__ = params.get('portal') === 'dealer' || hashRoute === 'dealer';
+        window.__OTOTR_DEALER_STANDALONE__ = false;
         if(window.__OTOTR_DEALER_STANDALONE__){
           document.documentElement.classList.add('dealer-standalone-root');
           document.title = 'OTOTR Bayi Portalı';
@@ -1346,6 +1344,7 @@
     .dealer-secretary-fill-modal{position:fixed;inset:0;z-index:10000;display:none;align-items:center;justify-content:center;background:rgba(15,23,42,.52);padding:18px}.dealer-secretary-fill-modal.open{display:flex}.dealer-secretary-fill-card{width:min(560px,calc(100vw - 28px));border:1px solid #dbe3ee;border-radius:12px;background:#fff;box-shadow:0 24px 80px rgba(15,23,42,.28);overflow:hidden}.dealer-secretary-fill-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:14px 16px;border-bottom:1px solid var(--line);background:#f8fafc}.dealer-secretary-fill-head h3{margin:0;font-size:16px}.dealer-secretary-fill-head p{margin:4px 0 0;color:#64748b;font-size:12px;line-height:1.35}.dealer-secretary-fill-card form{padding:16px;display:grid;gap:14px}.dealer-secretary-fill-card label{display:grid;gap:7px;color:#303641;font-size:11px;font-weight:950;text-transform:uppercase}.dealer-secretary-fill-card input:not([type="checkbox"]),.dealer-secretary-fill-card select{height:40px;border:1px solid #d7dbe3;border-radius:8px;background:#fff;color:var(--ink);font:inherit;font-size:13px;padding:0 10px;outline:0}.dealer-secretary-fill-card input:focus,.dealer-secretary-fill-card select:focus{border-color:var(--red);box-shadow:0 0 0 3px rgba(215,25,32,.10)}.dealer-secretary-fill-options{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.dealer-secretary-fill-options label{border:1px solid var(--line);border-radius:9px;background:#f8fafc;padding:9px;display:flex;align-items:center;gap:7px;text-transform:none;font-size:12px;font-weight:850}.dealer-secretary-fill-actions{display:flex;justify-content:flex-end;gap:8px;flex-wrap:wrap}@media(max-width:640px){.dealer-secretary-fill-options{grid-template-columns:1fr}.dealer-secretary-fill-actions .btn{flex:1 1 140px;justify-content:center}}
     @media(max-width:960px){html.dealer-standalone-root,html.dealer-standalone-root body{width:100%!important;max-width:100%!important;overflow-x:hidden!important}body.dealer-standalone .app,body.dealer-standalone .main,body.dealer-standalone .wrap,body.dealer-standalone #page-dealer{width:100%!important;max-width:100vw!important;overflow-x:hidden!important}body.dealer-standalone #page-dealer{overflow:hidden!important}body.dealer-standalone .module-page-head{width:calc(100vw - 24px)!important;max-width:calc(100vw - 24px)!important;margin-left:0!important;flex-direction:column!important;align-items:stretch!important;overflow:hidden!important}body.dealer-standalone .module-page-head>div{min-width:0!important;width:100%!important}body.dealer-standalone .module-page-head h1,body.dealer-standalone .module-page-head p{max-width:100%!important;overflow-wrap:anywhere!important;word-break:normal!important;white-space:normal!important}body.dealer-standalone .module-page-actions{display:grid!important;grid-template-columns:1fr!important;width:100%!important}body.dealer-standalone .module-page-actions .btn{width:100%!important;justify-content:center!important;white-space:normal!important}body.dealer-standalone .module-page-head .dealer-header-search,.dealer-login-card.pro{width:calc(100vw - 24px)!important;max-width:calc(100vw - 24px)!important}}
     @media(max-width:520px){body.dealer-standalone .module-page-head{width:calc(100vw - 48px)!important;max-width:calc(100vw - 48px)!important;padding:14px!important;border-radius:12px!important;gap:10px!important}body.dealer-standalone .module-page-head h1{font-size:20px!important;line-height:1.16!important;margin-bottom:5px!important}body.dealer-standalone .module-page-head p{font-size:11px!important;line-height:1.38!important}body.dealer-standalone .module-page-head .dealer-header-search{width:100%!important;max-width:100%!important;height:38px!important;margin-top:10px!important;padding:0 10px!important}body.dealer-standalone .module-page-actions{gap:7px!important}body.dealer-standalone .module-page-actions .btn{min-height:40px!important;padding:8px 10px!important}.dealer-login-card.pro{width:calc(100vw - 48px)!important;max-width:calc(100vw - 48px)!important}}
+    .chronic-page{display:grid;gap:14px}.chronic-hero{border:1px solid #222936;border-radius:16px;background:linear-gradient(135deg,#111318,#1f2937 62%,#7f1d1d);color:#fff;padding:18px;display:grid;grid-template-columns:minmax(0,1.08fr) minmax(340px,.92fr);gap:16px;align-items:stretch;overflow:hidden}.chronic-eyebrow{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#fecdd3;font-weight:950;margin-bottom:8px}.chronic-hero h2{font-size:30px;line-height:1.08;margin:0 0 9px;letter-spacing:0}.chronic-hero p{margin:0;color:#e5e7eb;font-size:13px;line-height:1.55;max-width:820px}.chronic-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}.chronic-actions .btn{background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.2);color:#fff}.chronic-actions .btn.primary{background:var(--red);border-color:var(--red);color:#fff}.chronic-warning{display:flex;gap:9px;margin-top:13px;padding:11px;border:1px solid rgba(251,191,36,.44);background:rgba(251,191,36,.13);border-radius:11px;color:#fde68a;font-size:11px;line-height:1.45}.chronic-metrics{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.chronic-metric{border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.075);border-radius:12px;padding:12px}.chronic-metric span{display:block;color:#cbd5e1;font-size:10px;font-weight:900;text-transform:uppercase}.chronic-metric b{display:block;margin-top:6px;font-size:27px;line-height:1;color:#fff}.chronic-metric small{display:block;margin-top:5px;color:#d1d5db;font-size:10px;line-height:1.3}.chronic-layout{display:grid;grid-template-columns:320px minmax(0,1fr) 320px;gap:12px;align-items:start}.chronic-panel{border:1px solid var(--line);border-radius:13px;background:#fff;box-shadow:0 1px 0 rgba(17,19,24,.03);min-width:0;overflow:hidden}.chronic-panel-head{height:52px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:10px;padding:0 13px}.chronic-panel-title{font-size:13px;font-weight:950;color:#111318}.chronic-panel-body{padding:13px}.chronic-filter-grid{display:grid;gap:9px}.chronic-field label{display:block;margin-bottom:5px;color:var(--muted);font-size:10px;font-weight:900;text-transform:uppercase}.chronic-field input,.chronic-field select{width:100%;height:36px;border:1px solid var(--line);border-radius:9px;background:#fff;padding:0 10px;color:var(--ink);outline:none}.chronic-field input:focus,.chronic-field select:focus{border-color:#9db9f3;box-shadow:0 0 0 3px rgba(24,90,188,.09)}.chronic-chip-row{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}.chronic-chip{height:28px;border:1px solid #dbe3ee;border-radius:999px;background:#f8fafc;color:#475467;padding:0 10px;font-size:10px;font-weight:950;cursor:pointer}.chronic-chip.active{background:#eaf1ff;border-color:#c9d9ff;color:var(--blue)}.chronic-list{display:grid;gap:8px;max-height:430px;overflow:auto;padding-right:2px}.chronic-model{border:1px solid var(--line);border-radius:11px;background:#fff;padding:10px;display:grid;grid-template-columns:minmax(0,1fr) 58px;gap:8px;align-items:center;text-align:left;cursor:pointer}.chronic-model:hover{border-color:#c9d9ff;background:#f7faff}.chronic-model.active{border-color:var(--blue);background:#eaf1ff}.chronic-model strong{display:block;font-size:12.5px;line-height:1.25;color:#111318}.chronic-model small{display:block;margin-top:4px;color:var(--muted);font-size:10px;line-height:1.35}.chronic-score{width:52px;height:52px;border-radius:13px;background:#eaf7f0;color:var(--green);display:grid;place-items:center;font-size:18px;font-weight:950}.chronic-score.mid{background:#fff4df;color:var(--amber)}.chronic-score.low{background:#ffeaec;color:var(--red)}.chronic-detail-head{display:grid;grid-template-columns:minmax(0,1fr) 112px;gap:12px;align-items:start;margin-bottom:12px}.chronic-detail-head h3{margin:0;font-size:21px;letter-spacing:0}.chronic-detail-head p{margin:6px 0 0;color:#4d5563;font-size:12px;line-height:1.5}.chronic-score-big{height:96px;border-radius:13px;background:#eaf7f0;color:var(--green);display:grid;place-items:center;text-align:center}.chronic-score-big b{display:block;font-size:32px;line-height:1}.chronic-score-big span{display:block;margin-top:4px;font-size:10px;font-weight:900}.chronic-facts{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-bottom:12px}.chronic-fact{border:1px solid var(--line);border-radius:10px;background:#f8fafc;padding:9px}.chronic-fact span{display:block;color:var(--muted);font-size:9px;font-weight:950;text-transform:uppercase}.chronic-fact b{display:block;margin-top:4px;font-size:12px}.chronic-issues{display:grid;gap:7px}.chronic-issue{display:grid;grid-template-columns:26px minmax(0,1fr) auto;gap:8px;align-items:center;border:1px solid var(--line);border-radius:10px;background:#fff;padding:9px}.chronic-issue i{width:26px;height:26px;border-radius:8px;background:#ffeaec;color:var(--red);display:grid;place-items:center;font-style:normal;font-weight:950;font-size:10px}.chronic-issue strong{font-size:12px}.chronic-issue span{font-size:9.5px;font-weight:950;color:var(--blue);background:#eaf1ff;border-radius:999px;padding:4px 7px;white-space:nowrap}.chronic-badge{display:inline-flex;height:23px;align-items:center;border:1px solid #fed7aa;border-radius:999px;background:#fff7ed;color:#9a3412;padding:0 8px;font-size:9.5px;font-weight:950}.chronic-badge.green{background:#eaf7f0;color:var(--green);border-color:#c5ead5}.chronic-badge.red{background:#ffeaec;color:var(--red);border-color:#ffc5ca}.chronic-admin-flow{display:grid;gap:8px}.chronic-step{display:grid;grid-template-columns:30px minmax(0,1fr) auto;gap:8px;align-items:center;border:1px solid var(--line);border-radius:10px;background:#f8fafc;padding:9px}.chronic-step i{width:30px;height:30px;border-radius:9px;background:#eaf1ff;color:var(--blue);display:grid;place-items:center;font-style:normal;font-size:10px;font-weight:950}.chronic-step strong{display:block;font-size:11px}.chronic-step small{display:block;margin-top:2px;color:var(--muted);font-size:9.5px;line-height:1.3}.chronic-step em{font-style:normal;color:var(--green);font-size:9.5px;font-weight:950}.chronic-audit{margin-top:11px;border-top:1px solid var(--line);padding-top:10px;display:grid;gap:7px}.chronic-audit-row{display:flex;justify-content:space-between;gap:10px;font-size:10px}.chronic-audit-row span{color:var(--muted)}.chronic-audit-row b{text-align:right}@media(max-width:1180px){.chronic-hero,.chronic-layout{grid-template-columns:1fr}.chronic-facts{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:680px){.chronic-hero h2{font-size:23px}.chronic-metrics,.chronic-facts,.chronic-detail-head{grid-template-columns:1fr}.chronic-issue{grid-template-columns:26px minmax(0,1fr)}.chronic-issue span{grid-column:2}}
   </style>
 </head>
 <body>
@@ -2925,12 +2924,12 @@
       ['Genel Merkez', [['dashboard','Yönetim Kokpiti','layout-dashboard'],['intelligence','İş Zekası','chart-no-axes-column'],['actions','Aksiyon & Görev','target'],['crisis','Kriz Merkezi','siren'],['ai','AI Öneri','sparkles']]],
       ['Bayi & Şube Yönetimi', [['branches','Bayiler & Şubeler','building-2'],['dealer','Bayi Portalı','tablet-smartphone'],['ototr-web','OTOTR Web','globe'],['operations','Operasyon','workflow'],['quality','Kalite & Denetim','shield-check']]],
       ['Ekspertiz & Rapor', [['report-design','Ekspertiz Rapor Tasarımı','file-check-2']]],
-      ['Müşteri & Satış', [['crm','CRM & Randevu','users'],['complaints','Müşteri Şikayetleri','message-circle-warning'],['google-reviews','Google Yorumlar','star'],['reputation','Sosyal Medya İtibar Radar','radar'],['marketing','Pazarlama','megaphone']]],
+      ['Müşteri & Satış', [['crm','CRM & Randevu','users'],['chronic-issues','Kronik Sorunlar','car-front'],['complaints','Müşteri Şikayetleri','message-circle-warning'],['google-reviews','Google Yorumlar','star'],['reputation','Sosyal Medya İtibar Radar','radar'],['marketing','Pazarlama','megaphone']]],
       ['Franchise Yönetimi', [['franchise','Franchise Satış','handshake'],['growth','Bayii Büyüme','map'],['finance','Finans & Royalty','banknote']]],
       ['Kurumsal Yönetim', [['academy','OTOTR Academy','graduation-cap'],['hr','İnsan Kaynakları','badge-check'],['legal','Hukuk & Risk','scale']]],
       ['Ayarlar', [['architecture','Sistem Mimarisi','network'],['settings','Ayarlar','settings'],['legacy','Legacy Room','landmark']]]
     ];
-    const titles = {dashboard:'Yönetim Kokpiti',intelligence:'İş Zekası',branches:'Bayiler & Şubeler',dealer:'Bayi Portalı','ototr-web':'OTOTR Web',operations:'Operasyon',franchise:'Franchise Satış',crm:'CRM & Randevu',complaints:'Müşteri Şikayetleri','google-reviews':'Google Haritalar İtibar Merkezi',reputation:'İtibar Radar',finance:'Finans & Royalty',marketing:'Pazarlama',quality:'Kalite & Denetim','report-design':'Ekspertiz Rapor Tasarımı','vehicle-passport':'Dijital Araç Karnesi',academy:'OTOTR Academy',hr:'İnsan Kaynakları',legal:'Hukuk & Risk',crisis:'Kriz Merkezi',actions:'Aksiyon & Görev',ai:'AI Öneri',growth:'Bayii Büyüme',legacy:'Legacy Room',architecture:'Sistem Mimarisi',settings:'Ayarlar',branchProfile:'Şube Profili',franchiseProfile:'Aday Değerlendirme',customerProfile:'Müşteri 360'};
+    const titles = {dashboard:'Yönetim Kokpiti',intelligence:'İş Zekası',branches:'Bayiler & Şubeler',dealer:'Bayi Portalı','ototr-web':'OTOTR Web',operations:'Operasyon',franchise:'Franchise Satış',crm:'CRM & Randevu','chronic-issues':'Kronik Sorunlar',complaints:'Müşteri Şikayetleri','google-reviews':'Google Haritalar İtibar Merkezi',reputation:'İtibar Radar',finance:'Finans & Royalty',marketing:'Pazarlama',quality:'Kalite & Denetim','report-design':'Ekspertiz Rapor Tasarımı','vehicle-passport':'Dijital Araç Karnesi',academy:'OTOTR Academy',hr:'İnsan Kaynakları',legal:'Hukuk & Risk',crisis:'Kriz Merkezi',actions:'Aksiyon & Görev',ai:'AI Öneri',growth:'Bayii Büyüme',legacy:'Legacy Room',architecture:'Sistem Mimarisi',settings:'Ayarlar',branchProfile:'Şube Profili',franchiseProfile:'Aday Değerlendirme',customerProfile:'Müşteri 360'};
     function dealerPortalUrl(){
       const path=decodeURIComponent(location.pathname||'').replace(/\\/g,'/').toLowerCase();
       return path.includes('/bayi-portal/') ? 'index.html#dealer' : 'bayi-portal/index.html#dealer';
@@ -3687,7 +3686,6 @@
     const Backend = {
       key:'ototr-demo-db-v4-realistic-live',
       async connect(){
-        await wait(220);
         const old=localStorage.getItem(this.key), parsed=old ? JSON.parse(old) : null;
         const merged=parsed ? {...seed,...parsed} : seed;
         if(!merged.financeHistory?.some(x=>x.year===2026)) merged.financeHistory=seed.financeHistory;
@@ -4082,6 +4080,7 @@
       revenue:['Gelir · Ticari Performans','Gelir / Ticari Room','Paket geliri, araç başı gelir, hedef gerçekleşme, kampanya etkisi ve ciro trendlerini birlikte yönetin.'],
       franchise:['Gelir · Franchise Satış','Franchise Satış / Aday Room','Yatırımcı adayı, bütçe, şehir, finansal yeterlilik, marka uyumu, sözleşme ve açılış pipelineını yönetin.'],
       crm:['Operasyon · CRM & Randevu','CRM & Randevu / Müşteri Room','Ekspertiz müşterisi lead, WhatsApp, randevu, teklif, kapora, şube atama, müşteri 360 ve no-show süreçlerini yönetin.'],
+      'chronic-issues':['Müşteri & Satış · Araç Zekası','Kronik Sorunlar / Araç Güvenilirlik Room','Marka-model araması, güvenilirlik puanı, görünen kronik sorunlar, veri kapsam uyarısı ve ERP import hazırlığını tek ekranda yönetin.'],
       complaints:['Operasyon · Müşteri Deneyimi','Müşteri Şikayetleri / Deneyim Room','Şikayet, Google yorum, SLA, hukuki risk ve memnuniyet sinyallerini aksiyona bağlayın.'],
       'google-reviews':['Müşteri Deneyimi · Google','Google Haritalar İtibar Merkezi','Şube Google puanı, yorum kalitesi, kriz sinyali, hukuk riski ve kalite aksiyonlarını tek genel merkez karar ekranında yönetin.'],
       reputation:['Müşteri Deneyimi · İtibar','Sosyal Medya & İtibar Radar Merkezi','Sosyal medya, Şikayetvar, haber, forum ve şube yorumlarını izleyin; kritik içerikleri CRM, hukuk, kalite ve pazarlama aksiyonlarına bağlayın.'],
@@ -4114,6 +4113,7 @@
       if(id==='ototr-web') return `<button class="btn primary" onclick="window.open('ototr-web.html','_blank')">${icon('external-link')}Web Sayfasını Aç</button><button class="btn" data-route="franchise">${icon('handshake')}Franchise Kuyruğu</button><button class="btn" data-route="crm">${icon('calendar-plus')}Randevu Kuyruğu</button>`;
       if(id==='franchise') return `<button class="btn primary" id="openLead2">${icon('plus')}Yeni Lead</button><button class="btn" data-open-action-modal="Büyüme planı aksiyonu">${icon('map')}Büyüme Planı</button><button class="btn" data-open-action-modal="Franchise görev ataması">${icon('clipboard-plus')}Görev Ata</button><button class="btn" data-open-action-modal="Franchise geciken süreç aksiyonu">${icon('check-square')}Aksiyon Aç</button>`;
       if(id==='crm') return `<button class="btn primary" data-open-action-modal="Yeni randevu aksiyonu">${icon('calendar-plus')}Randevu Oluştur</button><button class="btn" data-open-action-modal="CRM takip görevi">${icon('message-circle')}WhatsApp Takip</button><button class="btn" data-open-action-modal="Lead aksiyonu">${icon('user-plus')}Lead Ata</button>`;
+      if(id==='chronic-issues') return `<button class="btn primary" data-chronic-focus-search>${icon('search')}Model Ara</button><button class="btn" data-chronic-scroll-admin>${icon('database')}Import Akışı</button><button class="btn" data-route="ototr-web">${icon('globe')}Web İçine Taşı</button>`;
       if(id==='google-reviews') return `<button class="btn primary" onclick="OTOTRGoogleReputation.syncAllGoogleReviews()">${icon('refresh-cw')}Google Senkronize Et</button><button class="btn" onclick="OTOTRGoogleReputation.openCriticalReviews()">${icon('siren')}Kritik Yorumları Aç</button><button class="btn" onclick="OTOTRGoogleReputation.exportGoogleReputationReport()">${icon('download')}Rapor Al</button>`;
       if(id==='reputation') return `<button class="btn primary" data-rep-focus-critical>${icon('siren')}Kritik Alarm</button><button class="btn" data-rep-create-first>${icon('clipboard-plus')}CRM Vakası Aç</button><button class="btn" data-route="crisis">${icon('shield-alert')}Kriz Merkezi</button>`;
       if(id==='marketing') return `<button class="btn primary" data-mkt-open-lead>${icon('user-plus')}Yeni Lead Ekle</button><button class="btn" data-mkt-focus-wa>${icon('message-circle')}WhatsApp Hazırla</button><button class="btn" data-action="Kampanya oluşturma taslağı açıldı.">${icon('megaphone')}Kampanya Oluştur</button><button class="btn" data-open-action-modal="Satış görevi ata">${icon('clipboard-plus')}Görev Ata</button>`;
@@ -4366,6 +4366,70 @@
       demoBranches:googleReputationData.branches,
       demoReviews:googleReputationData.reviews
     };
+    const chronicIssueModels=[
+      {id:'bmw-3-2021',brand:'BMW',model:'3 Serisi',years:'2019-2023',score:82,reports:148,issueCount:6,coverage:'top3',flags:['top3','low_sample'],issues:['Zincir ve zamanlama sesi','Elektronik sensör uyarıları','Şanzıman geçiş vuruntusu'],erp:'İş emri açılışında Premium 360 + OBD tarama öner.'},
+      {id:'vw-passat-2018',brand:'Volkswagen',model:'Passat',years:'2015-2020',score:74,reports:216,issueCount:9,coverage:'top3',flags:['top3'],issues:['DSG kavrama titremesi','EGR ve emisyon sistemi','Su pompası kaçağı'],erp:'Galeri al-sat kontrolünde şanzıman ve soğutma kontrolünü zorunlu göster.'},
+      {id:'renault-megane-2020',brand:'Renault',model:'Megane',years:'2016-2022',score:79,reports:192,issueCount:7,coverage:'complete',flags:['clean'],issues:['Enjektör ses ve performans kaybı','Ön takım burç boşluğu','Multimedya ekran donması'],erp:'Standart paket içinde mekanik ve elektronik kontrol yeterli.'},
+      {id:'ford-focus-2017',brand:'Ford',model:'Focus',years:'2014-2018',score:68,reports:121,issueCount:8,coverage:'top3',flags:['top3','low_sample'],issues:['Powershift şanzıman titremesi','Direksiyon kutusu sesi','Turbo hortumu yıpranması'],erp:'Garanti risk ekranında kırmızı uyarılı teklif hazırla.'},
+      {id:'toyota-corolla-2021',brand:'Toyota',model:'Corolla',years:'2019-2024',score:91,reports:238,issueCount:4,coverage:'complete',flags:['clean'],issues:['Multimedya bağlantı kopması','Fren disk sesi','Akümülatör zayıflama kaydı'],erp:'Düşük riskli araç; hızlı kabul ve garanti upsell için uygun.'}
+    ];
+    const chronicIssueState={selectedId:'bmw-3-2021',flag:''};
+    function chronicScoreClass(score){return score<70?'low':score<82?'mid':'';}
+    function chronicFilteredModels(){
+      const q=String(document.getElementById('chronicSearch')?.value||'').toLocaleLowerCase('tr-TR').trim();
+      const brand=document.getElementById('chronicBrand')?.value||'';
+      const coverage=document.getElementById('chronicCoverage')?.value||'';
+      const minScore=Number(document.getElementById('chronicMinScore')?.value||0);
+      return chronicIssueModels.filter(item=>{
+        const haystack=`${item.brand} ${item.model} ${item.years}`.toLocaleLowerCase('tr-TR');
+        if(q&&!haystack.includes(q)) return false;
+        if(brand&&item.brand!==brand) return false;
+        if(coverage==='complete'&&item.coverage!=='complete') return false;
+        if(coverage==='top3'&&item.coverage!=='top3') return false;
+        if(minScore&&item.score<minScore) return false;
+        if(chronicIssueState.flag==='top3'&&!item.flags.includes('top3')) return false;
+        if(chronicIssueState.flag==='low_sample'&&!item.flags.includes('low_sample')) return false;
+        if(chronicIssueState.flag==='clean'&&!item.flags.includes('clean')) return false;
+        return true;
+      });
+    }
+    function renderChronicList(){
+      const list=document.getElementById('chronicList');
+      const count=document.getElementById('chronicResultCount');
+      if(!list) return;
+      const rows=chronicFilteredModels();
+      if(count) count.textContent=`${rows.length} sonuç`;
+      if(!rows.some(x=>x.id===chronicIssueState.selectedId)) chronicIssueState.selectedId=(rows[0]||chronicIssueModels[0]).id;
+      list.innerHTML=rows.map(item=>`<button class="chronic-model ${item.id===chronicIssueState.selectedId?'active':''}" type="button" data-chronic-id="${item.id}"><span><strong>${item.brand} ${item.model}</strong><small>${item.years} · ${item.reports} bildirim · ${item.coverage==='top3'?'yalnızca ilk üç sorun':'indeks seviyesi tam'}</small></span><span class="chronic-score ${chronicScoreClass(item.score)}">${item.score}</span></button>`).join('')||'<div class="chronic-model"><span><strong>Sonuç yok</strong><small>Filtreleri genişletin.</small></span><span class="chronic-score low">0</span></div>';
+      list.querySelectorAll('[data-chronic-id]').forEach(btn=>btn.addEventListener('click',()=>{chronicIssueState.selectedId=btn.dataset.chronicId;renderChronicList();renderChronicDetail();}));
+      renderChronicDetail();
+    }
+    function renderChronicDetail(){
+      const detail=document.getElementById('chronicDetail');
+      const badge=document.getElementById('chronicScopeBadge');
+      if(!detail) return;
+      const item=chronicIssueModels.find(x=>x.id===chronicIssueState.selectedId)||chronicIssueModels[0];
+      if(badge){badge.textContent=item.coverage==='top3'?'top_3_only':'complete_index_level';badge.className=`chronic-badge ${item.coverage==='top3'?'red':'green'}`;}
+      detail.innerHTML=`<div class="chronic-detail-head"><div><h3>${item.brand} ${item.model}</h3><p>${item.years} aralığı için CRM teklif, araç kabul, garanti/risk ve müşteri bilgilendirme ekranlarında kullanılacak güvenilirlik özeti. Kaynak/provenance bilgisi korunur; canlı import manuel zenginleştirme alanlarını ezmemelidir.</p></div><div class="chronic-score-big"><div><b>${item.score}</b><span>Güvenilirlik puanı</span></div></div></div><div class="chronic-facts"><div class="chronic-fact"><span>Bildirim</span><b>${item.reports}</b></div><div class="chronic-fact"><span>Görünen sorun</span><b>${item.issueCount}</b></div><div class="chronic-fact"><span>Kapsam</span><b>${item.coverage==='top3'?'İlk 3 sorun':'İndeks tam'}</b></div><div class="chronic-fact"><span>ERP aksiyonu</span><b>${item.erp}</b></div></div><div class="chronic-issues">${item.issues.map((issue,index)=>`<div class="chronic-issue"><i>${index+1}</i><strong>${issue}</strong><span>görünen sorun</span></div>`).join('')}</div>`;
+    }
+    function ChronicIssuesPage(){
+      const brands=[...new Set(chronicIssueModels.map(x=>x.brand))].sort((a,b)=>a.localeCompare(b,'tr'));
+      return `<div class="chronic-page"><section class="chronic-hero"><div><div class="chronic-eyebrow">ERP / CRM araç zekası</div><h2>Kronik Sorunlar ve Araç Güvenilirlik Merkezi</h2><p>Bu alan ana CRM içinde marka-model araması, güvenilirlik puanı, görünen kronik sorunlar, kalite bayrakları ve yönetici import hazırlığı için web sayfası gibi çalışan ayrı bir modül olarak tasarlandı.</p><div class="chronic-actions"><button class="btn primary" data-chronic-focus-search>${icon('search')}Model Ara</button><button class="btn" data-chronic-scroll-admin>${icon('database')}Import Akışı</button><button class="btn" data-route="ototr-web">${icon('globe')}Web Sitesine Taşı</button></div><div class="chronic-warning"><b>${icon('triangle-alert')}</b><span>Bu veri seti tam ayrıntılı arıza veritabanı değildir. 221 model için yalnızca indeks sayfasında görünen ilk üç sorun bulunur ve bu kayıtlar top_3_only olarak gösterilir. Lisans durumu unverified; ticari canlı kullanım öncesi izin ve bağımsız doğrulama gerekir.</span></div></div><div class="chronic-metrics"><div class="chronic-metric"><span>Araç / model kaydı</span><b>284</b><small>47 marka içinde aranabilir katalog</small></div><div class="chronic-metric"><span>Model-sorun bağlantısı</span><b>819</b><small>Görünen kronik sorun eşleşmesi</small></div><div class="chronic-metric"><span>Top 3 kapsam</span><b>221</b><small>Sınırlı kapsam etiketi zorunlu</small></div><div class="chronic-metric"><span>Kaynak toplam iddia</span><b>1.732</b><small>Ayrıntılı arıza kaydı pakette yok</small></div></div></section><section class="chronic-layout"><aside class="chronic-panel"><div class="chronic-panel-head"><div class="chronic-panel-title">Arama ve Filtre</div><span class="chronic-badge green">2026-06-24</span></div><div class="chronic-panel-body"><div class="chronic-filter-grid"><div class="chronic-field"><label>Marka / model / yıl ara</label><input id="chronicSearch" value="BMW" placeholder="Örn. Corolla, 3 Serisi, 2021"></div><div class="chronic-field"><label>Marka</label><select id="chronicBrand"><option value="">Tüm markalar</option>${brands.map(x=>`<option>${x}</option>`).join('')}</select></div><div class="chronic-field"><label>Kapsam</label><select id="chronicCoverage"><option value="">Tüm kapsamlar</option><option value="complete">İndeks seviyesinde tam</option><option value="top3">Yalnızca ilk üç sorun</option></select></div><div class="chronic-field"><label>Minimum puan</label><select id="chronicMinScore"><option value="0">Tüm puanlar</option><option value="70">70+</option><option value="80">80+</option><option value="90">90+</option></select></div></div><div class="chronic-chip-row"><button class="chronic-chip active" type="button" data-chronic-chip="">Tüm modeller</button><button class="chronic-chip" type="button" data-chronic-chip="low_sample">Düşük örneklem</button><button class="chronic-chip" type="button" data-chronic-chip="top3">Top 3 only</button><button class="chronic-chip" type="button" data-chronic-chip="clean">Temiz kalite</button></div></div></aside><section class="chronic-panel"><div class="chronic-panel-head"><div class="chronic-panel-title">Aranabilir Model Kataloğu</div><span class="card-action" id="chronicResultCount">0 sonuç</span></div><div class="chronic-panel-body"><div class="chronic-list" id="chronicList"></div></div></section><aside class="chronic-panel" id="chronicAdminPanel"><div class="chronic-panel-head"><div class="chronic-panel-title">Yönetici Import ve Audit</div><span class="chronic-badge">Dry-run varsayılan</span></div><div class="chronic-panel-body"><div class="chronic-admin-flow"><div class="chronic-step"><i>1</i><div><strong>Checksum ve sayım kontrolü</strong><small>284 model, 47 marka, 819 bağlantı beklenir.</small></div><em>Hazır</em></div><div class="chronic-step"><i>2</i><div><strong>Dry-run import</strong><small>Veritabanı değişmeden eklenecek/güncellenecek kayıt raporu.</small></div><em>Zorunlu</em></div><div class="chronic-step"><i>3</i><div><strong>Apply ve audit</strong><small>Yetkili kullanıcı, rollback notu ve kaynak provenance kaydı.</small></div><em>Yetkili</em></div></div><div class="chronic-audit"><div class="chronic-audit-row"><span>Dataset kodu</span><b>ARABA_KARNESI_INDEX_2026_06_24</b></div><div class="chronic-audit-row"><span>Idempotency</span><b>İkinci çalışma duplicate üretmez</b></div><div class="chronic-audit-row"><span>Lisans</span><b>Unverified - canlı kullanım öncesi onay gerekir</b></div><div class="chronic-audit-row"><span>Rollback</span><b>dataset_source + source_ref_id ile geri alınabilir</b></div></div></div></aside><section class="chronic-panel" style="grid-column:1/-1"><div class="chronic-panel-head"><div class="chronic-panel-title">Model Detayı, Sorunlar ve CRM Eşleşmesi</div><span class="chronic-badge red" id="chronicScopeBadge">top_3_only</span></div><div class="chronic-panel-body" id="chronicDetail"></div></section></section></div>`;
+    }
+    function bindChronicIssuesPage(){
+      ['chronicSearch','chronicBrand','chronicCoverage','chronicMinScore'].forEach(id=>{
+        document.getElementById(id)?.addEventListener('input',renderChronicList);
+        document.getElementById(id)?.addEventListener('change',renderChronicList);
+      });
+      document.querySelectorAll('[data-chronic-chip]').forEach(chip=>chip.addEventListener('click',()=>{
+        chronicIssueState.flag=chip.dataset.chronicChip||'';
+        document.querySelectorAll('[data-chronic-chip]').forEach(peer=>peer.classList.toggle('active',peer===chip));
+        renderChronicList();
+      }));
+      document.querySelectorAll('[data-chronic-focus-search]').forEach(btn=>btn.addEventListener('click',e=>{e.preventDefault();document.getElementById('chronicSearch')?.focus();}));
+      document.querySelectorAll('[data-chronic-scroll-admin]').forEach(btn=>btn.addEventListener('click',e=>{e.preventDefault();document.getElementById('chronicAdminPanel')?.scrollIntoView({behavior:'smooth',block:'center'});}));
+      renderChronicList();
+    }
     function renderPages(){
       const branches=(DB.branches||seed.branches||[]);
       const appointments=(DB.appointments||seed.appointments||[]);
@@ -4437,6 +4501,7 @@
         dashboardPage+
         pageShell('franchise', franchiseDashboard())+
         pageShell('crm', crmDashboard())+
+        pageShell('chronic-issues', ChronicIssuesPage())+
         pageShell('complaints', ComplaintsCenterPage())+
         pageShell('google-reviews', GoogleReputationPremiumDashboard())+
         pageShell('reputation', ReputationRadarDashboard())+
@@ -4462,6 +4527,7 @@
         pageShell('architecture', `${PlanRoomPage()}${RolePermissionReadinessPanel()}<div class="module-grid">${moduleCard('Merkezi ERP','Bayi, müşteri, rapor, randevu, finans, kalite ve satın alma tek veri modeline bağlanır.','server')}${moduleCard('Bayi Paneli','Şube günlük akışını yönetir; merkez kalite, finans ve KPI üzerinden görür.','monitor')}${moduleCard('Rapor Yazılımı','Araç dijital hafızası, fotoğraf, skor, risk dili ve müşteri paylaşım linki üretir.','file-text')}${moduleCard('Mobil Uygulama','Müşteri rapor arşivi, randevu, sadakat, kampanya ve itiraz akışını taşır.','smartphone')}${moduleCard('Otomatik SMS/WhatsApp','Randevu onayı, rapor linki, memnuniyet, tekrar satış ve kriz aksiyonlarını tetikler.','message-square')}${moduleCard('Sadakat Sistemi','Tekrar ekspertiz, noter öncesi kontrol, kurumsal anlaşma ve premium paket kullanımı izlenir.','heart-handshake')}</div>${EnterpriseProcessDashboard()}${DataBackbonePanel()}${BackendRoadmapPanel()}<div class="card" style="margin-top:16px"><div class="card-head"><div><div class="card-title">Admin Panel Wireframe Kapsam Haritası</div><div class="card-sub">Ekranlar artık bağımsız sayfalar değil; tek veri omurgasına bağlı modüller olarak konumlanır.</div></div></div>${adminCoverage()}</div>`)+
         pageShell('settings', `<div class="grid g2"><div class="card"><div class="card-head"><div><div class="card-title">CEO Yetki Profili</div><div class="card-sub">İlk fazda tüm modüllere tam erişim</div></div></div>${settingsList()}</div><div class="card"><div class="card-head"><div><div class="card-title">Demo Backend</div><div class="card-sub">localStorage mock API bağlantısı</div></div></div><p>Bu prototipte veri okuma, yeni lead oluşturma, lead aşaması güncelleme, görev oluşturma ve dışa aktarma işlemleri çalışan bir demo API katmanından geçer.</p><div class="quick-actions"><button class="btn" id="exportBtn">${icon('download')}Veri Dışa Aktar</button><button class="btn dark" id="resetDemo">${icon('refresh-cw')}Demo Verisini Sıfırla</button></div></div></div>${BackendRoadmapPanel()}`);
       wirePageEvents();
+      bindChronicIssuesPage();
       renderCharts();
       if(window.lucide) lucide.createIcons();
       window.OTOTR_ASSET_LOADER?.afterDashboard?.();
@@ -6468,6 +6534,22 @@
     };
     function currentInspectionSchema(){return window.OTOTR_INSPECTION_SCHEMA||null;}
     function schemaReportRows(key,fallback){const rows=currentInspectionSchema()?.reportRows?.[key];return Array.isArray(rows)&&rows.length?rows:fallback;}
+    function schemaGroupItems(groupCode){
+      const rows=currentInspectionSchema()?.inspectionItems||[];
+      return rows.filter(item=>item.groupCode===groupCode&&item.isVisibleInReport!==false).sort((a,b)=>(Number(a.sortOrder)||0)-(Number(b.sortOrder)||0));
+    }
+    function schemaPointRowsByGroup(groupCode,fallback=[]){
+      const rows=schemaGroupItems(groupCode);
+      if(!rows.length) return fallback;
+      return rows.map(item=>[
+        item.legacyNoktaId?`Nokta ${item.legacyNoktaId}`:(item.reportFieldKey||item.id||'-'),
+        item.name||item.legacyName||item.id||'Kontrol noktasi',
+        item.inputType||'giris',
+        item.riskCategory||item.category||'standart',
+        item.isRequired?'Zorunlu':'Opsiyonel',
+        item.requiresMedia||Number(item.requiredImageCount)>0?'Kanıt beklenir':'Canlı giriş'
+      ]);
+    }
     function schemaPackageDefinition(name){const packages=currentInspectionSchema()?.packages||[];return packages.find(p=>p.name===name)||packages.find(p=>p.code==='PREMIUM')||null;}
     function schemaPackagePills(name){const pkg=schemaPackageDefinition(name);const scope=pkg?.scope||[];return `<div class="package-pills">${scope.slice(0,8).map(item=>`<span>${rpEsc(item)}</span>`).join('')}</div>`;}
     function applyInspectionSchemaToReportData(){
@@ -6484,6 +6566,8 @@
       reportData.exteriorRows=schemaReportRows('exteriorRows',reportData.exteriorRows);
       reportData.interiorRows=schemaReportRows('interiorRows',reportData.interiorRows);
       reportData.records=schemaReportRows('records',reportData.records);
+      reportData.acceptancePointRows=schemaPointRowsByGroup('WORK_ORDER_ACCEPTANCE',reportData.acceptancePointRows||[]);
+      reportData.headGasketRows=schemaPointRowsByGroup('HEAD_GASKET_LEAK_TEST',reportData.headGasketRows||[]);
       reportData.packageScope=schemaPackageDefinition(reportData.packageName)?.scope||[];
     }
     applyInspectionSchemaToReportData();
@@ -6615,6 +6699,17 @@
       const technicianNoteRows=(live.technicianNoteRows||[]).length?live.technicianNoteRows:[['Teknik istasyon','Bilgi','Ham not bekliyor','Kontrol bekliyor']];
       return ReportPage(page,total,'Canlı İş Emri ve Usta Girişleri','Basılacak rapor; müşteri kabul, sekreterya, usta tablet girişi ve JSON kontrol noktalarından beslenir.',`<div class="report-grid-2"><section><div class="combined-section-title">Müşteri kabul / sekreterya kaynakları</div>${ReportDenseTable(['Alan','Girilen değer','Ek bilgi'],acceptanceRows)}</section><section><div class="combined-section-title">Rapora yansıyan usta girişleri</div>${ReportDenseTable(['İstasyon','Usta / rol','Durum','Müşteri dili','Kanıt'],technicianRows)}</section></div><div class="combined-section-title light" style="margin-top:8px">Usta ham notları ve kontrol kilitleri</div>${ReportDenseTable(['İstasyon','Önem','Ham not','Eksik / kontrol'],technicianNoteRows)}<div class="report-note report-warning" style="margin-top:8px">${rpEsc(live.sourceNotice||'Bu sayfa rapordaki bilgilerin hangi iş emri kaynaklarından geldiğini gösterir. Teknik ham notlar müşteri diline çevrilerek ana bulgu tablolarına aktarılır.')}</div>`,'optimized-combined-page work-order-source-page');
     }
+    function WorkOrderAcceptancePoints(page,total){
+      const d=reportData;
+      const rows=(d.acceptancePointRows||[]).length?d.acceptancePointRows:schemaPointRowsByGroup('WORK_ORDER_ACCEPTANCE',[]);
+      return ReportPage(page,total,'Arac Kabul Kontrol Noktalari','Mobil ve sekreterya tarafinda girilen 5 kabul noktasi raporda ayri satir olarak izlenir.',`${ReportDenseTable(['Nokta','Kontrol','Giris tipi','Risk','Zorunluluk','Kanit'],rows)}<div class="report-note report-warning" style="margin-top:8px">Bu tablo is emri kabul verisinin rapordan dusmemesi icin JSON katalogdan otomatik uretilir. Canli giris yapildiginda satir degerleri ayni rapor yenileme akisiyle guncellenir.</div>`,'optimized-combined-page report-acceptance-points-page');
+    }
+    function HeadGasketLeakSection(page,total){
+      const d=reportData;
+      const rawRows=(d.headGasketRows||[]).length?d.headGasketRows:schemaPointRowsByGroup('HEAD_GASKET_LEAK_TEST',[]);
+      const rows=rawRows.map(row=>row.length>5?[row[1],row[2],row[3],row[4],row[5]]:row);
+      return ReportPage(page,total,'Conta Kacak Testi','Motor tarafindaki conta kacak kontrolu ana mekanik tabloya ek olarak ayri kritik test satirinda gosterilir.',`${ReportTable(['Kontrol noktasi','Durum','Risk','Not','Kanit'],rows)}<div class="report-note report-warning" style="margin-top:8px">Conta kacak testi mobil usta girisinde secildiyse sonucu bu sayfada canli olarak ayri gorunur; secim yoksa katalogdaki zorunlu nokta raporda bekleyen test olarak kalir.</div>`,'optimized-combined-page head-gasket-page');
+    }
     function BodyPaintAnalysis(page,total){const d=reportData;return ReportPage(page,total,'Kaporta / Boya Analizi','Görsel harita, parça sayaçları, boya yoğunluk haritası ve mikron tablosu aynı sayfada karar desteğine dönüşür.',`<div class="body-paint-layout body-paint-image-layout"><section class="body-map-card body-map-image-card"><img class="body-map-image" src="docs/kaporta-boya-harita.png" alt="Kaporta boya analiz araç haritası" loading="lazy" decoding="async" fetchpriority="low"></section></div><div class="body-paint-table">${ReportTable(['Parça','Durum','Mikron min','Mikron max','Risk','Açıklama','Fotoğraf no'],d.bodyPaintRows.concat([['Sağ direk','Orijinal','90','130','Düşük','Fabrika ölçü değerlerinde.','F-014'],['Sol ön direk','Orijinal','90','130','Düşük','Fabrika ölçü değerlerinde.','F-015'],['Arka panel','Orijinal','95','135','Düşük','Fabrika ölçü değerlerinde.','F-016']]))}</div>`,'body-paint-page');}
     function TechnicalDashboard(page,total){const d=reportData;return ReportPage(page,total,'Teknik Durum Dashboard','Motor, OBD, süspansiyon, fren, akü, lastik ve önem puanları ölçüm özetiyle beraber gösterilir.',`<div class="report-grid-3">${d.technicalScores.map(s=>ReportScoreCard(s[0],s[1],s[2],s[3],s[4])).join('')}</div><div style="margin-top:8px">${ReportPriorityStrip(d.priorityScores)}</div>${ReportDeviceGrid()}${ReportMeasurementGrid(d.measurementRows)}<div class="report-note report-warning" style="margin-top:8px">Teknik skorlar karar destek amaçlıdır; canlı sistemde cihaz ölçümü, teknisyen notu ve kalite kontrol onayıyla hesaplanacaktır.</div>`);}
     function MechanicalInspection(page,total){const d=reportData;return ReportPage(page,total,'Motor-Mekanik Kontrol / Üst Bölge','Motor üst bölge, sıvı, kaçak, ses, kompresyon, şarj ve bakım başlıkları sıkıştırılmadan satır satır görünür.',`<div class="report-section-chip">Motor üst bölge / check-up</div>${ReportTable(['Kontrol kalemi','Durum','Risk','Not','Kanıt'],d.mechanicalRows)}<div class="report-note report-warning" style="margin-top:8px">Servis kontrolü gereken bulgular satın alma öncesi yetkili/özel servis bakım planına dahil edilmelidir.</div>`);}
@@ -6657,7 +6752,8 @@
     function ComplianceApprovals(page,total){const d=reportData;return ReportPage(page,total,'Dijital Doğrulama / Yasal Kapsam / Onaylar','Rapor güvenliği, hukuki kapsam ve dijital onay zinciri final sayfasında birleştirildi.',`<div class="digital-warning">${icon('triangle-alert')}<div><b>Dikkat! Raporlar dijital olarak üretilmektedir.</b><span>Hiçbir raporumuzda el yazısı kullanılmamaktadır. El yazısı ile eklenti yapılan raporlar geçersizdir.</span></div></div><div class="compliance-grid"><section class="verify-panel"><div class="verify-panel-title"><b>01</b>Dijital doğrulama</div><div class="verify-security" style="margin-top:8px"><div>${ReportQrCard()}<b style="display:block;margin-top:6px;font-size:8px">A7B9-2Y1C-3D6E</b></div><div class="verify-cards">${[['Oluşturulma',d.reportDate],['Son görüntüleme','24.05.2026 - 15:22'],['Veri bütünlüğü','Doğrulandı'],['Zaman damgası','24.05.2026 / 14:35:22']].map(x=>`<div class="verify-mini"><span>${rpEsc(x[0])}</span><b>${rpEsc(x[1])}</b></div>`).join('')}</div></div></section><section class="verify-panel"><div class="verify-panel-title"><b>02</b>Yasal kapsam</div><div class="legal-mini-grid compact-legal-grid" style="margin-top:8px">${[['Rapor kapsamı',d.legal[0]],['Adli inceleme değildir',d.legal[1]],['Paket kapsamı dışı',d.legal[3]],['Kişisel veri gizliliği',d.legal[5]]].map(x=>`<div class="legal-mini"><b>${rpEsc(x[0])}</b><span>${rpEsc(x[1])}</span></div>`).join('')}</div></section></div><section class="verify-panel"><div class="verify-panel-title"><b>03</b>Onaylar ve dijital kayıt</div><div class="approval-cards" style="margin-top:8px">${[['Ekspertiz uzmanı',d.technician],['Kalite kontrol',d.qualityController],['Şube sorumlusu',d.approver],['Müşteri onayı',d.buyer],['Satıcı onayı',d.seller],['Sistem onayı','OTOTR Sistem']].map(x=>`<div class="approval-card"><b>${rpEsc(x[0])}</b><span>${rpEsc(x[1])}</span><div class="mini-sign">Dijital onay</div></div>`).join('')}</div></section><div class="report-grid-4">${ReportPanel('Şube',d.branch,d.branchPhone,'blue')}${ReportPanel('Paket',d.packageName,d.selectedExpertiseAmount,'orange')}${ReportPanel('Rapor no',d.reportNo,d.reportDate,'blue')}${ReportPanel('HYB / Kalite',d.tseHybNo,'Dijital onay zinciri','green')}</div><div class="report-note">Bu rapor OTOTR sisteminde rapor numarası, plaka, şasi, zaman damgası ve dijital onay zinciriyle eşleştirilerek saklanır. Baskı kopyası dijital doğrulama ile birlikte geçerlidir.</div>`,'optimized-combined-page final-compliance-page');}
     function ExpertiseReportDesignPage(){
       syncDealerReportData();
-      const pages=[['Kapak','Araç güven paneli',ReportCover],['Yönetici Özeti','Karar destek paneli',ExecutiveSummary],['Hasar / KM / Kayıt','Dosya ekspertiz sorguları',DamageMileageRecords],['Araç Kabul / İş Emri','Araç ve taraf kimliği',VehicleIdentity],['Canlı Girişler','Kabul ve usta kaynakları',WorkOrderSourceInputs],['Kaporta - Boya','59 nokta ve mikron',BodyPaintAnalysis],['Motor Üst Mekanik','37 nokta check-up',MechanicalInspection],['Alt / Ön Mekanik','40 nokta lift kontrolü',MechanicalUnderbodyInspection],['OBD / Beyin Test','10 nokta modül tarama',ObdSection],['Airbag / SRS','9 nokta kontrol yöntemi',AirbagSection],['Fren / Süspansiyon','Cihaz ölçümü',BrakeSuspensionTyreSection],['Dyno / Yol / Lastik','Test ve skor çıktıları',TechnicalDashboard],['Dijital Araç Karnesi','Plaka/şasi geçmiş kartı',VehiclePassportSection],['Fotoğraf Kanıt Arşivi','Zaman çizelgesi',EvidenceTimeline],['İç / Dış Kondisyon','Trim ve donanım',VehicleConditionEquipment],['Pazar / Masraf / Bakım','Karar ve servis planı',MarketServicePlan],['Doğrulama / Onaylar','Yasal ve dijital kayıt',ComplianceApprovals]];
+      startReportLiveRefresh();
+      const pages=[['Kapak','Araç güven paneli',ReportCover],['Yönetici Özeti','Karar destek paneli',ExecutiveSummary],['Hasar / KM / Kayıt','Dosya ekspertiz sorguları',DamageMileageRecords],['Araç Kabul / İş Emri','Araç ve taraf kimliği',VehicleIdentity],['Kabul Noktaları','5 nokta iş emri kabul',WorkOrderAcceptancePoints],['Canlı Girişler','Kabul ve usta kaynakları',WorkOrderSourceInputs],['Kaporta - Boya','59 nokta ve mikron',BodyPaintAnalysis],['Motor Üst Mekanik','37 nokta check-up',MechanicalInspection],['Conta Kaçak Testi','1 kritik motor testi',HeadGasketLeakSection],['Alt / Ön Mekanik','40 nokta lift kontrolü',MechanicalUnderbodyInspection],['OBD / Beyin Test','10 nokta modül tarama',ObdSection],['Airbag / SRS','9 nokta kontrol yöntemi',AirbagSection],['Fren / Süspansiyon','Cihaz ölçümü',BrakeSuspensionTyreSection],['Dyno / Yol / Lastik','Test ve skor çıktıları',TechnicalDashboard],['Dijital Araç Karnesi','Plaka/şasi geçmiş kartı',VehiclePassportSection],['Fotoğraf Kanıt Arşivi','Zaman çizelgesi',EvidenceTimeline],['İç / Dış Kondisyon','Trim ve donanım',VehicleConditionEquipment],['Pazar / Masraf / Bakım','Karar ve servis planı',MarketServicePlan],['Doğrulama / Onaylar','Yasal ve dijital kayıt',ComplianceApprovals]];
       const purchaseAiPageIndex=pages.findIndex(p=>p[2]===PurchaseAiRecommendation);
       if(purchaseAiPageIndex>-1) pages.splice(purchaseAiPageIndex,1);
       const total=pages.length;
@@ -6701,7 +6797,7 @@
     const DEALER_SUPABASE_SESSION_KEY='ototr-dealer-supabase-session-v1';
     const DEALER_SUPABASE_SYNC_KEY='ototr-dealer-supabase-sync-v1';
     const DEALER_SUPABASE_AUTO_SYNC_MS=7000;
-    const DEALER_SUPABASE_REALTIME_TABLES=['expertise_cases','inspection_tasks','inspection_evidence_assets','work_order_report_answers','work_order_group_status','final_reports'];
+    const DEALER_SUPABASE_REALTIME_TABLES=['expertise_cases','inspection_tasks','inspection_item_values','inspection_evidence_assets','work_order_report_answers','work_order_group_status','final_reports'];
     let dealerSupabaseSyncInFlight=false;
     let dealerSupabaseRealtimeSocket=null;
     let dealerSupabaseRealtimeRef=1;
@@ -6709,6 +6805,52 @@
     let dealerSupabaseRealtimeReconnect=null;
     let dealerSupabaseRealtimeSyncTimer=null;
     let dealerSupabaseRealtimeManualStop=false;
+    let reportLiveRefreshTimer=null;
+    let reportLiveRefreshSignature='';
+    let reportLiveRefreshInFlight=false;
+    function reportLiveRefreshStorageSignature(){
+      const keys=[DEALER_LIVE_KEY,DEALER_REPORT_PREVIEW_KEY,DEALER_REPORT_PREVIEW_SNAPSHOT_KEY,DEALER_SUPABASE_SYNC_KEY,'ototr-dealer-report-point-values-v1'];
+      return keys.map(key=>{
+        try{return key+':'+(localStorage.getItem(key)||'');}catch(err){return key+':';}
+      }).join('|');
+    }
+    async function refreshReportDesignFromLiveData(reason='auto'){
+      if(current!=='report-design'||reportLiveRefreshInFlight) return;
+      reportLiveRefreshInFlight=true;
+      try{
+        if(typeof dealerSupabaseSession==='function'&&(dealerSupabaseSession()||dealerStoredSupabaseSession())&&!dealerSupabaseSyncInFlight){
+          const state=typeof dealerSupabaseSyncState==='function'?dealerSupabaseSyncState():{};
+          const lastMs=state.lastSyncAtMs||0;
+          if(Date.now()-lastMs>=DEALER_SUPABASE_AUTO_SYNC_MS){
+            if(typeof saveDealerSupabaseSyncState==='function') saveDealerSupabaseSyncState({lastSyncAtMs:Date.now()});
+            await dealerSyncSupabaseWorkOrders({silent:true,noRender:true});
+          }
+        }
+        syncDealerReportData();
+        applyInspectionSchemaToReportData();
+        const nextSignature=reportLiveRefreshStorageSignature();
+        if(nextSignature!==reportLiveRefreshSignature||reason==='storage'){
+          reportLiveRefreshSignature=nextSignature;
+          window.__OTOTR_FULL_ADMIN_PAGES_RENDERED__=true;
+          renderPages();
+          route('report-design',{preserveScroll:true});
+        }
+      }catch(err){
+        if(typeof saveDealerSupabaseSyncState==='function') saveDealerSupabaseSyncState({lastError:err.message||String(err)});
+      }finally{
+        reportLiveRefreshInFlight=false;
+      }
+    }
+    function startReportLiveRefresh(){
+      reportLiveRefreshSignature=reportLiveRefreshSignature||reportLiveRefreshStorageSignature();
+      if(reportLiveRefreshTimer) return;
+      reportLiveRefreshTimer=setInterval(()=>refreshReportDesignFromLiveData('interval'),3000);
+      window.addEventListener('storage',event=>{
+        if([DEALER_LIVE_KEY,DEALER_REPORT_PREVIEW_KEY,DEALER_REPORT_PREVIEW_SNAPSHOT_KEY,DEALER_SUPABASE_SYNC_KEY,'ototr-dealer-report-point-values-v1'].includes(event.key)){
+          refreshReportDesignFromLiveData('storage');
+        }
+      });
+    }
     function dealerRequireSupabaseConfig(){
       if(!DEALER_SUPABASE_URL||!DEALER_SUPABASE_KEY){
         const err=new Error('Canli Supabase ayarlari eksik. window.OTOTR_SUPABASE_CONFIG veya localStorage config girilmeli.');
@@ -6992,11 +7134,12 @@
       });
       return true;
     }
-    function dealerLiveWorkOrderFromCase(row,tasks,evidenceRows=[]){
+    function dealerLiveWorkOrderFromCase(row,tasks,evidenceRows=[],answerRows=[]){
       const vehicle=row.vehicles||{}, customer=row.customers||{}, plan=row.package_plans||{};
       const snapshot=(vehicle.metadata&&typeof vehicle.metadata==='object'?vehicle.metadata.dealer_work_order:null)||{};
       const taskRows=(tasks||[]).filter(t=>t.expertise_case_id===row.id);
       const caseEvidence=(evidenceRows||[]).filter(e=>e.expertise_case_id===row.id);
+      const caseAnswers=(answerRows||[]).filter(answer=>answer.expertise_case_id===row.id);
       const id=row.work_order_no||row.id;
       const makeModel=[snapshot.vehicleMake||vehicle.brand,snapshot.vehicleModel||vehicle.model,snapshot.vehicleVariant].filter(Boolean).join(' ').trim();
       const createdAt=row.opened_at?new Date(row.opened_at).toLocaleString('tr-TR',{dateStyle:'short',timeStyle:'short'}):'Canlı';
@@ -7086,6 +7229,11 @@
         liveDealerSnapshot:snapshot,
         tasks:taskRows.map((task,i)=>{
           const taskEvidence=caseEvidence.filter(e=>String(e.task_id||'')===String(task.id));
+          const taskAnswers=caseAnswers.filter(answer=>String(answer.task_id||'')===String(task.id));
+          const latestAnswer=taskAnswers[taskAnswers.length-1]||null;
+          const answerNote=latestAnswer&&typeof latestAnswer.note==='object'?latestAnswer.note:{};
+          const selectedLabel=answerNote.selectedOptionLabel||latestAnswer?.result||'';
+          const answerText=latestAnswer?[latestAnswer.title,selectedLabel,answerNote.description].filter(Boolean).join(' - '):'';
           return {
             id:task.id,
             station:task.title||task.task_key||('Görev '+(i+1)),
@@ -7094,7 +7242,7 @@
             status:dealerLiveTaskStatusLabel(task.status),
             liveStatus:task.status,
             evidence:taskEvidence.map(e=>e.title||e.field_key||e.report_field_key||'Kanıt'),
-            result:task.status==='COMPLETED'?{customerText:task.customer_friendly_note||'Tamamlandı.'}:null
+            result:answerText?{customerText:answerText}:task.status==='COMPLETED'?{customerText:task.customer_friendly_note||'Tamamlandı.'}:null
           };
         }),
         liveSyncedAt:new Date().toLocaleString('tr-TR',{dateStyle:'short',timeStyle:'short'})
@@ -7114,8 +7262,9 @@
         const visibleCases=(cases||[]).filter(row=>String(row.status||'').toUpperCase()!=='CANCELLED');
         const ids=visibleCases.map(row=>row.id).filter(Boolean);
         const tasks=ids.length?await dealerSupabaseRequest('/rest/v1/inspection_tasks?select=id,expertise_case_id,task_key,title,assigned_role,status,report_field_key,estimated_minutes,customer_friendly_note,risky_findings,owner_user_id,assigned_user_id&expertise_case_id=in.('+ids.join(',')+')&order=created_at.asc'):[];
+        const answers=ids.length?await dealerSupabaseRequest('/rest/v1/inspection_item_values?select=id,expertise_case_id,task_id,item_key,title,result,note,updated_at&expertise_case_id=in.('+ids.join(',')+')&order=updated_at.asc'):[];
         const evidence=ids.length?await dealerSupabaseRequest('/rest/v1/inspection_evidence_assets?select=id,expertise_case_id,task_id,field_key,report_field_key,title,remote_url,local_path,sync_status,is_required,quality_status&expertise_case_id=in.('+ids.join(',')+')&order=created_at.asc'):[];
-        const workOrders=visibleCases.map(row=>dealerLiveWorkOrderFromCase(row,tasks,evidence));
+        const workOrders=visibleCases.map(row=>dealerLiveWorkOrderFromCase(row,tasks,evidence,answers));
         await dealerSyncSupabaseReportAnswers(workOrders).catch(err=>saveDealerSupabaseSyncState({lastError:err.message||String(err)}));
         const current=ensureDealerLiveData(DB.branches.find(b=>b.id===selectedBranchId)||DB.branches[0],DB.appointments);
         const selected=options.selectSupabaseId?workOrders.find(w=>w.supabaseId===options.selectSupabaseId):null;
@@ -10913,7 +11062,7 @@
       const branch=DB.branches.find(b=>b.id===wo.branchId)||DB.branches.find(b=>b.name===wo.branchName)||DB.branches.find(b=>b.id===selectedBranchId)||DB.branches[0]||{};
       const completion=dealerCompletion(wo), printGate=dealerReportPrintGate(wo,completion), results=(wo.tasks||[]).map(t=>t.result).filter(Boolean);
       const reportDate=wo.printedAt||wo.secretaryPrintedAt||wo.reportReadyAt||wo.createdAt||new Date().toLocaleString('tr-TR',{dateStyle:'short',timeStyle:'short'});
-      const pointRows={body:[],mech:[],obd:[],brake:[]};
+      const pointRows={body:[],mech:[],obd:[],brake:[],acceptance:[],headGasket:[]};
       try{
         dealerReportSchemaGroups(wo).forEach(group=>(group.items||[]).forEach(item=>{
           const value=dealerReportPointValue(wo,item), opt=dealerReportPointOption(item,value);
@@ -10922,6 +11071,21 @@
           const row=[title,status,risk,note,value.photoCount?`${value.photoCount} foto`:'Canlı giriş'];
           const bucket=/kaporta|boya|şasi|direk|panel|tampon/i.test(group.title+' '+title)?'body':/obd|beyin|airbag|elektronik|srs/i.test(group.title+' '+title)?'obd':/fren|süspansiyon|lastik|dyno/i.test(group.title+' '+title)?'brake':'mech';
           pointRows[bucket].push(row);
+        }));
+      }catch(err){}
+      try{
+        dealerReportSchemaGroups(wo).forEach(group=>(group.items||[]).forEach(item=>{
+          const groupCode=String(group.taskTypeCode||group.group?.code||item.groupCode||'');
+          if(groupCode!=='WORK_ORDER_ACCEPTANCE'&&groupCode!=='HEAD_GASKET_LEAK_TEST') return;
+          const value=dealerReportPointValue(wo,item), opt=dealerReportPointOption(item,value);
+          if(!opt&&!value?.note) return;
+          const title=item.title||item.name||item.id;
+          const status=opt?.label||value.optionLabel||'Secim yapildi';
+          const risk=/risk|kritik|servis|degis|boya|ariza|takip|orta|yuksek/i.test([opt?.severity,opt?.label,value.note].join(' '))?'Orta':'Dusuk';
+          const note=value.note||opt?.note||'Canli giris';
+          const evidence=value.photoCount?`${value.photoCount} foto`:'Canli giris';
+          if(groupCode==='WORK_ORDER_ACCEPTANCE') pointRows.acceptance.push([item.legacyNoktaId?`Nokta ${item.legacyNoktaId}`:(item.reportFieldKey||item.id||'-'),title,status,risk,note,evidence]);
+          if(groupCode==='HEAD_GASKET_LEAK_TEST') pointRows.headGasket.push([title,status,risk,note,evidence]);
         }));
       }catch(err){}
       const liveWorkOrder=dealerReportLiveWorkOrderSnapshot(wo,branch);
@@ -10934,13 +11098,15 @@
       });
       reportData.liveWorkOrder=liveWorkOrder;
       reportData.acceptanceRows=liveWorkOrder.acceptanceRows;
+      if(pointRows.acceptance.length) reportData.acceptancePointRows=pointRows.acceptance;
+      if(pointRows.headGasket.length) reportData.headGasketRows=pointRows.headGasket;
       reportData.reportChannels=dealerReportAddonText(wo.reportChannels,reportData.reportChannels||'QR / PDF / Basılı teslim');
       reportData.vehicleInfo=[['Marka / Model',`${brand} ${model}`],['Model yılı',wo.year||'-'],['Yakıt / Vites',[wo.fuel,wo.transmission].filter(Boolean).join(' / ')||'-'],['Plaka',wo.plate||'-'],['Şasi',wo.vin||'-'],['Motor no',wo.engineNo||'-'],['Renk / Kasa',wo.color||wo.bodyType||'Kayıt bekliyor'],['Yedek anahtar',wo.spareKey||'Kayıt bekliyor'],['Ruhsat aslı',wo.licenseSeen||'Kayıt bekliyor'],['Giriş / çıkış KM',[wo.mileage,wo.exitMileage].filter(Boolean).join(' / ')||wo.mileage||'-'],['İş emri',wo.id||'-'],['Teslim',wo.deliveryProof||wo.deliveryAt||'Teslim bekliyor']];
       if(body.length) reportData.bodyPaintRows=body;
       if(mech.length) reportData.mechanicalRows=mech;
       if(obd.length) reportData.obdRows=obd;
       if(brake.length) reportData.brakeRows=brake;
-      const actions=results.map(r=>r.customerText).filter(Boolean).concat(pointRows.body.concat(pointRows.mech,pointRows.obd,pointRows.brake).map(r=>`${r[0]}: ${r[1]}`));
+      const actions=results.map(r=>r.customerText).filter(Boolean).concat(pointRows.body.concat(pointRows.mech,pointRows.obd,pointRows.brake,pointRows.acceptance,pointRows.headGasket).map(r=>`${r[0]}: ${r[1]}`));
       reportData.actions=actions.length?actions.slice(0,8):reportData.actions;
       reportData.findings=actions.slice(0,4).map((text,i)=>({risk:i===0?'service':i===1?'maintenance':'ok',title:i===0?'Saha kontrol bulgusu':'Canlı rapor girdisi',text,photo:'Canlı'}));
       reportData.riskSummary=[['İş emri',wo.id,'blue'],['Paket',wo.packageName,'green'],['İlerleme',completion.pct+'%','orange'],['Basım hazırlığı',printGate.ready?'Hazır':'Eksik',printGate.ready?'green':'orange'],['Arşiv',wo.secretaryPrinted?'Geçmiş rapor':'Aktif rapor',wo.secretaryPrinted?'green':'gray']];
@@ -15247,17 +15413,17 @@
       const blob=new Blob([JSON.stringify(DB,null,2)],{type:'application/json'});
       const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='ototr-demo-veri.json'; a.click(); URL.revokeObjectURL(a.href); toast('Demo veri seti indirildi.');
     }
-    function applyTheme(mode){
+    function applyTheme(mode,options={}){
       const dark=mode==='dark';
       document.body.classList.toggle('dark-mode',dark);
       localStorage.setItem('ototr-theme',dark?'dark':'light');
       const text=document.getElementById('themeToggleText');
       if(text) text.textContent=dark?'Koyu':'Açık';
       document.querySelectorAll('[data-theme-toggle]').forEach(btn=>btn.setAttribute('title',dark?'Açık temaya geç':'Koyu temaya geç'));
-      if(typeof DB!=='undefined' && DB) setTimeout(()=>{renderCharts(); if(window.lucide) lucide.createIcons();},30);
+      if(!options.skipRender && typeof DB!=='undefined' && DB) setTimeout(()=>{renderCharts(); if(window.lucide) lucide.createIcons();},30);
     }
     function toggleTheme(){ applyTheme(document.body.classList.contains('dark-mode')?'light':'dark'); }
-    function initTheme(){ applyTheme(localStorage.getItem('ototr-theme')==='dark'?'dark':'light'); }
+    function initTheme(options={}){ applyTheme(localStorage.getItem('ototr-theme')==='dark'?'dark':'light',options); }
     function wirePageEvents(){
       bindPlanRoomEvents();
       document.querySelectorAll('[data-route]').forEach(el=>el.addEventListener('click',e=>{
@@ -15470,17 +15636,19 @@
         if(typeof wirePageEvents==='function') wirePageEvents();
         if(typeof syncAcademyRoomView==='function') syncAcademyRoomView();
       }
-      renderHero();
-      bindGlobalSearch();
-      renderNav();
+      if(!options.skipShellRender){
+        renderHero();
+        bindGlobalSearch();
+        renderNav();
+      }
       history.replaceState(null,'','#'+(resolved==='hr'?hrRouteFor(HR_VIEW.room):resolved==='academy'?academyRouteFor(ACADEMY_VIEW.room):resolved));
       if(!options.preserveScroll) window.scrollTo({top:0,behavior:'smooth'});
-      setTimeout(()=>{renderCharts();initBranchMap();dealerEnhanceCockpitRevenue();},40);
+      if(!options.skipDeferredEnhancements) setTimeout(()=>{renderCharts();initBranchMap();dealerEnhanceCockpitRevenue();},40);
       if(resolved==='report-design') setTimeout(()=>{ syncExpertiseReportQuickMenu(); updateExpertiseReportNavActive(); },80);
       if(resolved==='dealer') setTimeout(()=>{
         document.querySelector('#dealerWorkOrderForm [name="vin"],#dealerWorkOrderForm [name="plate"],#dealerWorkOrderForm [name="vehicleMake"]')?.dispatchEvent(new Event('input',{bubbles:true}));
       },180);
-      if(window.lucide) lucide.createIcons();
+      if(window.lucide && !options.skipIcons) lucide.createIcons();
     }
     function openBranchProfile(id){ selectedBranchId=id; closeDrawer(); current='branchProfile'; renderPages(); route('branchProfile'); }
     function openDetail(ref){
@@ -16066,14 +16234,30 @@
         },180);
       }
     }
-    function renderAll(){ renderHero(); renderNav(); renderPages(); syncOnlineIndicator(); if(typeof dealerInitVehicleSelects==='function') dealerInitVehicleSelects(document); if(typeof dealerRefreshSmartWorkOrderFormState==='function') dealerRefreshSmartWorkOrderFormState(); dealerEnhanceCockpitRevenue(); }
+    function renderAll(){
+      renderHero();
+      renderNav();
+      renderPages();
+      syncOnlineIndicator();
+      const dealerPage=document.getElementById('page-dealer');
+      const dealerActive=current==='dealer'||dealerPage?.classList.contains('active');
+      if(dealerActive&&typeof dealerInitVehicleSelects==='function') dealerInitVehicleSelects(dealerPage||document);
+      if(dealerActive&&typeof dealerRefreshSmartWorkOrderFormState==='function') dealerRefreshSmartWorkOrderFormState();
+      if(dealerActive) dealerEnhanceCockpitRevenue();
+    }
     (async function init(){
       const apiStatus=document.getElementById('apiStatus');
       if(apiStatus) apiStatus.textContent='Mock API bağlanıyor';
       DB=await Backend.connect();
       if(apiStatus) apiStatus.textContent='Mock API bağlı';
-      const opensDealerPortal = new URLSearchParams(location.search).get('portal')==='dealer';
-      const initial=(location.hash || (opensDealerPortal ? '#dealer' : '#dashboard')).replace('#','');
+      const params = new URLSearchParams(location.search);
+      if(params.get('portal')==='dealer'){
+        params.delete('portal');
+        history.replaceState(null,'',location.pathname+(params.toString()?`?${params.toString()}`:'')+'#dashboard');
+      }else if((location.hash||'').replace('#','')==='dealer'){
+        history.replaceState(null,'',location.pathname+location.search+'#dashboard');
+      }
+      const initial=(location.hash || '#dashboard').replace('#','');
       const initialCanonical=initial==='expertise-report'?'report-design':initial;
       const initialHR=parseHRRoute(initialCanonical);
       const initialAcademy=parseAcademyRoute(initialCanonical);
@@ -16088,17 +16272,22 @@
       }else{
         current=titles[initialCanonical]?initialCanonical:'dashboard';
       }
-      initTheme();
+      initTheme({skipRender:true});
       dealerScrubSensitiveUrlParams();
       syncDealerStandaloneMode(current);
       if(['dealer','report-design','vehicle-passport'].includes(current)){
         await window.OTOTR_ASSET_LOADER?.loadInspectionSchema?.().catch(()=>null);
         if(typeof applyInspectionSchemaToReportData === 'function') applyInspectionSchemaToReportData();
       }
-      renderAll(); route(initialHR||initialAcademy?initialCanonical:current);
+      renderAll(); route(initialHR||initialAcademy?initialCanonical:current,{skipShellRender:true,skipDeferredEnhancements:true,skipIcons:true,preserveScroll:true});
     })();
     window.addEventListener('hashchange',()=>{
       const id=(location.hash||'#dashboard').replace('#','');
+      if(id==='dealer'){
+        history.replaceState(null,'',location.pathname+location.search+'#dashboard');
+        route('dashboard');
+        return;
+      }
       const canonical=id==='expertise-report'?'report-design':id;
       const hr=parseHRRoute(canonical);
       const academy=parseAcademyRoute(canonical);
@@ -16221,7 +16410,18 @@
   document.addEventListener('click',e=>{const t=e.target.closest('[data-crm-new-lead],[data-crm-close-modal],[data-crm-save-lead],[data-crm-convert],[data-crm-close-appt],[data-crm-create-appointment],[data-crm-bot],[data-crm-assign],[data-crm-distribution],[data-crm-detail]'); if(!t) return; if(t.matches('[data-crm-new-lead]')) openLeadModal(); if(t.matches('[data-crm-close-modal]')) closeLeadModal(); if(t.matches('[data-crm-save-lead]')) saveLead(t.dataset.crmSaveLead); if(t.matches('[data-crm-convert]')) openApptModal(t.dataset.crmConvert); if(t.matches('[data-crm-close-appt]')) closeApptModal(); if(t.matches('[data-crm-create-appointment]')) createAppointment(); if(t.matches('[data-crm-bot]')) advanceBot(t.dataset.crmBot); if(t.matches('[data-crm-assign]')) assignLead(t.dataset.crmAssign); if(t.matches('[data-crm-distribution]')) toast('Dağıtım modeli seçildi: '+t.dataset.crmDistribution); if(t.matches('[data-crm-detail]')) openCrmLeadDetail(t.dataset.crmDetail);});
   const oldWire=window.wirePageEvents;
   if(typeof oldWire==='function') window.wirePageEvents=function(){oldWire(); document.querySelectorAll('[data-crm-tab]').forEach(b=>{b.onclick=()=>{document.querySelectorAll('.crm-tab').forEach(x=>x.classList.remove('active')); b.classList.add('active'); refreshCrmPane(); bindCrmLiveFilters();}}); bindCrmLiveFilters();};
-  setTimeout(()=>{ if(typeof DB!=='undefined'&&DB){ ensureEnterprise(); renderAll(); route(current||'dashboard'); } },500);
+  const scheduleCrmEnterpriseHydration=()=>{
+    const run=()=>{
+      if(typeof DB==='undefined'||!DB) return;
+      if(current!=='crm') return;
+      ensureEnterprise();
+      renderAll();
+      route('crm');
+    };
+    if(window.requestIdleCallback) requestIdleCallback(run,{timeout:2400});
+    else setTimeout(run,1200);
+  };
+  scheduleCrmEnterpriseHydration();
 })();
 </script>
 
@@ -17465,7 +17665,17 @@
   const oldWireMarketing=window.wirePageEvents;
   if(typeof oldWireMarketing==='function')window.wirePageEvents=function(){oldWireMarketing();bindMarketingEvents()};
   document.addEventListener('click',e=>{const t=e.target.closest('[data-mkt-tab],[data-mkt-open-lead],[data-mkt-close-lead],[data-mkt-save-lead],[data-mkt-save-inline-lead],[data-mkt-focus-wa],[data-mkt-wa-lead],[data-mkt-copy-wa],[data-mkt-wa-send],[data-mkt-appointment],[data-mkt-close-appt],[data-mkt-create-appt],[data-mkt-action],[data-mkt-review],[data-mkt-seo-review],[data-mkt-campaign],[data-mkt-copy-utm],[data-mkt-start-task],[data-mkt-complete-task],[data-mkt-escalate-task]');if(!t)return;if(t.matches('[data-mkt-tab]'))setMarketingTab(t.dataset.mktTab);if(t.matches('[data-mkt-open-lead]'))document.getElementById('marketingLeadModal')?.classList.add('open');if(t.matches('[data-mkt-close-lead]'))document.getElementById('marketingLeadModal')?.classList.remove('open');if(t.matches('[data-mkt-save-lead]'))saveLead();if(t.matches('[data-mkt-save-inline-lead]'))saveInlineLead();if(t.matches('[data-mkt-focus-wa]')){const area=document.getElementById('mktWaMessage');if(area)area.focus();else{setMarketingTab('lead');setTimeout(()=>document.getElementById('mktWaMessage')?.focus(),120)}}if(t.matches('[data-mkt-wa-lead]')){document.getElementById('mktWaLead').value=t.dataset.mktWaLead;updateWa();document.getElementById('mktWaMessage')?.focus()}if(t.matches('[data-mkt-copy-wa]'))copyText(document.getElementById('mktWaMessage')?.value||'','WhatsApp mesajı kopyalandı.');if(t.matches('[data-mkt-wa-send]')){const m=ensureMarketing(), l=m.leads.find(x=>x.id===document.getElementById('mktWaLead')?.value);if(!l?.phone||!l?.kvkk){e.preventDefault();toast('Telefon veya KVKK/iletişim izni eksik.')}}if(t.matches('[data-mkt-appointment]'))openAppointment(t.dataset.mktAppointment);if(t.matches('[data-mkt-close-appt]'))document.getElementById('marketingAppointmentModal')?.classList.remove('open');if(t.matches('[data-mkt-create-appt]'))createAppointment();if(t.matches('[data-mkt-action]'))setLeadStatus(t.dataset.mktId,t.dataset.mktAction);if(t.matches('[data-mkt-review]')){document.getElementById('mktWaLead').value=t.dataset.mktReview;document.getElementById('mktWaTemplate').value='Google Yorum İsteme';updateWa();toast('Google yorum mesajı WhatsApp paneline yazıldı.')}if(t.matches('[data-mkt-seo-review]')){document.getElementById('mktWaTemplate').value='Google Yorum İsteme';updateWa();toast('Yorum isteme mesajı WhatsApp paneline yazıldı.')}if(t.matches('[data-mkt-campaign]')){const m=ensureMarketing(), c=m.campaigns[Number(t.dataset.mktCampaign)];if(c){c[7]=c[7]==='Aktif'?'Durduruldu':'Aktif';saveMarketing(m);toast(c[0]+' durumu: '+c[7]);refreshMarketing()}}if(t.matches('[data-mkt-copy-utm]')){const m=ensureMarketing();m.utm={source:document.getElementById('utmSource').value,medium:document.getElementById('utmMedium').value,campaign:document.getElementById('utmCampaign').value,content:document.getElementById('utmContent').value,term:document.getElementById('utmTerm').value};saveMarketing(m);const out=document.getElementById('utmOutput');if(out)out.value=utmLink(m.utm);copyText(out?.value||'','UTM link kopyalandı.')}if(t.matches('[data-mkt-start-task]'))updateMarketingTaskStatus(t.dataset.mktStartTask,'Devam Ediyor');if(t.matches('[data-mkt-complete-task]'))updateMarketingTaskStatus(t.dataset.mktCompleteTask,'Tamamlandı');if(t.matches('[data-mkt-escalate-task]'))updateMarketingTaskStatus(t.dataset.mktEscalateTask,'Eskale Edildi')});
-  setTimeout(()=>{if(typeof DB!=='undefined'&&DB){ensureMarketing();if(current==='marketing'){renderAll();route('marketing')}}},650);
+  const scheduleMarketingHydration=()=>{
+    const run=()=>{
+      if(typeof DB==='undefined'||!DB||current!=='marketing') return;
+      ensureMarketing();
+      renderAll();
+      route('marketing');
+    };
+    if(window.requestIdleCallback) requestIdleCallback(run,{timeout:2600});
+    else setTimeout(run,1400);
+  };
+  scheduleMarketingHydration();
 })();
 </script>
 

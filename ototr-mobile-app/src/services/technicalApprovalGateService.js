@@ -48,10 +48,10 @@ export async function fetchTechnicalApprovalGate(expertiseCaseId) {
   const config = getRuntimeConfig();
   const url = normalizeSupabaseUrl(config.url);
   if (!expertiseCaseId) {
-    return { ok: false, status: "case-id-required", reason: "Teknik onay kontrolü için expertiseCaseId gerekli." };
+    return { ok: false, status: "case-id-required", reason: "Tamamlama kontrolü için expertiseCaseId gerekli." };
   }
   if (!url || !config.anonKey || !config.accessToken) {
-    return { ok: false, status: "not-configured", reason: "Teknik onay kontrolü için Supabase oturumu gerekli." };
+    return { ok: false, status: "not-configured", reason: "Tamamlama kontrolü için Supabase oturumu gerekli." };
   }
 
   const response = await supabaseRequest(`${url}/rest/v1/rpc/get_mobile_technical_approval_gate`, {
@@ -78,7 +78,7 @@ export async function fetchTechnicalApprovalGate(expertiseCaseId) {
     return {
       ok: false,
       status: `http-${response.status}`,
-      reason: typeof body === "string" ? body : body?.message || `Teknik onay kontrolü alınamadı: HTTP ${response.status}`
+      reason: typeof body === "string" ? body : body?.message || `Tamamlama kontrolü alınamadı: HTTP ${response.status}`
     };
   }
 

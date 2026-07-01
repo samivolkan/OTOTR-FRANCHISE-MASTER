@@ -7,6 +7,7 @@ import {
   getCanonicalInspectionPackageCode,
   getInspectionPackageDefinition,
   getInspectionPackageModuleIds,
+  getInspectionPackageModuleIdsFromIncludedModules,
   getInspectionPackageTaskKeys,
   inspectionPackageCatalog
 } from "../src/services/inspectionPackageCatalog.js";
@@ -26,6 +27,32 @@ const requiredBackendTaskKeys = new Set([
 ]);
 
 const failures = [];
+const expectedLivePackageModules = Object.freeze({
+  MINI: ["motor", "alt-on-mekanik", "fren-suspansiyon"],
+  ESNAF: ["motor", "alt-on-mekanik", "kaporta-boya", "obd-beyin"],
+  STANDARD: ["motor", "alt-on-mekanik", "kaporta-boya", "fren-suspansiyon"],
+  FULL: ["motor", "alt-on-mekanik", "kaporta-boya", "obd-beyin", "fren-suspansiyon", "dyno-yol", "airbag", "conta-kacak"],
+  PREMIUM: ["motor", "alt-on-mekanik", "kaporta-boya", "obd-beyin", "fren-suspansiyon", "dyno-yol", "genel-kondisyon-dis", "ic-ekspertiz", "airbag", "conta-kacak"],
+  PREMIUM_360: ["motor", "alt-on-mekanik", "kaporta-boya", "obd-beyin", "fren-suspansiyon", "dyno-yol", "genel-kondisyon-dis", "ic-ekspertiz", "airbag", "conta-kacak"],
+  KAPORTA_BOYA: ["kaporta-boya", "genel-kondisyon-dis"],
+  MEKANIK: ["motor", "alt-on-mekanik", "fren-suspansiyon", "conta-kacak"],
+  HIZLI_KONTROL: ["motor", "fren-suspansiyon", "genel-kondisyon-dis"],
+  CORPORATE: ["motor", "alt-on-mekanik", "kaporta-boya", "obd-beyin", "fren-suspansiyon", "dyno-yol", "genel-kondisyon-dis", "ic-ekspertiz", "airbag", "conta-kacak"]
+});
+const liveIncludedModuleLabels = Object.freeze([
+  "İş Emri / Araç Kabul",
+  "Araç Dosya Ekspertizi",
+  "Motor Ekspertiz ve Check-up",
+  "Alt / Ön / Mekanik Ekspertiz",
+  "Kaporta ve Boya Ekspertizi",
+  "OBD / Beyin Testi",
+  "Fren / Süspansiyon Testi",
+  "Dyno / Yol Testi",
+  "Genel Kondisyon / Dış Ekspertiz",
+  "İç Ekspertiz",
+  "Airbag Kontrol Testi",
+  "Conta Kaçak Testi"
+]);
 const mappedKeys = Object.values(inspectionModuleMappings).map((entry) => entry.backendTaskKey);
 const duplicateTaskKeys = mappedKeys.filter((key, index) => mappedKeys.indexOf(key) !== index);
 const moduleIds = new Set(moduleCatalog.map((module) => module.formKey || module.id));
@@ -64,10 +91,12 @@ for (const [packageCode, definition] of Object.entries(inspectionPackageCatalog)
   if (canonical !== packageCode) {
     failures.push(`Paket kodu canonical donmedi: ${packageCode} -> ${canonical}`);
   }
-  if (getInspectionPackageDefinition(definition.name).code !== packageCode) {
+  const packageModuleIds = getInspectionPackageModuleIds(packageCode);
+  const canonicalByName = getInspectionPackageDefinition(definition.name).code;
+  const nameMapsToSameCoverage = getInspectionPackageModuleIds(canonicalByName).join("|") === packageModuleIds.join("|");
+  if (canonicalByName !== packageCode && !nameMapsToSameCoverage) {
     failures.push(`Paket adi canonical donmedi: ${definition.name}`);
   }
-  const packageModuleIds = getInspectionPackageModuleIds(packageCode);
   if (!packageModuleIds.length) {
     failures.push(`Paket modulsuz: ${packageCode}`);
   }
@@ -82,6 +111,18 @@ for (const [packageCode, definition] of Object.entries(inspectionPackageCatalog)
       failures.push(`Paket bilinmeyen backend task key iceriyor: ${packageCode} -> ${taskKey}`);
     }
   }
+}
+
+for (const [packageCode, expectedModules] of Object.entries(expectedLivePackageModules)) {
+  const actualModules = getInspectionPackageModuleIds(packageCode);
+  if (actualModules.join("|") !== expectedModules.join("|")) {
+    failures.push(`Canli paket kapsami farkli: ${packageCode} -> ${actualModules.join(",")} / beklenen ${expectedModules.join(",")}`);
+  }
+}
+
+const labelMappedModuleIds = getInspectionPackageModuleIdsFromIncludedModules(liveIncludedModuleLabels, "STANDARD");
+if (labelMappedModuleIds.join("|") !== expectedLivePackageModules.CORPORATE.join("|")) {
+  failures.push(`Canli included_modules label mapping hatali: ${labelMappedModuleIds.join(",")}`);
 }
 
 if (getCanonicalInspectionPackageCode("OTOTR Premium 360") !== "PREMIUM") {

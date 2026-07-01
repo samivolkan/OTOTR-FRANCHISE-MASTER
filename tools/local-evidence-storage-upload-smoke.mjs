@@ -15,6 +15,12 @@ function run(command, args, options = {}) {
   });
 }
 
+function ensureLocalRoleFixtures() {
+  run(process.execPath, ["tools/local-role-session-smoke.mjs"], {
+    cwd: process.cwd()
+  });
+}
+
 function runSupabaseStatus() {
   const raw = run("cmd.exe", ["/d", "/s", "/c", "npx.cmd supabase status --output json"]);
   const jsonStart = raw.indexOf("{");
@@ -82,7 +88,7 @@ async function authedGet(status, token, path) {
 }
 
 async function uploadStorageObject(status, token, objectPath, bytes) {
-  const endpoint = `${status.API_URL}/storage/v1/object/ototr-evidence/${objectPath}`;
+  const endpoint = `${status.API_URL}/storage/v1/object/report-media/${objectPath}`;
   const response = await fetch(endpoint, {
     method: "POST",
     headers: {
@@ -101,7 +107,7 @@ async function uploadStorageObject(status, token, objectPath, bytes) {
 }
 
 async function readStorageObject(status, token, objectPath) {
-  const endpoint = `${status.API_URL}/storage/v1/object/ototr-evidence/${objectPath}`;
+  const endpoint = `${status.API_URL}/storage/v1/object/report-media/${objectPath}`;
   const response = await fetch(endpoint, {
     headers: {
       apikey: status.ANON_KEY,
@@ -116,6 +122,7 @@ async function readStorageObject(status, token, objectPath) {
 }
 
 async function main() {
+  ensureLocalRoleFixtures();
   const status = runSupabaseStatus();
   const managerToken = await signIn(status, managerEmail, managerPassword);
   console.log("PASS manager login for real evidence storage upload");
@@ -186,7 +193,7 @@ async function main() {
   const bytes = Buffer.from(tinyPngBase64, "base64");
   const objectPath = `work-orders/${caseId}/motor/yag-kacagi/${saved.id}-real-storage.png`;
   await uploadStorageObject(status, technicianToken, objectPath, bytes);
-  console.log(`PASS real Storage blob uploaded: ototr-evidence/${objectPath}`);
+  console.log(`PASS real Storage blob uploaded: report-media/${objectPath}`);
 
   const metadata = await authedPost(status, technicianToken, "/rpc/register_inspection_evidence_upload", {
     target_case_id: caseId,
@@ -196,7 +203,7 @@ async function main() {
     evidence_report_field_key: "report.section.engine.motor_yag_kacagi",
     evidence_title: "Motor Yag Kacagi Gercek Kanit",
     evidence_type: "IMAGE",
-    storage_bucket_name: "ototr-evidence",
+    storage_bucket_name: "report-media",
     storage_object_path: objectPath,
     content_type: "image/png",
     size_bytes: bytes.length,

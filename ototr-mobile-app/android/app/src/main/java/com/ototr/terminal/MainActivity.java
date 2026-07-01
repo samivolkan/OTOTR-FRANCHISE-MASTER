@@ -9,6 +9,7 @@ import android.view.WindowInsetsController;
 import android.view.WindowManager;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
+import android.util.Log;
 
 import com.getcapacitor.BridgeActivity;
 
@@ -17,6 +18,8 @@ public class MainActivity extends BridgeActivity {
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     allowLocalDevelopmentApiRequests();
+    enableWebViewDebugging();
+    logWebViewUrl("onCreate");
     applyImmersiveMode();
   }
 
@@ -56,5 +59,23 @@ public class MainActivity extends BridgeActivity {
     }
 
     webView.getSettings().setMixedContentMode(WebSettings.MIXED_CONTENT_ALWAYS_ALLOW);
+  }
+
+  private void enableWebViewDebugging() {
+    if ((getApplicationInfo().flags & android.content.pm.ApplicationInfo.FLAG_DEBUGGABLE) != 0) {
+      WebView.setWebContentsDebuggingEnabled(true);
+    }
+  }
+
+  private void logWebViewUrl(String stage) {
+    WebView webView = getBridge().getWebView();
+    if (webView == null) {
+      Log.e("OTOTR_WEBVIEW", stage + " webView=null");
+      return;
+    }
+
+    webView.postDelayed(() -> Log.i("OTOTR_WEBVIEW", stage + " t+500 url=" + webView.getUrl()), 500);
+    webView.postDelayed(() -> Log.i("OTOTR_WEBVIEW", stage + " t+2000 url=" + webView.getUrl()), 2000);
+    webView.postDelayed(() -> Log.i("OTOTR_WEBVIEW", stage + " t+5000 url=" + webView.getUrl()), 5000);
   }
 }

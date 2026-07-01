@@ -1,4 +1,4 @@
-import { Ionicons as VectorIonicons } from '@expo/vector-icons';
+﻿import { Ionicons as VectorIonicons } from '@expo/vector-icons';
 import { StatusBar } from 'expo-status-bar';
 import Svg, { Circle, Line, Path, Polyline, Rect } from 'react-native-svg';
 import { useEffect, useMemo, useState } from 'react';
@@ -16,14 +16,17 @@ import {
   type TextInputProps,
   type ViewStyle,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { completeTask, fetchLiveWorkOrders, saveBodyInspectionAnswer, signInLive, subscribeLiveChanges, submitFinalReview } from './api';
 import { mockLiveOrders } from './mock';
-import { liveColors } from './theme';
+import { liveColors, liveSemanticColors } from './theme';
 import { DashboardMetrics, LiveBodyInspectionAnswer, LiveEvidence, LiveTask, LiveWorkOrder, Session } from './types';
 
 type IconName = keyof typeof VectorIonicons.glyphMap;
 type TabKey = 'modules' | 'jobs' | 'home' | 'detail' | 'profile';
 type ViewKey = TabKey | 'body' | 'evidence' | 'final' | 'notifications';
+type DetailStatusKey = 'all' | 'completed' | 'missing' | 'waiting';
+type InspectionStatusKey = 'completed' | 'missing' | 'waiting' | 'default';
 type Tone = 'blue' | 'green' | 'orange' | 'red' | 'purple' | 'gray' | 'cyan';
 
 type ModuleItem = {
@@ -40,52 +43,77 @@ type ModuleItem = {
   tasks: LiveTask[];
 };
 
+type InspectionStatus = {
+  key: InspectionStatusKey;
+  tone: Tone;
+  icon: IconName;
+  label: string;
+  description: string;
+  statusIcon: IconName;
+};
+type InspectionStyleKey = 'Completed' | 'Missing' | 'Waiting' | 'Default';
+type InspectionStatusConfig = {
+  styleKey: InspectionStyleKey;
+  label: string;
+  badgeTone: Tone;
+  statusIcon: IconName;
+};
+
+type InspectionRow = {
+  id: string;
+  index: number;
+  module: ModuleItem;
+  statusKey: InspectionStatusKey;
+  title: string;
+  subStatus: string;
+};
+
 const technician = {
   name: 'Ahmet Usta',
   role: 'Ekspertiz Teknisyeni',
-  branch: 'Bursa Küçük Sanayi',
+  branch: 'Bursa KÃ¼Ã§Ã¼k Sanayi',
   shift: '08:00 - 17:00',
   avatarInitials: 'AU',
 };
 
 const bodyParts = [
-  { part: 'Ön Kaput', icon: 'car-sport-outline' as IconName, state: 'Orijinal', micron: 110 },
-  { part: 'Sol Ön Çamurluk', icon: 'trail-sign-outline' as IconName, state: 'Boyalı', micron: 210 },
-  { part: 'Sağ Ön Çamurluk', icon: 'trail-sign-outline' as IconName, state: 'Değişen', micron: 118 },
-  { part: 'Sol Ön Kapı', icon: 'tablet-landscape-outline' as IconName, state: 'Orijinal', micron: 105 },
-  { part: 'Sağ Ön Kapı', icon: 'tablet-landscape-outline' as IconName, state: 'Boyalı', micron: 195 },
+  { part: 'Ã–n Kaput', icon: 'car-sport-outline' as IconName, state: 'Orijinal', micron: 110 },
+  { part: 'Sol Ã–n Ã‡amurluk', icon: 'trail-sign-outline' as IconName, state: 'BoyalÄ±', micron: 210 },
+  { part: 'SaÄŸ Ã–n Ã‡amurluk', icon: 'trail-sign-outline' as IconName, state: 'DeÄŸiÅŸen', micron: 118 },
+  { part: 'Sol Ã–n KapÄ±', icon: 'tablet-landscape-outline' as IconName, state: 'Orijinal', micron: 105 },
+  { part: 'SaÄŸ Ã–n KapÄ±', icon: 'tablet-landscape-outline' as IconName, state: 'BoyalÄ±', micron: 195 },
   { part: 'Tavan', icon: 'remove-outline' as IconName, state: 'Orijinal', micron: 112 },
-  { part: 'Bagaj Kapağı', icon: 'car-outline' as IconName, state: 'Değişen', micron: 98 },
+  { part: 'Bagaj KapaÄŸÄ±', icon: 'car-outline' as IconName, state: 'DeÄŸiÅŸen', micron: 98 },
 ];
 
 type BodyInspectionPart = (typeof bodyParts)[number];
 type BodyPartState = BodyInspectionPart['state'];
 
 const evidenceTemplates = [
-  { title: 'Araç Ön Görünüm', icon: 'car-sport-outline' as IconName, tone: 'blue' as Tone },
-  { title: 'Araç Arka Görünüm', icon: 'car-outline' as IconName, tone: 'green' as Tone },
-  { title: 'Şasi Etiketi', icon: 'barcode-outline' as IconName, tone: 'gray' as Tone },
-  { title: 'Boya Ölçüm Ekranı', icon: 'speedometer-outline' as IconName, tone: 'purple' as Tone },
-  { title: 'Hasarlı Bölge Fotoğrafı', icon: 'warning-outline' as IconName, tone: 'orange' as Tone },
+  { title: 'AraÃ§ Ã–n GÃ¶rÃ¼nÃ¼m', icon: 'car-sport-outline' as IconName, tone: 'blue' as Tone },
+  { title: 'AraÃ§ Arka GÃ¶rÃ¼nÃ¼m', icon: 'car-outline' as IconName, tone: 'green' as Tone },
+  { title: 'Åasi Etiketi', icon: 'barcode-outline' as IconName, tone: 'gray' as Tone },
+  { title: 'Boya Ã–lÃ§Ã¼m EkranÄ±', icon: 'speedometer-outline' as IconName, tone: 'purple' as Tone },
+  { title: 'HasarlÄ± BÃ¶lge FotoÄŸrafÄ±', icon: 'warning-outline' as IconName, tone: 'orange' as Tone },
 ];
 
 const notifications = [
   {
-    title: 'Yeni İş Emri Atandı',
+    title: 'Yeni Ä°ÅŸ Emri AtandÄ±',
     tag: 'Yeni',
     tone: 'blue' as Tone,
     time: '16:45',
     unread: true,
-    body: '16 CAN 526 plakalı 2022 Volkswagen Golf aracına yeni iş emri atandı.',
+    body: '16 CAN 526 plakalÄ± 2022 Volkswagen Golf aracÄ±na yeni iÅŸ emri atandÄ±.',
     icon: 'document-text-outline' as IconName,
   },
   {
-    title: 'Eksik Adım Tespit Edildi',
-    tag: 'Uyarı',
+    title: 'Eksik AdÄ±m Tespit Edildi',
+    tag: 'UyarÄ±',
     tone: 'orange' as Tone,
     time: '15:10',
     unread: true,
-    body: '16 R 0273 numaralı iş emrinde 1 eksik adım tespit edildi.',
+    body: '16 R 0273 numaralÄ± iÅŸ emrinde 1 eksik adÄ±m tespit edildi.',
     icon: 'alert-circle-outline' as IconName,
   },
   {
@@ -94,52 +122,52 @@ const notifications = [
     tone: 'purple' as Tone,
     time: '14:40',
     unread: true,
-    body: '16 BZ 198 numaralı iş emri için devralma talebi aldınız.',
+    body: '16 BZ 198 numaralÄ± iÅŸ emri iÃ§in devralma talebi aldÄ±nÄ±z.',
     icon: 'people-outline' as IconName,
   },
   {
-    title: 'Teknik Onaydan Döndü',
+    title: 'Teknik Onaydan DÃ¶ndÃ¼',
     tag: 'Kritik',
     tone: 'red' as Tone,
     time: '14:05',
     unread: false,
-    body: '16 R 0273 numaralı iş emri teknik onaydan döndü. İnceleme yapmanız gerekiyor.',
+    body: '16 R 0273 numaralÄ± iÅŸ emri teknik onaydan dÃ¶ndÃ¼. Ä°nceleme yapmanÄ±z gerekiyor.',
     icon: 'shield-outline' as IconName,
   },
   {
-    title: 'Rapor Onaylandı',
-    tag: 'Başarılı',
+    title: 'Rapor OnaylandÄ±',
+    tag: 'BaÅŸarÄ±lÄ±',
     tone: 'green' as Tone,
     time: '12:30',
     unread: false,
-    body: '16 E 274 plakalı 2021 Volkswagen Golf aracının raporu onaylandı.',
+    body: '16 E 274 plakalÄ± 2021 Volkswagen Golf aracÄ±nÄ±n raporu onaylandÄ±.',
     icon: 'shield-checkmark-outline' as IconName,
   },
   {
-    title: 'Sistem Bakım Çalışması',
+    title: 'Sistem BakÄ±m Ã‡alÄ±ÅŸmasÄ±',
     tag: 'Sistem',
     tone: 'blue' as Tone,
     time: '09:15',
     unread: false,
-    body: '19 Mayıs 2025 Pazar 02:00 - 04:00 saatleri arasında sistem bakım çalışması yapılacaktır.',
+    body: '19 MayÄ±s 2025 Pazar 02:00 - 04:00 saatleri arasÄ±nda sistem bakÄ±m Ã§alÄ±ÅŸmasÄ± yapÄ±lacaktÄ±r.',
     icon: 'settings-outline' as IconName,
   },
 ];
 
 const quickActions = [
-  { title: 'İşlerim', subtitle: 'Devam eden işler', icon: 'clipboard-outline' as IconName, tone: 'blue' as Tone, view: 'jobs' as ViewKey },
-  { title: 'Eksikler', subtitle: 'Eksik adımlar', icon: 'alert-circle-outline' as IconName, tone: 'orange' as Tone, view: 'detail' as ViewKey },
-  { title: 'Kanıtlar', subtitle: 'Fotoğraf & video', icon: 'camera-outline' as IconName, tone: 'green' as Tone, view: 'evidence' as ViewKey },
-  { title: 'Rapor Önizle', subtitle: 'Basım hazırlığı', icon: 'document-text-outline' as IconName, tone: 'purple' as Tone, view: 'final' as ViewKey },
+  { title: 'Ä°ÅŸlerim', subtitle: 'Devam eden iÅŸler', icon: 'clipboard-outline' as IconName, tone: 'blue' as Tone, view: 'jobs' as ViewKey },
+  { title: 'Eksikler', subtitle: 'Eksik adÄ±mlar', icon: 'alert-circle-outline' as IconName, tone: 'orange' as Tone, view: 'detail' as ViewKey },
+  { title: 'KanÄ±tlar', subtitle: 'FotoÄŸraf & video', icon: 'camera-outline' as IconName, tone: 'green' as Tone, view: 'evidence' as ViewKey },
+  { title: 'Rapor Ã–nizle', subtitle: 'BasÄ±m hazÄ±rlÄ±ÄŸÄ±', icon: 'document-text-outline' as IconName, tone: 'purple' as Tone, view: 'final' as ViewKey },
 ];
 
 const moduleDefinitions = [
-  { id: 'body', title: 'Kaporta Kontrolü', icon: 'car-sport-outline' as IconName, tone: 'blue' as Tone, tasks: 10, evidence: 6, keywords: ['body', 'paint', 'kaporta', 'boya', 'dış', 'dis'] },
-  { id: 'engine', title: 'Motor Kontrolü', icon: 'construct-outline' as IconName, tone: 'green' as Tone, tasks: 8, evidence: 5, keywords: ['engine', 'motor'] },
-  { id: 'mechanic', title: 'Mekanik Test', icon: 'build-outline' as IconName, tone: 'purple' as Tone, tasks: 12, evidence: 8, keywords: ['mechanic', 'mekanik', 'brake', 'fren', 'suspension', 'süspansiyon'] },
+  { id: 'body', title: 'Kaporta KontrolÃ¼', icon: 'car-sport-outline' as IconName, tone: 'blue' as Tone, tasks: 10, evidence: 6, keywords: ['body', 'paint', 'kaporta', 'boya', 'dÄ±ÅŸ', 'dis'] },
+  { id: 'engine', title: 'Motor KontrolÃ¼', icon: 'construct-outline' as IconName, tone: 'green' as Tone, tasks: 8, evidence: 5, keywords: ['engine', 'motor'] },
+  { id: 'mechanic', title: 'Mekanik Test', icon: 'build-outline' as IconName, tone: 'purple' as Tone, tasks: 12, evidence: 8, keywords: ['mechanic', 'mekanik', 'brake', 'fren', 'suspension', 'sÃ¼spansiyon'] },
   { id: 'obd', title: 'Elektronik / OBD', icon: 'hardware-chip-outline' as IconName, tone: 'orange' as Tone, tasks: 9, evidence: 6, keywords: ['obd', 'beyin', 'elektronik', 'electric'] },
   { id: 'airbag', title: 'Airbag Testi', icon: 'accessibility-outline' as IconName, tone: 'red' as Tone, tasks: 6, evidence: 4, keywords: ['airbag', 'srs'] },
-  { id: 'interior', title: 'İç Mekan Kontrolü', icon: 'person-seat-outline' as IconName, tone: 'cyan' as Tone, tasks: 7, evidence: 4, keywords: ['interior', 'iç', 'ic', 'donanım', 'kabin'] },
+  { id: 'interior', title: 'Ä°Ã§ Mekan KontrolÃ¼', icon: 'person-seat-outline' as IconName, tone: 'cyan' as Tone, tasks: 7, evidence: 4, keywords: ['interior', 'iÃ§', 'ic', 'donanÄ±m', 'kabin'] },
 ];
 
 function Ionicons({ name, color = liveColors.ink, size = 24, style }: { name: IconName; color?: string; size?: number; style?: StyleProp<ViewStyle> }) {
@@ -203,6 +231,7 @@ function renderIcon(name: string, color: string) {
 }
 
 export function LiveApp() {
+  const insets = useSafeAreaInsets();
   const [iconsReady, setIconsReady] = useState(false);
   const [session, setSession] = useState<Session | null>(null);
   const [orders, setOrders] = useState<LiveWorkOrder[]>(mockLiveOrders);
@@ -246,7 +275,7 @@ export function LiveApp() {
 
   async function syncLive(nextSession = session, options: { silent?: boolean } = {}) {
     if (!nextSession) {
-      setLastError('Canlı senkron için bayi portalı kullanıcısı ile giriş gerekli.');
+      setLastError('CanlÄ± senkron iÃ§in bayi portalÄ± kullanÄ±cÄ±sÄ± ile giriÅŸ gerekli.');
       return;
     }
     if (!options.silent) setLoading(true);
@@ -259,7 +288,7 @@ export function LiveApp() {
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       setLastError(message);
-      setLastSync('Canlı hata, son veri korunuyor');
+      setLastSync('CanlÄ± hata, son veri korunuyor');
     } finally {
       if (!options.silent) setLoading(false);
     }
@@ -282,7 +311,7 @@ export function LiveApp() {
   async function handleLogin(email: string, password: string) {
     const nextEmail = email.trim();
     if (!nextEmail || !password.trim()) {
-      const message = 'Canlı bağlantı için e-posta ve şifre alanları zorunludur.';
+      const message = 'CanlÄ± baÄŸlantÄ± iÃ§in e-posta ve ÅŸifre alanlarÄ± zorunludur.';
       setLastError(message);
       Alert.alert('Eksik bilgi', message);
       return;
@@ -297,7 +326,7 @@ export function LiveApp() {
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       setLastError(message);
-      Alert.alert('Canlı giriş başarısız', message);
+      Alert.alert('CanlÄ± giriÅŸ baÅŸarÄ±sÄ±z', message);
     } finally {
       setLoading(false);
     }
@@ -305,11 +334,11 @@ export function LiveApp() {
 
   async function completeActiveTaskAndContinue() {
     if (!session) {
-      Alert.alert('Oturum gerekli', 'Canlı görev güncellemek için bayi portalı hesabı ile giriş yapın.');
+      Alert.alert('Oturum gerekli', 'CanlÄ± gÃ¶rev gÃ¼ncellemek iÃ§in bayi portalÄ± hesabÄ± ile giriÅŸ yapÄ±n.');
       return;
     }
     if (!selectedTask || !isActionableTask(selectedTask.status)) {
-      Alert.alert('Görev hazır değil', 'Bu görev canlı sistemde teknik giriş için açık değil. Final kontrol ekranı açılıyor.');
+      Alert.alert('GÃ¶rev hazÄ±r deÄŸil', 'Bu gÃ¶rev canlÄ± sistemde teknik giriÅŸ iÃ§in aÃ§Ä±k deÄŸil. Final kontrol ekranÄ± aÃ§Ä±lÄ±yor.');
       setView('final');
       return;
     }
@@ -319,9 +348,9 @@ export function LiveApp() {
       await syncLive(session, { silent: true });
       setEvidenceNote('');
       setView('final');
-      Alert.alert('Kayıt alındı', 'Mobilde girilen teknik veri canlı bayi portalına gönderildi.');
+      Alert.alert('KayÄ±t alÄ±ndÄ±', 'Mobilde girilen teknik veri canlÄ± bayi portalÄ±na gÃ¶nderildi.');
     } catch (error) {
-      Alert.alert('Görev kaydedilemedi', error instanceof Error ? error.message : String(error));
+      Alert.alert('GÃ¶rev kaydedilemedi', error instanceof Error ? error.message : String(error));
     } finally {
       setLoading(false);
     }
@@ -329,7 +358,7 @@ export function LiveApp() {
 
   async function persistBodyInspection(parts: LiveBodyInspectionAnswer[], options: { silent?: boolean } = {}) {
     if (!session || !selectedOrder) {
-      if (!options.silent) Alert.alert('Oturum gerekli', 'Canlı forma veri yazmak için oturum açık olmalı.');
+      if (!options.silent) Alert.alert('Oturum gerekli', 'CanlÄ± forma veri yazmak iÃ§in oturum aÃ§Ä±k olmalÄ±.');
       return false;
     }
     if (!parts.length) return true;
@@ -341,7 +370,7 @@ export function LiveApp() {
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       setLastError(message);
-      if (!options.silent) Alert.alert('Canlı form kaydedilemedi', message);
+      if (!options.silent) Alert.alert('CanlÄ± form kaydedilemedi', message);
       return false;
     } finally {
       if (!options.silent) setLoading(false);
@@ -354,7 +383,7 @@ export function LiveApp() {
 
   async function handleBodyDraft(parts: LiveBodyInspectionAnswer[]) {
     const saved = await persistBodyInspection(parts, { silent: false });
-    if (saved) Alert.alert('Taslak kaydedildi', 'Kaporta formu canlı sisteme işlendi.');
+    if (saved) Alert.alert('Taslak kaydedildi', 'Kaporta formu canlÄ± sisteme iÅŸlendi.');
   }
 
   async function handleBodyContinue(parts: LiveBodyInspectionAnswer[]) {
@@ -366,16 +395,16 @@ export function LiveApp() {
 
   async function handleSubmitFinalReview() {
     if (!session || !selectedOrder) {
-      Alert.alert('Oturum gerekli', 'Raporu teknik onaya göndermek için oturum açık olmalı.');
+      Alert.alert('Oturum gerekli', 'Raporu teknik onaya gÃ¶ndermek iÃ§in oturum aÃ§Ä±k olmalÄ±.');
       return;
     }
     setLoading(true);
     try {
       await submitFinalReview(session, selectedOrder);
       await syncLive(session, { silent: true });
-      Alert.alert('Rapor teknik onaya gönderildi.');
+      Alert.alert('Rapor teknik onaya gÃ¶nderildi.');
     } catch (error) {
-      Alert.alert('Gönderim başarısız', error instanceof Error ? error.message : String(error));
+      Alert.alert('GÃ¶nderim baÅŸarÄ±sÄ±z', error instanceof Error ? error.message : String(error));
     } finally {
       setLoading(false);
     }
@@ -411,7 +440,11 @@ export function LiveApp() {
     <SafeAreaView style={styles.safe}>
       <StatusBar style="light" />
       <View style={styles.app}>
-        <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={[styles.scrollContent, { paddingBottom: Math.max(190, 150 + insets.bottom) }]}
+          contentInset={{ bottom: 24 + insets.bottom }}
+        >
           {view === 'home' && (
             <HomeScreen
               metrics={metrics}
@@ -473,7 +506,7 @@ export function LiveApp() {
             />
           )}
         </ScrollView>
-        <BottomTabs active={activeTab} onChange={handleTabChange} />
+        <BottomTabs active={activeTab} onChange={handleTabChange} safeBottom={insets.bottom} />
         {loading && <LoadingOverlay />}
       </View>
     </SafeAreaView>
@@ -486,7 +519,7 @@ function StartupScreen() {
       <StatusBar style="light" />
       <View style={styles.startupScreen}>
         <LogoText size="large" />
-        <Text style={styles.loginSubtitle}>Tarafsız Araç Ekspertizi</Text>
+        <Text style={styles.loginSubtitle}>TarafsÄ±z AraÃ§ Ekspertizi</Text>
         <ActivityIndicator color={liveColors.white} size="large" style={styles.startupLoader} />
       </View>
     </SafeAreaView>
@@ -506,28 +539,28 @@ function LoginScreen({ loading, lastError, onLogin }: { loading: boolean; lastEr
         <View style={styles.headerCurveB} />
         <View style={styles.loginLogoWrap}>
           <LogoText size="large" />
-          <Text style={styles.loginSubtitle}>Tarafsız Araç Ekspertizi</Text>
+          <Text style={styles.loginSubtitle}>TarafsÄ±z AraÃ§ Ekspertizi</Text>
         </View>
         <View style={styles.loginCard}>
           <View style={styles.loginCardHead}>
             <IconBubble icon="lock-closed-outline" tone="blue" />
             <View style={styles.flex1}>
-              <Text style={styles.loginTitle}>Giriş Yap</Text>
-              <Text style={styles.loginBody}>Hesabınıza giriş yaparak devam edin.</Text>
+              <Text style={styles.loginTitle}>GiriÅŸ Yap</Text>
+              <Text style={styles.loginBody}>HesabÄ±nÄ±za giriÅŸ yaparak devam edin.</Text>
             </View>
           </View>
           <Input icon="person-outline" placeholder="Telefon / E-posta" value={email} onChangeText={setEmail} keyboardType="email-address" />
-          <Input icon="lock-closed-outline" placeholder="Şifre" value={password} onChangeText={setPassword} secureTextEntry rightIcon="eye-outline" />
+          <Input icon="lock-closed-outline" placeholder="Åifre" value={password} onChangeText={setPassword} secureTextEntry rightIcon="eye-outline" />
           <View style={styles.loginOptions}>
             <Pressable style={styles.checkRow} onPress={() => setRemember((value) => !value)}>
               <View style={[styles.checkbox, remember && styles.checkboxActive]}>{remember ? <Ionicons name="checkmark" color={liveColors.white} size={16} /> : null}</View>
-              <Text style={styles.optionText}>Beni hatırla</Text>
+              <Text style={styles.optionText}>Beni hatÄ±rla</Text>
             </Pressable>
-            <Text style={styles.linkText}>Şifremi unuttum</Text>
+            <Text style={styles.linkText}>Åifremi unuttum</Text>
           </View>
           {lastError ? <Text style={styles.loginError}>{lastError}</Text> : null}
           <Pressable style={styles.primaryButton} disabled={loading} onPress={() => onLogin(email, password)}>
-            <Text style={styles.primaryButtonText}>Giriş Yap</Text>
+            <Text style={styles.primaryButtonText}>GiriÅŸ Yap</Text>
             <Ionicons name="arrow-forward" color={liveColors.white} size={22} />
           </Pressable>
           <Pressable style={styles.outlineButton}>
@@ -536,12 +569,12 @@ function LoginScreen({ loading, lastError, onLogin }: { loading: boolean; lastEr
           </Pressable>
           <View style={styles.branchRow}>
             <Ionicons name="location-outline" color={liveColors.blue} size={22} />
-            <Text style={styles.branchText}>Şube: <Text style={styles.branchStrong}>Bursa Küçük Sanayi</Text></Text>
+            <Text style={styles.branchText}>Åube: <Text style={styles.branchStrong}>Bursa KÃ¼Ã§Ã¼k Sanayi</Text></Text>
             <Ionicons name="chevron-forward" color={liveColors.muted} size={22} />
           </View>
           <View style={styles.securityNote}>
             <Ionicons name="shield-checkmark-outline" color={liveColors.green} size={20} />
-            <Text style={styles.securityText}>Güvenli giriş için tüm verileriniz şifrelenmektedir.</Text>
+            <Text style={styles.securityText}>GÃ¼venli giriÅŸ iÃ§in tÃ¼m verileriniz ÅŸifrelenmektedir.</Text>
           </View>
         </View>
         {loading && <LoadingOverlay />}
@@ -574,35 +607,35 @@ function HomeScreen({
     <>
       <AppHeader
         title="Ana Sayfa"
-        subtitle={`Merhaba ${technician.name}\nBugün harika işler çıkaralım.`}
+        subtitle={`Merhaba ${technician.name}\nBugÃ¼n harika iÅŸler Ã§Ä±karalÄ±m.`}
         showLogo
         rightNotification
       />
       <View style={styles.sheet}>
-        <SectionHeader icon="calendar-outline" title="Günlük Özet" action="Canlı Senkron" onPress={onSync} meta="16 Mayıs 2025, Cuma" />
+        <SectionHeader icon="calendar-outline" title="GÃ¼nlÃ¼k Ã–zet" action="CanlÄ± Senkron" onPress={onSync} meta="16 MayÄ±s 2025, Cuma" />
         {lastError ? <InlineAlert text={lastError} /> : null}
         <View style={styles.metricGrid}>
-          <MetricCard icon="document-text-outline" title="Aktif İş Emri" value={String(metrics.openOrders || orders.length)} subtitle="devam eden" tone="blue" />
-          <MetricCard icon="checkmark-circle-outline" title="Bugün Tamamlanan" value={String(completedOrderCount(orders))} subtitle="iş emri" tone="green" />
-          <MetricCard icon="alert-circle-outline" title="Eksik Adım" value={String(metrics.missingEvidence)} subtitle="iş emrinde" tone="orange" />
-          <MetricCard icon="shield-checkmark-outline" title="Teknik Onayda" value={String(metrics.waitingApproval)} subtitle="iş emri" tone="purple" />
+          <MetricCard icon="document-text-outline" title="Aktif Ä°ÅŸ Emri" value={String(metrics.openOrders || orders.length)} subtitle="devam eden" tone="blue" />
+          <MetricCard icon="checkmark-circle-outline" title="BugÃ¼n Tamamlanan" value={String(completedOrderCount(orders))} subtitle="iÅŸ emri" tone="green" />
+          <MetricCard icon="alert-circle-outline" title="Eksik AdÄ±m" value={String(metrics.missingEvidence)} subtitle="iÅŸ emrinde" tone="orange" />
+          <MetricCard icon="shield-checkmark-outline" title="Teknik Onayda" value={String(metrics.waitingApproval)} subtitle="iÅŸ emri" tone="purple" />
         </View>
 
-        <SectionHeader icon="flash-outline" title="Öne Çıkan Aktif İş Emri" action="Tümünü Gör" onPress={() => onOpenView('jobs')} />
+        <SectionHeader icon="flash-outline" title="Ã–ne Ã‡Ä±kan Aktif Ä°ÅŸ Emri" action="TÃ¼mÃ¼nÃ¼ GÃ¶r" onPress={() => onOpenView('jobs')} />
         {featuredOrder ? (
           <FeaturedOrderCard order={featuredOrder} progress={featuredProgress} onPress={() => onOpenView('detail')} />
         ) : (
-          <EmptyState title="Canlı iş emri bulunamadı" body="Bayi portalından yeni iş emri açıldığında burada görünecek." icon="briefcase-outline" />
+          <EmptyState title="CanlÄ± iÅŸ emri bulunamadÄ±" body="Bayi portalÄ±ndan yeni iÅŸ emri aÃ§Ä±ldÄ±ÄŸÄ±nda burada gÃ¶rÃ¼necek." icon="briefcase-outline" />
         )}
 
-        <SectionHeader icon="bag-outline" title="Bugünkü Plan" action="Takvime Git" />
+        <SectionHeader icon="bag-outline" title="BugÃ¼nkÃ¼ Plan" action="Takvime Git" />
         <View style={styles.planList}>
           <PlanRow time="09:30" plate="16 CAN 526" title="2022 Volkswagen Golf" />
           <PlanRow time="11:00" plate="16 R 0273" title="2022 Volkswagen Passat" />
           <PlanRow time="14:00" plate="16 BZ 198" title="2021 Skoda Octavia" />
         </View>
 
-        <SectionHeader icon="grid-outline" title="Hızlı İşlemler" />
+        <SectionHeader icon="grid-outline" title="HÄ±zlÄ± Ä°ÅŸlemler" />
         <View style={styles.quickGrid}>
           {quickActions.map((item) => (
             <QuickAction key={item.title} item={item} onPress={() => onOpenView(item.view)} />
@@ -611,11 +644,11 @@ function HomeScreen({
 
         <SectionHeader icon="time-outline" title="Son Aktiviteler" action={lastSync} />
         <View style={styles.activityList}>
-          <ActivityRow icon="checkmark-circle-outline" tone="green" title="Canlı veri senkronize edildi." time={lastSync} />
+          <ActivityRow icon="checkmark-circle-outline" tone="green" title="CanlÄ± veri senkronize edildi." time={lastSync} />
           {featuredOrder ? (
             <>
-              <ActivityRow icon="document-text-outline" tone="blue" title={`${featuredOrder.workOrderNo} iş emri mobilde görüntülendi.`} time="16:45" />
-              <ActivityRow icon="camera-outline" tone="orange" title={`${featuredOrder.vehicle.plate} için kanıt adımları takipte.`} time="15:10" />
+              <ActivityRow icon="document-text-outline" tone="blue" title={`${featuredOrder.workOrderNo} iÅŸ emri mobilde gÃ¶rÃ¼ntÃ¼lendi.`} time="16:45" />
+              <ActivityRow icon="camera-outline" tone="orange" title={`${featuredOrder.vehicle.plate} iÃ§in kanÄ±t adÄ±mlarÄ± takipte.`} time="15:10" />
             </>
           ) : null}
         </View>
@@ -640,23 +673,23 @@ function JobsScreen({
   return (
     <>
       <AppHeader
-        title="İşlerim"
+        title="Ä°ÅŸlerim"
         subtitle={`${technician.name}\n${technician.role}`}
         showLogo
         rightNotification
         chip={lastSync}
       />
       <View style={styles.sheet}>
-        <SectionHeader icon="clipboard-outline" title="İşlerim" meta="16 Mayıs 2025, Cuma" action="Yenile" onPress={onSync} />
+        <SectionHeader icon="clipboard-outline" title="Ä°ÅŸlerim" meta="16 MayÄ±s 2025, Cuma" action="Yenile" onPress={onSync} />
         <View style={styles.jobsMetricRow}>
-          <MetricCard compact icon="clipboard-outline" title="Aktif İş Emri" value={String(metrics.openOrders || orders.length)} subtitle="devam eden" tone="blue" />
-          <MetricCard compact icon="checkmark-circle-outline" title="Bugün Tamamlanan" value={String(completedOrderCount(orders))} subtitle="iş emri" tone="green" />
-          <MetricCard compact icon="alert-circle-outline" title="Eksik Adım" value={String(metrics.missingEvidence)} subtitle="iş emrinde" tone="orange" />
+          <MetricCard compact icon="clipboard-outline" title="Aktif Ä°ÅŸ Emri" value={String(metrics.openOrders || orders.length)} subtitle="devam eden" tone="blue" />
+          <MetricCard compact icon="checkmark-circle-outline" title="BugÃ¼n Tamamlanan" value={String(completedOrderCount(orders))} subtitle="iÅŸ emri" tone="green" />
+          <MetricCard compact icon="alert-circle-outline" title="Eksik AdÄ±m" value={String(metrics.missingEvidence)} subtitle="iÅŸ emrinde" tone="orange" />
         </View>
         {orders.length ? (
           orders.map((order) => <WorkOrderCard key={order.id} order={order} onPress={() => onSelect(order)} />)
         ) : (
-          <EmptyState title="İş emri yok" body="Web bayi portalından açılan canlı iş emirleri bu ekrana düşecek." icon="clipboard-outline" />
+          <EmptyState title="Ä°ÅŸ emri yok" body="Web bayi portalÄ±ndan aÃ§Ä±lan canlÄ± iÅŸ emirleri bu ekrana dÃ¼ÅŸecek." icon="clipboard-outline" />
         )}
       </View>
     </>
@@ -665,70 +698,321 @@ function JobsScreen({
 
 function WorkOrderDetailScreen({ order, modules, onBack, onStart }: { order: LiveWorkOrder; modules: ModuleItem[]; onBack: () => void; onStart: () => void }) {
   const progress = getOrderProgress(order);
-  const openItems = Math.max(0, order.tasks.length - completedTasks(order));
+  const maxChecks = Math.max(order.tasks.length || 0, 40);
+  const doneChecks = Math.min(maxChecks, completedTasks(order));
+
+  const rows = useMemo<InspectionRow[]>(() =>
+    modules.map((module, index) => {
+      const status = toInspectionStatus(module);
+      return {
+        id: module.id,
+        index: index + 1,
+        module,
+        statusKey: status.key,
+        title: module.title.replace('KontrolÃ¼', 'Kontrol'),
+        subStatus: status.description,
+      };
+    }),
+    [modules],
+  );
+
+  const [activeTab, setActiveTab] = useState<DetailStatusKey>('all');
+  const visibleRows = useMemo(() => {
+    if (activeTab === 'all') return rows;
+    return rows.filter((item) => item.statusKey === activeTab);
+  }, [rows, activeTab]);
+
+  const counts = useMemo(() => {
+    const total = rows.length;
+    const completed = rows.filter((item) => item.statusKey === 'completed').length;
+    const missing = rows.filter((item) => item.statusKey === 'missing').length;
+    const waiting = rows.filter((item) => item.statusKey === 'waiting').length;
+    return { all: total, completed, missing, waiting };
+  }, [rows]);
 
   return (
     <>
-      <AppHeader title="İş Emri Detayı" showLogo showBack onBack={onBack} rightNotification />
-      <View style={styles.sheet}>
-        <View style={styles.detailTop}>
-          <View style={styles.flex1}>
-            <Text style={styles.kicker}>İş Emri No</Text>
-            <Text style={styles.orderNo}>{order.workOrderNo}</Text>
-            <Text style={styles.vehicleTitle}>{vehicleTitle(order)}</Text>
-          </View>
-          <View style={styles.statusWrap}>
-            <StatusBadge label={statusLabel(order.status)} tone="green" dot />
-            <StatusBadge label="Öncelik: Orta" tone="orange" dot />
-          </View>
-        </View>
-
-        <View style={styles.vehicleInfoCard}>
-          <View style={styles.carIllustration}>
-            <Ionicons name="car-sport-outline" color={liveColors.blue} size={74} />
-            <Plate value={order.vehicle.plate} />
-          </View>
-          <View style={styles.infoTable}>
-            <InfoRow icon="cube-outline" label="Paket / Yıl" value={`${order.packageName || 'Business'} / ${order.vehicle.year || '2021'}`} />
-            <InfoRow icon="speedometer-outline" label="Kilometre" value={order.vehicle.mileage || '68.450 km'} />
-            <InfoRow icon="flame-outline" label="Yakıt" value={order.vehicle.fuel || 'Dizel'} />
-            <InfoRow icon="git-compare-outline" label="Vites" value={order.vehicle.transmission || 'Otomatik'} />
-            <InfoRow icon="calendar-outline" label="Müşteri Randevusu" value={formatDateTime(order.openedAt)} />
-          </View>
-        </View>
-
-        <View style={styles.statsStrip}>
-          <StatBlock title="Toplam Tamamlanma" value={`%${progress}`} icon="analytics-outline" tone="green" ring={progress} />
-          <StatBlock title="Geçen Süre" value={elapsedLabel(order)} icon="time-outline" tone="blue" />
-          <StatBlock title="Açık Eksik Madde" value={String(openItems)} icon="alert-circle-outline" tone="orange" />
-        </View>
-
-        <SectionHeader title="Ekspertiz Modülleri" />
-        <View style={styles.moduleList}>
-          {modules.map((module) => (
-            <ModuleListRow key={module.id} module={module} />
-          ))}
-        </View>
-
-        <View style={styles.buttonRow}>
-          <ActionButton title="Eksikleri Gör" variant="outline" icon="alert-circle-outline" tone="orange" />
-          <ActionButton title="Göreve Başla" icon="play" onPress={onStart} />
-        </View>
+      <AppHeader title="Ä°ÅŸ Emri DetayÄ±" showLogo showBack onBack={onBack} rightNotification />
+      <View style={styles.detailSheet}>
+        <VehicleSummaryCard
+          order={order}
+          progress={progress}
+          totalChecks={maxChecks}
+          completedChecks={doneChecks}
+          onActionPress={onStart}
+        />
+        <InspectionTabs active={activeTab} counts={counts} onChange={setActiveTab} />
+        <InspectionList rows={visibleRows} onPressRow={() => onStart()} />
       </View>
     </>
   );
 }
 
+function VehicleSummaryCard({
+  order,
+  progress,
+  totalChecks,
+  completedChecks,
+  onActionPress,
+}: {
+  order: LiveWorkOrder;
+  progress: number;
+  totalChecks: number;
+  completedChecks: number;
+  onActionPress: () => void;
+}) {
+  return (
+    <View style={styles.vehicleSummaryCard}>
+      <View style={styles.vehicleSummaryRow}>
+        <View style={styles.vehicleSummaryLeft}>
+          <LicensePlate value={order.vehicle.plate} />
+          <Text style={styles.vehicleTitle}>{vehicleTitle(order)}</Text>
+          <View style={styles.vehicleMetaLine}>
+            <View style={styles.vehicleMetaItem}>
+              <Ionicons name="calendar-outline" color={liveColors.muted} size={14} />
+              <Text style={styles.vehicleMetaLabel}>Yıl</Text>
+              <Text style={styles.vehicleMetaValue}>{order.vehicle.year || '2021'}</Text>
+            </View>
+            <Text style={styles.vehicleMetaSpacer}>â€¢</Text>
+            <View style={styles.vehicleMetaItem}>
+              <Ionicons name="speedometer-outline" color={liveColors.muted} size={14} />
+              <Text style={styles.vehicleMetaLabel}>KM</Text>
+              <Text style={styles.vehicleMetaValue}>{order.vehicle.mileage || '34.520 km'}</Text>
+            </View>
+          </View>
+        </View>
+        <CircularProgress percent={progress} size={76} stroke={7} color={progress >= 100 ? liveSemanticColors.success : liveSemanticColors.info} />
+      </View>
+      {orderRiskLabel(order) ? <RiskInlineAlert label={orderRiskLabel(order)} /> : null}
+      <View style={styles.vehicleProgressFooter}>
+        <Text style={styles.vehicleProgressText}>
+          {completedChecks}/{totalChecks} tamamlandÄ±
+        </Text>
+      </View>
+      <View style={styles.vehicleActions}>
+        <Pressable
+          style={[styles.detailButton, styles.detailButtonOutline]}
+          onPress={onActionPress}
+          accessibilityLabel="Testi devret"
+          accessibilityRole="button"
+        >
+          <Ionicons name="log-out-outline" color={liveSemanticColors.textSecondary} size={18} />
+          <Text style={styles.detailButtonOutlineText}>Testi Devret</Text>
+        </Pressable>
+        <Pressable style={[styles.detailButton, styles.detailButtonSuccess]} onPress={onActionPress} accessibilityLabel="Tüm iyi" accessibilityRole="button">
+          <Ionicons name="checkmark-circle-outline" color={liveColors.white} size={18} />
+          <Text style={styles.detailButtonText}>TÃ¼m Ä°yi</Text>
+        </Pressable>
+      </View>
+    </View>
+  );
+}
+
+function LicensePlate({ value }: { value: string }) {
+  return <Plate value={value} />;
+}
+
+function InspectionTabs({
+  active,
+  counts,
+  onChange,
+}: {
+  active: DetailStatusKey;
+  counts: { all: number; completed: number; missing: number; waiting: number };
+  onChange: (next: DetailStatusKey) => void;
+}) {
+  const tabs: { key: DetailStatusKey; title: string; count: number }[] = [
+    { key: 'all', title: 'TÃ¼mÃ¼', count: counts.all },
+    { key: 'completed', title: 'Tamamlanan', count: counts.completed },
+    { key: 'missing', title: 'Eksik', count: counts.missing },
+    { key: 'waiting', title: 'Bekleyen', count: counts.waiting },
+  ];
+
+  return (
+    <View style={styles.inspectionTabsWrap}>
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={styles.inspectionTabsScroll}
+      >
+        {tabs.map((tab) => {
+          const isActive = active === tab.key;
+          return (
+            <Pressable
+              key={tab.key}
+              style={[styles.inspectionTab, isActive && styles.inspectionTabActive]}
+              onPress={() => onChange(tab.key)}
+              accessibilityRole="tab"
+              accessibilityState={{ selected: isActive }}
+            >
+              <Text style={[styles.inspectionTabText, isActive && styles.inspectionTabTextActive]}>{tab.title}</Text>
+              <View style={[styles.inspectionTabBadge, isActive && styles.inspectionTabBadgeActive]}>
+                <Text style={[styles.inspectionTabBadgeText, isActive && styles.inspectionTabBadgeTextActive]}>{tab.count}</Text>
+              </View>
+            </Pressable>
+          );
+        })}
+      </ScrollView>
+    </View>
+  );
+}
+
+function InspectionList({ rows, onPressRow }: { rows: InspectionRow[]; onPressRow: () => void }) {
+  return (
+    <View style={styles.inspectionList}>
+      {rows.length
+        ? rows.map((row) => <InspectionRow key={row.id} row={row} onPress={onPressRow} onPhotoPress={onPressRow} />)
+        : <EmptyState title="Kayıt yok" body="Bu filtrede gÃ¶sterilecek kontrol bulunmuyor." icon="list-outline" />}
+    </View>
+  );
+}
+
+function InspectionRow({
+  row,
+  onPress,
+  onPhotoPress,
+}: { row: InspectionRow; onPress: () => void; onPhotoPress?: () => void }) {
+  const statusConfig = statusConfigByKey(row.statusKey);
+  const hasPhotoNeed = row.statusKey === 'missing';
+  const cameraDisabled = row.statusKey === 'completed';
+  const rowStatusText = hasPhotoNeed ? 'Fotoğraf eksik' : row.subStatus;
+
+  return (
+    <Pressable
+      style={[styles.inspectionRow, styles[`inspectionRow${statusConfig.styleKey}`] as ViewStyle]}
+      onPress={onPress}
+      accessibilityRole="button"
+      accessibilityLabel={`${row.title} satırı`}
+    >
+      <View style={[styles.inspectionIndex, styles[`inspectionIndex${statusConfig.styleKey}`] as ViewStyle]}>
+        <Text style={styles.inspectionIndexText}>{row.index}</Text>
+      </View>
+      <View style={styles.flex1}>
+        <Text numberOfLines={2} style={styles.inspectionTitle}>{row.title}</Text>
+        {!!rowStatusText ? <Text numberOfLines={2} style={styles.inspectionSubStatus}>{rowStatusText}</Text> : null}
+      </View>
+      <View style={styles.inspectionRowActions}>
+        <StatusBadge label={statusConfig.label} tone={statusConfig.badgeTone} icon={statusConfig.statusIcon} />
+        <CameraActionButton
+          icon={row.statusKey === 'missing' ? 'camera' : 'camera-outline'}
+          needsCapture={hasPhotoNeed}
+          disabled={cameraDisabled}
+          onPress={cameraDisabled ? onPress : onPhotoPress || onPress}
+        />
+        <Ionicons name="chevron-forward" color={liveColors.ink} size={22} />
+      </View>
+    </Pressable>
+  );
+}
+
+function CameraActionButton({
+  icon,
+  needsCapture,
+  disabled,
+  onPress,
+}: {
+  icon: IconName;
+  needsCapture: boolean;
+  disabled: boolean;
+  onPress: () => void;
+}) {
+  return (
+    <Pressable
+      style={[
+        styles.cameraActionButton,
+        needsCapture ? styles.cameraActionButtonWarning : styles.cameraActionButtonDefault,
+        disabled && { opacity: 0.5 },
+      ]}
+      disabled={disabled}
+      onPress={onPress}
+      accessibilityRole="button"
+      accessibilityLabel="Fotoğraf"
+      accessibilityState={{ disabled }}
+    >
+      <Ionicons
+        name={icon}
+        color={needsCapture ? liveSemanticColors.error : liveSemanticColors.textSecondary}
+        size={20}
+      />
+      {needsCapture ? <View style={styles.cameraStatusDot} /> : null}
+    </Pressable>
+  );
+}
+
+function CircularProgress({
+  percent,
+  size,
+  stroke,
+  color,
+}: {
+  percent: number;
+  size: number;
+  stroke: number;
+  color: string;
+}) {
+  const normalizedPercent = clamp(percent);
+
+  return (
+    <View style={styles.circularProgressWrap}>
+      <ProgressRing percent={percent} size={size} stroke={stroke} color={color} />
+      <View style={styles.circularProgressLabel}>
+        <Text style={styles.circularProgressPercent}>%{normalizedPercent}</Text>
+        {percent >= 100 ? (
+          <Ionicons
+            name="checkmark-circle-outline"
+            color={liveSemanticColors.success}
+            size={16}
+            style={styles.circularProgressIcon}
+          />
+        ) : null}
+      </View>
+    </View>
+  );
+}
+
+function statusConfigByKey(key: InspectionStatusKey): InspectionStatusConfig {
+  if (key === 'completed') {
+      return {
+      styleKey: 'Completed',
+      label: 'Tamamlandı',
+      badgeTone: 'green' as const,
+      statusIcon: 'checkmark-circle-outline',
+    };
+  }
+  if (key === 'missing') {
+    return {
+      styleKey: 'Missing',
+      label: 'Eksik',
+      badgeTone: 'red' as const,
+      statusIcon: 'camera-outline',
+    };
+  }
+  if (key === 'waiting') {
+    return {
+      styleKey: 'Waiting',
+      label: 'Bekliyor',
+      badgeTone: 'blue' as const,
+      statusIcon: 'time-outline',
+    };
+  }
+  return {
+    styleKey: 'Default',
+    label: 'Normal',
+    badgeTone: 'gray' as const,
+    statusIcon: 'ellipse-outline',
+  };
+}
+
 function TaskModulesScreen({ order, modules, onBack, onContinue }: { order: LiveWorkOrder; modules: ModuleItem[]; onBack: () => void; onContinue: () => void }) {
-  const completed = modules.filter((module) => module.status === 'Tamamlandı').length;
+  const completed = modules.filter((module) => module.status === 'TamamlandÄ±').length;
   const warned = modules.filter((module) => module.status === 'Eksik Var').length;
   const first = modules[0];
 
   return (
     <>
       <AppHeader
-        title="Görev Modülleri"
-        subtitle="Aracınıza ait modül görevlerini yönetin."
+        title="GÃ¶rev ModÃ¼lleri"
+        subtitle="AracÄ±nÄ±za ait modÃ¼l gÃ¶revlerini yÃ¶netin."
         showLogo
         showBack
         onBack={onBack}
@@ -738,15 +1022,15 @@ function TaskModulesScreen({ order, modules, onBack, onContinue }: { order: Live
         <View style={styles.contextCard}>
           <IconBubble icon="document-text-outline" tone="blue" />
           <View style={styles.flex1}>
-            <Text style={styles.contextTitle}>{order.workOrderNo} • {vehicleTitle(order)}</Text>
+            <Text style={styles.contextTitle}>{order.workOrderNo} â€¢ {vehicleTitle(order)}</Text>
           </View>
           <StatusBadge label={statusLabel(order.status)} tone="purple" />
         </View>
         <View style={styles.summaryGrid}>
-          <SummaryItem icon="cube-outline" label="Toplam Modül" value={String(modules.length)} tone="blue" />
+          <SummaryItem icon="cube-outline" label="Toplam ModÃ¼l" value={String(modules.length)} tone="blue" />
           <SummaryItem icon="checkmark-circle-outline" label="Tamamlanan" value={String(completed)} tone="green" />
-          <SummaryItem icon="alert-circle-outline" label="Eksik / Uyarı" value={String(warned || Math.max(0, order.tasks.length - completedTasks(order)))} tone="orange" />
-          <SummaryItem icon="time-outline" label="Son Güncelleme" value={formatDateTime(order.openedAt)} tone="blue" />
+          <SummaryItem icon="alert-circle-outline" label="Eksik / UyarÄ±" value={String(warned || Math.max(0, order.tasks.length - completedTasks(order)))} tone="orange" />
+          <SummaryItem icon="time-outline" label="Son GÃ¼ncelleme" value={formatDateTime(order.openedAt)} tone="blue" />
         </View>
         {first ? <ExpandedModule module={first} onContinue={onContinue} /> : null}
         <View style={styles.moduleStack}>
@@ -756,7 +1040,7 @@ function TaskModulesScreen({ order, modules, onBack, onContinue }: { order: Live
         </View>
         <View style={styles.footerNote}>
           <Ionicons name="information-circle-outline" color={liveColors.muted} size={18} />
-          <Text style={styles.footerNoteText}>Modüller yukarıdan aşağıya sırayla tamamlanmalıdır.</Text>
+          <Text style={styles.footerNoteText}>ModÃ¼ller yukarÄ±dan aÅŸaÄŸÄ±ya sÄ±rayla tamamlanmalÄ±dÄ±r.</Text>
         </View>
       </View>
     </>
@@ -793,8 +1077,8 @@ function BodyInspectionScreen({
   return (
     <>
       <AppHeader
-        title="Kaporta Kontrolü"
-        subtitle={`${order.workOrderNo} • ${order.vehicle.brand || 'Volkswagen'} ${order.vehicle.model || 'Passat'}`}
+        title="Kaporta KontrolÃ¼"
+        subtitle={`${order.workOrderNo} â€¢ ${order.vehicle.brand || 'Volkswagen'} ${order.vehicle.model || 'Passat'}`}
         showBack
         onBack={onBack}
         chip={technician.name}
@@ -805,13 +1089,13 @@ function BodyInspectionScreen({
             { label: 'Kaporta', active: true, done: false },
             { label: 'Mekanik', active: false, done: false },
             { label: 'Elektrik', active: false, done: false },
-            { label: 'İç / Dış', active: false, done: false },
-            { label: 'Test Sürüşü', active: false, done: false },
+            { label: 'Ä°Ã§ / DÄ±ÅŸ', active: false, done: false },
+            { label: 'Test SÃ¼rÃ¼ÅŸÃ¼', active: false, done: false },
           ]}
         />
         <View style={styles.tableCard}>
           <View style={styles.tableHeader}>
-            <Text style={[styles.tableHeadText, styles.partColumn]}>Parça</Text>
+            <Text style={[styles.tableHeadText, styles.partColumn]}>ParÃ§a</Text>
             <Text style={[styles.tableHeadText, styles.stateColumn]}>Durum</Text>
             <Text style={styles.tableHeadText}>Not</Text>
           </View>
@@ -823,7 +1107,7 @@ function BodyInspectionScreen({
           <View style={styles.measureHead}>
             <View style={styles.rowCenter}>
               <Ionicons name="pulse-outline" color={liveColors.blue} size={24} />
-              <Text style={styles.measureTitle}>Ölçüm Girişi</Text>
+              <Text style={styles.measureTitle}>Ã–lÃ§Ã¼m GiriÅŸi</Text>
             </View>
             <StatusBadge label="Mikron Rehberi" tone="blue" icon="information-circle-outline" />
           </View>
@@ -833,7 +1117,7 @@ function BodyInspectionScreen({
                 <Text style={styles.measureLabel}>{part.part}</Text>
                 <View style={styles.measureInput}>
                   <Text style={styles.measureValue}>{part.micron}</Text>
-                  <Text style={styles.measureUnit}>µm</Text>
+                  <Text style={styles.measureUnit}>Âµm</Text>
                 </View>
               </View>
             ))}
@@ -869,23 +1153,23 @@ function EvidenceScreen({
 
   return (
     <>
-      <AppHeader title="Fotoğraf & Kanıt" subtitle="Kaporta Kontrolü" showBack onBack={onBack} rightNotification chip={order.workOrderNo} />
+      <AppHeader title="FotoÄŸraf & KanÄ±t" subtitle="Kaporta KontrolÃ¼" showBack onBack={onBack} rightNotification chip={order.workOrderNo} />
       <View style={styles.sheetLight}>
         <Stepper
           steps={[
-            { label: 'Araç Bilgileri', active: false, done: true },
+            { label: 'AraÃ§ Bilgileri', active: false, done: true },
             { label: 'Kontroller', active: false, done: true },
-            { label: 'Fotoğraf & Kanıt', active: true, done: false },
-            { label: 'Değerlendirme', active: false, done: false },
+            { label: 'FotoÄŸraf & KanÄ±t', active: true, done: false },
+            { label: 'DeÄŸerlendirme', active: false, done: false },
           ]}
         />
         <View style={styles.evidencePanel}>
           <View style={styles.panelTitleRow}>
             <View style={styles.rowCenter}>
               <Ionicons name="shield-checkmark-outline" color={liveColors.purple} size={24} />
-              <Text style={styles.sectionTitle}>Zorunlu Kanıtlar</Text>
+              <Text style={styles.sectionTitle}>Zorunlu KanÄ±tlar</Text>
             </View>
-            <StatusBadge label="5 / 5 Tamamlandı" tone="green" />
+            <StatusBadge label="5 / 5 TamamlandÄ±" tone="green" />
           </View>
           <View style={styles.evidenceGrid}>
             {evidence.map((item) => (
@@ -893,9 +1177,9 @@ function EvidenceScreen({
             ))}
           </View>
         </View>
-        <SectionHeader icon="attach-outline" title="Ek Kanıtlar" />
+        <SectionHeader icon="attach-outline" title="Ek KanÄ±tlar" />
         <View style={styles.evidenceActionRow}>
-          <EvidenceAction icon="camera-outline" title="Fotoğraf Ekle" tone="blue" />
+          <EvidenceAction icon="camera-outline" title="FotoÄŸraf Ekle" tone="blue" />
           <EvidenceAction icon="videocam-outline" title="Video Ekle" tone="purple" />
           <EvidenceAction icon="document-outline" title="Dosya Ekle" tone="green" />
         </View>
@@ -905,7 +1189,7 @@ function EvidenceScreen({
             style={styles.textArea}
             multiline
             maxLength={500}
-            placeholder="Notlarınızı buraya yazın..."
+            placeholder="NotlarÄ±nÄ±zÄ± buraya yazÄ±n..."
             placeholderTextColor={liveColors.muted}
             value={note}
             onChangeText={onChangeNote}
@@ -932,22 +1216,22 @@ function FinalReviewScreen({ order, modules, onBack, onSubmit }: { order: LiveWo
       <View style={styles.sheet}>
         <View style={styles.finalTopCard}>
           <View style={styles.flex1}>
-            <Text style={styles.kicker}>İş Emri</Text>
+            <Text style={styles.kicker}>Ä°ÅŸ Emri</Text>
             <Text style={styles.orderNo}>{order.workOrderNo}</Text>
-            <Text style={styles.vehicleTitle}>Araç</Text>
+            <Text style={styles.vehicleTitle}>AraÃ§</Text>
             <Text style={styles.finalVehicle}>{vehicleTitle(order)}</Text>
           </View>
-          <ProgressRing percent={progress} size={116} stroke={10} color={liveColors.green} label="Tamamlandı" />
-          <StatusBadge label="Teknik Giriş Hazır" tone="green" icon="checkmark-circle-outline" />
+          <ProgressRing percent={progress} size={116} stroke={10} color={liveColors.green} label="TamamlandÄ±" />
+          <StatusBadge label="Teknik GiriÅŸ HazÄ±r" tone="green" icon="checkmark-circle-outline" />
         </View>
         <View style={styles.finalStats}>
-          <SummaryItem icon="checkmark-circle-outline" label="Modül Tamamlandı" value={String(modules.filter((item) => item.status === 'Tamamlandı').length || modules.length)} tone="green" />
-          <SummaryItem icon="alert-circle-outline" label="Eksik / Uyarı" value={String(warned)} tone="orange" />
-          <SummaryItem icon="cloud-upload-outline" label="Kanıt Yüklendi" value={String(evidenceCount)} tone="purple" />
-          <SummaryItem icon="time-outline" label="Çalışma Süresi" value={elapsedLabel(order)} tone="blue" />
+          <SummaryItem icon="checkmark-circle-outline" label="ModÃ¼l TamamlandÄ±" value={String(modules.filter((item) => item.status === 'TamamlandÄ±').length || modules.length)} tone="green" />
+          <SummaryItem icon="alert-circle-outline" label="Eksik / UyarÄ±" value={String(warned)} tone="orange" />
+          <SummaryItem icon="cloud-upload-outline" label="KanÄ±t YÃ¼klendi" value={String(evidenceCount)} tone="purple" />
+          <SummaryItem icon="time-outline" label="Ã‡alÄ±ÅŸma SÃ¼resi" value={elapsedLabel(order)} tone="blue" />
         </View>
 
-        <SectionHeader title="Modüller" action="Tümünü Gör" />
+        <SectionHeader title="ModÃ¼ller" action="TÃ¼mÃ¼nÃ¼ GÃ¶r" />
         <View style={styles.finalModuleBox}>
           {modules.map((module) => (
             <FinalModuleRow key={module.id} module={module} />
@@ -959,29 +1243,29 @@ function FinalReviewScreen({ order, modules, onBack, onSubmit }: { order: LiveWo
             icon="document-text-outline"
             tone="blue"
             title="Teknik Not"
-            body="Sol arka çamurluk üzerinde lokal boya ölçüm değerleri farklılık göstermektedir. Detaylar ilgili modülde belirtilmiştir."
+            body="Sol arka Ã§amurluk Ã¼zerinde lokal boya Ã¶lÃ§Ã¼m deÄŸerleri farklÄ±lÄ±k gÃ¶stermektedir. Detaylar ilgili modÃ¼lde belirtilmiÅŸtir."
             badge="Not eklendi"
           />
           <ReviewNote
             icon="reader-outline"
             tone="purple"
-            title="Müşteri İçin Özet"
-            body="Araç genel durumu iyi seviyededir. Belirtilen uyarı maddeleri dışında önemli bir bulguya rastlanmamıştır."
-            badge="Özet hazır"
+            title="MÃ¼ÅŸteri Ä°Ã§in Ã–zet"
+            body="AraÃ§ genel durumu iyi seviyededir. Belirtilen uyarÄ± maddeleri dÄ±ÅŸÄ±nda Ã¶nemli bir bulguya rastlanmamÄ±ÅŸtÄ±r."
+            badge="Ã–zet hazÄ±r"
           />
         </View>
         <View style={styles.readyBanner}>
           <Ionicons name="checkmark" color={liveColors.white} size={24} />
           <View style={styles.flex1}>
-            <Text style={styles.readyTitle}>Tüm zorunlu alanlar tamamlandı.</Text>
-            <Text style={styles.readyText}>Rapor teknik onaya gönderilmeye hazır.</Text>
+            <Text style={styles.readyTitle}>TÃ¼m zorunlu alanlar tamamlandÄ±.</Text>
+            <Text style={styles.readyText}>Rapor teknik onaya gÃ¶nderilmeye hazÄ±r.</Text>
           </View>
           <Ionicons name="shield-checkmark-outline" color="rgba(7,148,85,0.28)" size={46} />
         </View>
         <View style={styles.buttonRow}>
           <ActionButton title="Taslak Olarak Kaydet" variant="outline" icon="save-outline" />
           <ActionButton
-            title="Raporu Teknik Onaya Gönder"
+            title="Raporu Teknik Onaya GÃ¶nder"
             icon="paper-plane-outline"
             onPress={onSubmit}
           />
@@ -999,15 +1283,15 @@ function NotificationsScreen() {
         <View style={styles.notificationSummary}>
           <IconBubble icon="notifications-outline" tone="blue" />
           <View style={styles.flex1}>
-            <Text style={styles.panelTitle}>3 okunmamış bildiriminiz var</Text>
-            <Text style={styles.panelSub}>Son güncellenme: 16 Mayıs 2025, 21:56</Text>
+            <Text style={styles.panelTitle}>3 okunmamÄ±ÅŸ bildiriminiz var</Text>
+            <Text style={styles.panelSub}>Son gÃ¼ncellenme: 16 MayÄ±s 2025, 21:56</Text>
           </View>
-          <StatusBadge label="Tümünü Okundu İşaretle" tone="blue" icon="checkmark-circle-outline" />
+          <StatusBadge label="TÃ¼mÃ¼nÃ¼ Okundu Ä°ÅŸaretle" tone="blue" icon="checkmark-circle-outline" />
         </View>
         <View style={styles.tabsRow}>
           {[
-            ['Tümü', '12'],
-            ['İş Emirleri', '5'],
+            ['TÃ¼mÃ¼', '12'],
+            ['Ä°ÅŸ Emirleri', '5'],
             ['Eksikler', '2'],
             ['Onay', '2'],
             ['Sistem', '3'],
@@ -1041,28 +1325,28 @@ function ProfileScreen({ metrics, lastSync, onLogout }: { metrics: DashboardMetr
           <View style={styles.flex1}>
             <Text style={styles.profileName}>{technician.name}</Text>
             <StatusBadge label={technician.role} tone="purple" icon="shield-checkmark-outline" />
-            <Text style={styles.profileBranch}>Bursa Küçük Sanayi</Text>
+            <Text style={styles.profileBranch}>Bursa KÃ¼Ã§Ã¼k Sanayi</Text>
           </View>
-          <ActionButton title="Profili Düzenle" variant="outline" icon="create-outline" compact />
+          <ActionButton title="Profili DÃ¼zenle" variant="outline" icon="create-outline" compact />
         </View>
         <View style={styles.profileStats}>
-          <ProfileStat icon="checkmark-circle-outline" title="Bu Ay Tamamlanan" value={String(Math.max(completedOrderCount(mockLiveOrders), metrics.completedTasks || 16))} subtitle="iş emri" tone="green" />
-          <ProfileStat icon="briefcase-outline" title="Aktif İşler" value={String(metrics.openOrders || 5)} subtitle="iş emri" tone="blue" />
-          <ProfileStat icon="time-outline" title="Ortalama Süre" value="32 dk" subtitle="iş emri başına" tone="orange" />
+          <ProfileStat icon="checkmark-circle-outline" title="Bu Ay Tamamlanan" value={String(Math.max(completedOrderCount(mockLiveOrders), metrics.completedTasks || 16))} subtitle="iÅŸ emri" tone="green" />
+          <ProfileStat icon="briefcase-outline" title="Aktif Ä°ÅŸler" value={String(metrics.openOrders || 5)} subtitle="iÅŸ emri" tone="blue" />
+          <ProfileStat icon="time-outline" title="Ortalama SÃ¼re" value="32 dk" subtitle="iÅŸ emri baÅŸÄ±na" tone="orange" />
         </View>
         <View style={styles.settingsCard}>
-          <ProfileRow icon="person-outline" title="Hesap Bilgileri" subtitle="Kişisel bilgileriniz ve iletişim" tone="blue" />
-          <ProfileRow icon="lock-closed-outline" title="Şifre Değiştir" subtitle="Hesap şifrenizi güncelleyin" tone="purple" />
-          <ProfileRow icon="notifications-outline" title="Bildirim Tercihleri" subtitle="Bildirim ayarlarınızı yönetin" tone="orange" />
-          <ProfileRow icon="time-outline" title="Vardiya Bilgisi" subtitle={`${technician.shift} • Son senkron: ${lastSync}`} tone="blue" right="Gündüz Vardiyası" />
-          <ProfileRow icon="information-circle-outline" title="Uygulama Sürümü" subtitle="Güncel sürüm bilgisi" tone="blue" right="v2.4.1" />
-          <ProfileRow icon="help-circle-outline" title="Yardım & Destek" subtitle="Sık sorulan sorular ve destek" tone="blue" />
+          <ProfileRow icon="person-outline" title="Hesap Bilgileri" subtitle="KiÅŸisel bilgileriniz ve iletiÅŸim" tone="blue" />
+          <ProfileRow icon="lock-closed-outline" title="Åifre DeÄŸiÅŸtir" subtitle="Hesap ÅŸifrenizi gÃ¼ncelleyin" tone="purple" />
+          <ProfileRow icon="notifications-outline" title="Bildirim Tercihleri" subtitle="Bildirim ayarlarÄ±nÄ±zÄ± yÃ¶netin" tone="orange" />
+          <ProfileRow icon="time-outline" title="Vardiya Bilgisi" subtitle={`${technician.shift} â€¢ Son senkron: ${lastSync}`} tone="blue" right="GÃ¼ndÃ¼z VardiyasÄ±" />
+          <ProfileRow icon="information-circle-outline" title="Uygulama SÃ¼rÃ¼mÃ¼" subtitle="GÃ¼ncel sÃ¼rÃ¼m bilgisi" tone="blue" right="v2.4.1" />
+          <ProfileRow icon="help-circle-outline" title="YardÄ±m & Destek" subtitle="SÄ±k sorulan sorular ve destek" tone="blue" />
         </View>
         <Pressable style={styles.logoutRow} onPress={onLogout}>
           <IconBubble icon="log-out-outline" tone="red" />
           <View style={styles.flex1}>
-            <Text style={styles.logoutTitle}>Çıkış Yap</Text>
-            <Text style={styles.panelSub}>Oturumunuzu sonlandırın</Text>
+            <Text style={styles.logoutTitle}>Ã‡Ä±kÄ±ÅŸ Yap</Text>
+            <Text style={styles.panelSub}>Oturumunuzu sonlandÄ±rÄ±n</Text>
           </View>
           <Ionicons name="chevron-forward" color={liveColors.ink} size={22} />
         </Pressable>
@@ -1102,7 +1386,7 @@ function AppHeader({
           {showLogo ? (
             <View>
               <LogoText />
-              <Text style={styles.headerLogoSub}>Tarafsız Araç Ekspertizi</Text>
+              <Text style={styles.headerLogoSub}>TarafsÄ±z AraÃ§ Ekspertizi</Text>
             </View>
           ) : null}
         </View>
@@ -1122,7 +1406,7 @@ function AppHeader({
 function LogoText({ size = 'normal' }: { size?: 'normal' | 'large' }) {
   return (
     <Text style={[styles.logoText, size === 'large' && styles.logoTextLarge]}>
-      OTOTR<Text style={styles.logoAccent}>✓</Text>
+      OTOTR<Text style={styles.logoAccent}>âœ“</Text>
     </Text>
   );
 }
@@ -1147,17 +1431,17 @@ function HeaderChip({ text }: { text: string }) {
   );
 }
 
-function BottomTabs({ active, onChange }: { active: TabKey; onChange: (tab: TabKey) => void }) {
+function BottomTabs({ active, onChange, safeBottom = 0 }: { active: TabKey; onChange: (tab: TabKey) => void; safeBottom?: number }) {
   const tabs: { key: TabKey; label: string; icon: IconName; center?: boolean }[] = [
-    { key: 'modules', label: 'Görevler', icon: 'grid-outline' },
-    { key: 'jobs', label: 'İşlerim', icon: 'clipboard-outline' },
-    { key: 'home', label: 'Home', icon: 'home-outline', center: true },
+    { key: 'modules', label: 'GÃ¶revler', icon: 'grid-outline' },
+    { key: 'jobs', label: 'Ä°ÅŸlerim', icon: 'clipboard-outline' },
+    { key: 'home', label: 'OtoTR', icon: 'home-outline', center: true },
     { key: 'detail', label: 'Eksikler', icon: 'alert-circle-outline' },
     { key: 'profile', label: 'Profil', icon: 'person-outline' },
   ];
 
   return (
-    <View style={styles.bottomTabs}>
+    <View style={[styles.bottomTabs, { paddingBottom: Math.max(10, safeBottom + 8) }]}>
       {tabs.map((tab) => {
         const isActive = active === tab.key;
         return (
@@ -1165,12 +1449,28 @@ function BottomTabs({ active, onChange }: { active: TabKey; onChange: (tab: TabK
             key={tab.key}
             style={[styles.tabItem, tab.center && styles.tabItemCenter]}
             onPress={() => onChange(tab.key)}
+            accessibilityRole="button"
           >
             <View style={[styles.tabIconWrap, tab.center && styles.tabHomeButton, isActive && tab.center && styles.tabHomeButtonActive]}>
-              <Ionicons name={tab.icon} color={tab.center ? liveColors.white : isActive ? liveColors.blue : liveColors.white} size={tab.center ? 32 : 27} />
+              {tab.center ? (
+                <>
+                  <Ionicons
+                    name="home-outline"
+                    color={liveColors.white}
+                    size={20}
+                  />
+                  <Text style={[styles.tabHomeText, isActive && styles.tabHomeTextActive]}>OtoTR</Text>
+                </>
+              ) : (
+                <Ionicons
+                  name={tab.icon}
+                  color={isActive ? liveSemanticColors.brandPrimary : liveSemanticColors.textSecondary}
+                  size={22}
+                />
+              )}
             </View>
-            <Text style={[styles.tabLabel, tab.center && styles.tabHomeLabel, isActive && styles.tabLabelActive]}>{tab.label}</Text>
-            <View style={[styles.tabLine, tab.center && styles.tabLineCenter, isActive && styles.tabLineActive]} />
+            {tab.center ? null : <Text style={[styles.tabLabel, isActive && styles.tabLabelActive]}>{tab.label}</Text>}
+            {tab.center ? null : <View style={[styles.tabLine, isActive && styles.tabLineActive]} />}
           </Pressable>
         );
       })}
@@ -1209,6 +1509,7 @@ function MetricCard({
 }
 
 function FeaturedOrderCard({ order, progress, onPress }: { order: LiveWorkOrder; progress: number; onPress: () => void }) {
+  const risk = orderRiskLabel(order);
   return (
     <Pressable style={styles.featureCard} onPress={onPress}>
       <View style={styles.featureTop}>
@@ -1220,16 +1521,17 @@ function FeaturedOrderCard({ order, progress, onPress }: { order: LiveWorkOrder;
           <Text style={styles.featureVehicle}>{vehicleTitle(order)}</Text>
           <Text style={styles.cardMuted}>{vehicleMeta(order)}</Text>
         </View>
-        <ProgressRing percent={progress} size={78} stroke={8} color={progress >= 100 ? liveColors.green : liveColors.blue} label={progress >= 100 ? 'Tamamlandı' : 'İlerleme'} />
+        <ProgressRing percent={progress} size={78} stroke={8} color={progress >= 100 ? liveColors.green : liveColors.blue} label={progress >= 100 ? 'TamamlandÄ±' : 'Ä°lerleme'} />
       </View>
       <View style={styles.featureBottom}>
-        <StatusBadge label={progress >= 100 ? 'İş emri tamamlandı' : statusLabel(order.status)} tone={progress >= 100 ? 'green' : 'blue'} icon="checkmark-circle-outline" />
+        {risk ? <RiskInlineAlert label={risk} /> : null}
+        <StatusBadge label={progress >= 100 ? 'Ä°ÅŸ emri tamamlandÄ±' : statusLabel(order.status)} tone={progress >= 100 ? 'green' : 'blue'} icon="checkmark-circle-outline" />
         <View style={styles.rowCenter}>
           <Ionicons name="time-outline" color={liveColors.muted} size={16} />
           <Text style={styles.cardMuted}>Tamamlanma: 16:45</Text>
         </View>
         <View style={styles.smallPrimary}>
-          <Text style={styles.smallPrimaryText}>Raporu Görüntüle</Text>
+          <Text style={styles.smallPrimaryText}>Raporu GÃ¶rÃ¼ntÃ¼le</Text>
           <Ionicons name="arrow-forward" color={liveColors.white} size={17} />
         </View>
       </View>
@@ -1243,6 +1545,7 @@ function WorkOrderCard({ order, onPress }: { order: LiveWorkOrder; onPress: () =
   const done = completedTasks(order);
   const missing = Math.max(0, total - done);
   const color = progress >= 100 ? liveColors.green : liveColors.blue;
+  const risk = orderRiskLabel(order);
 
   return (
     <Pressable style={styles.workCard} onPress={onPress}>
@@ -1257,17 +1560,27 @@ function WorkOrderCard({ order, onPress }: { order: LiveWorkOrder; onPress: () =
         </View>
         <StatusBadge label={statusLabel(order.status)} tone={progress >= 100 ? 'green' : 'blue'} icon={progress >= 100 ? 'checkmark-circle-outline' : undefined} />
       </View>
+      {risk ? <RiskInlineAlert label={risk} /> : null}
       <View style={styles.progressRow}>
         <ProgressBar value={progress} color={color} />
         <Text style={[styles.progressText, { color }]}>{progress}%</Text>
       </View>
       <View style={styles.chipRow}>
-        <SmallChip icon="clipboard-outline" text={`${total} Görev`} tone="blue" />
-        <SmallChip icon="checkmark-circle-outline" text={`${done} Tamamlandı`} tone="green" />
+        <SmallChip icon="clipboard-outline" text={`${total} GÃ¶rev`} tone="blue" />
+        <SmallChip icon="checkmark-circle-outline" text={`${done} TamamlandÄ±`} tone="green" />
         <SmallChip icon="alert-circle-outline" text={`${missing} Eksik`} tone={missing ? 'orange' : 'gray'} />
       </View>
       <Ionicons style={styles.cardChevron} name="chevron-forward" color={liveColors.ink} size={24} />
     </Pressable>
+  );
+}
+
+function RiskInlineAlert({ label }: { label: string }) {
+  return (
+    <View style={styles.riskInlineAlert}>
+      <Ionicons name="warning-outline" color={liveColors.amber} size={17} />
+      <Text style={styles.riskInlineText} numberOfLines={2}>{label}</Text>
+    </View>
   );
 }
 
@@ -1285,16 +1598,16 @@ function ExpandedModule({ module, onContinue }: { module: ModuleItem; onContinue
         <StatusBadge label={module.status} tone={statusTone(module.status)} />
         <View style={styles.ownerRow}>
           <Ionicons name="person-outline" color={liveColors.muted} size={19} />
-          <Text style={styles.ownerText}>{module.owner || 'Sahiplenilmemiş'}</Text>
+          <Text style={styles.ownerText}>{module.owner || 'SahiplenilmemiÅŸ'}</Text>
         </View>
         <Ionicons name="chevron-up" color={liveColors.ink} size={22} />
       </View>
       <View style={styles.moduleInfoBox}>
         <Ionicons name="information-circle-outline" color={liveColors.blue} size={20} />
-        <Text style={styles.moduleInfoText}>Bu modül üzerinde şu anda çalışılmaktadır. Aynı anda yalnızca 1 teknisyen bu modül üzerinde çalışabilir.</Text>
+        <Text style={styles.moduleInfoText}>Bu modÃ¼l Ã¼zerinde ÅŸu anda Ã§alÄ±ÅŸÄ±lmaktadÄ±r. AynÄ± anda yalnÄ±zca 1 teknisyen bu modÃ¼l Ã¼zerinde Ã§alÄ±ÅŸabilir.</Text>
       </View>
       <View style={styles.progressLabeled}>
-        <Text style={styles.ownerText}>İlerleme</Text>
+        <Text style={styles.ownerText}>Ä°lerleme</Text>
         <ProgressBar value={module.progress} color={liveColors.blue} />
         <Text style={styles.progressPercent}>%{module.progress}</Text>
       </View>
@@ -1316,11 +1629,11 @@ function CollapsedModule({ module }: { module: ModuleItem }) {
       </View>
       <View style={styles.flex1}>
         <Text style={styles.collapsedTitle}>{module.title}</Text>
-        <Text style={styles.cardMuted}>{module.taskTotal} görev • {module.evidenceRequired} kanıt zorunlu</Text>
+        <Text style={styles.cardMuted}>{module.taskTotal} gÃ¶rev â€¢ {module.evidenceRequired} kanÄ±t zorunlu</Text>
       </View>
       <StatusBadge label={module.status} tone={statusTone(module.status)} />
-      <Text style={styles.ownerSmall}>{module.owner || 'Sahiplenilmemiş'}</Text>
-      <ActionButton title={module.status === 'Boşta' || !module.owner ? 'Sahiplen' : 'Detay'} variant="outline" compact />
+      <Text style={styles.ownerSmall}>{module.owner || 'SahiplenilmemiÅŸ'}</Text>
+      <ActionButton title={module.status === 'BoÅŸta' || !module.owner ? 'Sahiplen' : 'Detay'} variant="outline" compact />
       <Ionicons name="chevron-down" color={liveColors.ink} size={20} />
     </View>
   );
@@ -1332,8 +1645,8 @@ function ModuleListRow({ module }: { module: ModuleItem }) {
     <View style={styles.detailModuleRow}>
       <IconBubble icon={module.icon} tone={module.tone} small />
       <View style={styles.flex1}>
-        <Text style={styles.detailModuleTitle}>{module.title.replace('Kontrolü', 'Ekspertizi')}</Text>
-        <Text style={styles.cardMuted}>{module.taskDone} / {module.taskTotal} görev</Text>
+        <Text style={styles.detailModuleTitle}>{module.title.replace('KontrolÃ¼', 'Ekspertizi')}</Text>
+        <Text style={styles.cardMuted}>{module.taskDone} / {module.taskTotal} gÃ¶rev</Text>
       </View>
       <View style={styles.detailModuleProgress}>
         <StatusBadge label={`${module.progress}%`} tone={module.progress >= 100 ? 'green' : module.progress >= 60 ? 'blue' : 'orange'} />
@@ -1352,9 +1665,9 @@ function BodyPartRow({ part, onChangeState }: { part: BodyInspectionPart; onChan
         <Text style={styles.bodyPartText}>{part.part}</Text>
       </View>
       <View style={[styles.segmentGroup, styles.stateColumn]}>
-        {(['Orijinal', 'Boyalı', 'Değişen'] as const).map((state) => {
+        {(['Orijinal', 'BoyalÄ±', 'DeÄŸiÅŸen'] as const).map((state) => {
           const active = part.state === state;
-          const tone: Tone = state === 'Orijinal' ? 'green' : state === 'Boyalı' ? 'orange' : 'red';
+          const tone: Tone = state === 'Orijinal' ? 'green' : state === 'BoyalÄ±' ? 'orange' : 'red';
           const palette = tonePalette(tone);
           return (
             <Pressable
@@ -1388,7 +1701,7 @@ function EvidenceCard({ item }: { item: { title: string; icon: IconName; tone: T
       </View>
       <View style={styles.uploadRow}>
         <Ionicons name="checkmark-circle-outline" color={liveColors.green} size={21} />
-        <Text style={styles.uploadText}>Yüklendi</Text>
+        <Text style={styles.uploadText}>YÃ¼klendi</Text>
         <Ionicons style={styles.flexEnd} name="ellipsis-vertical" color={liveColors.muted} size={18} />
       </View>
     </View>
@@ -1410,9 +1723,9 @@ function FinalModuleRow({ module }: { module: ModuleItem }) {
   return (
     <View style={styles.finalModuleRow}>
       <Ionicons name={ok ? 'checkmark-circle-outline' : 'alert-circle-outline'} color={ok ? liveColors.green : liveColors.amber} size={25} />
-      <Text style={styles.finalModuleTitle}>{module.title.replace('Kontrolü', 'Kontroller')}</Text>
+      <Text style={styles.finalModuleTitle}>{module.title.replace('KontrolÃ¼', 'Kontroller')}</Text>
       <Text style={styles.finalModuleMeta}>{module.taskDone || module.taskTotal} / {module.taskTotal} kontrol</Text>
-      <StatusBadge label={ok ? 'Tamamlandı' : '1 Uyarı'} tone={ok ? 'green' : 'orange'} />
+      <StatusBadge label={ok ? 'TamamlandÄ±' : '1 UyarÄ±'} tone={ok ? 'green' : 'orange'} />
       <Ionicons name="chevron-forward" color={liveColors.ink} size={20} />
     </View>
   );
@@ -1652,7 +1965,7 @@ function Stepper({ steps }: { steps: { label: string; active: boolean; done: boo
         return (
           <View key={step.label} style={styles.stepItem}>
             <View style={[styles.stepCircle, active && styles.stepCircleActive, step.done && styles.stepCircleDone]}>
-              <Text style={[styles.stepNo, active && styles.stepNoActive]}>{step.done ? '✓' : index + 1}</Text>
+              <Text style={[styles.stepNo, active && styles.stepNoActive]}>{step.done ? 'âœ“' : index + 1}</Text>
             </View>
             {index < steps.length - 1 ? <View style={[styles.stepLine, active && styles.stepLineActive]} /> : null}
             <Text numberOfLines={1} style={[styles.stepLabel, step.active && styles.stepLabelActive]}>{step.label}</Text>
@@ -1779,7 +2092,7 @@ function LoadingOverlay() {
   return (
     <View style={styles.loadingOverlay}>
       <ActivityIndicator color={liveColors.white} size="large" />
-      <Text style={styles.loadingText}>Canlı sistem işleniyor</Text>
+      <Text style={styles.loadingText}>CanlÄ± sistem iÅŸleniyor</Text>
     </View>
   );
 }
@@ -1788,6 +2101,53 @@ function getActiveTab(view: ViewKey): TabKey {
   if (view === 'home' || view === 'jobs' || view === 'profile' || view === 'modules' || view === 'detail') return view;
   if (view === 'body' || view === 'evidence' || view === 'final') return 'modules';
   return 'home';
+}
+
+function toInspectionStatus(module: ModuleItem): InspectionStatus {
+  const isCompleted = module.progress >= 100 || module.status === 'TamamlandÄ±' || module.status === 'TamamlandÄ±';
+  const isMissing = module.tasks.some((task) => task.evidenceCount === 0 && normalizeStatus(task.status) !== 'COMPLETED');
+
+  if (isCompleted) {
+    return {
+      key: 'completed',
+      tone: 'green',
+      icon: 'checkmark-circle-outline',
+      label: 'Tamamlandı',
+      description: 'Kontrol tamamlandı',
+      statusIcon: 'checkmark-circle-outline',
+    };
+  }
+
+  if (module.status === 'Eksik Var' || isMissing) {
+    return {
+      key: 'missing',
+      tone: 'red',
+      icon: 'camera-outline',
+      label: 'Eksik',
+      description: 'Fotoğraf ve/veya kontrol gerektiriyor',
+      statusIcon: 'camera-outline',
+    };
+  }
+
+  if (module.tasks.some((task) => ['IN_PROGRESS', 'OPEN', 'WAITING', 'AVAILABLE', 'STARTED'].includes(normalizeStatus(task.status))) || module.status === 'Devam Ediyor') {
+    return {
+      key: 'waiting',
+      tone: 'blue',
+      icon: 'time-outline',
+      label: 'Bekleniyor',
+      description: 'Bekleme / süreçte',
+      statusIcon: 'time-outline',
+    };
+  }
+
+  return {
+    key: 'default',
+    tone: 'blue',
+    icon: 'ellipse-outline',
+    label: 'Hazır',
+    description: 'İşleme hazır',
+    statusIcon: 'ellipse-outline',
+  };
 }
 
 function loadIconFont() {
@@ -1847,8 +2207,8 @@ function buildModules(order?: LiveWorkOrder): ModuleItem[] {
     const progress = clamp(Math.round((taskDone / taskTotal) * 100));
     const hasAction = moduleTasks.some((task) => isActionableTask(task.status));
     const hasMissing = moduleTasks.some((task) => task.evidenceCount === 0 && normalizeStatus(task.status) !== 'COMPLETED');
-    const status = progress >= 100 ? 'Tamamlandı' : hasMissing ? 'Eksik Var' : hasAction || index === 0 ? 'Devam Ediyor' : 'Boşta';
-    const owner = status === 'Boşta' ? null : index === 5 ? 'Mehmet Usta' : technician.name;
+    const status = progress >= 100 ? 'TamamlandÄ±' : hasMissing ? 'Eksik Var' : hasAction || index === 0 ? 'Devam Ediyor' : 'BoÅŸta';
+    const owner = status === 'BoÅŸta' ? null : index === 5 ? 'Mehmet Usta' : technician.name;
 
     return {
       id: definition.id,
@@ -1879,16 +2239,16 @@ function mergeEvidenceCards(evidence: LiveEvidence[]) {
 
 function statusLabel(status: string) {
   const normalized = normalizeStatus(status);
-  if (normalized === 'COMPLETED' || normalized === 'CLOSED' || normalized === 'APPROVED') return 'Tamamlandı';
+  if (normalized === 'COMPLETED' || normalized === 'CLOSED' || normalized === 'APPROVED') return 'TamamlandÄ±';
   if (normalized === 'MANAGER_REVIEW') return 'Teknik Onayda';
-  if (normalized === 'IN_PROGRESS') return 'Teknik Giriş Açık';
-  if (normalized === 'OPEN') return 'Açık';
+  if (normalized === 'IN_PROGRESS') return 'Teknik GiriÅŸ AÃ§Ä±k';
+  if (normalized === 'OPEN') return 'AÃ§Ä±k';
   if (normalized === 'WAITING') return 'Bekliyor';
-  return normalized ? normalized.replaceAll('_', ' ') : 'Teknik Giriş Açık';
+  return normalized ? normalized.replaceAll('_', ' ') : 'Teknik GiriÅŸ AÃ§Ä±k';
 }
 
 function statusTone(status: string): Tone {
-  if (status === 'Tamamlandı') return 'green';
+  if (status === 'TamamlandÄ±') return 'green';
   if (status === 'Eksik Var') return 'orange';
   if (status === 'Devam Ediyor') return 'blue';
   return 'gray';
@@ -1899,7 +2259,15 @@ function vehicleTitle(order: LiveWorkOrder) {
 }
 
 function vehicleMeta(order: LiveWorkOrder) {
-  return [order.vehicle.fuel || 'Beyaz', order.vehicle.mileage || '34.521 km'].filter(Boolean).join(' • ');
+  return [order.vehicle.fuel || 'Beyaz', order.vehicle.mileage || '34.521 km'].filter(Boolean).join(' â€¢ ');
+}
+
+function orderRiskLabel(order: LiveWorkOrder) {
+  const acceptance = order.acceptance;
+  const status = String(acceptance?.historyStatus || '').toUpperCase();
+  if (!['WARNING', 'CRITICAL'].includes(status)) return '';
+  const firstAlert = acceptance?.alerts?.[0];
+  return [firstAlert?.title, firstAlert?.body || acceptance?.historyText].filter(Boolean).join(': ');
 }
 
 function brandInitial(order: LiveWorkOrder) {
@@ -1912,7 +2280,7 @@ function formatPlate(value: string) {
 }
 
 function formatDateTime(value: string) {
-  if (!value) return '16 Mayıs 2025 16:45';
+  if (!value) return '16 MayÄ±s 2025 16:45';
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return value;
   return date.toLocaleString('tr-TR', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
@@ -1961,14 +2329,15 @@ const softShadow = {
 const styles = StyleSheet.create({
   safe: {
     flex: 1,
-    backgroundColor: liveColors.navy,
+    backgroundColor: liveSemanticColors.background,
   },
   app: {
     flex: 1,
-    backgroundColor: liveColors.paper,
+    backgroundColor: liveSemanticColors.background,
   },
   scrollContent: {
-    paddingBottom: 128,
+    paddingBottom: 28,
+    paddingHorizontal: 16,
   },
   flex1: {
     flex: 1,
@@ -2433,6 +2802,25 @@ const styles = StyleSheet.create({
     gap: 12,
     flexWrap: 'wrap',
   },
+  riskInlineAlert: {
+    minHeight: 42,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#FED7AA',
+    backgroundColor: liveColors.amberSoft,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  riskInlineText: {
+    flex: 1,
+    color: '#9A3412',
+    fontSize: 13,
+    lineHeight: 18,
+    fontWeight: '800',
+  },
   smallPrimary: {
     marginLeft: 'auto',
     minHeight: 42,
@@ -2640,6 +3028,281 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     gap: 16,
     ...softShadow,
+  },
+  detailSheet: {
+    marginHorizontal: 0,
+    gap: 14,
+    paddingBottom: 10,
+  },
+  vehicleSummaryCard: {
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: liveColors.line,
+    backgroundColor: liveColors.white,
+    padding: 16,
+    gap: 12,
+    ...softShadow,
+  },
+  vehicleSummaryRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    justifyContent: 'space-between',
+    gap: 12,
+  },
+  vehicleSummaryLeft: {
+    flex: 1,
+    gap: 8,
+  },
+  vehicleMetaLine: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flexWrap: 'wrap',
+    gap: 8,
+  },
+  vehicleMetaItem: {
+    minWidth: 0,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
+  vehicleMetaLabel: {
+    color: liveColors.muted,
+    fontSize: 12,
+    fontWeight: '700',
+  },
+  vehicleMetaValue: {
+    color: liveColors.textSecondary,
+    fontSize: 12,
+    fontWeight: '800',
+  },
+  vehicleMetaSpacer: {
+    color: liveColors.muted,
+    fontSize: 12,
+    fontWeight: '700',
+  },
+  vehicleProgressFooter: {
+    borderTopWidth: 1,
+    borderTopColor: liveColors.line,
+    paddingTop: 10,
+  },
+  vehicleProgressText: {
+    color: liveColors.textSecondary,
+    fontSize: 14,
+    fontWeight: '800',
+  },
+  vehicleActions: {
+    flexDirection: 'row',
+    gap: 10,
+  },
+  detailButton: {
+    flex: 1,
+    minHeight: 44,
+    borderRadius: 14,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+  },
+  detailButtonOutline: {
+    borderWidth: 1,
+    borderColor: liveColors.line,
+    backgroundColor: liveColors.white,
+  },
+  detailButtonOutlineText: {
+    color: liveColors.textSecondary,
+    fontSize: 14,
+    fontWeight: '800',
+  },
+  detailButtonSuccess: {
+    borderWidth: 1,
+    borderColor: '#8FDDAA',
+    backgroundColor: liveColors.green,
+  },
+  detailButtonText: {
+    color: liveColors.white,
+    fontSize: 14,
+    fontWeight: '800',
+  },
+  inspectionTabsWrap: {
+    backgroundColor: liveColors.white,
+    borderWidth: 1,
+    borderColor: liveColors.line,
+    borderRadius: 16,
+    paddingVertical: 6,
+  },
+  inspectionTabsScroll: {
+    paddingHorizontal: 8,
+    gap: 10,
+    paddingVertical: 2,
+  },
+  inspectionTab: {
+    minHeight: 48,
+    minWidth: 96,
+    paddingVertical: 8,
+    paddingHorizontal: 10,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#E4EAF3',
+    backgroundColor: liveColors.surface,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 7,
+  },
+  inspectionTabActive: {
+    borderColor: liveSemanticColors.brandPrimary,
+    backgroundColor: '#FDF2F3',
+  },
+  inspectionTabText: {
+    color: liveColors.textPrimary,
+    fontSize: 13,
+    fontWeight: '800',
+  },
+  inspectionTabTextActive: {
+    color: liveSemanticColors.brandPrimary,
+  },
+  inspectionTabBadge: {
+    minHeight: 22,
+    minWidth: 22,
+    borderRadius: 11,
+    backgroundColor: liveColors.line,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 6,
+  },
+  inspectionTabBadgeActive: {
+    backgroundColor: liveSemanticColors.brandPrimary,
+  },
+  inspectionTabBadgeText: {
+    color: liveColors.textSecondary,
+    fontSize: 11,
+    fontWeight: '900',
+  },
+  inspectionTabBadgeTextActive: {
+    color: liveColors.white,
+  },
+  inspectionList: {
+    gap: 10,
+    marginTop: 6,
+  },
+  inspectionRow: {
+    minHeight: 68,
+    borderRadius: 14,
+    borderWidth: 1,
+    padding: 12,
+    gap: 12,
+    backgroundColor: liveColors.white,
+    borderColor: liveColors.line,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  inspectionRowCompleted: {
+    backgroundColor: liveColors.white,
+    borderColor: '#CFE9D8',
+  },
+  inspectionRowMissing: {
+    backgroundColor: liveSemanticColors.errorSoft,
+    borderColor: '#F3C0CA',
+  },
+  inspectionRowWaiting: {
+    backgroundColor: liveSemanticColors.infoSoft,
+    borderColor: '#B8D8F9',
+  },
+  inspectionRowDefault: {
+    backgroundColor: liveColors.white,
+    borderColor: liveColors.line,
+  },
+  inspectionIndex: {
+    width: 34,
+    height: 34,
+    borderRadius: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+  },
+  inspectionIndexCompleted: {
+    backgroundColor: '#E7F7EF',
+    borderColor: '#12B76A',
+  },
+  inspectionIndexMissing: {
+    backgroundColor: '#FEECEE',
+    borderColor: liveSemanticColors.error,
+  },
+  inspectionIndexWaiting: {
+    backgroundColor: '#EAF4FF',
+    borderColor: liveSemanticColors.info,
+  },
+  inspectionIndexDefault: {
+    backgroundColor: liveSemanticColors.surface,
+    borderColor: liveColors.line,
+  },
+  inspectionIndexText: {
+    color: liveColors.ink,
+    fontSize: 14,
+    fontWeight: '900',
+  },
+  inspectionTitle: {
+    color: liveColors.ink,
+    fontSize: 14,
+    lineHeight: 20,
+    fontWeight: '800',
+  },
+  inspectionSubStatus: {
+    marginTop: 3,
+    color: liveColors.textSecondary,
+    fontSize: 12,
+    lineHeight: 17,
+  },
+  inspectionRowActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+  },
+  cameraActionButton: {
+    width: 44,
+    height: 44,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+  },
+  cameraActionButtonDefault: {
+    backgroundColor: liveColors.surface,
+    borderColor: liveColors.line,
+  },
+  cameraActionButtonWarning: {
+    backgroundColor: liveSemanticColors.errorSoft,
+    borderColor: liveSemanticColors.error,
+  },
+  cameraStatusDot: {
+    position: 'absolute',
+    right: 7,
+    top: 7,
+    width: 9,
+    height: 9,
+    borderRadius: 5,
+    backgroundColor: liveSemanticColors.error,
+  },
+  circularProgressWrap: {
+    width: 84,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  circularProgressLabel: {
+    position: 'absolute',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 2,
+    width: 68,
+    height: 68,
+  },
+  circularProgressPercent: {
+    color: liveColors.ink,
+    fontSize: 17,
+    fontWeight: '900',
+    letterSpacing: 0,
+  },
+  circularProgressIcon: {
+    marginTop: -2,
   },
   carIllustration: {
     width: '42%',
@@ -3684,60 +4347,65 @@ const styles = StyleSheet.create({
   },
   bottomTabs: {
     position: 'absolute',
-    left: 14,
-    right: 14,
-    bottom: 10,
-    minHeight: 92,
-    borderRadius: 24,
-    backgroundColor: liveColors.navy,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    minHeight: 82,
+    borderRadius: 0,
+    borderTopWidth: 1,
+    borderTopColor: liveColors.line,
+    backgroundColor: liveColors.white,
     flexDirection: 'row',
+    alignItems: 'flex-end',
     paddingHorizontal: 6,
-    paddingTop: 12,
-    paddingBottom: 8,
-    ...cardShadow,
+    paddingTop: 8,
+    paddingBottom: 0,
+    ...softShadow,
   },
   tabItem: {
     flex: 1,
     alignItems: 'center',
-    justifyContent: 'center',
-    gap: 4,
+    justifyContent: 'flex-end',
+    gap: 2,
+    minHeight: 62,
+    paddingBottom: 8,
   },
   tabItemCenter: {
-    marginTop: -34,
-  },
-  tabIconWrap: {
-    width: 34,
-    height: 34,
-    borderRadius: 17,
-    alignItems: 'center',
+    marginTop: -22,
     justifyContent: 'center',
   },
+  tabIconWrap: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 2,
+  },
   tabHomeButton: {
-    width: 70,
-    height: 70,
-    borderRadius: 35,
-    backgroundColor: liveColors.blue,
-    borderWidth: 5,
-    borderColor: liveColors.navy,
-    ...cardShadow,
+    width: 58,
+    height: 58,
+    borderRadius: 29,
+    backgroundColor: liveSemanticColors.brandPrimary,
+    ...softShadow,
   },
   tabHomeButtonActive: {
     backgroundColor: '#E31B36',
   },
   tabLabel: {
-    color: liveColors.white,
+    color: liveSemanticColors.textSecondary,
     fontSize: 11,
     fontWeight: '800',
   },
   tabHomeLabel: {
-    marginTop: -2,
+    marginTop: 0,
   },
   tabLabelActive: {
-    color: liveColors.blue,
+    color: liveSemanticColors.brandPrimary,
   },
   tabLine: {
-    width: 34,
-    height: 3,
+    width: 28,
+    height: 2.5,
     borderRadius: 99,
     backgroundColor: 'transparent',
   },
@@ -3745,7 +4413,7 @@ const styles = StyleSheet.create({
     width: 28,
   },
   tabLineActive: {
-    backgroundColor: liveColors.blue,
+    backgroundColor: liveSemanticColors.brandPrimary,
   },
   tabBadge: {
     position: 'absolute',
@@ -3762,6 +4430,15 @@ const styles = StyleSheet.create({
     color: liveColors.white,
     fontSize: 12,
     fontWeight: '900',
+  },
+  tabHomeText: {
+    color: liveColors.white,
+    fontSize: 11,
+    fontWeight: '900',
+    letterSpacing: 0,
+  },
+  tabHomeTextActive: {
+    color: liveColors.white,
   },
   inlineAlert: {
     borderRadius: 14,
@@ -3814,3 +4491,4 @@ const styles = StyleSheet.create({
     fontWeight: '800',
   },
 });
+

@@ -7,8 +7,8 @@ export const mobileBusinessRules = Object.freeze({
   },
   workOrder: {
     startsWithEvidence: true,
-    technicianApprovesFinalReport: false,
-    finalTechnicianAction: "complete_work_order"
+    technicianApprovesFinalReport: true,
+    finalTechnicianAction: "send_to_secretary"
   },
   moduleOwnership: {
     singleEditorPerModule: true,
@@ -16,7 +16,7 @@ export const mobileBusinessRules = Object.freeze({
     technicianCanTransfer: true
   },
   reportGate: {
-    blocksTechnicalApprovalWhenRequiredDataMissing: true
+    blocksTechnicalApprovalWhenRequiredDataMissing: false
   },
   sync: {
     offlineQueuePlanned: true,
