@@ -507,6 +507,9 @@ button,input,select,textarea{font:inherit}.app{min-height:100vh;display:grid;gri
 .package-point-order-btn{width:24px;height:24px;border:1px solid #dfe5ee;border-radius:7px;background:#fff;color:#344054;font-size:12px;font-weight:950;line-height:1;cursor:pointer}
 .package-point-order-btn:hover{background:#f3f6fb}
 .package-point-order-btn:disabled{opacity:.4;cursor:not-allowed;pointer-events:none}
+.package-point-row-drag{width:34px;height:34px;border:1px solid #dfe5ee;border-radius:7px;background:#fff;display:grid;place-items:center;color:#667085;font-size:15px;line-height:1;font-weight:950;cursor:grab;user-select:none}
+.package-point-row-drag:active{cursor:grabbing}
+.package-point-row.is-dragging{opacity:.85}
 .package-point-empty{border:1px dashed #d1d5db;border-radius:12px;background:#f9fafb;padding:22px;text-align:center;color:#667085;font-size:12px;font-weight:800}
 @media(max-width:1250px){.package-point-editor-layout{grid-template-columns:1fr}.package-point-summary{position:static}.package-point-row{grid-template-columns:1fr}.package-point-add-form{grid-template-columns:1fr}.package-point-editor-toolbar{display:grid}.package-point-editor-actions{justify-content:flex-start}}
 .package-point-editor-page{--point-red:#e30613;--point-ink:#172033;--point-muted:#667085;--point-line:#e5e7eb;--point-soft:#f7f8fb}
@@ -526,10 +529,14 @@ button,input,select,textarea{font:inherit}.app{min-height:100vh;display:grid;gri
 .package-point-editor-page .package-point-list{padding:0!important;gap:0!important}.package-point-editor-page .package-point-row{border:0!important;border-bottom:1px solid var(--point-line)!important;border-radius:0!important;display:grid!important;grid-template-columns:58px minmax(0,1fr) 218px 40px!important;gap:16px!important;align-items:center!important;min-height:80px!important;padding:12px 18px!important;cursor:pointer}.package-point-row.is-active{background:#fffafa!important;box-shadow:inset 2px 0 0 var(--point-red)}.package-point-row-meta{display:block!important}.package-point-id{background:#eef2f7;color:#344054;border-radius:6px;padding:4px 7px;font-size:12px;font-weight:850}.package-point-row-title{display:grid;gap:4px;min-width:0}.package-point-row-title b{font-size:14px;line-height:1.35;color:var(--point-ink);white-space:normal}.package-point-row-title span{display:none!important}.package-point-row-badges{display:flex!important;gap:8px!important;align-items:center!important;justify-content:flex-end!important;min-width:0}.package-point-status-box,.package-point-row-badges .package-chip{width:64px;height:52px;border:1px solid #edf0f5;border-radius:8px;background:#fff!important;display:grid!important;place-items:center!important;text-align:center;font-size:11px!important;font-weight:850!important;line-height:1.2;padding:0 4px}.package-point-status-box.red{color:var(--point-red)}.package-point-status-box.orange{color:#f97316}.package-point-row-badges .package-chip{width:auto;min-width:74px;color:#475467!important}.package-point-kebab{font-size:24px;color:#475467;text-align:center}
 .package-point-detail-panel{display:block!important;min-width:0!important}.package-point-detail-panel article{display:grid}.package-point-detail-head{height:62px;border-bottom:1px solid var(--point-line);display:flex;align-items:center;gap:12px;padding:0 18px}.package-point-detail-head h2{font-size:17px;margin:0;color:var(--point-ink)}.package-point-save-state{height:30px;border-radius:7px;background:#fff1f2;border:1px solid #fecdd3;color:var(--point-red);display:inline-flex;align-items:center;padding:0 10px;font-size:12px;font-weight:850}.package-point-detail-id{margin-left:auto;height:34px;border-radius:7px;background:#f3f6fb;color:#344054;display:inline-flex;align-items:center;padding:0 10px;font-size:14px;font-weight:850}.package-point-toggle-strip{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;padding:14px 18px 10px}.package-point-toggle-card{display:grid;gap:10px;min-width:0}.package-point-tooltip{background:#1f2937;color:#fff;border-radius:4px;padding:9px 10px;font-size:11px;line-height:1.3;min-height:46px}.package-point-switch-row{display:flex;align-items:center;gap:10px;font-size:13px;font-weight:750;color:#344054}.package-point-switch{width:46px;height:28px;border:1px solid #cbd5e1;border-radius:999px;background:#f8fafc;position:relative;cursor:pointer}.package-point-switch:after{content:"";position:absolute;width:24px;height:24px;border-radius:999px;background:#fff;box-shadow:0 1px 4px rgba(16,24,40,.22);left:2px;top:1px}.package-point-switch.on{background:#f97316;border-color:#f97316}.package-point-switch.red.on{background:var(--point-red);border-color:var(--point-red)}.package-point-switch.on:after{left:18px}
 .package-point-detail-body{border-top:1px solid var(--point-line);padding:18px}.package-point-detail-grid{display:grid;grid-template-columns:minmax(0,1fr) 104px;gap:18px}.package-point-detail-field{display:grid;gap:8px;font-size:13px;font-weight:750;color:#344054}.package-point-detail-field input,.package-point-detail-field select{height:50px;border:1px solid #dfe5ee;border-radius:7px;padding:0 14px;color:var(--point-ink);font-size:14px;font-weight:700;background:#fff}
-.package-subitem-section{border-top:1px solid var(--point-line);padding:20px 18px}.package-subitem-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}.package-subitem-head b{font-size:16px;color:var(--point-ink)}.package-subitem-head button{height:34px;border:1px solid #fecaca;background:#fff7f7;color:var(--point-red);border-radius:7px;padding:0 14px;font-size:13px;font-weight:850}.package-subitem-list{display:grid;gap:12px}.package-subitem-row{display:grid;grid-template-columns:18px 34px minmax(0,1fr) 34px 34px 34px 34px;gap:8px;align-items:center}.package-subitem-drag{color:#98a2b3;font-size:16px}.package-subitem-index{width:34px;height:34px;border:1px solid #dfe5ee;border-radius:999px;display:grid;place-items:center;font-size:13px;color:#344054;font-weight:800}.package-subitem-input{min-height:48px!important;border:1px solid #dfe5ee!important;border-radius:7px!important;padding:12px!important;font-size:13px!important;font-weight:700!important;resize:vertical}.package-subitem-icon-btn{width:34px;height:34px;border:1px solid #dfe5ee;border-radius:7px;background:#fff;color:#1d2939;font-size:12px;font-weight:950}.package-subitem-icon-btn:hover{background:#f3f6fb}.package-subitem-icon-btn:disabled{opacity:.4;cursor:not-allowed;pointer-events:none}.package-subitem-icon-btn.danger{border-color:#fecaca;color:var(--point-red)}.package-point-detail-actions{height:76px;border-top:1px solid var(--point-line);display:flex;justify-content:space-between;align-items:center;padding:0 18px;background:#fff}.package-point-detail-actions .btn.primary{background:var(--point-red)!important;border-color:var(--point-red)!important}
+.package-subitem-section{border-top:1px solid var(--point-line);padding:20px 18px}.package-subitem-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}.package-subitem-head b{font-size:16px;color:var(--point-ink)}.package-subitem-head button{height:34px;border:1px solid #fecaca;background:#fff7f7;color:var(--point-red);border-radius:7px;padding:0 14px;font-size:13px;font-weight:850}.package-subitem-list{display:grid;gap:12px}.package-subitem-row{display:grid;grid-template-columns:28px 34px minmax(0,1fr) 34px;gap:8px;align-items:center}.package-subitem-drag{width:28px;height:34px;border:1px solid #dfe5ee;border-radius:7px;background:#fff;display:grid;place-items:center;color:#667085;font-size:14px;line-height:1;font-weight:950;cursor:grab;user-select:none}.package-subitem-drag:active{cursor:grabbing}.package-subitem-row.is-dragging{opacity:.85}.package-subitem-index{width:34px;height:34px;border:1px solid #dfe5ee;border-radius:999px;display:grid;place-items:center;font-size:13px;color:#344054;font-weight:800}.package-subitem-input{min-height:48px!important;border:1px solid #dfe5ee!important;border-radius:7px!important;padding:12px!important;font-size:13px!important;font-weight:700!important;resize:vertical}.package-subitem-icon-btn{width:34px;height:34px;border:1px solid #dfe5ee;border-radius:7px;background:#fff;color:#1d2939;font-size:12px;font-weight:950}.package-subitem-icon-btn:hover{background:#f3f6fb}.package-subitem-icon-btn:disabled{opacity:.4;cursor:not-allowed;pointer-events:none}.package-subitem-icon-btn.danger{border-color:#fecaca;color:var(--point-red)}.package-point-detail-actions{height:76px;border-top:1px solid var(--point-line);display:flex;justify-content:space-between;align-items:center;padding:0 18px;background:#fff}.package-point-detail-actions .btn.primary{background:var(--point-red)!important;border-color:var(--point-red)!important}
 .package-point-bottom-status{height:54px;margin-top:14px;border:1px solid var(--point-line);border-radius:8px;background:#fff;display:flex;align-items:center;gap:30px;padding:0 20px;color:#475467;font-size:13px;font-weight:750}.package-point-bottom-status strong{color:var(--point-red)}
 @media(max-width:1600px){.package-point-filterbar{grid-template-columns:minmax(220px,1fr) minmax(170px,.95fr) 148px 150px 124px 120px 132px;gap:10px;white-space:nowrap}.package-point-editor-page .package-point-editor-layout{grid-template-columns:minmax(420px,.95fr) minmax(390px,1fr)!important}.package-point-toggle-strip{gap:10px}.package-point-editor-page .package-point-row{grid-template-columns:58px minmax(0,1fr) 184px 32px!important}.package-point-row-actions{gap:4px}.package-point-status-box,.package-point-row-badges .package-chip{width:56px;font-size:10px!important}.package-point-row-badges .package-chip{min-width:64px}}
 @media(max-width:1250px){.package-point-filterbar,.package-point-editor-page .package-point-editor-layout{grid-template-columns:1fr!important}.package-point-detail-panel{display:block!important}.package-point-bottom-status{height:auto;min-height:54px;flex-wrap:wrap;padding:14px 20px}.package-point-toggle-strip,.package-point-detail-grid{grid-template-columns:1fr}.package-point-editor-page .package-point-row{grid-template-columns:58px minmax(0,1fr)!important}.package-point-row-badges,.package-point-kebab{display:none!important}}
+.package-point-editor-page .package-point-row{grid-template-columns:34px 52px minmax(0,1fr) 216px!important;gap:12px!important;cursor:grab!important;transition:transform .16s ease,box-shadow .16s ease,background .16s ease}
+.package-point-row-drag{width:34px!important;height:46px!important;border-color:#dfe5ee!important;background:#fff!important;color:#1d3557!important;font-size:18px!important;letter-spacing:0!important;touch-action:none}
+.package-point-row.is-dragging,.package-subitem-row.is-dragging{opacity:.74!important;background:#fff!important;box-shadow:0 10px 24px rgba(16,24,40,.12)!important}
+.package-point-row-badges{gap:8px!important}.package-point-status-box{min-width:58px!important}.package-subitem-row{grid-template-columns:42px 38px minmax(0,1fr) 42px!important;transition:transform .16s ease,box-shadow .16s ease,background .16s ease}.package-subitem-drag{width:42px!important;height:46px!important;font-size:18px!important;color:#1d3557!important;touch-action:none}.package-subitem-index{width:38px!important;height:38px!important;cursor:grab;user-select:none}.package-subitem-icon-btn.danger{width:42px!important;height:38px!important;font-size:0!important}.package-subitem-icon-btn.danger:before{content:"Sil";font-size:12px}
 #dashboardPage .quick-form-note,#dashboardPage .form-actions .hint,#dashboardPage .form-actions .entry-note{display:none}
 .package-update-stamp{height:36px;border:1px solid #dbe3ee;border-radius:9px;background:#f8fafc;color:#475467;padding:0 11px;display:inline-flex;align-items:center;font-size:11px;font-weight:900;white-space:nowrap}
 .custom-package-card,.custom-package-pill{border-color:#b7e4c7;background:#f8fffb}
@@ -1485,7 +1492,7 @@ function packageBuilderRemoveItemFromArray(list,id){
   const index=list.findIndex(item=>item.id===id);
   if(index>=0)list.splice(index,1);
 }
-function packageBuilderRemoveTestEverywhere(id){
+function packageBuilderRemoveTestEverywhere(id,keepMetadata=false){
   try{
     packageBuilderState?.selectedMainTests?.delete(id);
     packageBuilderState?.selectedExtraServices?.delete(id);
@@ -1493,8 +1500,10 @@ function packageBuilderRemoveTestEverywhere(id){
   }catch(err){}
   packageBuilderRemoveItemFromArray(packageMainTests,id);
   packageBuilderRemoveItemFromArray(packageExtraServices,id);
-  delete packageBuilderTestPrices[id];
-  delete packageBuilderControlPointOverrides[id];
+  if(!keepMetadata){
+    delete packageBuilderTestPrices[id];
+    delete packageBuilderControlPointOverrides[id];
+  }
 }
 function packageBuilderTargetForItem(item){
   if(!item)return 'extra';
@@ -1503,24 +1512,50 @@ function packageBuilderTargetForItem(item){
   if(item.category==='warranties')return 'warranty';
   return 'extra';
 }
+function packageBuilderManagedItemFromRecord(record,id){
+  if(!record || typeof record!=='object' || !record.item || typeof record.item!=='object') return null;
+  const rawItem=record.item;
+  const itemId=String(rawItem.id||id||'').trim();
+  if(!itemId) return null;
+  const item={...rawItem,id:itemId};
+  const target=packageBuilderCustomTargetConfig[record.target]?record.target:packageBuilderTargetForItem(item);
+  const config=packageBuilderCustomTargetConfig[target]||packageBuilderCustomTargetConfig.extra;
+  item.category=config.selected==='main'?'mainModules':config.category;
+  if(!item.short)item.short=packageBuilderShort(item.name||'YT');
+  return item;
+}
+function packageBuilderManagedItemsByStatus(status){
+  return Object.entries(packageBuilderManagedTests)
+    .map(([id,record])=>{
+      if(record?.status!==status)return null;
+      return packageBuilderManagedItemFromRecord(record,id);
+    })
+    .filter(Boolean)
+    .sort((a,b)=>String(a.name||'').localeCompare(String(b.name||''),'tr-TR'));
+}
 function packageBuilderApplyManagedTests(){
   Object.entries(packageBuilderManagedTests).forEach(([id,record])=>{
-    if(record?.status==='deleted'||record?.status==='archived'){
+    if(record?.status==='deleted'){
       packageBuilderRemoveTestEverywhere(id);
       return;
     }
-    if(record?.item){
-      const item=packageBuilderFindTestItem(id);
-      if(item){
-        Object.assign(item,record.item,{id});
-        const target=packageBuilderCustomTargetConfig[record.target]?record.target:packageBuilderTargetForItem(item);
-        const config=packageBuilderCustomTargetConfig[target]||packageBuilderCustomTargetConfig.extra;
-        item.category=config.category;
-        packageBuilderRemoveItemFromArray(packageMainTests,id);
-        packageBuilderRemoveItemFromArray(packageExtraServices,id);
-        if(config.selected==='main')packageMainTests.push(item);
-        else packageExtraServices.push({priceImpact:0,priceLabel:'Paket içi',approval:'Otomatik',...item});
-      }
+    if(record?.status==='archived'){
+      packageBuilderRemoveTestEverywhere(id,true);
+      return;
+    }
+    const item=packageBuilderManagedItemFromRecord(record,id);
+    if(!item){
+      return;
+    }
+    const target=packageBuilderCustomTargetConfig[record.target]?record.target:packageBuilderTargetForItem(item);
+    const config=packageBuilderCustomTargetConfig[target]||packageBuilderCustomTargetConfig.extra;
+    item.category=config.category;
+    packageBuilderRemoveItemFromArray(packageMainTests,id);
+    packageBuilderRemoveItemFromArray(packageExtraServices,id);
+    if(config.selected==='main'){
+      packageMainTests.push(item);
+    }else{
+      packageExtraServices.push({priceImpact:0,priceLabel:'Paket içi',approval:'Otomatik',...item});
     }
   });
 }
@@ -1740,6 +1775,34 @@ function packageBuilderAddPoint(testId,title,subPointText){
   packageBuilderSaveControlPointOverrides();
   return true;
 }
+function packageBuilderSetPointRowOrder(item,orderedRows){
+  if(!item||!Array.isArray(orderedRows))return false;
+  const bucket=packageBuilderPointBucket(item.id);
+  orderedRows.forEach((row,index)=>{
+    bucket[row.id]={
+      ...(bucket[row.id]||{}),
+      order:index+1
+    };
+  });
+  packageBuilderSaveControlPointOverrides();
+  return true;
+}
+function packageBuilderMovePointRowToIndex(item,testId,pointId,targetIndex){
+  const sourceItem=packageBuilderFindTestItem(testId);
+  if(!sourceItem||sourceItem.id!==item?.id)return false;
+  const rows=packageBuilderPointRowsForItem(item);
+  const currentIndex=rows.findIndex(row=>row.id===pointId);
+  if(currentIndex===-1)return false;
+  const normalizedTarget=Number(targetIndex);
+  if(!Number.isFinite(normalizedTarget))return false;
+  const clamped=Math.min(Math.max(0,normalizedTarget),rows.length);
+  if(clamped===currentIndex)return false;
+  const nextRows=[...rows];
+  const [moved]=nextRows.splice(currentIndex,1);
+  nextRows.splice(clamped,0,moved);
+  packageBuilderSetPointRowOrder(item,nextRows);
+  return true;
+}
 function packageBuilderMovePointRow(testId,pointId,direction){
   const item=packageBuilderFindTestItem(testId);
   if(!item)return false;
@@ -1750,15 +1813,7 @@ function packageBuilderMovePointRow(testId,pointId,direction){
   if(currentIndex===-1)return false;
   const targetIndex=currentIndex+directionValue;
   if(targetIndex<0||targetIndex>=rows.length)return false;
-  const currentRow=rows[currentIndex];
-  const targetRow=rows[targetIndex];
-  const currentOrder=packageBuilderPointOrderValue(currentRow.order);
-  const targetOrder=packageBuilderPointOrderValue(targetRow.order);
-  const bucket=packageBuilderPointBucket(testId);
-  bucket[currentRow.id]={...(bucket[currentRow.id]||{}),order:targetOrder};
-  bucket[targetRow.id]={...(bucket[targetRow.id]||{}),order:currentOrder};
-  packageBuilderSaveControlPointOverrides();
-  return true;
+  return packageBuilderMovePointRowToIndex(item,item.id,pointId,targetIndex);
 }
 function packageBuilderSelectedItems(){
   return [...packageBuilderSelectedMainTests(),...packageBuilderSelectedExtraServices()];
@@ -1779,7 +1834,7 @@ function packageBuilderReadTestPrices(){
 }
 const packageBuilderTestPrices=packageBuilderReadTestPrices();
 function packageBuilderFindTestItem(id){
-  return packageBuilderAllTestItems().find(item=>item.id===id);
+  return packageBuilderAllTestItems().find(item=>item.id===id) || packageBuilderManagedItemFromRecord(packageBuilderManagedTests[id],id);
 }
 function packageBuilderSaveTestPrices(){
   localStorage.setItem(packageBuilderTestPriceStorageKey,JSON.stringify(packageBuilderTestPrices));
@@ -3874,12 +3929,22 @@ function packageBuilderArchiveTest(testId){
   if(!item)return;
   packageBuilderManagedTests[testId]={...packageBuilderManagedRecordForItem(item,'archived'),archivedAt:new Date().toLocaleString('tr-TR')};
   packageBuilderSaveManagedTests();
-  packageBuilderRemoveTestEverywhere(testId);
-  packageBuilderSaveTestPrices();
-  packageBuilderSaveControlPointOverrides();
+  packageBuilderRemoveTestEverywhere(testId,true);
   if(packageBuilderState.editingTestId===testId)packageBuilderResetNewTestPointForm(true);
   packageBuilderRefresh();
   packageBuilderShowToast(`${item.name} arşivlendi.`);
+}
+function packageBuilderRestoreTest(testId){
+  const record=packageBuilderManagedTests[testId];
+  if(!record||record.status!=='archived')return;
+  const item=packageBuilderManagedItemFromRecord(record,testId);
+  if(!item)return;
+  const target=packageBuilderCustomTargetConfig[record.target]?record.target:packageBuilderTargetForItem(item);
+  packageBuilderApplyTestItem(item,target);
+  packageBuilderPersistManagedItem(item,'active');
+  if(packageBuilderState.editingTestId===testId)packageBuilderResetNewTestPointForm(true);
+  packageBuilderRefresh();
+  packageBuilderShowToast(`${item.name} geri alındı.`);
 }
 function packageBuilderDeleteTest(testId){
   const item=packageBuilderFindTestItem(testId);
@@ -4155,10 +4220,9 @@ function renderPackagePointDetail(item,row,index){
       <div class="package-point-toggle-card"><div class="package-point-tooltip">Bu madde için en az 1 fotoğraf yüklemek zorunludur.</div><div class="package-point-switch-row"><button class="package-point-switch ${row.requiresMedia&&Number(row.requiredImageCount||0)>0?'on':''}" data-package-point-toggle-photo="${escapeHtml(row.id)}" type="button" aria-label="Fotoğraf zorunlu"></button><span>Fotoğraf Zorunlu</span></div></div>
     </div>
     <div class="package-point-detail-body"><div class="package-point-detail-grid"><label class="package-point-detail-field">Madde Adı<input data-package-point-title value="${escapeHtml(row.title)}" aria-label="${escapeHtml(item.name)} madde başlığı"></label><label class="package-point-detail-field">Sıra<input value="${escapeHtml(String(index+1))}" disabled aria-label="Sıra"></label></div></div>
-    <div class="package-subitem-section"><div class="package-subitem-head"><b>Alt Maddeler (${subPoints.length})</b><button data-package-point-add-subitem type="button">+ Alt Madde Ekle</button></div><div class="package-subitem-list">${subPoints.map((point,subIndex)=>`<div class="package-subitem-row"><span class="package-subitem-drag">::</span><span class="package-subitem-index">${subIndex+1}</span><textarea class="package-subitem-input" data-package-point-subitem>${escapeHtml(point)}</textarea><button class="package-subitem-icon-btn"${subIndex===0?' disabled':''} data-package-point-subitem-move="up" type="button" aria-label="Alt maddeyi yukarı taşı">↑</button><button class="package-subitem-icon-btn"${subIndex===subPoints.length-1?' disabled':''} data-package-point-subitem-move="down" type="button" aria-label="Alt maddeyi aşağı taşı">↓</button><button class="package-subitem-icon-btn" type="button">D</button><button class="package-subitem-icon-btn danger" data-package-point-remove-subitem type="button">S</button></div>`).join('')}</div><textarea data-package-point-subpoints hidden>${escapeHtml(subPoints.join('\n'))}</textarea></div>
+    <div class="package-subitem-section"><div class="package-subitem-head"><b>Alt Maddeler (${subPoints.length})</b><button data-package-point-add-subitem type="button">+ Alt Madde Ekle</button></div><div class="package-subitem-list">${subPoints.map((point,subIndex)=>`<div class="package-subitem-row"><span class="package-subitem-drag" draggable="true" title="Tutup taşı" aria-label="Alt maddeyi tutup taşı">⋮⋮</span><span class="package-subitem-index" draggable="true" title="Tutup taşı">${subIndex+1}</span><textarea class="package-subitem-input" data-package-point-subitem>${escapeHtml(point)}</textarea><button class="package-subitem-icon-btn danger" data-package-point-remove-subitem type="button" aria-label="Alt maddeyi sil">Sil</button></div>`).join('')}</div><textarea data-package-point-subpoints hidden>${escapeHtml(subPoints.join('\n'))}</textarea></div>
     <div class="package-point-detail-actions"><button class="btn" data-package-points-back type="button">İptal</button><div><button class="btn" data-package-point-revert type="button">Değişiklikleri Geri Al</button> <button class="btn primary" data-package-point-save="${escapeHtml(row.id)}" type="button">Kaydet</button></div></div>
   </article>`;
-  packageBuilderSyncPointSubitemMoveButtons(detail.querySelector('[data-package-point-row]'));
 }
 function renderPackagePointEditorPage(){
   const page=document.getElementById('packagePointEditorPage');
@@ -4197,19 +4261,11 @@ function renderPackagePointEditorPage(){
     return;
   }
   list.innerHTML=rows.map((row,index)=>{
-    const globalIndex=allRows.findIndex(value=>value.id===row.id);
-    const canMoveUp=globalIndex>0;
-    const canMoveDown=globalIndex<allRows.length-1;
-    const upDisabled=canMoveUp?'':' disabled';
-    const downDisabled=canMoveDown?'':' disabled';
-    return `<article class="package-point-row ${row.id===selectedRow?.id?'is-active':''}" data-package-point-row="${escapeHtml(row.id)}" data-package-point-test="${escapeHtml(item.id)}" data-package-point-select="${escapeHtml(row.id)}">
+    return `<article class="package-point-row ${row.id===selectedRow?.id?'is-active':''}" draggable="true" data-package-point-row="${escapeHtml(row.id)}" data-package-point-test="${escapeHtml(item.id)}" data-package-point-select="${escapeHtml(row.id)}">
+      <span class="package-point-row-drag" draggable="true" title="Tutup taşı" aria-label="Test maddesini tutup taşı">⋮⋮</span>
       <div class="package-point-row-meta"><span class="package-point-id">#${escapeHtml(String(row.legacyNoktaId||index+1))}</span></div>
       <div class="package-point-row-title"><b>${escapeHtml(row.title)}</b><span>${escapeHtml(row.groupLabel)}</span></div>
       <div class="package-point-row-badges"><span class="package-point-status-box red">${row.isRequired?'Zorunlu':'Opsiyon'}</span><span class="package-point-status-box orange">${escapeHtml(packageBuilderPointPhotoLabel(row))}</span><span class="package-chip blue">${escapeHtml(String(row.subPoints.length))} alt madde</span></div>
-      <div class="package-point-row-actions">
-        <button class="package-point-order-btn" type="button" data-package-point-move="up" aria-label="Maddenin sırasını yukarı taşı"${upDisabled}>↑</button>
-        <button class="package-point-order-btn" type="button" data-package-point-move="down" aria-label="Maddenin sırasını aşağı taşı"${downDisabled}>↓</button>
-      </div>
     </article>`;
   }).join('');
   renderPackagePointDetail(item,selectedRow,Math.max(0,allRows.findIndex(row=>row.id===selectedRow?.id)));
@@ -4408,43 +4464,62 @@ function packageBuilderOpenPointEditor(testId){
   renderPackagePointEditorPage();
   openModulePage('packagePointEditorPage','navPackageBuilder');
 }
+const packagePointEditorDragState={
+  point:{id:null,testId:null},
+  subitem:{active:false,row:null,parent:null}
+};
 function packageBuilderSyncPointSubitems(row){
   if(!row)return;
   const hidden=row.querySelector('[data-package-point-subpoints]');
   const values=[...row.querySelectorAll('[data-package-point-subitem]')].map(input=>input.value.trim()).filter(Boolean);
   if(hidden)hidden.value=values.join('\n');
 }
-function packageBuilderSyncPointSubitemMoveButtons(row){
-  if(!row)return;
-  const list=row.querySelector('.package-subitem-list');
-  if(!list)return;
-  const subitemRows=[...list.querySelectorAll('.package-subitem-row')];
-  subitemRows.forEach((item,index)=>{
-    const moveUp=item.querySelector('[data-package-point-subitem-move="up"]');
-    const moveDown=item.querySelector('[data-package-point-subitem-move="down"]');
-    if(moveUp) moveUp.disabled=index===0;
-    if(moveDown) moveDown.disabled=index===subitemRows.length-1;
+function packageBuilderApplyPointRowOrderFromVisibleIds(testId,orderedIds){
+  const item=packageBuilderFindTestItem(testId);
+  if(!item||!Array.isArray(orderedIds))return false;
+  const allRows=packageBuilderPointRowsForItem(item);
+  const allRowsById=new Map(allRows.map(row=>[row.id,row]));
+  const filteredIds=[];
+  const seen=new Set();
+  orderedIds.forEach(id=>{
+    if(!seen.has(id)&&allRowsById.has(id)){
+      filteredIds.push(id);
+      seen.add(id);
+    }
   });
+  if(!filteredIds.length)return false;
+  const visiblePositions=allRows
+    .map((row,index)=>seen.has(row.id)?index:-1)
+    .filter(index=>index!==-1);
+  if(visiblePositions.length!==filteredIds.length) return false;
+  const nextRows=[...allRows];
+  let changed=false;
+  visiblePositions.forEach((targetIndex,orderedIndex)=>{
+    const sourceId=filteredIds[orderedIndex];
+    const sourceRow=allRowsById.get(sourceId);
+    if(!sourceRow)return;
+    if(nextRows[targetIndex]!==sourceRow) changed=true;
+    nextRows[targetIndex]=sourceRow;
+  });
+  if(!changed) return false;
+  packageBuilderSetPointRowOrder(item,nextRows);
+  return true;
 }
-function packageBuilderMovePointSubitem(row,subitemEl,direction){
-  if(!row||!subitemEl)return false;
+function packageBuilderMovePointSubitemToIndex(row,sourceIndex,targetIndex){
+  if(!row||!Number.isInteger(sourceIndex)||!Number.isFinite(Number(targetIndex)))return false;
   const list=row.querySelector('.package-subitem-list');
   if(!list)return false;
   const items=[...list.querySelectorAll('.package-subitem-row')];
-  const index=items.indexOf(subitemEl);
-  if(index===-1)return false;
-  const nextIndex=index+Number(direction);
-  if(nextIndex<0||nextIndex>=items.length)return false;
-  const target=items[nextIndex];
-  const sourceInput=subitemEl.querySelector('[data-package-point-subitem]');
-  const targetInput=target.querySelector('[data-package-point-subitem]');
-  if(!sourceInput||!targetInput)return false;
-  const temp=sourceInput.value;
-  sourceInput.value=targetInput.value;
-  targetInput.value=temp;
-  [...list.querySelectorAll('.package-subitem-index')].forEach((node,subIndex)=>{node.textContent=String(subIndex+1);});
+  const clamped=Math.min(Math.max(0,Math.round(Number(targetIndex))),items.length);
+  if(clamped===sourceIndex)return false;
+  const sourceEl=items[sourceIndex];
+  if(!sourceEl)return false;
+  const nextItems=[...items];
+  nextItems.splice(sourceIndex,1);
+  nextItems.splice(clamped,0,sourceEl);
+  list.innerHTML='';
+  nextItems.forEach((item,subIndex)=>{item.querySelector('.package-subitem-index').textContent=String(subIndex+1);list.appendChild(item);});
   packageBuilderSyncPointSubitems(row);
-  packageBuilderSyncPointSubitemMoveButtons(row);
   return true;
 }
 function wirePackageBuilderPage(){
@@ -4533,6 +4608,127 @@ function wirePackagePointEditorPage(){
   const page=document.getElementById('packagePointEditorPage');
   if(!page||page.dataset.packagePointEditorWired)return;
   page.dataset.packagePointEditorWired='1';
+  const clearPointDragState=()=>{
+    const rowId=packagePointEditorDragState.point.id;
+    const row= rowId ? page.querySelector(`[data-package-point-row="${CSS.escape(rowId)}"]`) : null;
+    if(row)row.classList.remove('is-dragging');
+    const subitemRow=packagePointEditorDragState.subitem.row;
+    if(subitemRow)subitemRow.classList.remove('is-dragging');
+    packagePointEditorDragState.point.id=null;
+    packagePointEditorDragState.point.testId=null;
+    packagePointEditorDragState.subitem={active:false,row:null,parent:null};
+  };
+  const getPointList=()=>page.querySelector('.package-point-list');
+  const getActiveDetailRow=()=>page.querySelector('#packagePointDetailPanel [data-package-point-row]');
+  const reorderPointRowsInDOM=(list,orderedRows)=>{
+    orderedRows.forEach(row=>list.appendChild(row));
+    const orderedIds=[...orderedRows].map(row=>row.dataset.packagePointRow).filter(Boolean);
+    return packageBuilderApplyPointRowOrderFromVisibleIds(packagePointEditorDragState.point.testId,orderedIds);
+  };
+  const syncSubitemIndexes=list=>{
+    if(!list)return;
+    [...list.querySelectorAll('.package-subitem-index')].forEach((node,index)=>{node.textContent=String(index+1);});
+  };
+  const moveDraggedRowBesideTarget=(list,dragRow,targetRow,clientY)=>{
+    if(!list||!dragRow||!targetRow||targetRow===dragRow)return false;
+    const targetBox=targetRow.getBoundingClientRect();
+    const insertAfter=clientY>targetBox.top+(targetBox.height/2);
+    const reference=insertAfter?targetRow.nextSibling:targetRow;
+    if(reference===dragRow)return false;
+    list.insertBefore(dragRow,reference);
+    return true;
+  };
+  page.addEventListener('dragstart',event=>{
+    const rowHandle=event.target.closest('.package-point-row-drag,.package-point-row');
+    if(rowHandle){
+      const row=rowHandle.closest('[data-package-point-row]');
+      if(!row)return;
+      packagePointEditorDragState.point.id=row.dataset.packagePointRow;
+      packagePointEditorDragState.point.testId=row.dataset.packagePointTest || packageBuilderState.activePointTestId;
+      row.classList.add('is-dragging');
+      rowHandle.setAttribute('aria-grabbed','true');
+      if(event.dataTransfer){
+        event.dataTransfer.effectAllowed='move';
+        event.dataTransfer.setData('text/plain',row.dataset.packagePointRow);
+      }
+      return;
+    }
+    const subitemHandle=event.target.closest('.package-subitem-drag,.package-subitem-index');
+    if(subitemHandle){
+      const row=subitemHandle.closest('.package-subitem-row');
+      const activeDetail=getActiveDetailRow();
+      if(!row||!activeDetail||!activeDetail.contains(row))return;
+      packagePointEditorDragState.subitem.active=true;
+      packagePointEditorDragState.subitem.row=row;
+      packagePointEditorDragState.subitem.parent=activeDetail;
+      row.classList.add('is-dragging');
+      if(event.dataTransfer){
+        event.dataTransfer.effectAllowed='move';
+        event.dataTransfer.setData('text/plain','subitem');
+      }
+    }
+  });
+  page.addEventListener('dragend',()=>{clearPointDragState();});
+  page.addEventListener('dragover',event=>{
+    if(packagePointEditorDragState.point.id){
+      const pointList=getPointList();
+      if(pointList && (event.target===pointList||pointList.contains(event.target))){
+        event.preventDefault();
+        const dragRow=page.querySelector(`.package-point-list [data-package-point-row="${CSS.escape(packagePointEditorDragState.point.id)}"]`);
+        const targetRow=event.target.closest('.package-point-row');
+        if(targetRow)moveDraggedRowBesideTarget(pointList,dragRow,targetRow,event.clientY);
+        else if(event.target===pointList&&dragRow)pointList.appendChild(dragRow);
+      }
+      return;
+    }
+    if(packagePointEditorDragState.subitem.active){
+      const activeRow=packagePointEditorDragState.subitem.parent;
+      const subitemList=activeRow?.querySelector('.package-subitem-list');
+      if(subitemList && (event.target===subitemList||subitemList.contains(event.target))){
+        event.preventDefault();
+        const targetRow=event.target.closest('.package-subitem-row');
+        const moved=moveDraggedRowBesideTarget(subitemList,packagePointEditorDragState.subitem.row,targetRow,event.clientY);
+        if(!targetRow&&event.target===subitemList&&packagePointEditorDragState.subitem.row){
+          subitemList.appendChild(packagePointEditorDragState.subitem.row);
+          syncSubitemIndexes(subitemList);
+        }
+        if(moved)syncSubitemIndexes(subitemList);
+      }
+    }
+  });
+  page.addEventListener('drop',event=>{
+    if(packagePointEditorDragState.point.id){
+      const pointList=getPointList();
+      const activeItem=packageBuilderFindTestItem(packagePointEditorDragState.point.testId);
+      if(!pointList||!activeItem||!pointList.contains(event.target)){
+        clearPointDragState();
+        return;
+      }
+      event.preventDefault();
+      const orderedRows=[...pointList.querySelectorAll('.package-point-row')];
+      const reordered=reorderPointRowsInDOM(pointList,orderedRows);
+      if(reordered){
+        renderPackagePointEditorPage();
+        packageBuilderShowToast('Madde sırası güncellendi.');
+      }
+      clearPointDragState();
+      return;
+    }
+    if(packagePointEditorDragState.subitem.active){
+      const activeRow=packagePointEditorDragState.subitem.parent;
+      const subitemList=activeRow?.querySelector('.package-subitem-list');
+      if(!subitemList||!subitemList.contains(event.target) || !activeRow || !subitemList.contains(packagePointEditorDragState.subitem.row)){
+        clearPointDragState();
+        return;
+      }
+      event.preventDefault();
+      syncSubitemIndexes(subitemList);
+      packageBuilderSyncPointSubitems(activeRow);
+      packageBuilderShowToast('Alt madde sırası güncellendi.');
+      clearPointDragState();
+      return;
+    }
+  });
   page.addEventListener('click',event=>{
     const pointSelect=event.target.closest('[data-package-point-select]');
     if(pointSelect&&!event.target.closest('button,textarea,input,select')){
@@ -4563,31 +4759,19 @@ function wirePackagePointEditorPage(){
       const list=row?.querySelector('.package-subitem-list');
       if(list){
         const next=list.querySelectorAll('[data-package-point-subitem]').length+1;
-        list.insertAdjacentHTML('beforeend',`<div class="package-subitem-row"><span class="package-subitem-drag">::</span><span class="package-subitem-index">${next}</span><textarea class="package-subitem-input" data-package-point-subitem>Yeni alt madde</textarea><button class="package-subitem-icon-btn" data-package-point-subitem-move="up" type="button" aria-label="Alt maddeyi yukarı taşı">↑</button><button class="package-subitem-icon-btn" data-package-point-subitem-move="down" type="button" aria-label="Alt maddeyi aşağı taşı">↓</button><button class="package-subitem-icon-btn" type="button">D</button><button class="package-subitem-icon-btn danger" data-package-point-remove-subitem type="button">S</button></div>`);
+        list.insertAdjacentHTML('beforeend',`<div class="package-subitem-row"><span class="package-subitem-drag" draggable="true" title="Tutup taşı" aria-label="Alt maddeyi tutup taşı">⋮⋮</span><span class="package-subitem-index" draggable="true" title="Tutup taşı">${next}</span><textarea class="package-subitem-input" data-package-point-subitem>Yeni alt madde</textarea><button class="package-subitem-icon-btn danger" data-package-point-remove-subitem type="button" aria-label="Alt maddeyi sil">Sil</button></div>`);
         packageBuilderSyncPointSubitems(row);
-        packageBuilderSyncPointSubitemMoveButtons(row);
       }
-      return;
-    }
-    const moveSubitem=event.target.closest('[data-package-point-subitem-move]');
-    if(moveSubitem){
-      event.preventDefault();
-      const row=moveSubitem.closest('[data-package-point-row]');
-      const subItem=moveSubitem.closest('.package-subitem-row');
-      if(!row||!subItem)return;
-      const direction=moveSubitem.dataset.packagePointSubitemMove==='up'?-1:1;
-      const moved=packageBuilderMovePointSubitem(row,subItem,direction);
-      if(!moved)packageBuilderShowToast('Bu alt madde taşınamadı.');
       return;
     }
     const removeSubitem=event.target.closest('[data-package-point-remove-subitem]');
     if(removeSubitem){
       event.preventDefault();
       const row=removeSubitem.closest('[data-package-point-row]');
-      removeSubitem.closest('.package-subitem-row')?.remove();
-      row?.querySelectorAll('.package-subitem-index').forEach((node,index)=>{node.textContent=String(index+1);});
+      const targetSubitem=removeSubitem.closest('.package-subitem-row');
+      if(targetSubitem)targetSubitem.remove();
+      if(row)row.querySelectorAll('.package-subitem-index').forEach((node,index)=>{node.textContent=String(index+1);});
       packageBuilderSyncPointSubitems(row);
-      packageBuilderSyncPointSubitemMoveButtons(row);
       return;
     }
     const bulkSave=event.target.closest('[data-package-bulk-save]');
@@ -4650,23 +4834,6 @@ function wirePackagePointEditorPage(){
       renderPackagePointEditorPage();
       renderPackageBuilderPage();
       packageBuilderShowToast('Yeni kontrol maddesi eklendi.');
-      return;
-    }
-    const move=event.target.closest('[data-package-point-move]');
-    if(move){
-      event.preventDefault();
-      const row=move.closest('[data-package-point-row]');
-      if(row){
-        const direction=move.dataset.packagePointMove==='up'?-1:1;
-        const moved=packageBuilderMovePointRow(row.dataset.packagePointTest,row.dataset.packagePointRow,direction);
-        if(moved){
-          packageBuilderShowToast('Madde sırası güncellendi.');
-          renderPackagePointEditorPage();
-          renderPackageBuilderPage();
-        }else{
-          packageBuilderShowToast('Bu madde taşınamadı.');
-        }
-      }
       return;
     }
     const save=event.target.closest('[data-package-point-save]');
