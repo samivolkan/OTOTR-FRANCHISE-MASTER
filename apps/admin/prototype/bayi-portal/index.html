@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<meta name="ototr-bayi-portal-version" content="v5.2026.07.01-0234" />
+<meta name="ototr-bayi-portal-version" content="v5.2026.07.01-1312" />
 <title>OTOTR Bayii ERP - Operasyon Merkezi V2</title>
 <link rel="icon" href="data:," />
 <style>
@@ -657,7 +657,7 @@ button,input,select,textarea{font:inherit}.app{min-height:100vh;display:grid;gri
 <body class="module-page-open">
 <div class="app">
   <aside class="sidebar">
-    <button class="brand" id="brandHome" type="button" aria-label="Bayii dashboard'a dön"><div class="brand-mark">OT</div><div class="brand-copy"><strong>OTOTR ERP</strong><small>YÖNETİM PANELİ</small><small id="dealerBuildStamp">v5 · 01.07.2026 02:34</small></div></button>
+    <button class="brand" id="brandHome" type="button" aria-label="Bayii dashboard'a dön"><div class="brand-mark">OT</div><div class="brand-copy"><strong>OTOTR ERP</strong><small>YÖNETİM PANELİ</small><small id="dealerBuildStamp">v5 · 01.07.2026 13:12</small></div></button>
     <nav class="nav">
       <div class="nav-group">Yönetim</div>
       <a class="active" href="#" id="navDashboard"><span class="nav-icon">▦</span>Bayii Kokpiti</a>
@@ -1225,11 +1225,6 @@ button,input,select,textarea{font:inherit}.app{min-height:100vh;display:grid;gri
         <div class="module-head"><div><h1>Müşteri Deneyimi</h1><p>NPS, yorum ve şikayet takip paneli.</p></div><button class="btn" data-open-module="dashboardPage" data-open-module-nav="navDashboard">Kokpite Dön</button></div>
       </section>
       <section class="module-page package-builder-page" id="packageBuilderPage">
-        <div class="module-head package-builder-head">
-          <div>
-            <h1>Paket Oluştur v2</h1>
-          </div>
-        </div>
         <section class="package-manager-panel active" data-package-manager-panel="existing">
           <div class="package-management-panel">
             <div class="package-management-head"><div><h2>Mevcut Paketler</h2><span>Oluşturulan tüm paketleri düzenleyin, kopyalayın, arşivleyin veya silin.</span></div><button class="btn primary" data-package-manager-view="builder" type="button">+ Yeni Paket</button></div>
@@ -1554,7 +1549,7 @@ const packageBuilderTestPriceStorageKey='ototr-package-builder-test-prices-v1';
 const packageBuilderControlPointStorageKey='ototr-package-builder-control-points-v1';
 const packageBuilderManagedTestStorageKey='ototr-package-builder-managed-tests-v1';
 const packageBuilderHiddenSeedPackageStorageKey='ototr-package-builder-hidden-seed-packages-v1';
-const dealerPortalBuildStamp='01.07.2026 02:34';
+const dealerPortalBuildStamp='01.07.2026 13:12';
 function packageBuilderReadHiddenSeedPackages(){
   try{
     const saved=JSON.parse(localStorage.getItem(packageBuilderHiddenSeedPackageStorageKey)||'[]');
@@ -5989,4 +5984,3 @@ setWorkOrderFilter('open',false);
 </script>
 </body>
 </html>
-
