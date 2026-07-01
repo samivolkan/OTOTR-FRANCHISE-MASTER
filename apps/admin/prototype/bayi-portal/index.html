@@ -488,8 +488,8 @@ button,input,select,textarea{font:inherit}.app{min-height:100vh;display:grid;gri
 @media(max-width:1350px){.package-info-grid{grid-template-columns:repeat(3,minmax(160px,1fr))!important}.package-selected-panel .package-panel-body{grid-template-columns:1fr 1fr}.package-selected-list,.package-created-list{grid-column:1/-1}.package-selected-panel .package-price-editor,.package-selected-panel .package-validation{grid-column:1}.package-selected-panel .package-summary,.package-selected-panel .package-actions{grid-column:2}}
 @media(max-width:820px){.package-info-grid{grid-template-columns:1fr!important}.package-info-grid .field.wide{grid-column:1!important}.package-pool-head{display:grid!important}.package-pool-toolbar{justify-content:flex-start!important}.package-pool-toolbar .package-tabs{justify-content:flex-start}.package-card-list,.package-test-section-grid,.package-template-grid{grid-template-columns:1fr!important}.package-test-point-form{grid-template-columns:1fr!important}.package-test-point-form .wide,.package-test-point-actions{grid-column:1!important;grid-row:auto!important}.package-test-point-actions{border-width:1px}.package-selected-panel .package-panel-body{grid-template-columns:1fr}.package-selected-list,.package-selected-panel .package-price-editor,.package-selected-panel .package-summary,.package-selected-panel .package-validation,.package-selected-panel .package-actions,.package-created-list{grid-column:1!important}.package-selected-panel .package-actions{grid-template-columns:1fr!important}}
 .package-point-editor-page{display:none}.package-point-editor-page.active-module{display:block!important}
-.package-point-editor-layout{display:grid;grid-template-columns:minmax(280px,.35fr) minmax(0,1fr);gap:14px;align-items:start}
-.package-point-summary{border:1px solid #e5e7eb;border-radius:14px;background:#fff;box-shadow:0 4px 18px rgba(17,24,39,.045);overflow:hidden;position:sticky;top:92px}
+.package-point-editor-layout{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(500px,1fr);gap:14px;align-items:start}
+.package-point-summary{display:none}
 .package-point-summary-head{background:#050505;color:#fff;padding:16px}
 .package-point-summary-head b{display:block;font-size:15px;color:#fff}.package-point-summary-head span{display:block;margin-top:4px;color:#d1d5db;font-size:12px;line-height:1.35}
 .package-point-summary-body{padding:14px;display:grid;gap:10px}.package-point-summary-row{display:flex;justify-content:space-between;gap:10px;border-bottom:1px solid #f0f2f5;padding-bottom:8px;color:#667085;font-size:12px;font-weight:800}.package-point-summary-row b{color:#111827}
@@ -515,9 +515,9 @@ button,input,select,textarea{font:inherit}.app{min-height:100vh;display:grid;gri
 .package-point-select-card{border-color:#ff2b37;box-shadow:0 0 0 1px rgba(227,6,19,.06);text-align:left;cursor:pointer}.package-point-select-icon{width:28px;height:28px;border-radius:7px;background:#f1f4f9;display:grid;place-items:center;font-size:11px;font-weight:950;color:#1d2939}.package-point-select-copy{display:grid;gap:2px;min-width:0;flex:1}.package-point-select-copy span,.package-point-filter-select span{font-size:12px;font-weight:750;color:#667085}.package-point-select-copy b{font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.package-point-chevron{font-size:18px;color:#475467}
 .package-point-search-card{justify-content:space-between}.package-point-search-card input{border:0;outline:0;min-width:0;width:100%;font-size:14px;color:var(--point-ink);font-weight:650}.package-point-search-card span{font-size:12px;font-weight:900;color:#536079}
 .package-point-filter-select{display:grid;grid-template-columns:1fr;gap:2px}.package-point-filter-select select{border:0;outline:0;background:#fff;color:var(--point-ink);font-size:15px;font-weight:750;width:100%}.package-point-filter-clear,.package-point-filter-action{height:58px;border-radius:7px;min-width:0;justify-content:center;font-size:14px;font-weight:850;cursor:pointer;white-space:nowrap;padding-left:10px;padding-right:10px}
-.package-point-editor-page .package-point-editor-layout{display:grid!important;grid-template-columns:284px minmax(470px,.95fr) minmax(440px,1.05fr)!important;gap:16px!important;align-items:start!important}
+.package-point-editor-page .package-point-editor-layout{display:grid!important;grid-template-columns:minmax(470px,.96fr) minmax(440px,1.05fr)!important;gap:16px!important;align-items:start!important}
 .package-point-editor-page .package-point-summary,.package-point-editor-page .package-point-editor-panel,.package-point-detail-panel{border:1px solid var(--point-line)!important;border-radius:8px!important;background:#fff!important;box-shadow:0 2px 12px rgba(16,24,40,.025)!important;overflow:hidden!important}
-.package-point-editor-page .package-point-summary{position:static!important;top:auto!important}.package-point-editor-page .package-point-summary-head{display:none!important}.package-point-editor-page .package-point-summary-body{padding:0!important;gap:0!important}
+.package-point-editor-page .package-point-summary{display:none!important}.package-point-editor-page .package-point-summary-head{display:none!important}.package-point-editor-page .package-point-summary-body{padding:0!important;gap:0!important}
 .package-test-type-head{height:54px;display:flex;align-items:center;padding:0 18px;border-bottom:1px solid var(--point-line);font-size:13px;font-weight:950;text-transform:uppercase;color:#475467}.package-test-type-list{display:grid}.package-test-type-button{height:56px;border:0!important;border-bottom:1px solid var(--point-line)!important;background:#fff!important;color:#344054;display:grid!important;grid-template-columns:34px minmax(0,1fr) auto!important;gap:12px!important;align-items:center!important;padding:0 16px!important;text-align:left!important;cursor:pointer!important;font-size:14px!important;font-weight:750!important}.package-test-type-button.active{background:#fff6f6!important;color:var(--point-red)!important;box-shadow:inset 3px 0 0 var(--point-red)}.package-test-type-icon{width:28px;height:28px;border-radius:7px;background:#f3f6fb;display:grid;place-items:center;font-size:11px;font-weight:950;color:#1d2939}.package-test-type-button.active .package-test-type-icon{background:#fff;color:var(--point-red)}.package-test-type-button span:nth-child(2){white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.package-test-type-count{min-width:26px;height:22px;border-radius:999px;background:#eef2f7;color:#475467;display:grid;place-items:center;font-size:11px}.package-test-type-button.active .package-test-type-count{background:#fff;color:var(--point-red);border:1px solid #fecdd3}
 .package-point-editor-page .package-point-editor-toolbar{height:62px;padding:0 18px!important}.package-point-editor-toolbar h2{font-size:17px!important;color:var(--point-ink)!important}.package-point-editor-toolbar p{display:none}.package-point-sort{font-size:12px;font-weight:850;color:#475467}
 .package-point-editor-page .package-point-list{padding:0!important;gap:0!important}.package-point-editor-page .package-point-row{border:0!important;border-bottom:1px solid var(--point-line)!important;border-radius:0!important;display:grid!important;grid-template-columns:58px minmax(0,1fr) 218px 28px!important;gap:16px!important;align-items:center!important;min-height:80px!important;padding:12px 18px!important;cursor:pointer}.package-point-row.is-active{background:#fffafa!important;box-shadow:inset 2px 0 0 var(--point-red)}.package-point-row-meta{display:block!important}.package-point-id{background:#eef2f7;color:#344054;border-radius:6px;padding:4px 7px;font-size:12px;font-weight:850}.package-point-row-title{display:grid;gap:4px;min-width:0}.package-point-row-title b{font-size:14px;line-height:1.35;color:var(--point-ink);white-space:normal}.package-point-row-title span{display:none!important}.package-point-row-badges{display:flex!important;gap:8px!important;align-items:center!important;justify-content:flex-end!important;min-width:0}.package-point-status-box,.package-point-row-badges .package-chip{width:64px;height:52px;border:1px solid #edf0f5;border-radius:8px;background:#fff!important;display:grid!important;place-items:center!important;text-align:center;font-size:11px!important;font-weight:850!important;line-height:1.2;padding:0 4px}.package-point-status-box.red{color:var(--point-red)}.package-point-status-box.orange{color:#f97316}.package-point-row-badges .package-chip{width:auto;min-width:74px;color:#475467!important}.package-point-kebab{font-size:24px;color:#475467;text-align:center}
@@ -525,7 +525,7 @@ button,input,select,textarea{font:inherit}.app{min-height:100vh;display:grid;gri
 .package-point-detail-body{border-top:1px solid var(--point-line);padding:18px}.package-point-detail-grid{display:grid;grid-template-columns:minmax(0,1fr) 104px;gap:18px}.package-point-detail-field{display:grid;gap:8px;font-size:13px;font-weight:750;color:#344054}.package-point-detail-field input,.package-point-detail-field select{height:50px;border:1px solid #dfe5ee;border-radius:7px;padding:0 14px;color:var(--point-ink);font-size:14px;font-weight:700;background:#fff}
 .package-subitem-section{border-top:1px solid var(--point-line);padding:20px 18px}.package-subitem-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}.package-subitem-head b{font-size:16px;color:var(--point-ink)}.package-subitem-head button{height:34px;border:1px solid #fecaca;background:#fff7f7;color:var(--point-red);border-radius:7px;padding:0 14px;font-size:13px;font-weight:850}.package-subitem-list{display:grid;gap:12px}.package-subitem-row{display:grid;grid-template-columns:18px 34px minmax(0,1fr) 38px 38px;gap:10px;align-items:center}.package-subitem-drag{color:#98a2b3;font-size:16px}.package-subitem-index{width:34px;height:34px;border:1px solid #dfe5ee;border-radius:999px;display:grid;place-items:center;font-size:13px;color:#344054;font-weight:800}.package-subitem-input{min-height:48px!important;border:1px solid #dfe5ee!important;border-radius:7px!important;padding:12px!important;font-size:13px!important;font-weight:700!important;resize:vertical}.package-subitem-icon-btn{width:38px;height:38px;border:1px solid #dfe5ee;border-radius:7px;background:#fff;color:#1d2939;font-size:12px;font-weight:950}.package-subitem-icon-btn.danger{border-color:#fecaca;color:var(--point-red)}.package-point-detail-actions{height:76px;border-top:1px solid var(--point-line);display:flex;justify-content:space-between;align-items:center;padding:0 18px;background:#fff}.package-point-detail-actions .btn.primary{background:var(--point-red)!important;border-color:var(--point-red)!important}
 .package-point-bottom-status{height:54px;margin-top:14px;border:1px solid var(--point-line);border-radius:8px;background:#fff;display:flex;align-items:center;gap:30px;padding:0 20px;color:#475467;font-size:13px;font-weight:750}.package-point-bottom-status strong{color:var(--point-red)}
-@media(max-width:1600px){.package-point-filterbar{grid-template-columns:minmax(220px,1fr) minmax(170px,.95fr) 148px 150px 124px 120px 132px;gap:10px;white-space:nowrap}.package-point-editor-page .package-point-editor-layout{grid-template-columns:260px minmax(420px,.95fr) minmax(390px,1fr)!important}.package-point-toggle-strip{gap:10px}.package-point-editor-page .package-point-row{grid-template-columns:58px minmax(0,1fr) 184px 22px!important}.package-point-status-box,.package-point-row-badges .package-chip{width:56px;font-size:10px!important}.package-point-row-badges .package-chip{min-width:64px}}
+@media(max-width:1600px){.package-point-filterbar{grid-template-columns:minmax(220px,1fr) minmax(170px,.95fr) 148px 150px 124px 120px 132px;gap:10px;white-space:nowrap}.package-point-editor-page .package-point-editor-layout{grid-template-columns:minmax(420px,.95fr) minmax(390px,1fr)!important}.package-point-toggle-strip{gap:10px}.package-point-editor-page .package-point-row{grid-template-columns:58px minmax(0,1fr) 184px 22px!important}.package-point-status-box,.package-point-row-badges .package-chip{width:56px;font-size:10px!important}.package-point-row-badges .package-chip{min-width:64px}}
 @media(max-width:1250px){.package-point-filterbar,.package-point-editor-page .package-point-editor-layout{grid-template-columns:1fr!important}.package-point-detail-panel{display:block!important}.package-point-bottom-status{height:auto;min-height:54px;flex-wrap:wrap;padding:14px 20px}.package-point-toggle-strip,.package-point-detail-grid{grid-template-columns:1fr}.package-point-editor-page .package-point-row{grid-template-columns:58px minmax(0,1fr)!important}.package-point-row-badges,.package-point-kebab{display:none!important}}
 #dashboardPage .quick-form-note,#dashboardPage .form-actions .hint,#dashboardPage .form-actions .entry-note{display:none}
 .package-update-stamp{height:36px;border:1px solid #dbe3ee;border-radius:9px;background:#f8fafc;color:#475467;padding:0 11px;display:inline-flex;align-items:center;font-size:11px;font-weight:900;white-space:nowrap}
@@ -1180,13 +1180,9 @@ button,input,select,textarea{font:inherit}.app{min-height:100vh;display:grid;gri
           <button class="package-point-filter-clear" data-package-point-clear-filters type="button">Filtreleri Temizle</button>
         </div>
         <div class="package-point-editor-layout">
-          <aside class="package-point-summary">
-            <div class="package-point-summary-head"><b id="packagePointSummaryName">Test seçilmedi</b><span id="packagePointSummaryDesc">Maddeler ekranı test kartından açılır.</span></div>
-            <div class="package-point-summary-body" id="packagePointSummaryBody"></div>
-          </aside>
           <section class="package-point-editor-panel">
             <div class="package-point-editor-toolbar">
-              <div><h2 id="packagePointListTitle">Kaporta ve Boya Ekspertizi</h2><p>Madde başlığını, alt seçenekleri ve zorunluluk bilgisini tek listede yönetin.</p></div>
+              <div><h2 id="packagePointListTitle">Test Tipi Seçin</h2></div>
               <div class="package-point-editor-actions"><span class="package-point-sort">ID'ye Göre ↑</span></div>
             </div>
             <div class="package-point-add-form" id="packagePointAddForm" hidden>
@@ -1655,6 +1651,7 @@ function packageBuilderPointRowsForItem(item){
         subPoints:draft.subPoints,
         groupLabel:point.groupLabel||packageBuilderSchemaGroupLabel(point.groupCode)||'Kontrol',
         legacyNoktaId:point.legacyNoktaId||point.sortOrder||'',
+        sortOrder:Number(point.sortOrder)||0,
         isRequired:Boolean(draft.isRequired),
         requiresMedia:Boolean(draft.requiresMedia),
         requiredImageCount:Number(draft.requiredImageCount||0)||0,
@@ -1669,14 +1666,25 @@ function packageBuilderPointRowsForItem(item){
       subPoints:Array.isArray(value.subPoints)&&value.subPoints.length?value.subPoints:['Kontrol sonucu girilecek'],
       groupLabel:value.groupLabel||'Manuel Madde',
       legacyNoktaId:value.legacyNoktaId||'Yeni',
+      sortOrder:Number(value.sortOrder||Number.MAX_SAFE_INTEGER),
       isRequired:Boolean(value.isRequired),
       requiresMedia:Boolean(value.requiresMedia),
       requiredImageCount:Number(value.requiredImageCount||0)||0,
       custom:true
     });
   });
-  return rows;
+  return rows
+    .map((row,index)=>({...row,__rowIndex:index}))
+    .sort((a,b)=>{
+      const aId=packageBuilderPointIdSortValue(a.legacyNoktaId);
+      const bId=packageBuilderPointIdSortValue(b.legacyNoktaId);
+      if(aId!==bId)return aId-bId;
+      if(a.sortOrder!==b.sortOrder)return Number(a.sortOrder)-Number(b.sortOrder);
+      return a.__rowIndex-b.__rowIndex;
+    })
+    .map(({__rowIndex,...row})=>row);
 }
+
 function packageBuilderSavePointOverride(testId,pointId,title,subPointText,options={}){
   if(!testId||!pointId)return;
   const lines=String(subPointText||'').split(/\r?\n|,/).map(item=>item.trim()).filter(Boolean);
@@ -1714,7 +1722,7 @@ function packageBuilderAddPoint(testId,title,subPointText){
   if(!cleanTitle||!lines.length)return false;
   const id=`manual-${Date.now()}-${packageBuilderSlug(cleanTitle)}`;
   const bucket=packageBuilderPointBucket(testId);
-  bucket[id]={custom:true,title:cleanTitle,subPoints:lines,groupLabel:'Manuel Madde',deleted:false};
+  bucket[id]={custom:true,title:cleanTitle,subPoints:lines,groupLabel:'Manuel Madde',sortOrder:Date.now(),legacyNoktaId:'Yeni',deleted:false};
   packageBuilderSaveControlPointOverrides();
   return true;
 }
@@ -4064,6 +4072,12 @@ function packageBuilderPointPhotoLabel(row){
   if(row.requiresMedia)return 'Foto Ops.';
   return 'Foto Yok';
 }
+function packageBuilderPointIdSortValue(value){
+  const raw=String(value||'').trim();
+  if(!raw)return Number.MAX_SAFE_INTEGER;
+  const numeric=Number(raw.replace(/[^0-9]/g,''));
+  return Number.isFinite(numeric)?numeric:Number.MAX_SAFE_INTEGER;
+}
 function packageBuilderPointTypeIcon(item){
   const name=String(item?.name||'').toLocaleLowerCase('tr-TR');
   if(name.includes('kaporta')||name.includes('boya'))return 'AR';
@@ -4075,9 +4089,8 @@ function packageBuilderPointTypeIcon(item){
   return item?.short||'TT';
 }
 function renderPackagePointTypeList(activeItem){
-  const summaryBody=document.getElementById('packagePointSummaryBody');
   const typePicker=document.getElementById('packagePointTypePicker');
-  if(!summaryBody||!typePicker)return;
+  if(!typePicker)return;
   const items=packageBuilderAllTestItems().filter(item=>packageBuilderPointRowsForItem(item).length);
   typePicker.innerHTML=items.length?items.map(item=>`<option value="${escapeHtml(item.id)}">${escapeHtml(item.name)}</option>`).join(''):'<option value="">Henüz test bulunamadı</option>';
 
@@ -4085,10 +4098,8 @@ function renderPackagePointTypeList(activeItem){
   if(selectedItem) typePicker.value=selectedItem.id;
   if(!selectedItem){
     packageBuilderState.activePointTestId='';
-    summaryBody.innerHTML='<div class="package-point-summary-row"><b>Test Tipi</b><span>Henüz test bulunamadı.</span></div>';
     return;
   }
-  summaryBody.innerHTML=`<div class="package-point-summary-row"><b>${escapeHtml(selectedItem.name)}</b></div>`;
 }
 function renderPackagePointDetail(item,row,index){
   const detail=document.getElementById('packagePointDetailPanel');
@@ -4115,20 +4126,16 @@ function renderPackagePointEditorPage(){
   if(!page)return;
   const item=packageBuilderFindTestItem(packageBuilderState.activePointTestId)||packageBuilderEnsureActivePointTest();
   const title=document.getElementById('packagePointEditorTitle');
-  const summaryName=document.getElementById('packagePointSummaryName');
-  const summaryDesc=document.getElementById('packagePointSummaryDesc');
   const list=document.getElementById('packagePointEditorList');
   const detail=document.getElementById('packagePointDetailPanel');
-  const filterName=document.getElementById('packagePointFilterName');
   const listTitle=document.getElementById('packagePointListTitle');
   const bottomStatus=document.getElementById('packagePointBottomStatus');
   if(title)title.textContent='Test Maddeleri Yönetimi';
   if(!item){
-    if(summaryName)summaryName.textContent='Test seçilmedi';
-    if(summaryDesc)summaryDesc.textContent='Maddeler ekranı test kartından açılır.';
     renderPackagePointTypeList(null);
     if(list)list.innerHTML='<div class="package-point-empty">Kontrol maddelerini görmek için bir test seçin.</div>';
     if(detail)detail.innerHTML='<div class="package-point-empty">Düzenlemek için bir test seçin.</div>';
+    if(listTitle)listTitle.textContent='Test Tipi Seçin';
     return;
   }
   const allRows=packageBuilderPointRowsForItem(item);
@@ -4137,10 +4144,7 @@ function renderPackagePointEditorPage(){
     packageBuilderState.activePointId=rows[0]?.id||allRows[0]?.id||null;
   }
   const selectedRow=allRows.find(row=>row.id===packageBuilderState.activePointId)||rows[0]||allRows[0]||null;
-  if(summaryName)summaryName.textContent=item.name;
-  if(summaryDesc)summaryDesc.textContent='Kontrol maddeleri paket kurgusuna göre yönetilir.';
-  if(filterName)filterName.textContent=item.name;
-  if(listTitle)listTitle.textContent=`${item.name} (${allRows.length} madde)`;
+  if(listTitle)listTitle.textContent=`${item.name} (${allRows.length} madde) ID'ye Göre ↑`;
   renderPackagePointTypeList(item);
   const addForm=document.getElementById('packagePointAddForm');
   if(addForm){
@@ -4977,6 +4981,3 @@ setWorkOrderFilter('open',false);
 </script>
 </body>
 </html>
-
-
-
