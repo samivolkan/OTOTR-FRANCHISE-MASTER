@@ -516,6 +516,9 @@ button,input,select,textarea{font:inherit}.app{min-height:100vh;display:grid;gri
 .package-point-editor-page .module-head{background:transparent;border:0;box-shadow:none;padding:0;margin:0 0 18px}
 .package-point-editor-page .module-head h1{font-size:28px;color:var(--point-ink);letter-spacing:0}.package-point-editor-page .module-head p{display:block!important;color:#475467;font-size:14px;margin-top:4px}
 .package-point-editor-page .package-builder-head-actions .btn{height:48px;border-radius:8px;padding:0 22px;font-size:14px}.package-point-editor-page .package-builder-head-actions .btn.primary{background:var(--point-red)!important;border-color:var(--point-red)!important}
+.package-point-test-meta{border:1px solid var(--point-line);border-radius:10px;background:#fff;box-shadow:0 2px 12px rgba(16,24,40,.025);padding:14px;margin-bottom:14px}
+.package-point-test-meta form{display:grid;grid-template-columns:1.15fr 1.55fr .85fr .85fr auto;gap:10px;align-items:end}
+.package-point-test-meta .field{display:grid;gap:6px;min-width:0}.package-point-test-meta label{font-size:11px;font-weight:850;color:#344054}.package-point-test-meta input,.package-point-test-meta select{height:40px;border:1px solid #d8dee8;border-radius:9px;background:#fff;color:#101828;padding:0 10px;font-weight:750;min-width:0}.package-point-test-meta .btn{height:40px;white-space:nowrap}.package-point-test-meta-title{display:none}
 .package-point-filterbar{display:grid;grid-template-columns:minmax(240px,1.2fr) minmax(190px,1fr) 154px 166px 130px 146px 146px;gap:12px;align-items:center;border:1px solid var(--point-line);background:#fff;border-radius:10px;padding:18px;margin-bottom:18px;box-shadow:0 2px 12px rgba(16,24,40,.025);white-space:nowrap}
 .package-point-select-card,.package-point-search-card,.package-point-filter-select,.package-point-filter-clear{height:58px;border:1px solid #dfe5ee;border-radius:7px;background:#fff;color:var(--point-ink);display:flex;align-items:center;gap:12px;padding:0 16px;min-width:0}
 .package-point-select-card{border-color:#ff2b37;box-shadow:0 0 0 1px rgba(227,6,19,.06);text-align:left;cursor:pointer}.package-point-select-icon{width:28px;height:28px;border-radius:7px;background:#f1f4f9;display:grid;place-items:center;font-size:11px;font-weight:950;color:#1d2939}.package-point-select-copy{display:grid;gap:2px;min-width:0;flex:1}.package-point-select-copy span,.package-point-filter-select span{font-size:12px;font-weight:750;color:#667085}.package-point-select-copy b{font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.package-point-chevron{font-size:18px;color:#475467}
@@ -537,6 +540,30 @@ button,input,select,textarea{font:inherit}.app{min-height:100vh;display:grid;gri
 .package-point-row-drag{width:34px!important;height:46px!important;border-color:#dfe5ee!important;background:#fff!important;color:#1d3557!important;font-size:18px!important;letter-spacing:0!important;touch-action:none}
 .package-point-row.is-dragging,.package-subitem-row.is-dragging{opacity:.74!important;background:#fff!important;box-shadow:0 10px 24px rgba(16,24,40,.12)!important}
 .package-point-row-badges{gap:8px!important}.package-point-status-box{min-width:58px!important}.package-subitem-row{grid-template-columns:42px 38px minmax(0,1fr) 42px!important;transition:transform .16s ease,box-shadow .16s ease,background .16s ease}.package-subitem-drag{width:42px!important;height:46px!important;font-size:18px!important;color:#1d3557!important;touch-action:none}.package-subitem-index{width:38px!important;height:38px!important;cursor:grab;user-select:none}.package-subitem-icon-btn.danger{width:42px!important;height:38px!important;font-size:0!important}.package-subitem-icon-btn.danger:before{content:"Sil";font-size:12px}
+.package-point-editor-page.v2 .module-head{display:flex;align-items:center;justify-content:space-between;gap:16px}
+.package-point-editor-page.v2 .module-head h1::after{content:" v2";display:inline-flex;margin-left:8px;height:24px;align-items:center;border:1px solid #fecdd3;border-radius:999px;background:#fff1f2;color:#e30613;padding:0 9px;font-size:12px;font-weight:900;vertical-align:middle}
+.package-point-editor-page.v2 .module-head p{max-width:780px}
+.package-point-editor-page.v2 .package-point-filterbar{grid-template-columns:repeat(auto-fit,minmax(146px,1fr))!important;white-space:normal!important;align-items:end}
+.package-point-editor-page.v2 .package-point-search-card{grid-column:span 2}
+.package-point-type-sidebar{border:1px solid var(--point-line);border-radius:8px;background:#fff;box-shadow:0 2px 12px rgba(16,24,40,.025);overflow:hidden}
+.package-point-type-sidebar-head{height:58px;border-bottom:1px solid var(--point-line);display:flex;align-items:center;justify-content:space-between;padding:0 14px}
+.package-point-type-sidebar-head b{font-size:14px;color:var(--point-ink)}.package-point-type-sidebar-head span{font-size:11px;color:#667085;font-weight:850}
+.package-point-type-list{display:grid;max-height:680px;overflow:auto}
+.package-point-type-button{border:0;border-bottom:1px solid #eef2f6;background:#fff;display:grid;grid-template-columns:34px minmax(0,1fr) auto;gap:10px;align-items:center;padding:11px 12px;text-align:left;cursor:pointer;color:#344054}
+.package-point-type-button:hover{background:#f8fafc}.package-point-type-button.active{background:#fffafa;box-shadow:inset 3px 0 0 var(--point-red)}
+.package-point-type-icon{width:34px;height:34px;border-radius:8px;background:#f3f6fb;color:#1d3557;display:grid;place-items:center;font-size:11px;font-weight:950}
+.package-point-type-copy b{display:block;font-size:12.5px;color:#101828;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.package-point-type-copy span{display:block;margin-top:3px;font-size:10.5px;color:#667085}
+.package-point-type-count{min-width:30px;height:26px;border-radius:999px;background:#f3f6fb;color:#344054;display:grid;place-items:center;font-size:11px;font-weight:900;padding:0 8px}
+.package-point-editor-page.v2 .package-point-editor-layout{grid-template-columns:280px minmax(420px,.96fr) minmax(440px,1.05fr)!important}
+.package-point-detail-panel .package-chip{vertical-align:middle}.package-point-status-chip{height:30px;border:1px solid #dbe3ee;border-radius:999px;background:#f8fafc;color:#344054;display:inline-flex;align-items:center;padding:0 10px;font-size:12px;font-weight:850}
+.package-point-status-chip.published{border-color:#bbf7d0;background:#ecfdf3;color:#067647}.package-point-status-chip.draft{border-color:#bfdbfe;background:#eff6ff;color:#155eef}.package-point-status-chip.passive{border-color:#e5e7eb;background:#f3f4f6;color:#667085}.package-point-status-chip.revision{border-color:#fed7aa;background:#fff7ed;color:#b54708}
+.package-point-v2-section{border-top:1px solid var(--point-line);padding:18px;display:grid;gap:12px}.package-point-v2-section h3{margin:0;color:#111827;font-size:15px}.package-point-v2-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.package-point-v2-grid.three{grid-template-columns:repeat(3,minmax(0,1fr))}.package-point-v2-field{display:grid;gap:7px;color:#344054;font-size:12px;font-weight:800}.package-point-v2-field input,.package-point-v2-field select,.package-point-v2-field textarea{border:1px solid #dfe5ee;border-radius:7px;background:#fff;color:#111827;font:700 13px/1.35 inherit;padding:10px;min-width:0}.package-point-v2-field textarea{min-height:74px;resize:vertical}
+.package-rule-grid{display:grid;gap:8px}.package-rule-row{border:1px solid #e5e7eb;border-radius:8px;background:#f9fafb;padding:10px;display:grid;grid-template-columns:minmax(150px,1fr) repeat(4,92px);gap:8px;align-items:center}.package-rule-row b{font-size:12px;color:#111827}.package-rule-row label,.package-subitem-rule{display:flex;align-items:center;gap:6px;color:#475467;font-size:11px;font-weight:800}.package-rule-row input,.package-subitem-rule input{accent-color:#e30613}
+.package-subitem-row.v2{grid-template-columns:42px 38px minmax(180px,1fr) 136px repeat(3,76px) 42px!important}.package-subitem-type{height:38px;border:1px solid #dfe5ee;border-radius:7px;background:#fff;color:#344054;font-size:11px;font-weight:800;padding:0 8px;min-width:0}
+.package-point-quality-list{display:grid;gap:7px}.package-point-quality-item{border:1px solid #fed7aa;background:#fff7ed;color:#9a3412;border-radius:8px;padding:9px 10px;font-size:12px;font-weight:800}.package-point-quality-item.ok{border-color:#bbf7d0;background:#ecfdf3;color:#067647}
+.package-point-history{display:grid;gap:7px}.package-point-history-row{border:1px solid #e5e7eb;background:#fff;border-radius:8px;padding:9px 10px;font-size:12px;color:#475467}.package-point-history-row b{color:#111827}
+.package-point-modal{position:fixed;inset:0;z-index:10020;background:rgba(15,23,42,.52);display:none;align-items:center;justify-content:center;padding:18px}.package-point-modal.open{display:flex}.package-point-modal-card{width:min(430px,calc(100vw - 28px));max-height:calc(100vh - 36px);overflow:auto;border-radius:18px;background:#f8fafc;box-shadow:0 24px 80px rgba(15,23,42,.32);padding:14px}.package-phone-preview{border:9px solid #111827;border-radius:30px;background:#fff;overflow:hidden}.package-phone-preview-head{background:#111827;color:#fff;padding:14px}.package-phone-preview-body{padding:16px;display:grid;gap:12px}.package-phone-preview-title{font-size:17px;font-weight:900;color:#111827}.package-phone-option{border:1px solid #e5e7eb;border-radius:10px;background:#fff;padding:10px;color:#344054;font-size:13px;font-weight:750}.package-point-modal-actions{display:flex;justify-content:flex-end;margin-top:10px}
+@media(max-width:1250px){.package-point-editor-page.v2 .package-point-editor-layout{grid-template-columns:1fr!important}.package-point-type-sidebar{display:block}.package-rule-row{grid-template-columns:1fr 1fr}.package-subitem-row.v2{grid-template-columns:42px 38px minmax(0,1fr) 42px!important}.package-subitem-type,.package-subitem-rule{grid-column:3/4}.package-point-v2-grid,.package-point-v2-grid.three{grid-template-columns:1fr}.package-point-editor-page.v2 .package-point-search-card{grid-column:auto}}
 #dashboardPage .quick-form-note,#dashboardPage .form-actions .hint,#dashboardPage .form-actions .entry-note{display:none}
 .package-update-stamp{height:36px;border:1px solid #dbe3ee;border-radius:9px;background:#f8fafc;color:#475467;padding:0 11px;display:inline-flex;align-items:center;font-size:11px;font-weight:900;white-space:nowrap}
 .custom-package-card,.custom-package-pill{border-color:#b7e4c7;background:#f8fffb}
@@ -1115,11 +1142,12 @@ button,input,select,textarea{font:inherit}.app{min-height:100vh;display:grid;gri
       <section class="module-page package-builder-page" id="packageBuilderPage">
         <div class="module-head package-builder-head">
           <div>
-            <h1>Paket İçeriği Oluşturucu</h1>
+            <h1>Paket Oluştur v2</h1>
           </div>
           <div class="package-builder-head-actions">
             <span class="package-update-stamp" id="packageBuilderUpdateStamp">Son güncelleme: 01.07.2026 02:34</span>
             <button class="btn" data-open-module="dashboardPage" data-open-module-nav="navDashboard" type="button">Kokpite Dön</button>
+            <button class="btn" data-package-open-points="bodyPaint" type="button">Test Maddeleri</button>
             <button class="btn primary" data-package-submit="approval" type="button">Merkez Onayına Gönder</button>
           </div>
         </div>
@@ -1146,6 +1174,15 @@ button,input,select,textarea{font:inherit}.app{min-height:100vh;display:grid;gri
           <section class="package-panel">
             <div class="package-panel-head package-pool-head"><div><div class="package-panel-title">Seçilebilir Paket Havuzu</div></div><div class="package-pool-toolbar"><div class="package-tabs"><button class="package-tab active" data-package-tab="allTests" type="button">Tüm Testler</button><button class="package-tab" data-package-tab="mainTests" type="button">Ana Testler</button><button class="package-tab" data-package-tab="extraServices" type="button">Ek Testler</button><button class="package-tab" data-package-tab="queries" type="button">Sorgular</button><button class="package-tab" data-package-tab="warranties" type="button">Garanti Paketleri</button><button class="package-tab" data-package-tab="templates" type="button">Hazır Şablonlar</button></div></div></div>
             <div class="package-panel-body">
+              <div class="package-test-point-builder">
+                <form class="package-test-point-form" id="packageTestPointForm" hidden>
+                  <div class="field"><label>Eklenecegi liste</label><select data-test-point-field="target"><option value="main">Ana Testler</option><option value="extra">Ek Testler</option><option value="query">Sorgular</option><option value="warranty">Garanti Paketleri</option></select></div>
+                  <div class="field"><label>Test turu adi</label><input data-test-point-field="name" placeholder="Orn. Araci 360 derece fotograflama"></div>
+                  <div class="field"><label>Test fiyati</label><input data-test-point-field="priceImpact" type="number" min="0" step="50" placeholder="0"></div>
+                  <div class="field"><label>Risk seviyesi</label><select data-test-point-field="risk"><option>Düşük</option><option>Yüksek</option></select></div>
+                  <div class="package-test-point-actions"><button class="btn" data-package-test-point-reset type="button">Iptal Et</button><button class="btn primary" id="packageTestPointSaveButton" data-package-test-point-save type="button">Kaydet ve Listeye Ekle</button></div>
+                </form>
+              </div>
               <div class="package-pool-tools">
                 <div class="package-pool-main">
                   <div class="package-search"><span>ARA</span><input id="packageSearchInput" placeholder="Modül ara: kaporta, motor, dyno..."></div>
@@ -1171,10 +1208,17 @@ button,input,select,textarea{font:inherit}.app{min-height:100vh;display:grid;gri
           </aside>
         </div>
       </section>
-  <section class="module-page package-point-editor-page" id="packagePointEditorPage">
+  <section class="module-page package-point-editor-page v2" id="packagePointEditorPage">
         <div class="module-head package-builder-head">
           <div>
             <h1 id="packagePointEditorTitle">Test Maddeleri Yönetimi</h1>
+            <p>Ekspertiz şablonundaki test tiplerini, maddeleri, alt maddeleri ve rapor kurallarını yönetin.</p>
+          </div>
+          <div class="package-builder-head-actions">
+            <button class="btn" data-open-module="packageBuilderPage" data-open-module-nav="navPackageBuilder" type="button">Paket Oluştur v2</button>
+            <button class="btn" data-package-bulk-save type="button">Toplu Kaydet</button>
+            <button class="btn" data-package-mobile-preview type="button">Önizle</button>
+            <button class="btn primary" data-package-point-publish type="button">Yayına Al</button>
           </div>
         </div>
         <div class="package-point-filterbar">
@@ -1185,11 +1229,15 @@ button,input,select,textarea{font:inherit}.app{min-height:100vh;display:grid;gri
           <label class="package-point-search-card"><input id="packagePointSearchInput" placeholder="Ara: Madde, alt madde, ID..."><span>ARA</span></label>
           <label class="package-point-filter-select"><span>Zorunluluk</span><select id="packagePointRequiredFilter"><option value="all">Tümü</option><option value="required">Zorunlu</option><option value="optional">Opsiyonel</option></select></label>
           <label class="package-point-filter-select"><span>Fotoğraf Durumu</span><select id="packagePointPhotoFilter"><option value="all">Tümü</option><option value="required">Fotoğraf Zorunlu</option><option value="optional">Fotoğraf Opsiyonel</option><option value="none">Fotoğraf Yok</option></select></label>
-          <button class="btn package-point-filter-action" data-package-bulk-save type="button">Toplu Kaydet</button>
-          <button class="btn primary package-point-filter-action" data-package-point-add-toggle type="button">+ Yeni Test Tipi</button>
+          <label class="package-point-filter-select"><span>Yayın Durumu</span><select id="packagePointStatusFilter"><option value="all">Tümü</option><option value="draft">Taslak</option><option value="published">Yayında</option><option value="passive">Pasif</option><option value="revision">Revizyon bekliyor</option></select></label>
+          <label class="package-point-filter-select"><span>Paket</span><select id="packagePointPackageFilter"><option value="all">Tüm paketler</option></select></label>
+          <label class="package-point-filter-select"><span>Şablon Kontrolü</span><select id="packagePointIssueFilter"><option value="all">Tümü</option><option value="issues">Hatalı maddeler</option><option value="emptySubitems">Boş alt madde</option><option value="missingReport">Rapor eşleşmesi yok</option><option value="missingPackage">Pakete bağlı değil</option></select></label>
+          <button class="btn primary package-point-filter-action" data-package-point-add-toggle type="button">+ Yeni Madde</button>
           <button class="package-point-filter-clear" data-package-point-clear-filters type="button">Filtreleri Temizle</button>
         </div>
+        <div class="package-point-test-meta" id="packagePointTestMeta"></div>
         <div class="package-point-editor-layout">
+          <aside class="package-point-type-sidebar" id="packagePointTypeSidebar"></aside>
           <section class="package-point-editor-panel">
             <div class="package-point-editor-toolbar">
               <div><h2 id="packagePointListTitle">Test Tipi Seçin</h2></div>
@@ -1205,6 +1253,7 @@ button,input,select,textarea{font:inherit}.app{min-height:100vh;display:grid;gri
           <section class="package-point-detail-panel" id="packagePointDetailPanel"></section>
         </div>
         <div class="package-point-bottom-status" id="packagePointBottomStatus"></div>
+        <div class="package-point-modal" id="packagePointPreviewModal" hidden></div>
       </section>
       <section class="module-page" id="staffAcademyPage">
         <div class="module-head"><div><h1>Personel & Academy</h1><p>Yük dağılımı, eğitim durumu ve performans takibi.</p></div><button class="btn" data-open-module="dashboardPage" data-open-module-nav="navDashboard">Kokpite Dön</button></div>
@@ -1411,7 +1460,8 @@ const packageBuilderTabConfig={
   extraServices:{step:'extraTests',category:'extraTests'},
   queries:{step:'queries',category:'queries'},
   warranties:{step:'warranties',category:'warranties'},
-  templates:{step:'costs',category:'extraTests'}
+  templates:{step:'costs',category:'extraTests'},
+  archive:{step:'costs',category:'archive'}
 };
 const packageBuilderStorageKey='ototr-package-builder-drafts-v1';
 const packageBuilderCustomTestStorageKey='ototr-package-builder-custom-tests-v1';
@@ -1644,13 +1694,34 @@ function packageBuilderPointDraft(testId,point){
   const savedSubPoints=Array.isArray(saved.subPoints)&&saved.subPoints.length?saved.subPoints:null;
   const shouldUseSaved=savedSubPoints && !(packageBuilderPointOptionLabels(point).length&&packageBuilderLegacyFallbackSubpoints(savedSubPoints));
   const baseRequiresMedia=Boolean(point.requiresMedia||Number(point.requiredImageCount||0)>0);
-  const requiresMedia=typeof saved.requiresMedia==='boolean'?saved.requiresMedia:baseRequiresMedia;
+  const baseImageCount=Number(point.requiredImageCount||0);
+  const photoMode=saved.photoMode || (typeof saved.requiresMedia==='boolean'
+    ? (saved.requiresMedia ? (Number(saved.requiredImageCount||0)>0?'required':'optional') : 'none')
+    : (baseRequiresMedia ? (baseImageCount>0?'required':'optional') : 'none'));
+  const requiresMedia=photoMode!=='none';
+  const requiredImageCount=photoMode==='required'?Math.max(1,Number(saved.requiredImageCount||baseImageCount||1)):0;
   return {
     title:saved.title||point.name||'Kontrol noktası',
     subPoints:shouldUseSaved?savedSubPoints:defaultSubPoints,
     isRequired:typeof saved.isRequired==='boolean'?saved.isRequired:Boolean(point.isRequired),
+    requirementMode:saved.requirementMode || (saved.isRequired||point.isRequired?'required':'optional'),
+    status:saved.status || (saved.active===false?'passive':'published'),
+    photoMode,
     requiresMedia,
-    requiredImageCount:requiresMedia ? Math.max(1,Number(saved.requiredImageCount||point.requiredImageCount||1)) : 0
+    requiredImageCount,
+    reportSection:saved.reportSection || point.groupLabel || '',
+    reportLabel:saved.reportLabel || saved.title || point.name || '',
+    reportVisibility:saved.reportVisibility || 'always',
+    adminNote:saved.adminNote || '',
+    technicianNote:saved.technicianNote || '',
+    customerNote:saved.customerNote || '',
+    internalNote:saved.internalNote || '',
+    requiresManagerApproval:Boolean(saved.requiresManagerApproval),
+    lockedByCenter:saved.lockedByCenter!==false,
+    packageRules:saved.packageRules&&typeof saved.packageRules==='object'&&!Array.isArray(saved.packageRules)?saved.packageRules:{},
+    history:Array.isArray(saved.history)?saved.history:[],
+    lastModifiedBy:saved.lastModifiedBy || 'Merkez',
+    lastModifiedAt:saved.lastModifiedAt || ''
   };
 }
 function packageBuilderPointBucket(testId){
@@ -1693,8 +1764,24 @@ function packageBuilderPointRowsForItem(item){
         sortOrder:Number(point.sortOrder)||0,
         order:Number.isFinite(Number(bucketPoint.order))?Number(bucketPoint.order):Number(point.sortOrder)||0,
         isRequired:Boolean(draft.isRequired),
+        requirementMode:draft.requirementMode,
+        status:draft.status,
+        photoMode:draft.photoMode,
         requiresMedia:Boolean(draft.requiresMedia),
         requiredImageCount:Number(draft.requiredImageCount||0)||0,
+        reportSection:draft.reportSection,
+        reportLabel:draft.reportLabel,
+        reportVisibility:draft.reportVisibility,
+        adminNote:draft.adminNote,
+        technicianNote:draft.technicianNote,
+        customerNote:draft.customerNote,
+        internalNote:draft.internalNote,
+        requiresManagerApproval:Boolean(draft.requiresManagerApproval),
+        lockedByCenter:Boolean(draft.lockedByCenter),
+        packageRules:draft.packageRules,
+        history:draft.history,
+        lastModifiedBy:draft.lastModifiedBy,
+        lastModifiedAt:draft.lastModifiedAt,
         custom:false
       };
     });
@@ -1709,8 +1796,24 @@ function packageBuilderPointRowsForItem(item){
       sortOrder:Number(value.sortOrder||Number.MAX_SAFE_INTEGER),
       order:Number.isFinite(Number(value.order))?Number(value.order):Number(value.sortOrder)||0,
       isRequired:Boolean(value.isRequired),
+      requirementMode:value.requirementMode || (value.isRequired?'required':'optional'),
+      status:value.status || 'draft',
+      photoMode:value.photoMode || (value.requiresMedia?(Number(value.requiredImageCount||0)>0?'required':'optional'):'none'),
       requiresMedia:Boolean(value.requiresMedia),
       requiredImageCount:Number(value.requiredImageCount||0)||0,
+      reportSection:value.reportSection || value.groupLabel || 'Manuel Madde',
+      reportLabel:value.reportLabel || value.title || 'Yeni kontrol maddesi',
+      reportVisibility:value.reportVisibility || 'always',
+      adminNote:value.adminNote || '',
+      technicianNote:value.technicianNote || '',
+      customerNote:value.customerNote || '',
+      internalNote:value.internalNote || '',
+      requiresManagerApproval:Boolean(value.requiresManagerApproval),
+      lockedByCenter:value.lockedByCenter!==false,
+      packageRules:value.packageRules&&typeof value.packageRules==='object'&&!Array.isArray(value.packageRules)?value.packageRules:{},
+      history:Array.isArray(value.history)?value.history:[],
+      lastModifiedBy:value.lastModifiedBy || 'Merkez',
+      lastModifiedAt:value.lastModifiedAt || '',
       custom:true
     });
   });
@@ -1733,15 +1836,41 @@ function packageBuilderSavePointOverride(testId,pointId,title,subPointText,optio
   if(!testId||!pointId)return;
   const lines=String(subPointText||'').split(/\r?\n|,/).map(item=>item.trim()).filter(Boolean);
   const bucket=packageBuilderPointBucket(testId);
-  const next={...(bucket[pointId]||{}),title:String(title||'').trim(),subPoints:lines,deleted:false};
+  const previous=bucket[pointId]||{};
+  const next={...previous,title:String(title||'').trim(),subPoints:lines,deleted:false};
   if(Object.prototype.hasOwnProperty.call(options,'isRequired'))next.isRequired=Boolean(options.isRequired);
+  if(Object.prototype.hasOwnProperty.call(options,'requirementMode'))next.requirementMode=String(options.requirementMode||'optional');
+  if(Object.prototype.hasOwnProperty.call(options,'status'))next.status=String(options.status||'draft');
+  if(Object.prototype.hasOwnProperty.call(options,'photoMode')){
+    next.photoMode=String(options.photoMode||'none');
+    next.requiresMedia=next.photoMode!=='none';
+    next.requiredImageCount=next.photoMode==='required'?Math.max(1,Number(options.requiredImageCount||1)):0;
+  }
   if(Object.prototype.hasOwnProperty.call(options,'requiresMedia')){
     next.requiresMedia=Boolean(options.requiresMedia);
     next.requiredImageCount=next.requiresMedia?Math.max(1,Number(options.requiredImageCount||1)):0;
+    next.photoMode=next.requiresMedia?(next.requiredImageCount>0?'required':'optional'):'none';
   }
   if(Object.prototype.hasOwnProperty.call(options,'order')&&Number.isFinite(Number(options.order))){
     next.order=Number(options.order);
   }
+  ['reportSection','reportLabel','reportVisibility','adminNote','technicianNote','customerNote','internalNote'].forEach(key=>{
+    if(Object.prototype.hasOwnProperty.call(options,key))next[key]=String(options[key]||'').trim();
+  });
+  if(Object.prototype.hasOwnProperty.call(options,'requiresManagerApproval'))next.requiresManagerApproval=Boolean(options.requiresManagerApproval);
+  if(Object.prototype.hasOwnProperty.call(options,'lockedByCenter'))next.lockedByCenter=Boolean(options.lockedByCenter);
+  if(options.packageRules&&typeof options.packageRules==='object'&&!Array.isArray(options.packageRules))next.packageRules=options.packageRules;
+  const changedFields=[];
+  if(previous.title&&previous.title!==next.title)changedFields.push('Madde adı');
+  if(previous.status&&previous.status!==next.status)changedFields.push('Yayın durumu');
+  if(previous.photoMode&&previous.photoMode!==next.photoMode)changedFields.push('Fotoğraf kuralı');
+  if(previous.reportLabel&&previous.reportLabel!==next.reportLabel)changedFields.push('Rapor etiketi');
+  if(changedFields.length){
+    const history=Array.isArray(previous.history)?previous.history.slice(0,8):[];
+    next.history=[{at:new Date().toLocaleString('tr-TR'),by:'Merkez',fields:changedFields.join(', ')},...history].slice(0,8);
+  }
+  next.lastModifiedAt=new Date().toLocaleString('tr-TR');
+  next.lastModifiedBy='Merkez';
   bucket[pointId]=next;
   packageBuilderSaveControlPointOverrides();
 }
@@ -1754,6 +1883,19 @@ function packageBuilderTogglePointFlag(testId,pointId,flag){
     isRequired:flag==='required'?!row.isRequired:row.isRequired,
     requiresMedia:flag==='photo'?!row.requiresMedia:row.requiresMedia,
     requiredImageCount:flag==='photo'&&!row.requiresMedia?1:row.requiredImageCount
+  });
+}
+function packageBuilderSetPointPhotoMode(testId,pointId,mode){
+  if(!testId||!pointId)return;
+  const item=packageBuilderFindTestItem(testId);
+  const row=packageBuilderPointRowsForItem(item).find(value=>value.id===pointId);
+  if(!row)return;
+  const current=packageBuilderPointPhotoMode(row);
+  const nextMode=current===mode?'none':mode;
+  packageBuilderSavePointOverride(testId,pointId,row.title,row.subPoints.join('\n'),{
+    isRequired:row.isRequired,
+    photoMode:nextMode,
+    requiredImageCount:nextMode==='required'?1:0
   });
 }
 function packageBuilderDeletePoint(testId,pointId){
@@ -1771,7 +1913,7 @@ function packageBuilderAddPoint(testId,title,subPointText){
   const bucket=packageBuilderPointBucket(testId);
   const base=packageBuilderPointRowsForItem(packageBuilderFindTestItem(testId));
   const nextOrder=base.length ? Math.max(...base.map(row=>Number.isFinite(Number(row.order))?Number(row.order):0))+1 : 1;
-  bucket[id]={custom:true,title:cleanTitle,subPoints:lines,groupLabel:'Manuel Madde',sortOrder:nextOrder,order:nextOrder,legacyNoktaId:'Yeni',deleted:false};
+  bucket[id]={custom:true,title:cleanTitle,subPoints:lines,groupLabel:'Manuel Madde',sortOrder:nextOrder,order:nextOrder,legacyNoktaId:'Yeni',deleted:false,status:'draft',requirementMode:'optional',photoMode:'none',reportSection:'Manuel Madde',reportLabel:cleanTitle,reportVisibility:'always',lockedByCenter:true,lastModifiedAt:new Date().toLocaleString('tr-TR'),lastModifiedBy:'Merkez'};
   packageBuilderSaveControlPointOverrides();
   return true;
 }
@@ -1982,6 +2124,9 @@ const packageBuilderState={
   pointSearch:'',
   pointRequiredFilter:'all',
   pointPhotoFilter:'all',
+  pointStatusFilter:'all',
+  pointPackageFilter:'all',
+  pointIssueFilter:'all',
   selectedMainTests:new Set(packageMainTests.filter(item=>item.defaultSelected).map(item=>item.id)),
   selectedExtraServices:new Set(packageExtraServices.filter(item=>item.defaultSelected).map(item=>item.id)),
   createdPackages:packageBuilderReadPackages(),
@@ -3765,10 +3910,11 @@ function packageBuilderTotals(){
   return {info,selectedTests,selectedExtras,mainTotal,extraTotal,testPriceTotal,totalControlPoints,salesPrice,estimatedProfit,evidencePercent:packageBuilderEvidencePercent(selectedTests,info)};
 }
 function packageBuilderRiskTone(risk){
-  return String(risk)==='Yüksek'?'red':'green';
+  return packageBuilderNormalizeRisk(risk)==='Yuksek'?'red':'green';
 }
 function packageBuilderNormalizeRisk(risk){
-  return String(risk)==='Yüksek'?'Yüksek':'Düşük';
+  const value=String(risk||'').toLocaleLowerCase('tr-TR');
+  return value.includes('yuk')||value.includes('yük')||value.includes('yã')?'Yuksek':'Dusuk';
 }
 function packageBuilderApprovalTone(approval){
   return String(approval).includes('Merkez')?'purple':'green';
@@ -3784,54 +3930,34 @@ function packageBuilderReadNewTestPoint(){
   const form=packageBuilderTestPointForm();
   const read=name=>String(form?.querySelector(`[data-test-point-field="${name}"]`)?.value||'').trim();
   const target=packageBuilderCustomTargetConfig[read('target')]?read('target'):'extra';
-  const subPoints=read('subPoints').split(/\r?\n|,/).map(item=>item.trim()).filter(Boolean);
+  const evidence=target==='query'?'Sorgu kaydi':target==='warranty'?'Merkez onayi':target==='main'?'Foto kanit':'Opsiyonel';
+  const approval=target==='warranty'?'Merkez onayi gerekli':'Otomatik';
   return {
     target,
     name:read('name'),
-    controlPoints:Number(read('controlPoints')||0),
+    controlPoints:0,
     priceImpact:Number(read('priceImpact')||0),
-    evidence:read('evidence')||'Foto kanıt',
+    evidence,
     risk:packageBuilderNormalizeRisk(read('risk')||'Düşük'),
-    approval:read('approval')||'Otomatik',
-    subPoints
+    approval,
+    subPoints:[]
   };
 }
 function packageBuilderResetNewTestPointForm(hide=false){
   const form=packageBuilderTestPointForm();
   if(!form)return;
   packageBuilderState.editingTestId=null;
-  form.querySelector('[data-test-point-field="target"]').value='main';
-  form.querySelector('[data-test-point-field="name"]').value='';
-  form.querySelector('[data-test-point-field="controlPoints"]').value='';
-  form.querySelector('[data-test-point-field="priceImpact"]').value='';
-  form.querySelector('[data-test-point-field="evidence"]').value='Foto kanıt';
-  form.querySelector('[data-test-point-field="risk"]').value='Düşük';
-  form.querySelector('[data-test-point-field="approval"]').value='Otomatik';
-  form.querySelector('[data-test-point-field="subPoints"]').value='';
+  const set=(name,value)=>{const input=form.querySelector(`[data-test-point-field="${name}"]`);if(input)input.value=value;};
+  set('target','main');
+  set('name','');
+  set('priceImpact','');
+  set('risk','Düşük');
   const saveButton=document.getElementById('packageTestPointSaveButton');
-  if(saveButton)saveButton.textContent='Kaydet ve Pakete Ekle';
+  if(saveButton)saveButton.textContent='Kaydet ve Listeye Ekle';
   if(hide)form.hidden=true;
 }
 function packageBuilderOpenTestEdit(testId){
-  const item=packageBuilderFindTestItem(testId);
-  const form=packageBuilderTestPointForm();
-  if(!item||!form)return;
-  packageBuilderState.editingTestId=testId;
-  form.hidden=false;
-  form.querySelector('[data-test-point-field="target"]').value=packageBuilderTargetForItem(item);
-  form.querySelector('[data-test-point-field="name"]').value=item.name||'';
-  form.querySelector('[data-test-point-field="controlPoints"]').value=packageBuilderItemControlPointCount(item)||Number(item.controlPoints||0)||'';
-  form.querySelector('[data-test-point-field="priceImpact"]').value=packageBuilderItemPrice(item);
-  form.querySelector('[data-test-point-field="evidence"]').value=item.evidence||'Opsiyonel';
-  form.querySelector('[data-test-point-field="risk"]').value=packageBuilderNormalizeRisk(item.risk||'Düşük');
-  form.querySelector('[data-test-point-field="approval"]').value=item.approval||'Otomatik';
-  const rows=packageBuilderPointRowsForItem(item);
-  const subPoints=Array.isArray(item.subPoints)&&item.subPoints.length?item.subPoints:(rows.length?rows.map(row=>row.title):[]);
-  form.querySelector('[data-test-point-field="subPoints"]').value=subPoints.join('\n');
-  const saveButton=document.getElementById('packageTestPointSaveButton');
-  if(saveButton)saveButton.textContent='Testi Güncelle';
-  form.scrollIntoView({block:'start',behavior:'smooth'});
-  form.querySelector('[data-test-point-field="name"]')?.focus();
+  packageBuilderOpenPointEditor(testId);
 }
 function packageBuilderTargetForActiveTab(){
   if(packageBuilderState.activeTab==='allTests')return 'main';
@@ -3862,17 +3988,18 @@ function packageBuilderApplyNewTestTargetDefaults(target){
   }
 }
 function packageBuilderBuildTestItemFromData(data,id,existing=null){
+  const preservedSubPoints=Array.isArray(existing?.subPoints)?existing.subPoints:[];
   const item={
     ...(existing||{}),
     id,
     name:data.name,
     short:packageBuilderShort(data.name),
-    description:`${data.subPoints.length} alt kontrol: ${data.subPoints.slice(0,3).join(', ')}${data.subPoints.length>3?'...':''}`,
-    controlPoints:data.controlPoints,
+    description:existing?.description||'Test turu maddeleri duzenleme ekranindan yonetilir.',
+    controlPoints:Number(existing?.controlPoints||data.controlPoints||0),
     priceImpact:Math.max(0,Number(data.priceImpact||0)),
     evidence:data.evidence,
     risk:packageBuilderNormalizeRisk(data.risk),
-    subPoints:data.subPoints,
+    subPoints:Array.isArray(data.subPoints)&&data.subPoints.length?data.subPoints:preservedSubPoints,
     custom:Boolean(existing?.custom)||String(id).startsWith('custom-'),
     defaultSelected:false
   };
@@ -3882,7 +4009,7 @@ function packageBuilderBuildTestItemFromData(data,id,existing=null){
   }
   if(data.target==='warranty'){
     item.priceLabel=packageBuilderItemPriceLabel(item);
-    item.approval=data.approval||'Merkez onayı gerekli';
+    item.approval=data.approval||'Merkez onayi gerekli';
     item.recommendedForGuaranteed=true;
   }
   return item;
@@ -3890,9 +4017,7 @@ function packageBuilderBuildTestItemFromData(data,id,existing=null){
 function packageBuilderCreateTestPoint(){
   const data=packageBuilderReadNewTestPoint();
   const config=packageBuilderCustomTargetConfig[data.target]||packageBuilderCustomTargetConfig.extra;
-  if(!data.name){packageBuilderShowToast('Test türü adı girilmeli.');return;}
-  if(!data.controlPoints||data.controlPoints<1){packageBuilderShowToast('Bakılacak nokta sayısı 1 veya daha büyük olmalı.');return;}
-  if(!data.subPoints.length){packageBuilderShowToast('En az 1 alt kontrol içeriği girilmeli.');return;}
+  if(!data.name){packageBuilderShowToast('Test turu adi girilmeli.');return;}
   const editingId=packageBuilderState.editingTestId;
   const existing=editingId?packageBuilderFindTestItem(editingId):null;
   const id=editingId||`custom-${data.target}-${Date.now()}-${packageBuilderSlug(data.name)}`;
@@ -3911,18 +4036,15 @@ function packageBuilderCreateTestPoint(){
   packageBuilderState.search='';
   const search=document.getElementById('packageSearchInput');
   if(search)search.value='';
-  if(config.selected==='main'){
-    packageBuilderState.selectedMainTests.add(id);
-  }else{
-    packageBuilderState.selectedExtraServices.add(id);
-  }
+  if(config.selected==='main')packageBuilderState.selectedMainTests.add(id);
+  else packageBuilderState.selectedExtraServices.add(id);
   packageBuilderState.activeTab=config.tab;
   packageBuilderState.activeStep=config.step;
   packageBuilderState.activeCategory=config.category;
   packageBuilderState.activePointTestId=id;
   packageBuilderResetNewTestPointForm(true);
   packageBuilderRefresh();
-  packageBuilderShowToast(editingId?`${data.name} testi güncellendi.`:`${data.name} ${config.typeLabel.toLocaleLowerCase('tr-TR')} listesine eklendi.`);
+  packageBuilderShowToast(`${data.name} ${config.typeLabel.toLocaleLowerCase('tr-TR')} listesine eklendi.`);
 }
 function packageBuilderArchiveTest(testId){
   const item=packageBuilderFindTestItem(testId);
@@ -3931,6 +4053,8 @@ function packageBuilderArchiveTest(testId){
   packageBuilderSaveManagedTests();
   packageBuilderRemoveTestEverywhere(testId,true);
   if(packageBuilderState.editingTestId===testId)packageBuilderResetNewTestPointForm(true);
+  packageBuilderState.activeTab='archive';
+  packageBuilderState.activeCategory='archive';
   packageBuilderRefresh();
   packageBuilderShowToast(`${item.name} arşivlendi.`);
 }
@@ -4002,13 +4126,22 @@ function packageBuilderRenderSubPoints(item){
   const remaining=item.subPoints.length-visible.length;
   return `<div class="package-subpoint-list">${visible.map(point=>`<span>${escapeHtml(point)}</span>`).join('')}${remaining>0?`<span>+${remaining} daha</span>`:''}</div>`;
 }
+function packageBuilderEnsurePoolToolbarActions(){
+  const toolbar=document.querySelector('.package-pool-toolbar');
+  const tabs=toolbar?.querySelector('.package-tabs');
+  if(!toolbar||!tabs)return;
+  if(!toolbar.querySelector('[data-package-test-add-toggle]')){
+    tabs.insertAdjacentHTML('beforebegin','<button class="btn primary package-test-toggle" data-package-test-add-toggle type="button">+ Test Turu Ekle</button>');
+  }
+  if(!tabs.querySelector('[data-package-tab="archive"]')){
+    tabs.insertAdjacentHTML('beforeend','<button class="package-tab" data-package-tab="archive" type="button">Arsiv</button>');
+  }
+}
 function packageBuilderRenderTestActions(item){
   const id=escapeHtml(item.id);
   return `<div class="package-card-secondary-actions">
-    <button class="package-action-link primary" data-package-open-points="${id}" type="button">Maddeler</button>
-    <button class="package-action-link" data-package-test-edit="${id}" type="button">Düzenle</button>
-    <button class="package-action-link archive" data-package-test-archive="${id}" type="button">Arşivle</button>
-    <button class="package-action-link danger" data-package-test-delete="${id}" type="button">Sil</button>
+    <button class="package-action-link primary" data-package-test-edit="${id}" type="button">Test Turu Duzenle</button>
+    <button class="package-action-link archive" data-package-test-archive="${id}" type="button">Arsivle</button>
   </div>`;
 }
 function renderPackageMainTestCard(item){
@@ -4049,6 +4182,15 @@ function renderPackageExtraServiceCard(item){
 function renderPackageTemplates(){
   return `<div class="package-template-grid">${packageTemplates.map(template=>`<article class="package-template-card"><div><b>${escapeHtml(template.name)}</b><span>${escapeHtml(template.description)}</span><div class="package-option-meta" style="margin-top:9px"><span class="package-chip blue">${template.mainTests.length} ana test</span><span class="package-chip green">${template.extraServices.length} ek test</span><span class="package-chip orange">${formatTL(template.price)}</span></div></div><div class="package-template-actions"><button class="package-add-btn" data-package-template="${template.id}" type="button">Şablonu Uygula</button><button class="package-action-link primary" data-package-template-copy="${template.id}" type="button">Kopyala</button></div></article>`).join('')}</div>`;
 }
+function renderPackageArchive(){
+  const archived=packageBuilderManagedItemsByStatus('archived');
+  if(!archived.length)return '<div class="package-empty">Arsivde test turu yok.</div>';
+  return `<div class="package-template-grid">${archived.map(item=>{
+    const record=packageBuilderManagedTests[item.id]||{};
+    const target=packageBuilderCustomTargetConfig[record.target]||packageBuilderCustomTargetConfig[packageBuilderTargetForItem(item)]||packageBuilderCustomTargetConfig.extra;
+    return `<article class="package-template-card"><div><b>${escapeHtml(item.name)}</b><span>${escapeHtml(target.typeLabel)} · ${escapeHtml(packageBuilderItemPriceLabel(item))} · ${escapeHtml(packageBuilderNormalizeRisk(item.risk))} risk</span><div class="package-option-meta" style="margin-top:9px"><span class="package-chip blue">Arsiv</span>${record.archivedAt?`<span class="package-chip green">${escapeHtml(record.archivedAt)}</span>`:''}</div></div><div class="package-template-actions"><button class="package-action-link primary" data-package-test-restore="${escapeHtml(item.id)}" type="button">Geri Al</button><button class="package-action-link" data-package-test-reload="${escapeHtml(item.id)}" type="button">Tekrar Yukle</button></div></article>`;
+  }).join('')}</div>`;
+}
 function renderPackagePoolSection(title,items,renderer){
   const visible=items.filter(packageBuilderMatchesSearch);
   if(!visible.length)return '';
@@ -4066,6 +4208,7 @@ function renderAllPackageTests(){
 function renderPackagePool(){
   const target=document.getElementById('packagePoolList');
   if(!target)return;
+  packageBuilderEnsurePoolToolbarActions();
   document.querySelectorAll('[data-package-tab]').forEach(tab=>tab.classList.toggle('active',tab.dataset.packageTab===packageBuilderState.activeTab));
   if(packageBuilderState.activeTab==='allTests'){
     target.innerHTML=renderAllPackageTests();
@@ -4073,6 +4216,10 @@ function renderPackagePool(){
   }
   if(packageBuilderState.activeTab==='templates'){
     target.innerHTML=renderPackageTemplates();
+    return;
+  }
+  if(packageBuilderState.activeTab==='archive'){
+    target.innerHTML=renderPackageArchive();
     return;
   }
   const items=packageBuilderState.activeTab==='mainTests' ? packageBuilderFiltered(packageMainTests) : packageBuilderFiltered(packageExtraServices);
@@ -4110,7 +4257,7 @@ function renderSelectedPackageContentPanel(){
     target.innerHTML='<div class="package-empty">Henüz paket içeriği seçilmedi.</div>';
     return;
   }
-  target.innerHTML=rows.map(row=>`<div class="package-selected-item ${row.id===packageBuilderState.activePointTestId?'active':''}"><span class="package-selected-item-icon">${escapeHtml(row.short)}</span><div><b>${escapeHtml(row.name)}</b><span>${escapeHtml(row.sub)}</span></div><button class="package-selected-point-btn" data-package-open-points="${escapeHtml(row.id)}" type="button">Maddeler</button><button class="package-remove-btn" data-package-remove-${row.type}="${row.id}" type="button" aria-label="${escapeHtml(row.name)} çıkar">×</button></div>`).join('');
+  target.innerHTML=rows.map(row=>`<div class="package-selected-item ${row.id===packageBuilderState.activePointTestId?'active':''}"><span class="package-selected-item-icon">${escapeHtml(row.short)}</span><div><b>${escapeHtml(row.name)}</b><span>${escapeHtml(row.sub)}</span></div><button class="package-selected-point-btn" data-package-test-edit="${escapeHtml(row.id)}" type="button">Test Turu Duzenle</button><button class="package-remove-btn" data-package-remove-${row.type}="${row.id}" type="button" aria-label="${escapeHtml(row.name)} cikar">×</button></div>`).join('');
 }
 function renderPackageControlPointPanel(){
   const target=document.getElementById('packageControlPointPanel');
@@ -4150,6 +4297,127 @@ function renderPackageControlPointPanel(){
       }).join('')}
     </div>`;
 }
+function packageBuilderPointStatusLabel(status){
+  return {draft:'Taslak',published:'Yayında',passive:'Pasif',revision:'Revizyon bekliyor'}[status]||'Taslak';
+}
+function packageBuilderPointPhotoMode(row){
+  if(row?.photoMode)return row.photoMode;
+  if(row?.requiresMedia&&Number(row?.requiredImageCount||0)>0)return 'required';
+  if(row?.requiresMedia)return 'optional';
+  return 'none';
+}
+function packageBuilderPointPhotoLabel(row){
+  const mode=packageBuilderPointPhotoMode(row);
+  if(mode==='required')return 'Foto Zorunlu';
+  if(mode==='optional')return 'Foto Ops.';
+  return 'Foto Yok';
+}
+function packageBuilderPointPackageSources(testId){
+  const sources=[
+    ...packageTemplates.map(item=>({id:item.id,name:item.name,mainTests:item.mainTests||[],extraServices:item.extraServices||[],status:'Şablon'})),
+    ...packageBuilderState.createdPackages.map(item=>({id:item.id,name:item.name,mainTests:item.mainTests||[],extraServices:item.extraServices||[],status:item.status||'Taslak'}))
+  ];
+  const seen=new Set();
+  return sources.filter(item=>{
+    const key=item.id||item.name;
+    if(seen.has(key))return false;
+    seen.add(key);
+    return true;
+  }).map(item=>({...item,selected:[...(item.mainTests||[]),...(item.extraServices||[])].includes(testId)})).slice(0,12);
+}
+function packageBuilderPointRuleRows(testId,row){
+  const saved=row.packageRules||{};
+  return packageBuilderPointPackageSources(testId).map(pkg=>{
+    const rule=saved[pkg.id]||{};
+    const visible=typeof rule.visible==='boolean'?rule.visible:pkg.selected;
+    return {
+      id:pkg.id,
+      name:pkg.name,
+      visible,
+      required:typeof rule.required==='boolean'?rule.required:(visible&&row.isRequired),
+      photoRequired:typeof rule.photoRequired==='boolean'?rule.photoRequired:(visible&&packageBuilderPointPhotoMode(row)==='required'),
+      reportVisible:typeof rule.reportVisible==='boolean'?rule.reportVisible:visible
+    };
+  });
+}
+function packageBuilderPointQualityIssues(row,testId){
+  const issues=[];
+  if(!String(row?.title||'').trim())issues.push({type:'title',text:'Madde adı boş olamaz.'});
+  if(!Array.isArray(row?.subPoints)||!row.subPoints.length||row.subPoints.some(item=>!String(item||'').trim()))issues.push({type:'emptySubitems',text:'Boş alt madde var.'});
+  if(!String(row?.reportLabel||'').trim()||!String(row?.reportSection||'').trim())issues.push({type:'missingReport',text:'Rapor çıktısı eşleşmesi eksik.'});
+  if(!packageBuilderPointRuleRows(testId,row).some(rule=>rule.visible))issues.push({type:'missingPackage',text:'En az bir paket bağlantısı seçilmeli.'});
+  if(packageBuilderPointPhotoMode(row)==='required'&&Number(row.requiredImageCount||0)<1)issues.push({type:'photo',text:'Fotoğraf zorunluysa minimum fotoğraf sayısı 1 olmalı.'});
+  return issues;
+}
+function packageBuilderRenderPackageRules(testId,row){
+  const rules=packageBuilderPointRuleRows(testId,row);
+  if(!rules.length)return '<div class="package-empty">Paket kaynağı bulunamadı. Paket Oluştur v2 ekranında paket oluşturulduğunda burada görünür.</div>';
+  return `<div class="package-rule-grid">${rules.map(rule=>`<div class="package-rule-row">
+    <b>${escapeHtml(rule.name)}</b>
+    <label><input type="checkbox" data-package-rule="${escapeHtml(rule.id)}" data-package-rule-field="visible" ${rule.visible?'checked':''}> Göster</label>
+    <label><input type="checkbox" data-package-rule="${escapeHtml(rule.id)}" data-package-rule-field="required" ${rule.required?'checked':''}> Zorunlu</label>
+    <label><input type="checkbox" data-package-rule="${escapeHtml(rule.id)}" data-package-rule-field="photoRequired" ${rule.photoRequired?'checked':''}> Foto zor.</label>
+    <label><input type="checkbox" data-package-rule="${escapeHtml(rule.id)}" data-package-rule-field="reportVisible" ${rule.reportVisible?'checked':''}> Raporda</label>
+  </div>`).join('')}</div>`;
+}
+function packageBuilderCollectPointOptions(rowEl){
+  const photoMode=rowEl.querySelector('[data-package-point-photo-mode-select]')?.value||'none';
+  const packageRules={};
+  rowEl.querySelectorAll('[data-package-rule]').forEach(input=>{
+    const id=input.dataset.packageRule;
+    const field=input.dataset.packageRuleField;
+    if(!id||!field)return;
+    if(!packageRules[id])packageRules[id]={};
+    packageRules[id][field]=Boolean(input.checked);
+  });
+  return {
+    isRequired:rowEl.querySelector('[data-package-point-required]')?.checked || rowEl.querySelector('[data-package-point-requirement-mode]')?.value==='required',
+    requirementMode:rowEl.querySelector('[data-package-point-requirement-mode]')?.value||'optional',
+    status:rowEl.querySelector('[data-package-point-status]')?.value||'draft',
+    photoMode,
+    requiredImageCount:photoMode==='required'?1:0,
+    reportSection:rowEl.querySelector('[data-package-point-report-section]')?.value||'',
+    reportLabel:rowEl.querySelector('[data-package-point-report-label]')?.value||'',
+    reportVisibility:rowEl.querySelector('[data-package-point-report-visibility]')?.value||'always',
+    adminNote:rowEl.querySelector('[data-package-point-admin-note]')?.value||'',
+    technicianNote:rowEl.querySelector('[data-package-point-technician-note]')?.value||'',
+    customerNote:rowEl.querySelector('[data-package-point-customer-note]')?.value||'',
+    internalNote:rowEl.querySelector('[data-package-point-internal-note]')?.value||'',
+    requiresManagerApproval:Boolean(rowEl.querySelector('[data-package-point-manager-approval]')?.checked),
+    lockedByCenter:Boolean(rowEl.querySelector('[data-package-point-locked]')?.checked),
+    packageRules
+  };
+}
+function packageBuilderReadPointDetailDraft(rowEl){
+  const options=packageBuilderCollectPointOptions(rowEl);
+  return {
+    title:rowEl.querySelector('[data-package-point-title]')?.value||'',
+    subPoints:[...rowEl.querySelectorAll('[data-package-point-subitem]')].map(input=>input.value.trim()).filter(Boolean),
+    isRequired:options.isRequired,
+    photoMode:options.photoMode,
+    reportLabel:options.reportLabel,
+    reportVisibility:options.reportVisibility
+  };
+}
+function packageBuilderOpenPointPreview(rowEl){
+  const modal=document.getElementById('packagePointPreviewModal');
+  if(!modal||!rowEl)return;
+  const draft=packageBuilderReadPointDetailDraft(rowEl);
+  modal.hidden=false;
+  modal.classList.add('open');
+  modal.innerHTML=`<div class="package-point-modal-card">
+    <div class="package-phone-preview">
+      <div class="package-phone-preview-head"><b>Usta Ekranı</b><div>${draft.isRequired?'Zorunlu':'Opsiyonel'} · ${escapeHtml(packageBuilderPointPhotoLabel(draft))}</div></div>
+      <div class="package-phone-preview-body">
+        <div class="package-phone-preview-title">${escapeHtml(draft.title||'Madde seçilmedi')}</div>
+        ${draft.subPoints.map(item=>`<div class="package-phone-option">${escapeHtml(item)}</div>`).join('')||'<div class="package-phone-option">Alt madde eklenmedi</div>'}
+        <label class="package-point-v2-field">Açıklama<textarea placeholder="Usta açıklaması"></textarea></label>
+        <button class="btn" type="button">Fotoğraf ekle</button>
+      </div>
+    </div>
+    <div class="package-point-modal-actions"><button class="btn primary" data-package-point-preview-close type="button">Kapat</button></div>
+  </div>`;
+}
 function packageBuilderPointSearchText(row){
   return `${row.title} ${row.legacyNoktaId} ${row.groupLabel} ${(row.subPoints||[]).join(' ')}`.toLocaleLowerCase('tr-TR');
 }
@@ -4159,17 +4427,19 @@ function packageBuilderFilterPointRows(rows){
     const requiredMatch=packageBuilderState.pointRequiredFilter==='all'
       || (packageBuilderState.pointRequiredFilter==='required'&&row.isRequired)
       || (packageBuilderState.pointRequiredFilter==='optional'&&!row.isRequired);
+    const photoMode=packageBuilderPointPhotoMode(row);
     const photoMatch=packageBuilderState.pointPhotoFilter==='all'
-      || (packageBuilderState.pointPhotoFilter==='required'&&row.requiresMedia&&Number(row.requiredImageCount||0)>0)
-      || (packageBuilderState.pointPhotoFilter==='optional'&&row.requiresMedia&&!Number(row.requiredImageCount||0))
-      || (packageBuilderState.pointPhotoFilter==='none'&&!row.requiresMedia);
-    return requiredMatch && photoMatch && (!search || packageBuilderPointSearchText(row).includes(search));
+      || (packageBuilderState.pointPhotoFilter==='required'&&photoMode==='required')
+      || (packageBuilderState.pointPhotoFilter==='optional'&&photoMode==='optional')
+      || (packageBuilderState.pointPhotoFilter==='none'&&photoMode==='none');
+    const statusMatch=packageBuilderState.pointStatusFilter==='all'||row.status===packageBuilderState.pointStatusFilter;
+    const packageMatch=packageBuilderState.pointPackageFilter==='all'||packageBuilderPointRuleRows(packageBuilderState.activePointTestId,row).some(rule=>rule.id===packageBuilderState.pointPackageFilter&&rule.visible);
+    const issues=packageBuilderPointQualityIssues(row,packageBuilderState.activePointTestId);
+    const issueMatch=packageBuilderState.pointIssueFilter==='all'
+      || (packageBuilderState.pointIssueFilter==='issues'&&issues.length)
+      || issues.some(issue=>issue.type===packageBuilderState.pointIssueFilter);
+    return requiredMatch && photoMatch && statusMatch && packageMatch && issueMatch && (!search || packageBuilderPointSearchText(row).includes(search));
   });
-}
-function packageBuilderPointPhotoLabel(row){
-  if(row.requiresMedia&&Number(row.requiredImageCount||0)>0)return 'Foto Zorunlu';
-  if(row.requiresMedia)return 'Foto Ops.';
-  return 'Foto Yok';
 }
 function packageBuilderPointOrderValue(value){
   const raw=Number(value);
@@ -4193,16 +4463,72 @@ function packageBuilderPointTypeIcon(item){
 }
 function renderPackagePointTypeList(activeItem){
   const typePicker=document.getElementById('packagePointTypePicker');
-  if(!typePicker)return;
+  const typeSidebar=document.getElementById('packagePointTypeSidebar');
+  const packageFilter=document.getElementById('packagePointPackageFilter');
   const items=packageBuilderAllTestItems().filter(item=>packageBuilderPointRowsForItem(item).length);
-  typePicker.innerHTML=items.length?items.map(item=>`<option value="${escapeHtml(item.id)}">${escapeHtml(item.name)}</option>`).join(''):'<option value="">Henüz test bulunamadı</option>';
+  if(typePicker)typePicker.innerHTML=items.length?items.map(item=>`<option value="${escapeHtml(item.id)}">${escapeHtml(item.name)}</option>`).join(''):'<option value="">Henüz test bulunamadı</option>';
 
   let selectedItem=items.find(item=>item.id===activeItem?.id)||items[0]||null;
-  if(selectedItem) typePicker.value=selectedItem.id;
+  if(selectedItem&&typePicker) typePicker.value=selectedItem.id;
+  if(typeSidebar){
+    const total=items.reduce((sum,item)=>sum+packageBuilderPointRowsForItem(item).length,0);
+    typeSidebar.innerHTML=`<div class="package-point-type-sidebar-head"><b>Test Tipleri</b><span>${escapeHtml(String(total))} madde</span></div><div class="package-point-type-list">${items.map(item=>{
+      const count=packageBuilderPointRowsForItem(item).length;
+      return `<button class="package-point-type-button ${item.id===selectedItem?.id?'active':''}" data-package-point-type="${escapeHtml(item.id)}" type="button"><span class="package-point-type-icon">${escapeHtml(packageBuilderPointTypeIcon(item))}</span><span class="package-point-type-copy"><b>${escapeHtml(item.name)}</b><span>${escapeHtml(item.category==='mainModules'?'Ana test':'Ek / paket testi')}</span></span><span class="package-point-type-count">${escapeHtml(String(count))}</span></button>`;
+    }).join('')}</div>`;
+  }
+  if(packageFilter){
+    const sources=packageBuilderPointPackageSources(selectedItem?.id||'');
+    const current=packageBuilderState.pointPackageFilter||'all';
+    packageFilter.innerHTML=`<option value="all">Tüm paketler</option>${sources.map(item=>`<option value="${escapeHtml(item.id)}">${escapeHtml(item.name)}</option>`).join('')}`;
+    packageFilter.value=sources.some(item=>item.id===current)?current:'all';
+    packageBuilderState.pointPackageFilter=packageFilter.value;
+  }
   if(!selectedItem){
     packageBuilderState.activePointTestId='';
     return;
   }
+}
+function renderPackagePointTestMeta(item){
+  const target=document.getElementById('packagePointTestMeta');
+  if(!target)return;
+  if(!item){
+    target.innerHTML='';
+    return;
+  }
+  const activeTarget=packageBuilderTargetForItem(item);
+  target.innerHTML=`<form data-package-point-test-meta="${escapeHtml(item.id)}">
+    <div class="field"><label>Eklenecegi liste</label><select data-point-test-meta-field="target"><option value="main"${activeTarget==='main'?' selected':''}>Ana Testler</option><option value="extra"${activeTarget==='extra'?' selected':''}>Ek Testler</option><option value="query"${activeTarget==='query'?' selected':''}>Sorgular</option><option value="warranty"${activeTarget==='warranty'?' selected':''}>Garanti Paketleri</option></select></div>
+    <div class="field"><label>Test turu adi</label><input data-point-test-meta-field="name" value="${escapeHtml(item.name||'')}"></div>
+    <div class="field"><label>Test fiyati</label><input data-point-test-meta-field="priceImpact" type="number" min="0" step="50" value="${escapeHtml(String(packageBuilderItemPrice(item)))}"></div>
+    <div class="field"><label>Risk seviyesi</label><select data-point-test-meta-field="risk"><option value="Dusuk"${packageBuilderNormalizeRisk(item.risk)==='Dusuk'?' selected':''}>Dusuk</option><option value="Yuksek"${packageBuilderNormalizeRisk(item.risk)==='Yuksek'?' selected':''}>Yuksek</option></select></div>
+    <button class="btn primary" data-package-point-test-meta-save type="button">Test Turunu Kaydet</button>
+  </form>`;
+}
+function packageBuilderSavePointTestMeta(){
+  const form=document.querySelector('[data-package-point-test-meta]');
+  const testId=form?.dataset.packagePointTestMeta;
+  const item=packageBuilderFindTestItem(testId);
+  if(!form||!item)return false;
+  const read=name=>String(form.querySelector(`[data-point-test-meta-field="${name}"]`)?.value||'').trim();
+  const target=packageBuilderCustomTargetConfig[read('target')]?read('target'):packageBuilderTargetForItem(item);
+  const name=read('name');
+  const priceImpact=Math.max(0,Number(read('priceImpact')||0));
+  const risk=packageBuilderNormalizeRisk(read('risk')||'DÃ¼ÅŸÃ¼k');
+  if(!name){packageBuilderShowToast('Test turu adi girilmeli.');return false;}
+  const next={...item,name,short:packageBuilderShort(name),priceImpact,risk};
+  if(target!=='main'){
+    next.priceLabel=packageBuilderItemPriceLabel(next);
+    next.approval=next.approval||'Otomatik';
+  }
+  packageBuilderApplyTestItem(next,target);
+  packageBuilderPersistManagedItem(next,'active');
+  packageBuilderSetTestPrice(next.id,priceImpact,false);
+  packageBuilderState.activePointTestId=next.id;
+  packageBuilderRefresh();
+  renderPackagePointEditorPage();
+  packageBuilderShowToast('Test turu guncellendi.');
+  return true;
 }
 function renderPackagePointDetail(item,row,index){
   const detail=document.getElementById('packagePointDetailPanel');
@@ -4212,16 +4538,39 @@ function renderPackagePointDetail(item,row,index){
     return;
   }
   const subPoints=Array.isArray(row.subPoints)&&row.subPoints.length?row.subPoints:['Kontrol sonucu girilecek'];
+  const status=row.status||'draft';
+  const photoMode=packageBuilderPointPhotoMode(row);
+  const issues=packageBuilderPointQualityIssues(row,item.id);
+  const history=Array.isArray(row.history)?row.history:[];
   detail.innerHTML=`<article data-package-point-row="${escapeHtml(row.id)}" data-package-point-test="${escapeHtml(item.id)}">
-    <div class="package-point-detail-head"><div><h2>Madde Düzenle</h2></div><span class="package-point-save-state">Kaydedilmedi</span><span class="package-point-detail-id">ID: #${escapeHtml(String(row.legacyNoktaId||index+1))}</span></div>
+    <div class="package-point-detail-head"><div><h2>Madde Düzenle</h2></div><span class="package-point-status-chip ${escapeHtml(status)}">${escapeHtml(packageBuilderPointStatusLabel(status))}</span><span class="package-point-save-state">Kaydedilmedi</span><span class="package-point-detail-id">ID: #${escapeHtml(String(row.legacyNoktaId||index+1))}</span></div>
     <div class="package-point-toggle-strip">
-      <div class="package-point-toggle-card"><div class="package-point-tooltip">Bu madde rapor oluştururken boş bırakılamaz.</div><div class="package-point-switch-row"><button class="package-point-switch red ${row.isRequired?'on':''}" data-package-point-toggle-required="${escapeHtml(row.id)}" type="button" aria-label="Zorunlu madde"></button><span>Zorunlu Madde</span></div></div>
-      <div class="package-point-toggle-card"><div class="package-point-tooltip">Bu madde için fotoğraf yüklemek opsiyoneldir.</div><div class="package-point-switch-row"><button class="package-point-switch orange ${row.requiresMedia&&!Number(row.requiredImageCount||0)?'on':''}" data-package-point-toggle-photo="${escapeHtml(row.id)}" type="button" aria-label="Fotoğraf opsiyonel"></button><span>Fotoğraf Opsiyonel</span></div></div>
-      <div class="package-point-toggle-card"><div class="package-point-tooltip">Bu madde için en az 1 fotoğraf yüklemek zorunludur.</div><div class="package-point-switch-row"><button class="package-point-switch ${row.requiresMedia&&Number(row.requiredImageCount||0)>0?'on':''}" data-package-point-toggle-photo="${escapeHtml(row.id)}" type="button" aria-label="Fotoğraf zorunlu"></button><span>Fotoğraf Zorunlu</span></div></div>
+      <div class="package-point-toggle-card"><div class="package-point-tooltip">Bu madde rapor oluştururken boş bırakılamaz.</div><div class="package-point-switch-row"><button class="package-point-switch red ${row.isRequired?'on':''}" data-package-point-toggle-required="${escapeHtml(row.id)}" type="button" aria-label="Zorunlu madde"></button><input data-package-point-required type="checkbox" ${row.isRequired?'checked':''} hidden><span>Zorunlu Madde</span></div></div>
+      <div class="package-point-toggle-card"><div class="package-point-tooltip">Bu madde için fotoğraf yüklemek opsiyoneldir.</div><div class="package-point-switch-row"><button class="package-point-switch orange ${photoMode==='optional'?'on':''}" data-package-point-toggle-photo="${escapeHtml(row.id)}" data-package-point-photo-mode="optional" type="button" aria-label="Fotoğraf opsiyonel"></button><span>Fotoğraf Opsiyonel</span></div></div>
+      <div class="package-point-toggle-card"><div class="package-point-tooltip">Bu madde için en az 1 fotoğraf yüklemek zorunludur.</div><div class="package-point-switch-row"><button class="package-point-switch ${photoMode==='required'?'on':''}" data-package-point-toggle-photo="${escapeHtml(row.id)}" data-package-point-photo-mode="required" type="button" aria-label="Fotoğraf zorunlu"></button><span>Fotoğraf Zorunlu</span></div></div>
     </div>
     <div class="package-point-detail-body"><div class="package-point-detail-grid"><label class="package-point-detail-field">Madde Adı<input data-package-point-title value="${escapeHtml(row.title)}" aria-label="${escapeHtml(item.name)} madde başlığı"></label><label class="package-point-detail-field">Sıra<input value="${escapeHtml(String(index+1))}" disabled aria-label="Sıra"></label></div></div>
-    <div class="package-subitem-section"><div class="package-subitem-head"><b>Alt Maddeler (${subPoints.length})</b><button data-package-point-add-subitem type="button">+ Alt Madde Ekle</button></div><div class="package-subitem-list">${subPoints.map((point,subIndex)=>`<div class="package-subitem-row"><span class="package-subitem-drag" draggable="true" title="Tutup taşı" aria-label="Alt maddeyi tutup taşı">⋮⋮</span><span class="package-subitem-index" draggable="true" title="Tutup taşı">${subIndex+1}</span><textarea class="package-subitem-input" data-package-point-subitem>${escapeHtml(point)}</textarea><button class="package-subitem-icon-btn danger" data-package-point-remove-subitem type="button" aria-label="Alt maddeyi sil">Sil</button></div>`).join('')}</div><textarea data-package-point-subpoints hidden>${escapeHtml(subPoints.join('\n'))}</textarea></div>
-    <div class="package-point-detail-actions"><button class="btn" data-package-points-back type="button">İptal</button><div><button class="btn" data-package-point-revert type="button">Değişiklikleri Geri Al</button> <button class="btn primary" data-package-point-save="${escapeHtml(row.id)}" type="button">Kaydet</button></div></div>
+    <div class="package-point-v2-section"><h3>Temel Kurallar</h3><div class="package-point-v2-grid three">
+      <label class="package-point-v2-field">Test tipi<input value="${escapeHtml(item.name)}" disabled></label>
+      <label class="package-point-v2-field">Zorunluluk<select data-package-point-requirement-mode><option value="optional" ${row.requirementMode==='optional'?'selected':''}>Opsiyonel</option><option value="required" ${row.requirementMode==='required'?'selected':''}>Zorunlu</option><option value="conditional" ${row.requirementMode==='conditional'?'selected':''}>Şarta bağlı zorunlu</option><option value="package_based" ${row.requirementMode==='package_based'?'selected':''}>Sadece belirli paketlerde</option><option value="vehicle_based" ${row.requirementMode==='vehicle_based'?'selected':''}>Sadece belirli araç tiplerinde</option></select></label>
+      <label class="package-point-v2-field">Fotoğraf durumu<select data-package-point-photo-mode-select><option value="none" ${photoMode==='none'?'selected':''}>Fotoğraf istenmez</option><option value="optional" ${photoMode==='optional'?'selected':''}>Fotoğraf opsiyonel</option><option value="required" ${photoMode==='required'?'selected':''}>Fotoğraf zorunlu</option></select></label>
+      <label class="package-point-v2-field">Durum<select data-package-point-status><option value="draft" ${status==='draft'?'selected':''}>Taslak</option><option value="published" ${status==='published'?'selected':''}>Yayında</option><option value="passive" ${status==='passive'?'selected':''}>Pasif</option><option value="revision" ${status==='revision'?'selected':''}>Revizyon bekliyor</option></select></label>
+      <label class="package-point-v2-field">Admin notu<input data-package-point-admin-note value="${escapeHtml(row.adminNote||'')}" placeholder="İç not"></label>
+      <label class="package-point-v2-field">Usta açıklaması<input data-package-point-technician-note value="${escapeHtml(row.technicianNote||'')}" placeholder="Mobilde görünecek kısa not"></label>
+    </div></div>
+    <div class="package-subitem-section"><div class="package-subitem-head"><b>Alt Maddeler (${subPoints.length})</b><button data-package-point-add-subitem type="button">+ Alt Madde Ekle</button></div><div class="package-subitem-list">${subPoints.map((point,subIndex)=>`<div class="package-subitem-row v2"><span class="package-subitem-drag" draggable="true" title="Tutup taşı" aria-label="Alt maddeyi tutup taşı">⋮⋮</span><span class="package-subitem-index" draggable="true" title="Tutup taşı">${subIndex+1}</span><textarea class="package-subitem-input" data-package-point-subitem>${escapeHtml(point)}</textarea><select class="package-subitem-type"><option>Normal seçenek</option><option>Olumlu sonuç</option><option>Kusur seçeneği</option><option>Kritik kusur</option><option>Bilgi notu</option><option>Yönetici onayı gerektiren sonuç</option></select><label class="package-subitem-rule"><input type="checkbox"> Foto</label><label class="package-subitem-rule"><input type="checkbox"> Açıklama</label><label class="package-subitem-rule"><input type="checkbox"> Kritik</label><button class="package-subitem-icon-btn danger" data-package-point-remove-subitem type="button" aria-label="Alt maddeyi sil">Sil</button></div>`).join('')}</div><textarea data-package-point-subpoints hidden>${escapeHtml(subPoints.join('\n'))}</textarea></div>
+    <div class="package-point-v2-section"><h3>Paket Bağlantısı</h3>${packageBuilderRenderPackageRules(item.id,row)}</div>
+    <div class="package-point-v2-section"><h3>Rapor Çıktısı</h3><div class="package-point-v2-grid">
+      <label class="package-point-v2-field">Rapor bölümü<input data-package-point-report-section value="${escapeHtml(row.reportSection||row.groupLabel||'')}" placeholder="Örn. Kaporta ve Boya"></label>
+      <label class="package-point-v2-field">Rapor etiketi<input data-package-point-report-label value="${escapeHtml(row.reportLabel||row.title||'')}" placeholder="Raporda görünen etiket"></label>
+      <label class="package-point-v2-field">Görünüm kuralı<select data-package-point-report-visibility><option value="always" ${row.reportVisibility==='always'?'selected':''}>Her zaman göster</option><option value="only_if_issue" ${row.reportVisibility==='only_if_issue'?'selected':''}>Sadece sorun varsa göster</option><option value="only_if_selected" ${row.reportVisibility==='only_if_selected'?'selected':''}>Sadece seçildiyse göster</option><option value="internal_only" ${row.reportVisibility==='internal_only'?'selected':''}>Sadece iç kontrolde göster</option><option value="hidden" ${row.reportVisibility==='hidden'?'selected':''}>Raporda gösterme</option></select></label>
+      <label class="package-point-v2-field">Müşteri bilgilendirme metni<textarea data-package-point-customer-note>${escapeHtml(row.customerNote||'')}</textarea></label>
+      <label class="package-point-v2-field">Teknik not<textarea data-package-point-internal-note>${escapeHtml(row.internalNote||'')}</textarea></label>
+      <label class="package-point-v2-field"><span>Yönetici onayı</span><label class="package-subitem-rule"><input data-package-point-manager-approval type="checkbox" ${row.requiresManagerApproval?'checked':''}> Kritik sonuçta onay iste</label></label>
+    </div></div>
+    <div class="package-point-v2-section"><h3>Yetki ve Kalite</h3><label class="package-subitem-rule"><input data-package-point-locked type="checkbox" ${row.lockedByCenter?'checked':''}> Merkez şablonu - bayi değiştiremez</label><div class="package-point-quality-list">${issues.length?issues.map(issue=>`<div class="package-point-quality-item">${escapeHtml(issue.text)}</div>`).join(''):'<div class="package-point-quality-item ok">Şablon kontrolünde kritik eksik yok.</div>'}</div></div>
+    <div class="package-point-v2-section"><h3>Değişiklik Geçmişi</h3><div class="package-point-history">${history.length?history.map(item=>`<div class="package-point-history-row"><b>${escapeHtml(item.by||'Merkez')}</b> · ${escapeHtml(item.at||'')} · ${escapeHtml(item.fields||'Güncellendi')}</div>`).join(''):`<div class="package-point-history-row"><b>Son güncelleme</b> · ${escapeHtml(row.lastModifiedAt||'Henüz kaydedilmedi')} · ${escapeHtml(row.lastModifiedBy||'Merkez')}</div>`}</div></div>
+    <div class="package-point-detail-actions"><button class="btn" data-package-points-back type="button">Paket Oluştur v2'ye Dön</button><div><button class="btn" data-package-mobile-preview type="button">Usta Önizlemesi</button> <button class="btn" data-package-point-passive type="button">Pasife Al</button> <button class="btn primary" data-package-point-save="${escapeHtml(row.id)}" type="button">Kaydet</button></div></div>
   </article>`;
 }
 function renderPackagePointEditorPage(){
@@ -4233,8 +4582,10 @@ function renderPackagePointEditorPage(){
   const detail=document.getElementById('packagePointDetailPanel');
   const listTitle=document.getElementById('packagePointListTitle');
   const bottomStatus=document.getElementById('packagePointBottomStatus');
-  if(title)title.textContent='Test Maddeleri Yönetimi';
+  const testMeta=document.getElementById('packagePointTestMeta');
+  if(title)title.textContent='Test Turu Duzenle';
   if(!item){
+    renderPackagePointTestMeta(null);
     renderPackagePointTypeList(null);
     if(list)list.innerHTML='<div class="package-point-empty">Kontrol maddelerini görmek için bir test seçin.</div>';
     if(detail)detail.innerHTML='<div class="package-point-empty">Düzenlemek için bir test seçin.</div>';
@@ -4242,6 +4593,7 @@ function renderPackagePointEditorPage(){
     return;
   }
   const allRows=packageBuilderPointRowsForItem(item);
+  renderPackagePointTestMeta(item);
   const rows=packageBuilderFilterPointRows(allRows);
   if(!packageBuilderState.activePointId||!allRows.some(row=>row.id===packageBuilderState.activePointId)){
     packageBuilderState.activePointId=rows[0]?.id||allRows[0]?.id||null;
@@ -4249,6 +4601,10 @@ function renderPackagePointEditorPage(){
   const selectedRow=allRows.find(row=>row.id===packageBuilderState.activePointId)||rows[0]||allRows[0]||null;
   if(listTitle)listTitle.textContent=`${item.name} (${allRows.length} madde) ID'ye Göre ↑`;
   renderPackagePointTypeList(item);
+  if(testMeta){
+    const issueCount=allRows.filter(row=>packageBuilderPointQualityIssues(row,item.id).length).length;
+    testMeta.innerHTML=`<div class="package-point-bottom-status" style="margin:0 0 14px"><span>${escapeHtml(item.name)}</span><span><strong>${escapeHtml(String(allRows.length))}</strong> madde</span><span><strong>${escapeHtml(String(issueCount))}</strong> kontrol uyarısı</span><span>Kaynak: JSON katalog + Paket Oluştur v2</span></div>`;
+  }
   const addForm=document.getElementById('packagePointAddForm');
   if(addForm){
     addForm.querySelector('[data-package-point-new-title]')?.setAttribute('data-package-point-test',item.id);
@@ -4261,15 +4617,17 @@ function renderPackagePointEditorPage(){
     return;
   }
   list.innerHTML=rows.map((row,index)=>{
+    const rowIssues=packageBuilderPointQualityIssues(row,item.id);
+    const visiblePackageCount=packageBuilderPointRuleRows(item.id,row).filter(rule=>rule.visible).length;
     return `<article class="package-point-row ${row.id===selectedRow?.id?'is-active':''}" draggable="true" data-package-point-row="${escapeHtml(row.id)}" data-package-point-test="${escapeHtml(item.id)}" data-package-point-select="${escapeHtml(row.id)}">
       <span class="package-point-row-drag" draggable="true" title="Tutup taşı" aria-label="Test maddesini tutup taşı">⋮⋮</span>
       <div class="package-point-row-meta"><span class="package-point-id">#${escapeHtml(String(row.legacyNoktaId||index+1))}</span></div>
       <div class="package-point-row-title"><b>${escapeHtml(row.title)}</b><span>${escapeHtml(row.groupLabel)}</span></div>
-      <div class="package-point-row-badges"><span class="package-point-status-box red">${row.isRequired?'Zorunlu':'Opsiyon'}</span><span class="package-point-status-box orange">${escapeHtml(packageBuilderPointPhotoLabel(row))}</span><span class="package-chip blue">${escapeHtml(String(row.subPoints.length))} alt madde</span></div>
+      <div class="package-point-row-badges"><span class="package-point-status-box red">${row.isRequired?'Zorunlu':'Opsiyon'}</span><span class="package-point-status-box orange">${escapeHtml(packageBuilderPointPhotoLabel(row))}</span><span class="package-chip blue">${escapeHtml(String(row.subPoints.length))} alt</span><span class="package-chip green">${escapeHtml(String(visiblePackageCount))} paket</span><span class="package-chip ${row.status==='published'?'green':row.status==='passive'?'':'orange'}">${escapeHtml(packageBuilderPointStatusLabel(row.status))}</span>${rowIssues.length?'<span class="package-chip red">!</span>':''}</div>
     </article>`;
   }).join('');
   renderPackagePointDetail(item,selectedRow,Math.max(0,allRows.findIndex(row=>row.id===selectedRow?.id)));
-  if(bottomStatus)bottomStatus.innerHTML=`<span>Toplam ${escapeHtml(String(allRows.length))} madde</span><span><strong>${escapeHtml(String(allRows.filter(row=>row.isRequired).length))}</strong> zorunlu</span><span><strong>${escapeHtml(String(allRows.filter(row=>row.requiresMedia&&Number(row.requiredImageCount||0)>0).length))}</strong> fotoğraf zorunlu</span><span><strong>${escapeHtml(String(allRows.filter(row=>row.requiresMedia&&!Number(row.requiredImageCount||0)).length))}</strong> fotoğraf opsiyonel</span><span>Son kaydedilme: ${new Date().toLocaleTimeString('tr-TR',{hour:'2-digit',minute:'2-digit'})}</span>`;
+  if(bottomStatus)bottomStatus.innerHTML=`<span>Toplam ${escapeHtml(String(allRows.length))} madde</span><span><strong>${escapeHtml(String(allRows.filter(row=>row.isRequired).length))}</strong> zorunlu</span><span><strong>${escapeHtml(String(allRows.filter(row=>packageBuilderPointPhotoMode(row)==='required').length))}</strong> fotoğraf zorunlu</span><span><strong>${escapeHtml(String(allRows.filter(row=>packageBuilderPointPhotoMode(row)==='optional').length))}</strong> fotoğraf opsiyonel</span><span><strong>${escapeHtml(String(allRows.filter(row=>packageBuilderPointQualityIssues(row,item.id).length).length))}</strong> problemli</span><span>Son kaydedilme: ${new Date().toLocaleTimeString('tr-TR',{hour:'2-digit',minute:'2-digit'})}</span>`;
 }
 function renderPackageTestPriceEditor(){
   const target=document.getElementById('packageTestPriceEditor');
@@ -4527,6 +4885,23 @@ function wirePackageBuilderPage(){
   if(!page||page.dataset.packageBuilderWired)return;
   page.dataset.packageBuilderWired='1';
   page.addEventListener('click',event=>{
+    const testAddToggle=event.target.closest('[data-package-test-add-toggle]');
+    if(testAddToggle){
+      event.preventDefault();
+      const form=packageBuilderTestPointForm();
+      if(form){
+        packageBuilderResetNewTestPointForm(false);
+        form.hidden=false;
+        const targetSelect=form.querySelector('[data-test-point-field="target"]');
+        if(targetSelect)targetSelect.value=packageBuilderTargetForActiveTab();
+        form.querySelector('[data-test-point-field="name"]')?.focus();
+      }
+      return;
+    }
+    const testPointReset=event.target.closest('[data-package-test-point-reset]');
+    if(testPointReset){event.preventDefault();packageBuilderResetNewTestPointForm(true);return;}
+    const testPointSave=event.target.closest('[data-package-test-point-save]');
+    if(testPointSave){event.preventDefault();packageBuilderCreateTestPoint();return;}
     const testPointAction=event.target.closest('[data-test-point-action]');
     if(testPointAction){
       event.preventDefault();
@@ -4556,6 +4931,10 @@ function wirePackageBuilderPage(){
     if(testEdit){event.preventDefault();packageBuilderOpenTestEdit(testEdit.dataset.packageTestEdit);return;}
     const testArchive=event.target.closest('[data-package-test-archive]');
     if(testArchive){event.preventDefault();packageBuilderArchiveTest(testArchive.dataset.packageTestArchive);return;}
+    const testRestore=event.target.closest('[data-package-test-restore]');
+    if(testRestore){event.preventDefault();packageBuilderRestoreTest(testRestore.dataset.packageTestRestore);packageBuilderActivateTab('archive');packageBuilderRefresh();return;}
+    const testReload=event.target.closest('[data-package-test-reload]');
+    if(testReload){event.preventDefault();packageBuilderRestoreTest(testReload.dataset.packageTestReload);packageBuilderOpenTestEdit(testReload.dataset.packageTestReload);return;}
     const testDelete=event.target.closest('[data-package-test-delete]');
     if(testDelete){event.preventDefault();packageBuilderDeleteTest(testDelete.dataset.packageTestDelete);return;}
     const pointSave=event.target.closest('[data-package-point-save]');
@@ -4730,6 +5109,30 @@ function wirePackagePointEditorPage(){
     }
   });
   page.addEventListener('click',event=>{
+    const typeButton=event.target.closest('[data-package-point-type]');
+    if(typeButton){
+      event.preventDefault();
+      packageBuilderState.activePointTestId=typeButton.dataset.packagePointType||'';
+      packageBuilderState.activePointId=null;
+      renderPackagePointEditorPage();
+      return;
+    }
+    const previewClose=event.target.closest('[data-package-point-preview-close]');
+    if(previewClose){
+      event.preventDefault();
+      const modal=document.getElementById('packagePointPreviewModal');
+      if(modal){modal.classList.remove('open');modal.hidden=true;modal.innerHTML='';}
+      return;
+    }
+    const preview=event.target.closest('[data-package-mobile-preview]');
+    if(preview){
+      event.preventDefault();
+      const activeRow=page.querySelector('#packagePointDetailPanel [data-package-point-row]');
+      if(activeRow){packageBuilderSyncPointSubitems(activeRow);packageBuilderOpenPointPreview(activeRow);}
+      return;
+    }
+    const metaSave=event.target.closest('[data-package-point-test-meta-save]');
+    if(metaSave){event.preventDefault();packageBuilderSavePointTestMeta();return;}
     const pointSelect=event.target.closest('[data-package-point-select]');
     if(pointSelect&&!event.target.closest('button,textarea,input,select')){
       event.preventDefault();
@@ -4743,12 +5146,21 @@ function wirePackagePointEditorPage(){
       packageBuilderState.pointSearch='';
       packageBuilderState.pointRequiredFilter='all';
       packageBuilderState.pointPhotoFilter='all';
+      packageBuilderState.pointStatusFilter='all';
+      packageBuilderState.pointPackageFilter='all';
+      packageBuilderState.pointIssueFilter='all';
       const search=document.getElementById('packagePointSearchInput');
       const required=document.getElementById('packagePointRequiredFilter');
       const photo=document.getElementById('packagePointPhotoFilter');
+      const status=document.getElementById('packagePointStatusFilter');
+      const pkg=document.getElementById('packagePointPackageFilter');
+      const issue=document.getElementById('packagePointIssueFilter');
       if(search)search.value='';
       if(required)required.value='all';
       if(photo)photo.value='all';
+      if(status)status.value='all';
+      if(pkg)pkg.value='all';
+      if(issue)issue.value='all';
       renderPackagePointEditorPage();
       return;
     }
@@ -4759,7 +5171,7 @@ function wirePackagePointEditorPage(){
       const list=row?.querySelector('.package-subitem-list');
       if(list){
         const next=list.querySelectorAll('[data-package-point-subitem]').length+1;
-        list.insertAdjacentHTML('beforeend',`<div class="package-subitem-row"><span class="package-subitem-drag" draggable="true" title="Tutup taşı" aria-label="Alt maddeyi tutup taşı">⋮⋮</span><span class="package-subitem-index" draggable="true" title="Tutup taşı">${next}</span><textarea class="package-subitem-input" data-package-point-subitem>Yeni alt madde</textarea><button class="package-subitem-icon-btn danger" data-package-point-remove-subitem type="button" aria-label="Alt maddeyi sil">Sil</button></div>`);
+        list.insertAdjacentHTML('beforeend',`<div class="package-subitem-row v2"><span class="package-subitem-drag" draggable="true" title="Tutup taşı" aria-label="Alt maddeyi tutup taşı">⋮⋮</span><span class="package-subitem-index" draggable="true" title="Tutup taşı">${next}</span><textarea class="package-subitem-input" data-package-point-subitem>Yeni alt madde</textarea><select class="package-subitem-type"><option>Normal seçenek</option><option>Olumlu sonuç</option><option>Kusur seçeneği</option><option>Kritik kusur</option><option>Bilgi notu</option><option>Yönetici onayı gerektiren sonuç</option></select><label class="package-subitem-rule"><input type="checkbox"> Foto</label><label class="package-subitem-rule"><input type="checkbox"> Açıklama</label><label class="package-subitem-rule"><input type="checkbox"> Kritik</label><button class="package-subitem-icon-btn danger" data-package-point-remove-subitem type="button" aria-label="Alt maddeyi sil">Sil</button></div>`);
         packageBuilderSyncPointSubitems(row);
       }
       return;
@@ -4780,7 +5192,7 @@ function wirePackagePointEditorPage(){
       const activeRow=page.querySelector('#packagePointDetailPanel [data-package-point-row]');
       if(activeRow){
         packageBuilderSyncPointSubitems(activeRow);
-        packageBuilderSavePointOverride(activeRow.dataset.packagePointTest,activeRow.dataset.packagePointRow,activeRow.querySelector('[data-package-point-title]')?.value,activeRow.querySelector('[data-package-point-subpoints]')?.value);
+        packageBuilderSavePointOverride(activeRow.dataset.packagePointTest,activeRow.dataset.packagePointRow,activeRow.querySelector('[data-package-point-title]')?.value,activeRow.querySelector('[data-package-point-subpoints]')?.value,packageBuilderCollectPointOptions(activeRow));
       }
       packageBuilderShowToast('Görünen madde kaydedildi.');
       renderPackagePointEditorPage();
@@ -4814,9 +5226,42 @@ function wirePackagePointEditorPage(){
       event.preventDefault();
       const row=togglePhoto.closest('[data-package-point-row]');
       if(row){
-        packageBuilderTogglePointFlag(row.dataset.packagePointTest,row.dataset.packagePointRow,'photo');
+        packageBuilderSetPointPhotoMode(row.dataset.packagePointTest,row.dataset.packagePointRow,togglePhoto.dataset.packagePointPhotoMode||'required');
         renderPackagePointEditorPage();
         renderPackageBuilderPage();
+      }
+      return;
+    }
+    const passive=event.target.closest('[data-package-point-passive]');
+    if(passive){
+      event.preventDefault();
+      const row=passive.closest('[data-package-point-row]');
+      if(row){
+        packageBuilderSyncPointSubitems(row);
+        packageBuilderSavePointOverride(row.dataset.packagePointTest,row.dataset.packagePointRow,row.querySelector('[data-package-point-title]')?.value,row.querySelector('[data-package-point-subpoints]')?.value,{...packageBuilderCollectPointOptions(row),status:'passive'});
+        renderPackagePointEditorPage();
+        renderPackageBuilderPage();
+        packageBuilderShowToast('Madde pasife alındı. Eski rapor geçmişi korunur.');
+      }
+      return;
+    }
+    const publish=event.target.closest('[data-package-point-publish]');
+    if(publish){
+      event.preventDefault();
+      const row=page.querySelector('#packagePointDetailPanel [data-package-point-row]');
+      if(row){
+        packageBuilderSyncPointSubitems(row);
+        const options={...packageBuilderCollectPointOptions(row),status:'published'};
+        const draftRow={...packageBuilderReadPointDetailDraft(row),...options,reportSection:options.reportSection,packageRules:options.packageRules,requiredImageCount:options.photoMode==='required'?1:0};
+        const issues=packageBuilderPointQualityIssues(draftRow,row.dataset.packagePointTest);
+        if(issues.length){
+          packageBuilderShowToast('Yayına alma için validation hataları giderilmeli.');
+          return;
+        }
+        packageBuilderSavePointOverride(row.dataset.packagePointTest,row.dataset.packagePointRow,row.querySelector('[data-package-point-title]')?.value,row.querySelector('[data-package-point-subpoints]')?.value,options);
+        renderPackagePointEditorPage();
+        renderPackageBuilderPage();
+        packageBuilderShowToast('Madde yayına alındı.');
       }
       return;
     }
@@ -4842,7 +5287,7 @@ function wirePackagePointEditorPage(){
       const row=save.closest('[data-package-point-row]');
       if(row){
         packageBuilderSyncPointSubitems(row);
-        packageBuilderSavePointOverride(row.dataset.packagePointTest,row.dataset.packagePointRow,row.querySelector('[data-package-point-title]')?.value,row.querySelector('[data-package-point-subpoints]')?.value);
+        packageBuilderSavePointOverride(row.dataset.packagePointTest,row.dataset.packagePointRow,row.querySelector('[data-package-point-title]')?.value,row.querySelector('[data-package-point-subpoints]')?.value,packageBuilderCollectPointOptions(row));
         renderPackagePointEditorPage();
         renderPackageBuilderPage();
         packageBuilderShowToast('Kontrol maddesi kaydedildi.');
