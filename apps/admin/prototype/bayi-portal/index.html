@@ -500,7 +500,7 @@ button,input,select,textarea{font:inherit}.app{min-height:100vh;display:grid;gri
 .package-point-add-form{border-bottom:1px solid #e5e7eb;background:#f9fafb;padding:14px 16px;display:grid;grid-template-columns:minmax(220px,.5fr) minmax(300px,1fr) auto;gap:10px;align-items:end}
 .package-point-add-form[hidden]{display:none}.package-point-add-form .field textarea{min-height:72px;resize:vertical}
 .package-point-list{display:grid;gap:10px;padding:14px 16px;background:#fff}
-.package-point-row{border:1px solid #e5e7eb;border-radius:12px;background:#fff;padding:12px;display:grid;grid-template-columns:128px minmax(0,1fr) 220px auto;gap:10px;align-items:start}
+      .package-point-row{border:1px solid #e5e7eb;border-radius:12px;background:#fff;padding:12px;display:grid;grid-template-columns:128px minmax(0,1fr) 220px 82px auto;gap:10px;align-items:start}
 .package-point-row-meta{display:flex;gap:6px;flex-wrap:wrap}.package-point-toggle{height:23px;border:0;border-radius:7px;padding:0 8px;font-size:10.5px;font-weight:750;cursor:pointer;background:#f3f4f6;color:#374151}.package-point-toggle.is-required,.package-point-toggle.is-photo-required{background:#fee2e2;color:#e30613}.package-point-toggle.is-optional{background:#dcfce7;color:#16a34a}.package-point-toggle.is-photo-optional{background:#fff7ed;color:#b45309}.package-point-row label{display:grid;gap:5px;color:#667085;font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.02em}
 .package-point-row input,.package-point-row textarea{width:100%;border:1px solid #d1d5db;border-radius:9px;background:#fff;color:#111827;font:750 12px/1.35 inherit;padding:9px;min-width:0}
 .package-point-row textarea{min-height:72px;resize:vertical}.package-point-row-actions{display:grid;gap:7px}
@@ -1645,6 +1645,7 @@ function packageBuilderPointRowsForItem(item){
     .filter(point=>!bucket[point.id]?.deleted)
     .map(point=>{
       const draft=packageBuilderPointDraft(item.id,point);
+      const bucketPoint=bucket[point.id]||{};
       return {
         id:point.id,
         title:draft.title,
@@ -1652,6 +1653,7 @@ function packageBuilderPointRowsForItem(item){
         groupLabel:point.groupLabel||packageBuilderSchemaGroupLabel(point.groupCode)||'Kontrol',
         legacyNoktaId:point.legacyNoktaId||point.sortOrder||'',
         sortOrder:Number(point.sortOrder)||0,
+        order:Number.isFinite(Number(bucketPoint.order))?Number(bucketPoint.order):Number(point.sortOrder)||0,
         isRequired:Boolean(draft.isRequired),
         requiresMedia:Boolean(draft.requiresMedia),
         requiredImageCount:Number(draft.requiredImageCount||0)||0,
@@ -1667,6 +1669,7 @@ function packageBuilderPointRowsForItem(item){
       groupLabel:value.groupLabel||'Manuel Madde',
       legacyNoktaId:value.legacyNoktaId||'Yeni',
       sortOrder:Number(value.sortOrder||Number.MAX_SAFE_INTEGER),
+      order:Number.isFinite(Number(value.order))?Number(value.order):Number(value.sortOrder)||0,
       isRequired:Boolean(value.isRequired),
       requiresMedia:Boolean(value.requiresMedia),
       requiredImageCount:Number(value.requiredImageCount||0)||0,
@@ -1676,6 +1679,9 @@ function packageBuilderPointRowsForItem(item){
   return rows
     .map((row,index)=>({...row,__rowIndex:index}))
     .sort((a,b)=>{
+      const aOrder=packageBuilderPointOrderValue(a.order);
+      const bOrder=packageBuilderPointOrderValue(b.order);
+      if(aOrder!==bOrder)return aOrder-bOrder;
       const aId=packageBuilderPointIdSortValue(a.legacyNoktaId);
       const bId=packageBuilderPointIdSortValue(b.legacyNoktaId);
       if(aId!==bId)return aId-bId;
@@ -1694,6 +1700,9 @@ function packageBuilderSavePointOverride(testId,pointId,title,subPointText,optio
   if(Object.prototype.hasOwnProperty.call(options,'requiresMedia')){
     next.requiresMedia=Boolean(options.requiresMedia);
     next.requiredImageCount=next.requiresMedia?Math.max(1,Number(options.requiredImageCount||1)):0;
+  }
+  if(Object.prototype.hasOwnProperty.call(options,'order')&&Number.isFinite(Number(options.order))){
+    next.order=Number(options.order);
   }
   bucket[pointId]=next;
   packageBuilderSaveControlPointOverrides();
@@ -1722,7 +1731,29 @@ function packageBuilderAddPoint(testId,title,subPointText){
   if(!cleanTitle||!lines.length)return false;
   const id=`manual-${Date.now()}-${packageBuilderSlug(cleanTitle)}`;
   const bucket=packageBuilderPointBucket(testId);
-  bucket[id]={custom:true,title:cleanTitle,subPoints:lines,groupLabel:'Manuel Madde',sortOrder:Date.now(),legacyNoktaId:'Yeni',deleted:false};
+  const base=packageBuilderPointRowsForItem(packageBuilderFindTestItem(testId));
+  const nextOrder=base.length ? Math.max(...base.map(row=>Number.isFinite(Number(row.order))?Number(row.order):0))+1 : 1;
+  bucket[id]={custom:true,title:cleanTitle,subPoints:lines,groupLabel:'Manuel Madde',sortOrder:nextOrder,order:nextOrder,legacyNoktaId:'Yeni',deleted:false};
+  packageBuilderSaveControlPointOverrides();
+  return true;
+}
+function packageBuilderMovePointRow(testId,pointId,direction){
+  const item=packageBuilderFindTestItem(testId);
+  if(!item)return false;
+  const directionValue=Number(direction);
+  if(directionValue!==1&&directionValue!==-1)return false;
+  const rows=packageBuilderPointRowsForItem(item);
+  const currentIndex=rows.findIndex(row=>row.id===pointId);
+  if(currentIndex===-1)return false;
+  const targetIndex=currentIndex+directionValue;
+  if(targetIndex<0||targetIndex>=rows.length)return false;
+  const currentRow=rows[currentIndex];
+  const targetRow=rows[targetIndex];
+  const currentOrder=packageBuilderPointOrderValue(currentRow.order);
+  const targetOrder=packageBuilderPointOrderValue(targetRow.order);
+  const bucket=packageBuilderPointBucket(testId);
+  bucket[currentRow.id]={...(bucket[currentRow.id]||{}),order:targetOrder};
+  bucket[targetRow.id]={...(bucket[targetRow.id]||{}),order:currentOrder};
   packageBuilderSaveControlPointOverrides();
   return true;
 }
@@ -4072,6 +4103,10 @@ function packageBuilderPointPhotoLabel(row){
   if(row.requiresMedia)return 'Foto Ops.';
   return 'Foto Yok';
 }
+function packageBuilderPointOrderValue(value){
+  const raw=Number(value);
+  return Number.isFinite(raw)?raw:Number.MAX_SAFE_INTEGER;
+}
 function packageBuilderPointIdSortValue(value){
   const raw=String(value||'').trim();
   if(!raw)return Number.MAX_SAFE_INTEGER;
@@ -4116,8 +4151,8 @@ function renderPackagePointDetail(item,row,index){
       <div class="package-point-toggle-card"><div class="package-point-tooltip">Bu madde için fotoğraf yüklemek opsiyoneldir.</div><div class="package-point-switch-row"><button class="package-point-switch orange ${row.requiresMedia&&!Number(row.requiredImageCount||0)?'on':''}" data-package-point-toggle-photo="${escapeHtml(row.id)}" type="button" aria-label="Fotoğraf opsiyonel"></button><span>Fotoğraf Opsiyonel</span></div></div>
       <div class="package-point-toggle-card"><div class="package-point-tooltip">Bu madde için en az 1 fotoğraf yüklemek zorunludur.</div><div class="package-point-switch-row"><button class="package-point-switch ${row.requiresMedia&&Number(row.requiredImageCount||0)>0?'on':''}" data-package-point-toggle-photo="${escapeHtml(row.id)}" type="button" aria-label="Fotoğraf zorunlu"></button><span>Fotoğraf Zorunlu</span></div></div>
     </div>
-    <div class="package-point-detail-body"><div class="package-point-detail-grid"><label class="package-point-detail-field">Madde Adı<input data-package-point-title value="${escapeHtml(row.title)}" aria-label="${escapeHtml(item.name)} madde başlığı"></label><label class="package-point-detail-field">Sıra<select aria-label="Sıra"><option>${escapeHtml(String(index+1))}</option></select></label></div></div>
-    <div class="package-subitem-section"><div class="package-subitem-head"><b>Alt Maddeler (${subPoints.length})</b><button data-package-point-add-subitem type="button">+ Alt Madde Ekle</button></div><div class="package-subitem-list">${subPoints.map((point,subIndex)=>`<div class="package-subitem-row"><span class="package-subitem-drag">::</span><span class="package-subitem-index">${subIndex+1}</span><textarea class="package-subitem-input" data-package-point-subitem>${escapeHtml(point)}</textarea><button class="package-subitem-icon-btn" type="button">D</button><button class="package-subitem-icon-btn danger" data-package-point-remove-subitem type="button">S</button></div>`).join('')}</div><textarea data-package-point-subpoints hidden>${escapeHtml(subPoints.join('\n'))}</textarea></div>
+    <div class="package-point-detail-body"><div class="package-point-detail-grid"><label class="package-point-detail-field">Madde Adı<input data-package-point-title value="${escapeHtml(row.title)}" aria-label="${escapeHtml(item.name)} madde başlığı"></label><label class="package-point-detail-field">Sıra<input value="${escapeHtml(String(index+1))}" disabled aria-label="Sıra"></label></div></div>
+    <div class="package-subitem-section"><div class="package-subitem-head"><b>Alt Maddeler (${subPoints.length})</b><button data-package-point-add-subitem type="button">+ Alt Madde Ekle</button></div><div class="package-subitem-list">${subPoints.map((point,subIndex)=>`<div class="package-subitem-row"><span class="package-subitem-drag">::</span><span class="package-subitem-index">${subIndex+1}</span><textarea class="package-subitem-input" data-package-point-subitem>${escapeHtml(point)}</textarea><button class="package-subitem-icon-btn" data-package-point-subitem-move="up" type="button" aria-label="Alt maddeyi yukarı taşı">↑</button><button class="package-subitem-icon-btn" data-package-point-subitem-move="down" type="button" aria-label="Alt maddeyi aşağı taşı">↓</button><button class="package-subitem-icon-btn" type="button">D</button><button class="package-subitem-icon-btn danger" data-package-point-remove-subitem type="button">S</button></div>`).join('')}</div><textarea data-package-point-subpoints hidden>${escapeHtml(subPoints.join('\n'))}</textarea></div>
     <div class="package-point-detail-actions"><button class="btn" data-package-points-back type="button">İptal</button><div><button class="btn" data-package-point-revert type="button">Değişiklikleri Geri Al</button> <button class="btn primary" data-package-point-save="${escapeHtml(row.id)}" type="button">Kaydet</button></div></div>
   </article>`;
 }
@@ -4157,12 +4192,22 @@ function renderPackagePointEditorPage(){
     renderPackagePointDetail(item,selectedRow,0);
     return;
   }
-  list.innerHTML=rows.map((row,index)=>`<article class="package-point-row ${row.id===selectedRow?.id?'is-active':''}" data-package-point-row="${escapeHtml(row.id)}" data-package-point-test="${escapeHtml(item.id)}" data-package-point-select="${escapeHtml(row.id)}">
-    <div class="package-point-row-meta"><span class="package-point-id">#${escapeHtml(String(row.legacyNoktaId||index+1))}</span></div>
-    <div class="package-point-row-title"><b>${escapeHtml(row.title)}</b><span>${escapeHtml(row.groupLabel)}</span></div>
-    <div class="package-point-row-badges"><span class="package-point-status-box red">${row.isRequired?'Zorunlu':'Opsiyon'}</span><span class="package-point-status-box orange">${escapeHtml(packageBuilderPointPhotoLabel(row))}</span><span class="package-chip blue">${escapeHtml(String(row.subPoints.length))} alt madde</span></div>
-    <span class="package-point-kebab">⋮</span>
-  </article>`).join('');
+  list.innerHTML=rows.map((row,index)=>{
+    const globalIndex=allRows.findIndex(value=>value.id===row.id);
+    const canMoveUp=globalIndex>0;
+    const canMoveDown=globalIndex<allRows.length-1;
+    const upDisabled=canMoveUp?'':' disabled';
+    const downDisabled=canMoveDown?'':' disabled';
+    return `<article class="package-point-row ${row.id===selectedRow?.id?'is-active':''}" data-package-point-row="${escapeHtml(row.id)}" data-package-point-test="${escapeHtml(item.id)}" data-package-point-select="${escapeHtml(row.id)}">
+      <div class="package-point-row-meta"><span class="package-point-id">#${escapeHtml(String(row.legacyNoktaId||index+1))}</span></div>
+      <div class="package-point-row-title"><b>${escapeHtml(row.title)}</b><span>${escapeHtml(row.groupLabel)}</span></div>
+      <div class="package-point-row-badges"><span class="package-point-status-box red">${row.isRequired?'Zorunlu':'Opsiyon'}</span><span class="package-point-status-box orange">${escapeHtml(packageBuilderPointPhotoLabel(row))}</span><span class="package-point-chip blue">${escapeHtml(String(row.subPoints.length))} alt madde</span></div>
+      <div class="package-point-row-actions">
+        <button class="package-point-order-btn" type="button" data-package-point-move="up" aria-label="Maddenin sırasını yukarı taşı"${upDisabled}>↑</button>
+        <button class="package-point-order-btn" type="button" data-package-point-move="down" aria-label="Maddenin sırasını aşağı taşı"${downDisabled}>↓</button>
+      </div>
+    </article>`;
+  }).join('');
   renderPackagePointDetail(item,selectedRow,Math.max(0,allRows.findIndex(row=>row.id===selectedRow?.id)));
   if(bottomStatus)bottomStatus.innerHTML=`<span>Toplam ${escapeHtml(String(allRows.length))} madde</span><span><strong>${escapeHtml(String(allRows.filter(row=>row.isRequired).length))}</strong> zorunlu</span><span><strong>${escapeHtml(String(allRows.filter(row=>row.requiresMedia&&Number(row.requiredImageCount||0)>0).length))}</strong> fotoğraf zorunlu</span><span><strong>${escapeHtml(String(allRows.filter(row=>row.requiresMedia&&!Number(row.requiredImageCount||0)).length))}</strong> fotoğraf opsiyonel</span><span>Son kaydedilme: ${new Date().toLocaleTimeString('tr-TR',{hour:'2-digit',minute:'2-digit'})}</span>`;
 }
@@ -4365,6 +4410,26 @@ function packageBuilderSyncPointSubitems(row){
   const values=[...row.querySelectorAll('[data-package-point-subitem]')].map(input=>input.value.trim()).filter(Boolean);
   if(hidden)hidden.value=values.join('\n');
 }
+function packageBuilderMovePointSubitem(row,subitemEl,direction){
+  if(!row||!subitemEl)return false;
+  const list=row.querySelector('.package-subitem-list');
+  if(!list)return false;
+  const items=[...list.querySelectorAll('.package-subitem-row')];
+  const index=items.indexOf(subitemEl);
+  if(index===-1)return false;
+  const nextIndex=index+Number(direction);
+  if(nextIndex<0||nextIndex>=items.length)return false;
+  const target=items[nextIndex];
+  const sourceInput=subitemEl.querySelector('[data-package-point-subitem]');
+  const targetInput=target.querySelector('[data-package-point-subitem]');
+  if(!sourceInput||!targetInput)return false;
+  const temp=sourceInput.value;
+  sourceInput.value=targetInput.value;
+  targetInput.value=temp;
+  [...list.querySelectorAll('.package-subitem-index')].forEach((node,subIndex)=>{node.textContent=String(subIndex+1);});
+  packageBuilderSyncPointSubitems(row);
+  return true;
+}
 function wirePackageBuilderPage(){
   const page=document.getElementById('packageBuilderPage');
   if(!page||page.dataset.packageBuilderWired)return;
@@ -4481,9 +4546,20 @@ function wirePackagePointEditorPage(){
       const list=row?.querySelector('.package-subitem-list');
       if(list){
         const next=list.querySelectorAll('[data-package-point-subitem]').length+1;
-        list.insertAdjacentHTML('beforeend',`<div class="package-subitem-row"><span class="package-subitem-drag">::</span><span class="package-subitem-index">${next}</span><textarea class="package-subitem-input" data-package-point-subitem>Yeni alt madde</textarea><button class="package-subitem-icon-btn" type="button">D</button><button class="package-subitem-icon-btn danger" data-package-point-remove-subitem type="button">S</button></div>`);
+        list.insertAdjacentHTML('beforeend',`<div class="package-subitem-row"><span class="package-subitem-drag">::</span><span class="package-subitem-index">${next}</span><textarea class="package-subitem-input" data-package-point-subitem>Yeni alt madde</textarea><button class="package-subitem-icon-btn" data-package-point-subitem-move="up" type="button" aria-label="Alt maddeyi yukarı taşı">↑</button><button class="package-subitem-icon-btn" data-package-point-subitem-move="down" type="button" aria-label="Alt maddeyi aşağı taşı">↓</button><button class="package-subitem-icon-btn" type="button">D</button><button class="package-subitem-icon-btn danger" data-package-point-remove-subitem type="button">S</button></div>`);
         packageBuilderSyncPointSubitems(row);
       }
+      return;
+    }
+    const moveSubitem=event.target.closest('[data-package-point-subitem-move]');
+    if(moveSubitem){
+      event.preventDefault();
+      const row=moveSubitem.closest('[data-package-point-row]');
+      const subItem=moveSubitem.closest('.package-subitem-row');
+      if(!row||!subItem)return;
+      const direction=moveSubitem.dataset.packagePointSubitemMove==='up'?-1:1;
+      const moved=packageBuilderMovePointSubitem(row,subItem,direction);
+      if(!moved)packageBuilderShowToast('Bu alt madde taşınamadı.');
       return;
     }
     const removeSubitem=event.target.closest('[data-package-point-remove-subitem]');
@@ -4555,6 +4631,23 @@ function wirePackagePointEditorPage(){
       renderPackagePointEditorPage();
       renderPackageBuilderPage();
       packageBuilderShowToast('Yeni kontrol maddesi eklendi.');
+      return;
+    }
+    const move=event.target.closest('[data-package-point-move]');
+    if(move){
+      event.preventDefault();
+      const row=move.closest('[data-package-point-row]');
+      if(row){
+        const direction=move.dataset.packagePointMove==='up'?-1:1;
+        const moved=packageBuilderMovePointRow(row.dataset.packagePointTest,row.dataset.packagePointRow,direction);
+        if(moved){
+          packageBuilderShowToast('Madde sırası güncellendi.');
+          renderPackagePointEditorPage();
+          renderPackageBuilderPage();
+        }else{
+          packageBuilderShowToast('Bu madde taşınamadı.');
+        }
+      }
       return;
     }
     const save=event.target.closest('[data-package-point-save]');
