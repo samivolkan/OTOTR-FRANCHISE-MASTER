@@ -544,6 +544,8 @@ button,input,select,textarea{font:inherit}.app{min-height:100vh;display:grid;gri
 .package-manager-tabs{display:flex;gap:8px;flex-wrap:wrap;border:1px solid var(--package-line);border-radius:14px;background:#fff;padding:10px;margin-bottom:12px;box-shadow:0 4px 18px rgba(17,24,39,.045)}
 .package-manager-tab{height:38px;border:1px solid #e5e7eb;border-radius:10px;background:#f8fafc;color:#344054;padding:0 13px;font-size:12px;font-weight:900;cursor:pointer}
 .package-manager-tab.active{background:#e30613;border-color:#e30613;color:#fff;box-shadow:0 8px 18px rgba(227,6,19,.18)}
+.nav-submenu{display:grid;gap:2px;margin:3px 0 8px 28px;padding-left:8px;border-left:1px solid rgba(255,255,255,.1)}
+.nav .nav-submenu a{height:30px;margin:0;padding:0 8px;border-radius:7px;color:#98a2b3;font-size:12px;line-height:1.15}.nav .nav-submenu a:hover{background:rgba(255,255,255,.06);color:#fff}.nav .nav-submenu a.active{background:rgba(227,6,19,.24);color:#fff;font-weight:800}
 .package-manager-panel{display:none}.package-manager-panel.active{display:block}
 .package-management-panel{border:1px solid var(--package-line);border-radius:14px;background:#fff;box-shadow:0 8px 24px rgba(16,24,40,.045);padding:14px;margin-bottom:12px}
 .package-management-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}
@@ -674,6 +676,13 @@ button,input,select,textarea{font:inherit}.app{min-height:100vh;display:grid;gri
       <a href="#" id="navWarranty"><span class="nav-icon">☂</span>Garanti & Risk</a>
       <a href="#" id="navCustomerExperience"><span class="nav-icon">★</span>Müşteri Deneyimi</a>
       <a href="#" id="navPackageBuilder"><span class="nav-icon">PK</span>Paket Oluşturucu</a>
+      <div class="nav-submenu" aria-label="Paket oluşturucu alt menüsü">
+        <a href="#" class="package-subnav-link active" data-package-manager-view="existing">Mevcut Paketler</a>
+        <a href="#" class="package-subnav-link" data-package-manager-view="builder">Paket Oluştur / Düzenle / Sil</a>
+        <a href="#" class="package-subnav-link" data-package-manager-view="tests">Test Oluştur / Düzenle / Sil</a>
+        <a href="#" class="package-subnav-link" data-package-manager-view="points">Test Maddesi Oluştur / Düzenle</a>
+        <a href="#" class="package-subnav-link" data-package-manager-view="archive">Paket Arşivi</a>
+      </div>
       <a href="#" id="navStaffAcademy"><span class="nav-icon">👤</span>Personel & Academy</a>
       <a href="#" id="navPerformance"><span class="nav-icon">◉</span>Performans</a>
       <a href="#" id="navBranchKpi"><span class="nav-icon">📊</span>Şube KPI</a>
@@ -1221,13 +1230,6 @@ button,input,select,textarea{font:inherit}.app{min-height:100vh;display:grid;gri
             <h1>Paket Oluştur v2</h1>
           </div>
         </div>
-        <div class="package-manager-tabs" aria-label="Paket oluşturucu menüsü">
-          <button class="package-manager-tab active" data-package-manager-view="existing" type="button">Mevcut Paketler</button>
-          <button class="package-manager-tab" data-package-manager-view="builder" type="button">Paket Oluştur / Düzenle / Sil</button>
-          <button class="package-manager-tab" data-package-manager-view="tests" type="button">Test Oluştur / Düzenle / Sil</button>
-          <button class="package-manager-tab" data-package-manager-view="points" type="button">Test Maddesi Oluştur / Düzenle</button>
-          <button class="package-manager-tab" data-package-manager-view="archive" type="button">Paket Arşivi</button>
-        </div>
         <section class="package-manager-panel active" data-package-manager-panel="existing">
           <div class="package-management-panel">
             <div class="package-management-head"><div><h2>Mevcut Paketler</h2><span>Oluşturulan tüm paketleri düzenleyin, kopyalayın, arşivleyin veya silin.</span></div><button class="btn primary" data-package-manager-view="builder" type="button">+ Yeni Paket</button></div>
@@ -1551,7 +1553,23 @@ const packageBuilderCustomTestStorageKey='ototr-package-builder-custom-tests-v1'
 const packageBuilderTestPriceStorageKey='ototr-package-builder-test-prices-v1';
 const packageBuilderControlPointStorageKey='ototr-package-builder-control-points-v1';
 const packageBuilderManagedTestStorageKey='ototr-package-builder-managed-tests-v1';
+const packageBuilderHiddenSeedPackageStorageKey='ototr-package-builder-hidden-seed-packages-v1';
 const dealerPortalBuildStamp='01.07.2026 02:34';
+function packageBuilderReadHiddenSeedPackages(){
+  try{
+    const saved=JSON.parse(localStorage.getItem(packageBuilderHiddenSeedPackageStorageKey)||'[]');
+    return new Set(Array.isArray(saved)?saved.map(String):[]);
+  }catch(err){return new Set();}
+}
+function packageBuilderSaveHiddenSeedPackages(ids){
+  localStorage.setItem(packageBuilderHiddenSeedPackageStorageKey,JSON.stringify([...ids].filter(Boolean)));
+}
+function packageBuilderHideSeedPackage(id){
+  if(!String(id||'').startsWith('seed-'))return;
+  const hidden=packageBuilderReadHiddenSeedPackages();
+  hidden.add(String(id));
+  packageBuilderSaveHiddenSeedPackages(hidden);
+}
 function packageBuilderSeedPackagesFromTemplates(){
   return packageTemplates.map(template=>({
     id:`seed-${template.id}`,
@@ -1578,7 +1596,7 @@ function packageBuilderReadPackages(){
     if(raw===null)return packageBuilderSeedPackagesFromTemplates();
     const saved=JSON.parse(raw||'[]');
     if(!Array.isArray(saved))return [];
-    return saved.map((item,index)=>({
+    const normalized=saved.map((item,index)=>({
       id:item.id||`package-${Date.now()}-${index}`,
       name:item.name||`Paket ${index+1}`,
       status:item.status||'Taslak',
@@ -1596,6 +1614,11 @@ function packageBuilderReadPackages(){
       createdAt:item.createdAt||'',
       updatedAt:item.updatedAt||''
     }));
+    const hiddenSeeds=packageBuilderReadHiddenSeedPackages();
+    const existingIds=new Set(normalized.map(item=>String(item.id)));
+    const existingNames=new Set(normalized.map(item=>packageBuilderSlug(item.name||'')));
+    const missingSeeds=packageBuilderSeedPackagesFromTemplates().filter(seed=>!hiddenSeeds.has(seed.id)&&!existingIds.has(seed.id)&&!existingNames.has(packageBuilderSlug(seed.name||'')));
+    return [...normalized,...missingSeeds];
   }catch(err){return [];}
 }
 function packageBuilderPersistPackages(){
@@ -4223,7 +4246,7 @@ function packageBuilderPanelForManagerView(view){
 function renderPackageManagerView(){
   const view=packageBuilderState.managerView||'existing';
   const panelId=packageBuilderPanelForManagerView(view);
-  document.querySelectorAll('.package-manager-tab[data-package-manager-view]').forEach(button=>{
+  document.querySelectorAll('.package-manager-tab[data-package-manager-view],.package-subnav-link[data-package-manager-view]').forEach(button=>{
     button.classList.toggle('active',button.dataset.packageManagerView===view);
   });
   document.querySelectorAll('[data-package-manager-panel]').forEach(panel=>{
@@ -4244,6 +4267,18 @@ function packageBuilderSetManagerView(view){
       form.querySelector('[data-test-point-field="name"]')?.focus();
     }
   }
+}
+function packageBuilderOpenManagerView(view){
+  const next=view||'existing';
+  closeDrawer();
+  openModulePage('packageBuilderPage','navPackageBuilder');
+  if(next==='points'){
+    packageBuilderState.managerView='points';
+    packageBuilderOpenPointEditor(packageBuilderState.activePointTestId||'bodyPaint');
+    renderPackageManagerView();
+    return;
+  }
+  packageBuilderSetManagerView(next);
 }
 function packageBuilderMatchesSearch(item){
   const search=packageBuilderState.search.trim().toLocaleLowerCase('tr-TR');
@@ -4981,6 +5016,7 @@ function packageBuilderDeletePackage(packageId){
   const record=packageBuilderState.createdPackages.find(item=>item.id===packageId);
   if(!record)return;
   if(!confirm(`${record.name||'Paket'} kalıcı olarak silinsin mi?`))return;
+  packageBuilderHideSeedPackage(packageId);
   packageBuilderState.createdPackages=packageBuilderState.createdPackages.filter(item=>item.id!==packageId);
   if(packageBuilderState.editingPackageId===packageId)packageBuilderState.editingPackageId=null;
   packageBuilderPersistPackages();
@@ -5089,11 +5125,7 @@ function wirePackageBuilderPage(){
     if(managerView){
       event.preventDefault();
       const view=managerView.dataset.packageManagerView||'existing';
-      if(view==='points'){
-        packageBuilderOpenPointEditor(packageBuilderState.activePointTestId||'bodyPaint');
-      }else{
-        packageBuilderSetManagerView(view);
-      }
+      packageBuilderOpenManagerView(view);
       return;
     }
     const testAddToggle=event.target.closest('[data-package-test-add-toggle]');
@@ -5674,7 +5706,13 @@ if(navReportDelivery)navReportDelivery.addEventListener('click',event=>{event.pr
 if(navFinance)navFinance.addEventListener('click',event=>{event.preventDefault();closeDrawer();openModulePage('financePage','navFinance')});
 if(navWarranty)navWarranty.addEventListener('click',event=>{event.preventDefault();closeDrawer();openModulePage('warrantyRiskPage','navWarranty')});
 if(navCustomerExperience)navCustomerExperience.addEventListener('click',event=>{event.preventDefault();closeDrawer();openModulePage('customerExperiencePage','navCustomerExperience')});
-if(navPackageBuilder)navPackageBuilder.addEventListener('click',event=>{event.preventDefault();closeDrawer();openModulePage('packageBuilderPage','navPackageBuilder')});
+if(navPackageBuilder)navPackageBuilder.addEventListener('click',event=>{event.preventDefault();packageBuilderOpenManagerView('existing')});
+document.querySelectorAll('.package-subnav-link[data-package-manager-view]').forEach(link=>{
+  link.addEventListener('click',event=>{
+    event.preventDefault();
+    packageBuilderOpenManagerView(link.dataset.packageManagerView||'existing');
+  });
+});
 if(navStaffAcademy)navStaffAcademy.addEventListener('click',event=>{event.preventDefault();closeDrawer();openModulePage('staffAcademyPage','navStaffAcademy')});
 if(navBranchKpi)navBranchKpi.addEventListener('click',event=>{event.preventDefault();closeDrawer();openModulePage('branchKpiPage','navBranchKpi')});
 if(navOpenWorkOrder)navOpenWorkOrder.addEventListener('click',event=>{event.preventDefault();closeDrawer();openDrawer('quick')});
