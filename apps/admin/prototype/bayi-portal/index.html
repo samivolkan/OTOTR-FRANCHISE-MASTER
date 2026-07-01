@@ -1624,6 +1624,20 @@ const packageManualControlPointRows={
     {title:'Garanti süresi ve kilometre limiti',subPoints:['3 ay aktif','5000 km limit aktif','Hangisi önce dolarsa garanti biter']},
     {title:'Garanti ön koşulları',subPoints:['Ana testler tamamlandı','Ek garanti testleri tamamlandı','Merkez onayı alındı','Müşteri bilgilendirildi']},
     {title:'Garanti kapsam notu',subPoints:['Motor mekanik kapsamda','Şanzıman kontrol edildi','Sarf parçalar kapsam dışı','Kullanım hatası kapsam dışı']}
+  ],
+  roadTest:[
+    {title:'Yol Testi Genel Bilgileri',subPoints:['Yapıldı','Kısmen yapıldı','Yapılamadı','Test süresi / yol tipi / test kilometresi girildi']},
+    {title:'Motor Sürüş Performansı',subPoints:['Normal','Zayıf / gecikmeli','Tekleme / silkeleme','Kritik problem','Test edilemedi']},
+    {title:'Otomatik Şanzıman ve Aktarma',subPoints:['Normal','Gecikmeli / kararsız','Vurma / sarsıntı','Kaydırma şüphesi','Araç otomatik değil']},
+    {title:'Manuel Şanzıman ve Debriyaj',subPoints:['Normal','Sert / takılma','Kaçırma şüphesi','Titreme var','Araç manuel değil']},
+    {title:'Fren Sistemi Yol Davranışı',subPoints:['Normal','Zayıf / geç tepki','Sağa / sola çekme','Titreşim / ses','Kritik']},
+    {title:'Direksiyon ve Yol Tutuş',subPoints:['Normal','Boşluk var','Sağa / sola çekme','Titreşim var','Güvensiz his']},
+    {title:'Süspansiyon, Amortisör ve Yürüyen Aksam',subPoints:['Normal','Hafif ses','Vuruntu / gıcırtı','Salınım fazla','Kritik']},
+    {title:'Aks, Diferansiyel ve Aktarma Sesleri',subPoints:['Yok','Hafif boşluk','Tıkırtı / çıtırtı','Uğultu','Kritik']},
+    {title:'Kabin İçi Ses, Titreşim ve Konfor',subPoints:['Normal','Hafif ses / titreşim','Belirgin titreşim','Trim / rüzgar sesi','Kontrol önerilir']},
+    {title:'Elektronik Sistemler ve Uyarılar',subPoints:['Uyarı yok','Motor / ABS / ESP uyarısı','Airbag / TPMS uyarısı','Sürüş desteği sorunu','Test edilemedi']},
+    {title:'Hibrit / Elektrikli Araç Yol Testi',subPoints:['Normal','Rejeneratif fren sorunu','Geçiş sarsıntılı','Batarya uyarısı','Araç hibrit / elektrikli değil']},
+    {title:'Yol Testi Genel Sonuç',subPoints:['Normal','İzlenmeli','Servis kontrolü önerilir','Kritik problem var']}
   ]
 };
 const packageExtraServices=[
@@ -1635,6 +1649,7 @@ const packageExtraServices=[
   {id:'interiorExterior',name:'İç ve Dış Ekspertiz',short:'İD',category:'extraTests',schemaGroupCodes:['INTERIOR_CHECKUP','EXTERIOR_CONDITION'],description:'',controlPoints:28,evidence:'Foto kanıt',risk:'Düşük',priceImpact:0,priceLabel:'Paket içi',approval:'Otomatik',defaultSelected:false},
   {id:'gasketLeak',name:'Conta Kaçak Testi',short:'CK',category:'extraTests',schemaGroupCodes:['HEAD_GASKET_LEAK_TEST'],description:'',controlPoints:12,evidence:'Foto/veri kanıtı',risk:'Yüksek',priceImpact:0,priceLabel:'Paket içi',approval:'Otomatik',defaultSelected:false,requiredForGuaranteed:true},
   {id:'brakeSuspension',name:'Fren Süspansiyon Testi',short:'FS',category:'extraTests',schemaGroupCodes:['BRAKE_SUSPENSION_TEST'],description:'',controlPoints:16,evidence:'Test hattı çıktısı',risk:'Düşük',priceImpact:0,priceLabel:'Paket içi',approval:'Otomatik',defaultSelected:false,requiredForGuaranteed:true},
+  {id:'roadTest',name:'Yol Testi',short:'YT',category:'extraTests',controlPointRows:packageManualControlPointRows.roadTest,description:'',controlPoints:12,evidence:'Yol testi formu',risk:'Yüksek',priceImpact:0,priceLabel:'Paket içi',approval:'Otomatik',defaultSelected:false,requiredForGuaranteed:true},
   {id:'roadDynoTransmission',name:'Dyno - Yol Testi - Şanzıman Kontrolü',short:'DYŞ',category:'extraTests',schemaGroupCodes:['DYNO_ROAD_TEST'],description:'',controlPoints:18,evidence:'Kanıt önerilir',risk:'Yüksek',priceImpact:0,priceLabel:'Paket içi',approval:'Otomatik',defaultSelected:false},
   {id:'debtQueries',name:'Borç Sorguları',short:'BOR',category:'queries',description:'',controlPointRows:packageManualControlPointRows.debtQueries,controlPoints:3,evidence:'Sorgu kaydı',risk:'Düşük',priceImpact:0,priceLabel:'Paket içi',approval:'Otomatik',defaultSelected:false},
   {id:'tramer5664',name:'5664 Tramer Sorgusu',short:'5664',category:'queries',description:'',controlPointRows:packageManualControlPointRows.tramer5664,controlPoints:3,evidence:'Sorgu kaydı',risk:'Düşük',priceImpact:0,priceLabel:'Paket içi',approval:'Otomatik',defaultSelected:true},

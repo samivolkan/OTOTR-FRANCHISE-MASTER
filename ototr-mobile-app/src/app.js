@@ -2,6 +2,7 @@ const app = document.getElementById("app");
 const publicRoutes = new Set(["splash", "login", "forgot-password", "reset-password"]);
 const authStorageKeys = Object.freeze([
   "ototrAuth",
+  "ototrAuthMode",
   "ototrBranch",
   "ototrBranchName",
   "ototrDefaultBranch",
@@ -252,6 +253,7 @@ window.ototrClearAuthStorage = clearAuthStorage;
 
 function hasValidLiveSession() {
   if (localStorage.getItem("ototrAuth") !== "true") return false;
+  if (localStorage.getItem("ototrAuthMode") === "test-user") return true;
   const config = getSupabaseRuntimeConfig();
   const hasAccessToken = Boolean(config.accessToken);
   const hasRefreshToken = Boolean(config.refreshToken);

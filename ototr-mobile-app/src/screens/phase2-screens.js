@@ -147,11 +147,17 @@ const shellRoutes = new Set([
 
 const authStorageKeys = Object.freeze([
   "ototrAuth",
+  "ototrAuthMode",
   "ototrBranch",
   "ototrBranchName",
   "ototrDefaultBranch",
   "ototrRememberMe",
   "ototrUser",
+  "ototrUserRole",
+  "ototrAppUserId",
+  "ototrSupabaseAccessToken",
+  "ototrSupabaseRefreshToken",
+  "ototrSupabaseUserEmail",
   "ototrResetTarget",
   "ototrSelectedWorkOrder",
   "ototrWorkflowState"
@@ -449,9 +455,9 @@ const approvedReferenceFlowByRoute = Object.freeze({
   itemDetail: { back: "moduleControl", previous: "moduleControl", next: "statusModal", primary: "statusModal" },
   statusModal: { back: "moduleControl", previous: "moduleControl", next: "moduleControl", primary: "moduleControl" },
   evidence: { back: "statusModal", previous: "statusModal", next: "camera", primary: "camera" },
-  camera: { back: "evidence", previous: "evidence", next: "photoApproval", primary: "photoApproval" },
-  photoApproval: { back: "evidence", previous: "camera", next: "photoUploadError", primary: "evidence" },
-  photoUploadError: { back: "evidence", previous: "photoApproval", next: "issues", primary: "evidence" },
+  camera: { back: "moduleControl", previous: "statusModal", next: "moduleControl", primary: "moduleControl" },
+  photoApproval: { back: "camera", previous: "camera", next: "photoUploadError", primary: "moduleControl" },
+  photoUploadError: { back: "camera", previous: "camera", next: "issues", primary: "camera" },
   issues: { back: "tests", previous: "photoUploadError", next: "blockingIssues", primary: "tests" },
   blockingIssues: { back: "missing", previous: "issues", next: "customer-summary", primary: "missing" },
   customerSummary: { back: "missing", previous: "blockingIssues", next: "final-report", primary: "final-report" },
@@ -1003,6 +1009,18 @@ function getSelectedEvidenceSlot() {
   };
 }
 
+function resolveCameraReturnRoute() {
+  const workflow = getWorkflowState();
+  const explicitReturnRoute = workflow.selectedEvidenceReturnRoute || workflow.cameraReturnRoute || "";
+  if (explicitReturnRoute) return explicitReturnRoute;
+
+  const fieldKey = workflow.selectedEvidenceFieldKey || workflow.fieldKey || "";
+  if (String(fieldKey).startsWith("start_proof_")) return "start-proof";
+  if (workflow.statusSelectionReturnRoute) return workflow.statusSelectionReturnRoute;
+  if (workflow.selectedModuleFormKey) return "itemDetail";
+  return "moduleControl";
+}
+
 function normalizeCapturedEvidencePayload(source, payload = {}) {
   const selectedSlot = getSelectedEvidenceSlot();
   const now = new Date();
@@ -1055,6 +1073,7 @@ function saveCapturedEvidence(source, payload = {}) {
     evidenceReady: true,
     workOrderStatus: "evidence_ready"
   });
+  queueEvidenceCaptureBackgroundSync();
   return { item, store: nextStore };
 }
 
@@ -1256,6 +1275,25 @@ function syncPendingEvidenceCaptureStoreWithTimeout(timeoutMs = 1800) {
       }), timeoutMs);
     })
   ]);
+}
+
+function queueEvidenceCaptureBackgroundSync(timeoutMs = 4500) {
+  window.setTimeout(() => {
+    syncPendingEvidenceCaptureStoreWithTimeout(timeoutMs).then((result) => {
+      recordWorkflowStep(result.failedCount || result.timedOut ? "evidence_background_sync_queued" : "evidence_background_sync_started", {
+        attemptedEvidenceCount: result.attemptedCount || 0,
+        uploadedEvidenceCount: result.uploadedCount || 0,
+        failedEvidenceCount: result.failedCount || 0,
+        evidenceSyncTimedOut: Boolean(result.timedOut),
+        workOrderStatus: result.failedCount || result.timedOut ? "evidence_pending_sync" : "evidence_background_sync"
+      });
+    }).catch((error) => {
+      recordWorkflowStep("evidence_background_sync_failed", {
+        errorMessage: error?.message || "Kanıt arka plan senkronu başlatılamadı.",
+        workOrderStatus: "evidence_pending_sync"
+      });
+    });
+  }, 0);
 }
 
 function transitionLiveWorkOrderStatusWithTimeout(payload, timeoutMs = 1800) {
@@ -2178,22 +2216,43 @@ function renderLogin(onNavigate) {
     attrs: { role: "status", "aria-live": "polite" }
   });
   message.textContent = "";
-  const completeLiveLogin = ({ accessToken, refreshToken = "", email = "", rememberMe = true }) => {
+  const completeLoginSession = ({
+    accessToken = "",
+    refreshToken = "",
+    email = "",
+    rememberMe = true,
+    mode = "live",
+    displayName = ""
+  }) => {
+    const isTestSession = mode === "test-user";
     localStorage.setItem("ototrAuth", "true");
+    localStorage.setItem("ototrAuthMode", mode);
     localStorage.setItem("ototrRememberMe", rememberMe ? "true" : "false");
-    localStorage.setItem("ototrSupabaseAccessToken", accessToken);
-    localStorage.setItem("ototrSupabaseRefreshToken", refreshToken || "");
+    if (isTestSession) {
+      localStorage.removeItem("ototrSupabaseAccessToken");
+      localStorage.removeItem("ototrSupabaseRefreshToken");
+    } else {
+      localStorage.setItem("ototrSupabaseAccessToken", accessToken);
+      localStorage.setItem("ototrSupabaseRefreshToken", refreshToken || "");
+    }
     localStorage.setItem("ototrSupabaseUserEmail", email);
     const normalizedEmail = String(email).toLowerCase();
-    localStorage.setItem("ototrUser", normalizedEmail.includes("ahmet.usta") ? "Ahmet Usta" : email);
-    const inferredRole = normalizedEmail.includes("sekreter") || normalizedEmail.includes("secretary") || normalizedEmail.includes("secretariat")
-      ? "RECEPTION_STAFF"
-      : normalizedEmail.includes("mudur") || normalizedEmail.includes("manager") || normalizedEmail.includes("portal")
-        ? "BRANCH_MANAGER"
-        : normalizedEmail.includes("admin")
-          ? "ADMIN"
-          : "TECHNICIAN";
+    localStorage.setItem("ototrUser", displayName || (normalizedEmail.includes("ahmet.usta") ? "Ahmet Usta" : email));
+    const inferredRole = isTestSession
+      ? "TECHNICIAN"
+      : normalizedEmail.includes("sekreter") || normalizedEmail.includes("secretary") || normalizedEmail.includes("secretariat")
+        ? "RECEPTION_STAFF"
+        : normalizedEmail.includes("mudur") || normalizedEmail.includes("manager") || normalizedEmail.includes("portal")
+          ? "BRANCH_MANAGER"
+          : normalizedEmail.includes("admin")
+            ? "ADMIN"
+            : "TECHNICIAN";
     localStorage.setItem("ototrUserRole", inferredRole);
+    if (isTestSession) {
+      localStorage.setItem("ototrAppUserId", "local-test-technician");
+    } else {
+      localStorage.removeItem("ototrAppUserId");
+    }
     const runtimeConfig = globalThis.OTOTR_SUPABASE_CONFIG || {};
     const debugAutoBranchId = runtimeConfig.debugAutoBranchId || "";
     const debugSelectedWorkOrderId = runtimeConfig.debugSelectedWorkOrderId || "";
@@ -2217,6 +2276,11 @@ function renderLogin(onNavigate) {
       ? (debugStartupRoute || "home")
       : "branch";
     message.textContent = targetRoute === "home" ? "Canlı giriş başarılı." : "Canlı giriş başarılı, şube seçimine yönlendiriliyorsunuz.";
+    if (isTestSession) {
+      message.textContent = targetRoute === "home"
+        ? "Test kullan\u0131c\u0131 oturumu a\u00e7\u0131ld\u0131."
+        : "Test kullan\u0131c\u0131 oturumu a\u00e7\u0131ld\u0131, \u015fube se\u00e7imine y\u00f6nlendiriliyorsunuz.";
+    }
     onNavigate(targetRoute);
   };
   const submitLogin = async (credentials = null) => {
@@ -2254,7 +2318,7 @@ function renderLogin(onNavigate) {
         const reason = payload?.msg || payload?.error_description || payload?.message || "Giriş bilgileri doğrulanamadı.";
         throw new Error(reason);
       }
-      completeLiveLogin({
+      completeLoginSession({
         accessToken: payload.access_token,
         refreshToken: payload.refresh_token || "",
         email: payload.user?.email || usernameValue,
@@ -2291,7 +2355,6 @@ function renderLogin(onNavigate) {
   support.type = "button";
   const runtimeConfig = globalThis.OTOTR_SUPABASE_CONFIG || {};
   const fakeSupabaseSessionAllowed = runtimeConfig.allowFakeSupabaseSession === true;
-  const debugLoginEnabled = fakeSupabaseSessionAllowed && runtimeConfig.debugLoginEnabled === true;
   const debugAutoLoginEnabled = fakeSupabaseSessionAllowed && runtimeConfig.debugAutoLoginEnabled === true;
   const debugAutoLoginKey = "ototrDebugAutoLoginAttempted";
   const debugRealAutoLoginEnabled = runtimeConfig.debugRealAutoLoginEnabled === true
@@ -2300,22 +2363,20 @@ function renderLogin(onNavigate) {
     && typeof runtimeConfig.debugRealAutoLoginPassword === "string"
     && runtimeConfig.debugRealAutoLoginPassword.trim();
   const debugRealAutoLoginKey = "ototrDebugRealAutoLoginAttempted";
-  const triggerDebugSession = () => {
-    username.value = "ahmet.usta@ototr.test";
-    password.value = "123456";
-    completeLiveLogin({
-      accessToken: "debug-session-token",
-      refreshToken: "debug-refresh-token",
-      email: "ahmet.usta@ototr.test",
-      rememberMe: true
+  const triggerTestUserSession = () => {
+    username.value = "test.kullanici@ototr.local";
+    password.value = "";
+    completeLoginSession({
+      email: "test.kullanici@ototr.local",
+      rememberMe: true,
+      mode: "test-user",
+      displayName: "Test Kullan\u0131c\u0131s\u0131"
     });
   };
-  const debugLoginButton = debugLoginEnabled
-    ? button("Test GiriÅŸi: Ahmet Usta", "login-production-debug", () => {
-      triggerDebugSession();
-    }, "Ahmet Usta test giriÅŸi", true)
-    : null;
-  if (debugLoginButton) debugLoginButton.type = "button";
+  const testUserButton = button(`${icons.user}<span>Test Kullan\u0131c\u0131s\u0131 ile Gir</span>`, "login-production-debug", () => {
+    triggerTestUserSession();
+  }, "Test kullan\u0131c\u0131s\u0131 ile gir", true);
+  testUserButton.type = "button";
   const usernameField = element("label", { className: "login-production-field login-production-username" });
   usernameField.append(
     element("span", { className: "login-production-label", text: "Telefon / E-posta" }),
@@ -2336,7 +2397,7 @@ function renderLogin(onNavigate) {
   rememberLabel.append(remember, element("span", { text: "Beni Hatırla" }));
   row.append(rememberLabel, forgot);
   form.append(usernameField, passwordField, row, message, submit, support);
-  if (debugLoginButton) form.append(debugLoginButton);
+  form.append(testUserButton);
   main.append(background, carStage, form);
   if (
     debugAutoLoginEnabled
@@ -2345,7 +2406,7 @@ function renderLogin(onNavigate) {
   ) {
     sessionStorage.setItem(debugAutoLoginKey, "true");
     requestAnimationFrame(() => {
-      triggerDebugSession();
+      triggerTestUserSession();
     });
   }
   if (
@@ -5092,6 +5153,8 @@ function resolveModuleControlHeroIcon(formKey) {
     electric: icons.electric,
     brain: icons.sliders,
     roadTest: icons.gauge,
+    "yol-testi": icons.gauge,
+    "dyno-yol": icons.gauge,
     interiorExterior: icons.user,
     airbag: icons.shield,
     conta: icons.key
@@ -5566,6 +5629,7 @@ function resolveModuleControlIcon(moduleId) {
     "conta-kacak": "key",
     conta: "key",
     "dyno-yol": "gauge",
+    "yol-testi": "gauge",
     donanim: "user",
     yoltesti: "gauge",
     mekanik_panel: "wrench"
@@ -5587,7 +5651,7 @@ function renderItemDetail(onNavigate) {
       : selectedModule.formKey === "mechanic" ? "wrench"
       : selectedModule.formKey === "electric" ? "electric"
       : selectedModule.formKey === "airbag" ? "shield"
-      : selectedModule.formKey === "roadTest" ? "gauge"
+      : selectedModule.formKey === "roadTest" || selectedModule.formKey === "yol-testi" ? "gauge"
       : "car"
     ] || icons.car;
   const itemRequirements = [];
@@ -5828,6 +5892,7 @@ function moduleTitleForFormKey(formKey) {
     interiorExterior: "İç / Dış Donanım",
     roadTest: "Yol Testi",
     "dyno-yol": "Dyno / Yol",
+    "yol-testi": "Ger\u00e7ek Yol Testi",
     "kaporta-boya": "Kaporta / Boya",
     kaporta: "Kaporta",
     "conta-kacak": "Conta Kaçak",
@@ -5864,7 +5929,7 @@ function selectedModuleHero(module) {
   return element("section", {
     className: "section-card selected-module-hero",
     html: `
-      <span>${icons[module.formKey === "motor" ? "engine" : module.formKey === "mechanic" ? "wrench" : module.formKey === "electric" ? "electric" : module.formKey === "airbag" ? "shield" : module.formKey === "roadTest" ? "gauge" : "clipboard"]}</span>
+      <span>${icons[module.formKey === "motor" ? "engine" : module.formKey === "mechanic" ? "wrench" : module.formKey === "electric" ? "electric" : module.formKey === "airbag" ? "shield" : module.formKey === "roadTest" || module.formKey === "yol-testi" ? "gauge" : "clipboard"]}</span>
       <div>
         <h2>${module.title}</h2>
         <p>${module.subtitle}</p>
@@ -6200,8 +6265,9 @@ function renderEvidence(onNavigate) {
 }
 
 function renderCamera(onNavigate) {
-  const main = screenMain("Kanıt Fotoğrafı Çek", "Fotoğraf çek veya galeriden seç", onNavigate, true);
+  const main = screenMain("Kamera Açılıyor", "Fotoğraf çekimi tamamlanınca kayıt otomatik yapılır", onNavigate, true);
   const selectedSlot = getSelectedEvidenceSlot();
+  const returnRoute = resolveCameraReturnRoute();
   const lastCapture = (() => {
     try {
       return JSON.parse(sessionStorage.getItem("ototrLastEvidenceCapture") || "null");
@@ -6210,10 +6276,11 @@ function renderCamera(onNavigate) {
     }
   })();
   let captured = false;
-  const status = element("p", { className: "camera-flow-status", text: `Hedef slot: ${selectedSlot.slotTitle}` });
+  let cameraStarted = false;
+  const status = element("p", { className: "camera-flow-status", text: `Kamera açılıyor: ${selectedSlot.slotTitle}` });
   const preview = element("section", {
     className: "section-card camera-capture-preview",
-    html: `<span>${icons.camera}</span><strong>Kanıt önizleme alanı</strong><p>Çek veya Galeri seçimi sonrası görsel burada hazırlanır.</p>`
+    html: `<span>${icons.camera}</span><strong>Kamera hazırlanıyor</strong><p>Fotoğraf çekimi sonrası kayıt ve senkron arka planda başlar.</p>`
   });
   const setCaptured = (source, payload = {}) => {
     const { item } = saveCapturedEvidence(source, payload);
@@ -6223,32 +6290,14 @@ function renderCamera(onNavigate) {
       ? `<img src="${item.previewUrl}" alt="${item.slotTitle} önizleme"><strong>${source} hazır</strong><p>${item.fileName} · ${item.sizeText}</p>`
       : `<span>${icons.check}</span><strong>${source} hazır</strong><p>${item.fileName} · ${item.sizeText}</p>`;
     status.textContent = `${source} başarıyla hazırlandı ve senkron kuyruğuna eklendi.`;
-    keepCameraActionsVisible();
-  };
-  const useAndSyncCapture = async () => {
-    if (!captured) {
-      status.textContent = "Devam etmek için önce fotoğraf çekin veya galeriden seçin.";
-      recordWorkflowStep("camera_capture_required", {
-        evidenceReady: false,
-        workOrderStatus: "evidence_required"
-      });
-      return;
-    }
-    status.textContent = "Kanıt kullanılıyor ve Storage senkronu başlatılıyor...";
-    const result = await syncPendingEvidenceCaptureStoreWithTimeout(4500);
-    const synced = result.uploadedCount > 0 && result.failedCount === 0 && !result.timedOut;
-    recordWorkflowStep("camera_capture_used", {
+    recordWorkflowStep("camera_capture_auto_saved", {
       evidenceReady: true,
-      syncedEvidenceCount: result.uploadedCount || 0,
-      failedEvidenceCount: result.failedCount || 0,
-      evidenceSyncTimedOut: Boolean(result.timedOut),
-      evidenceSyncStep: synced ? "camera_capture_synced" : "camera_capture_queued",
-      workOrderStatus: synced ? "evidence_uploaded" : "evidence_pending_sync"
+      selectedEvidenceId: item.id,
+      selectedEvidenceSlot: item.slotTitle,
+      cameraReturnRoute: returnRoute,
+      workOrderStatus: "evidence_background_sync"
     });
-    status.textContent = synced
-      ? "Kanıt Storage alanına yüklendi. Önizlemeye geçiliyor..."
-      : "Kanıt cihaz kuyruğunda kaldı. Senkron kuyruğundan tekrar deneyebilirsiniz.";
-    onNavigate(synced ? "photoApproval" : "evidence-sync-queue");
+    window.setTimeout(() => onNavigate(returnRoute), 300);
   };
   const clearCaptured = () => {
     captured = false;
@@ -6295,16 +6344,22 @@ function renderCamera(onNavigate) {
       actionStack.scrollIntoView({ block: "center", inline: "nearest" });
     });
   };
+  const openCamera = () => {
+    if (cameraStarted) return;
+    cameraStarted = true;
+    captureEvidenceFromNative("camera", setCaptured, openFallbackPicker, status).finally(() => {
+      cameraStarted = false;
+    });
+  };
   actionStack.append(
     actionRow([
-      button("Çek", "secondary-button full-width", () => captureEvidenceFromNative("camera", setCaptured, openFallbackPicker, status)),
-      button("Galeri", "secondary-button full-width", () => captureEvidenceFromNative("gallery", setCaptured, openFallbackPicker, status))
+      button("Kamerayı Yeniden Aç", "secondary-button full-width", openCamera),
+      button("Fotoğrafı Sıfırla", "secondary-button full-width", clearCaptured)
     ]),
     actionRow([
-      button("Tekrar Çek", "secondary-button full-width", clearCaptured),
-      button("Kullan ve Senkronize Et", "primary-button full-width", useAndSyncCapture)
+      button("Geri Dön", "primary-button full-width", () => onNavigate(returnRoute))
     ]),
-    button("Vazgeç", "ghost-button full-width", () => onNavigate("evidence"))
+    button("Vazgeç", "ghost-button full-width", () => onNavigate(returnRoute))
   );
   main.append(
     preview,
@@ -6317,6 +6372,7 @@ function renderCamera(onNavigate) {
     actionStack,
     fallbackInput
   );
+  window.setTimeout(openCamera, 80);
   return main;
 }
 

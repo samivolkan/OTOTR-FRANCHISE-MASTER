@@ -35,6 +35,12 @@ const MODULE_MAPPINGS = Object.freeze({
     portalDisplayName: "Dyno / Yol",
     reportSection: "Dyno ve Yol Testi"
   }),
+  "yol-testi": Object.freeze({
+    mobileModuleId: "yol-testi",
+    backendTaskKey: "ROAD_TEST",
+    portalDisplayName: "Gercek Yol Testi",
+    reportSection: "Gercek Yol Testi"
+  }),
   "genel-kondisyon-dis": Object.freeze({
     mobileModuleId: "genel-kondisyon-dis",
     backendTaskKey: "EXTERIOR_CONDITION",
@@ -80,11 +86,12 @@ const MODULE_ALIASES = Object.freeze({
   beyin: "obd-beyin",
   obd: "obd-beyin",
   ecu: "obd-beyin",
-  roadtest: "dyno-yol",
-  "road-test": "dyno-yol",
-  road_test: "dyno-yol",
+  roadtest: "yol-testi",
+  "road-test": "yol-testi",
+  road_test: "yol-testi",
   dyno: "dyno-yol",
-  yoltesti: "dyno-yol",
+  yoltesti: "yol-testi",
+  "yol-testi": "yol-testi",
   exterior: "genel-kondisyon-dis",
   dis: "genel-kondisyon-dis",
   "dış": "genel-kondisyon-dis",
@@ -105,6 +112,8 @@ const BACKEND_TASK_KEY_ALIASES = Object.freeze({
   FREN_KONTROL: "BRAKE_SUSPENSION_TEST",
   ELEKTRIK_KONTROL: "OBD_ECU_TEST",
   DYNO_TEST: "DYNO_ROAD_TEST",
+  ROAD_TEST: "ROAD_TEST",
+  YOL_TESTI: "ROAD_TEST",
   IC_KONDISYON: "INTERIOR_CHECKUP",
   CONTA_KACAK: "HEAD_GASKET_LEAK_TEST"
 });

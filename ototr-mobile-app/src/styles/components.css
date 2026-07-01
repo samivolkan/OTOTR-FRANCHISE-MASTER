@@ -1044,6 +1044,7 @@ html.auth-keyboard-active .phase2-forgot-password .forgot-password-wave {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  gap: 8px;
   border: 1px dashed rgba(227, 6, 19, 0.42);
   border-radius: 12px;
   background: rgba(255, 255, 255, 0.94);
@@ -1052,6 +1053,11 @@ html.auth-keyboard-active .phase2-forgot-password .forgot-password-wave {
   font-weight: 850;
   letter-spacing: 0;
   pointer-events: auto;
+}
+
+.login-production-debug svg {
+  width: 18px;
+  height: 18px;
 }
 
 .app-shell.phase2-login .bottom-nav {

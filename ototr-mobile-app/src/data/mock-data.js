@@ -391,7 +391,7 @@ const mechanicForm = testModuleForms["alt-on-mekanik"];
 const brakeSuspensionForm = testModuleForms["fren-suspansiyon"];
 const kaportaForm = testModuleForms["kaporta-boya"];
 const brainForm = testModuleForms["obd-beyin"];
-const roadTestForm = testModuleForms["dyno-yol"];
+const roadTestForm = testModuleForms["yol-testi"] || testModuleForms["dyno-yol"];
 const exteriorForm = testModuleForms["genel-kondisyon-dis"];
 const interiorForm = testModuleForms["ic-ekspertiz"];
 const interiorExteriorForm = Object.freeze({
@@ -467,6 +467,7 @@ export const moduleCatalog = Object.freeze([
   { module: testModuleForms["fren-suspansiyon"], status: "Bekliyor", tone: "neutral", owner: "Atama Bekliyor" },
   { module: testModuleForms["obd-beyin"], status: "Devam Ediyor", tone: "warning", owner: "Ahmet Usta" },
   { module: testModuleForms["dyno-yol"], status: "Bekliyor", tone: "neutral", owner: "Atama Bekliyor" },
+  { module: testModuleForms["yol-testi"], status: "Bekliyor", tone: "neutral", owner: "Atama Bekliyor" },
   { module: testModuleForms["genel-kondisyon-dis"], status: "Bekliyor", tone: "neutral", owner: "Atama Bekliyor" },
   { module: testModuleForms["ic-ekspertiz"], status: "Bekliyor", tone: "neutral", owner: "Atama Bekliyor" },
   { module: testModuleForms.airbag, status: "Tamamlandı", tone: "success", owner: "Ahmet Usta" },
