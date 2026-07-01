@@ -4362,6 +4362,7 @@ function packageBuilderRenderPackageRules(testId,row){
 }
 function packageBuilderCollectPointOptions(rowEl){
   const photoMode=rowEl.querySelector('[data-package-point-photo-mode-select]')?.value||'none';
+  const requirementMode=rowEl.querySelector('[data-package-point-requirement-mode]')?.value||'optional';
   const packageRules={};
   rowEl.querySelectorAll('[data-package-rule]').forEach(input=>{
     const id=input.dataset.packageRule;
@@ -4371,8 +4372,8 @@ function packageBuilderCollectPointOptions(rowEl){
     packageRules[id][field]=Boolean(input.checked);
   });
   return {
-    isRequired:rowEl.querySelector('[data-package-point-required]')?.checked || rowEl.querySelector('[data-package-point-requirement-mode]')?.value==='required',
-    requirementMode:rowEl.querySelector('[data-package-point-requirement-mode]')?.value||'optional',
+    isRequired:requirementMode==='required',
+    requirementMode,
     status:rowEl.querySelector('[data-package-point-status]')?.value||'draft',
     photoMode,
     requiredImageCount:photoMode==='required'?1:0,
@@ -4419,7 +4420,8 @@ function packageBuilderOpenPointPreview(rowEl){
   </div>`;
 }
 function packageBuilderPointSearchText(row){
-  return `${row.title} ${row.legacyNoktaId} ${row.groupLabel} ${(row.subPoints||[]).join(' ')}`.toLocaleLowerCase('tr-TR');
+  const packageNames=packageBuilderPointRuleRows(packageBuilderState.activePointTestId,row).filter(rule=>rule.visible).map(rule=>rule.name).join(' ');
+  return `${row.title} ${row.legacyNoktaId} ${row.groupLabel} ${row.reportLabel||''} ${packageNames} ${(row.subPoints||[]).join(' ')}`.toLocaleLowerCase('tr-TR');
 }
 function packageBuilderFilterPointRows(rows){
   const search=String(packageBuilderState.pointSearch||'').trim().toLocaleLowerCase('tr-TR');
@@ -4583,7 +4585,7 @@ function renderPackagePointEditorPage(){
   const listTitle=document.getElementById('packagePointListTitle');
   const bottomStatus=document.getElementById('packagePointBottomStatus');
   const testMeta=document.getElementById('packagePointTestMeta');
-  if(title)title.textContent='Test Turu Duzenle';
+  if(title)title.textContent='Test Maddeleri Yonetimi';
   if(!item){
     renderPackagePointTestMeta(null);
     renderPackagePointTypeList(null);
@@ -5337,6 +5339,33 @@ function wirePackagePointEditorPage(){
       packageBuilderState.pointPhotoFilter=photo.value;
       packageBuilderState.activePointId=null;
       renderPackagePointEditorPage();
+      return;
+    }
+    const status=event.target.closest('#packagePointStatusFilter');
+    if(status){
+      packageBuilderState.pointStatusFilter=status.value;
+      packageBuilderState.activePointId=null;
+      renderPackagePointEditorPage();
+      return;
+    }
+    const pkg=event.target.closest('#packagePointPackageFilter');
+    if(pkg){
+      packageBuilderState.pointPackageFilter=pkg.value;
+      packageBuilderState.activePointId=null;
+      renderPackagePointEditorPage();
+      return;
+    }
+    const issue=event.target.closest('#packagePointIssueFilter');
+    if(issue){
+      packageBuilderState.pointIssueFilter=issue.value;
+      packageBuilderState.activePointId=null;
+      renderPackagePointEditorPage();
+      return;
+    }
+    const detailChange=event.target.closest('[data-package-point-status],[data-package-point-requirement-mode],[data-package-point-photo-mode-select],[data-package-rule],[data-package-point-manager-approval],[data-package-point-locked]');
+    if(detailChange){
+      const state=page.querySelector('.package-point-save-state');
+      if(state)state.textContent='Kaydedilmedi';
     }
   });
 }
