@@ -88,21 +88,21 @@
     .brand {
       display: inline-flex;
       align-items: center;
-      gap: 9px;
-      min-width: max-content;
+      min-width: 178px;
     }
 
     .brand-mark {
-      width: 34px;
-      height: 34px;
-      border-radius: 10px;
-      display: grid;
-      place-items: center;
-      background: linear-gradient(145deg, #d71920, #ff3b30);
-      color: #fff;
-      font-weight: 950;
-      box-shadow: inset 0 -4px 0 rgba(17,24,39,.18);
-      letter-spacing: -.02em;
+      display: block;
+      width: 178px;
+      height: 58px;
+      border-radius: 12px;
+      object-fit: contain;
+      background: #111827;
+      box-shadow: 0 10px 28px rgba(17,24,39,.16);
+    }
+
+    .brand-mark-mobile {
+      display: none;
     }
 
     .brand b {
@@ -2268,6 +2268,17 @@
       .nav-actions .btn { min-height: 36px; padding: 8px 11px; font-size: 12px; }
       .nav-secondary { display: none; }
       .nav-arrow { display: none; }
+      .brand { min-width: auto; }
+      .brand-mark { display: none; }
+      .brand-mark-mobile {
+        display: block;
+        width: 42px;
+        height: 42px;
+        border-radius: 12px;
+        object-fit: cover;
+        background: #111827;
+        box-shadow: 0 8px 22px rgba(17,24,39,.15);
+      }
       .hero { padding: 48px 16px 34px; min-height: auto; }
       h1 { font-size: clamp(38px, 12vw, 58px); }
       .hero-copy p { font-size: 15px; }
@@ -2324,7 +2335,7 @@
         "@id": "https://www.ototr.com.tr/#organization",
         "name": "OTOTR",
         "url": "https://www.ototr.com.tr/",
-        "logo": "https://www.ototr.com.tr/logo.png",
+        "logo": "https://www.ototr.com.tr/ototr-logo-header.png",
         "contactPoint": {
           "@type": "ContactPoint",
           "telephone": "+90-555-888-0501",
@@ -2374,8 +2385,8 @@
   <header class="topbar">
     <nav class="nav" aria-label="Ana menü">
       <a class="brand" href="#top" aria-label="OTOTR ana sayfa">
-        <span class="brand-mark">OT</span>
-        <span><b>OTOTR</b><span>Tarafsız ekspertiz standardı</span></span>
+        <img class="brand-mark" src="ototr-logo-header.webp" alt="OTOTR Tarafsız Araç Ekspertizi" width="178" height="58">
+        <img class="brand-mark-mobile" src="ototr-logo-mark.png" alt="OTOTR" width="42" height="42">
       </a>
       <div class="nav-links" id="navLinks">
         <a href="#top">Araç Alıyorum</a>
