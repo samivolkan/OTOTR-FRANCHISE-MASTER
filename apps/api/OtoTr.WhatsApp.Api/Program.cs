@@ -133,4 +133,6 @@ app.MapGet("/health/ready", async (WhatsAppDbContext dbContext, CancellationToke
 
 app.Run();
 
-public partial class Program;
+public partial class Program
+{
+}
