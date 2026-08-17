@@ -18,6 +18,25 @@
   - Desktop ve mobil QA'da console error: 0.
 - Not: Supabase, canli site veya production veri islemi yapilmadi.
 
+## 2026-08-18 - CRM Rapor PDF Bos Cikti Duzeltmesi
+
+- Klasor: `apps/admin/prototype`
+- Sorun: Rapor tasarim editoru acikken PDF/Yazdir akisi bos veya tek sayfalik cikti uretebiliyordu.
+- Kök neden: Rapor sayfalari editor paneli icine tasiniyor; print CSS paneli gizlediginde asil `ototr-report-preview` de gizleniyor veya panel silinirken DOM'dan dusuyordu.
+- Duzeltme:
+  - PDF/Yazdir oncesi editor taslagi otomatik kaydedilip normal rapor onizlemesine cikiyor.
+  - Asil rapor shell/preview elemanlari `data-report-studio-shell` ve `data-report-studio-preview` ile takip ediliyor.
+  - Cikista `report-studio-page-hidden` siniflari temizleniyor ve tum rapor sayfalari tekrar gorunur hale geliyor.
+- Komutlar:
+  - Inline classic script syntax kontrolu - gecti (`Checked 15 classic scripts, skipped 1: OK`).
+  - Chrome/Playwright PDF QA - gecti.
+- QA sonucu:
+  - PDF hazirligi sonrasi rapor preview: 22 sayfa.
+  - Gizli kalan studio sayfasi: 0.
+  - Uretilen PDF boyutu: 24.677.258 byte.
+  - Console error: 0.
+- Not: Supabase, canli site veya production veri islemi yapilmadi.
+
 ## 2026-06-18 - Mobile Branch Password Recovery
 
 - Klasor: `apps/mobile-branch`

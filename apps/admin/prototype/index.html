@@ -6987,7 +6987,8 @@
     function renderReportLayoutPanel(root,state=getReportLayoutState()){
       let panel=root.querySelector('.report-layout-panel');
       if(!panel){panel=document.createElement('section');panel.className='report-layout-panel';root.querySelector('.ototr-report-toolbar')?.insertAdjacentElement('afterend',panel);panel.innerHTML=reportStudioFrameHtml(state);}
-      const preview=root.querySelector('.ototr-report-preview');panel.querySelector('[data-studio-canvas]')?.appendChild(preview);
+      const shell=[...root.children].find(el=>el.classList?.contains('ototr-report-shell'))||root.querySelector('.ototr-report-shell');if(shell)shell.dataset.reportStudioShell='1';
+      const preview=shell?.querySelector(':scope > .ototr-report-preview')||root.querySelector('.ototr-report-preview');if(preview)preview.dataset.reportStudioPreview='1';panel.querySelector('[data-studio-canvas]')?.appendChild(preview);
       panel.style.setProperty('--studio-zoom',String(state.zoom));panel.classList.toggle('report-studio-hide-rulers',!state.rulers);panel.classList.toggle('report-studio-preview-mode',reportLayoutSession.preview);
       return panel;
     }
@@ -7098,21 +7099,26 @@
     function reportStudioResetSelection(){const el=reportLayoutSession.selected,key=reportLayoutItemKey(el),state=getReportLayoutState();if(!el)return;reportCaptureHistory();if(state.custom[key]){const meta=state.custom[key];state.items[key]={x:85,y:145,w:210,h:68,z:20,content:meta.content||'Yeni içerik'};}else delete state.items[key];saveReportLayoutState(state);restoreReportStudioState();selectReportLayoutElement(findReportLayoutElement(key));}
     function reportStudioExport(){const state=getReportLayoutState(),payload={schema:'ototr-report-layout',version:2,exportedAt:new Date().toISOString(),reportNo:reportData?.reportNo||null,layout:state};const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=`ototr-rapor-tasarimi-${Date.now()}.json`;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);reportStudioToast('Tasarım JSON dosyası indirildi.');}
     function reportStudioImportFile(file){if(!file)return;const reader=new FileReader();reader.onload=()=>{try{const parsed=JSON.parse(reader.result),incoming=parsed.layout||parsed;if(parsed.schema&&parsed.schema!=='ototr-report-layout')throw new Error('Şema uyumsuz');const safe={...reportLayoutDefaultState(),...incoming,items:incoming.items||{},custom:incoming.custom||{}};Object.values(safe.custom).forEach(meta=>{delete meta.html;meta.content=String(meta.content||'Yeni içerik').slice(0,5000);});reportCaptureHistory();saveReportLayoutState(safe);restoreReportStudioState();reportStudioToast('Tasarım içe aktarıldı.');}catch(err){reportStudioToast('Geçersiz tasarım dosyası.');}};reader.readAsText(file);}
-    function reportStudioExit(){
-      const root=document.querySelector('.ototr-report');if(!root)return;
+    function reportStudioExit(message='Tasarım kaydedildi. Düzenleme modundan çıkıldı.'){
+      const root=document.querySelector('.ototr-report.report-studio-active')||document.querySelector('.ototr-report');if(!root)return;
       saveReportLayoutState(getReportLayoutState());
-      const shell=root.querySelector('.ototr-report-shell'),preview=root.querySelector('.ototr-report-preview');
-      if(shell&&preview&&!shell.contains(preview))shell.appendChild(preview);
+      const shell=root.querySelector('[data-report-studio-shell="1"]')||[...root.children].find(el=>el.classList?.contains('ototr-report-shell'))||root.querySelector('.ototr-report-shell'),preview=root.querySelector('[data-report-studio-preview="1"]')||root.querySelector('.report-studio-canvas > .ototr-report-preview');
+      if(shell&&preview&&preview.parentElement!==shell)shell.appendChild(preview);
+      root.querySelectorAll('.report-studio-page-hidden').forEach(page=>page.classList.remove('report-studio-page-hidden'));
       root.classList.remove('report-studio-active','report-layout-editing','report-layout-grid');
       root.querySelector('.report-layout-panel')?.remove();
-      reportLayoutSession.selected=null;reportLayoutSession.selection=null;reportStudioToast('Tasarım kaydedildi. Düzenleme modundan çıkıldı.');
+      reportLayoutSession.selected=null;reportLayoutSession.selection=null;if(message)reportStudioToast(message);
+    }
+    function reportStudioPrint(){
+      if(document.querySelector('.ototr-report.report-studio-active'))reportStudioExit('PDF için tasarım kaydedildi ve düzenleme modu kapatıldı.');
+      setTimeout(()=>window.print(),80);
     }
     function handleReportLayoutClick(e){
       const root=document.querySelector('.ototr-report.report-studio-active');if(!root)return;
       const command=e.target.closest('[data-studio-command]'),leftTab=e.target.closest('[data-studio-left-tab]'),inspectorTab=e.target.closest('[data-studio-inspector-tab]'),pageBtn=e.target.closest('[data-studio-page]'),layerSelect=e.target.closest('[data-layer-select]'),layerAction=e.target.closest('[data-layer-action]'),library=e.target.closest('[data-library-add]'),align=e.target.closest('[data-report-align]'),style=e.target.closest('[data-report-style]'),action=e.target.closest('[data-report-action]');
       if(!command&&!leftTab&&!inspectorTab&&!pageBtn&&!layerSelect&&!layerAction&&!library&&!align&&!style&&!action)return;
       e.preventDefault();e.stopPropagation();const state=getReportLayoutState();
-      if(command){const cmd=command.dataset.studioCommand;if(cmd==='grid'||cmd==='snap'||cmd==='rulers'){state[cmd]=!state[cmd];saveReportLayoutState(state);reportStudioRefresh();}if(cmd==='undo')reportLayoutUndo();if(cmd==='redo')reportLayoutRedo();if(cmd==='zoom-in'||cmd==='zoom-out'){state.zoom=Math.max(.35,Math.min(1.25,Math.round((state.zoom+(cmd==='zoom-in' ? .1 : -.1))*100)/100));saveReportLayoutState(state);reportStudioRefresh();}if(cmd==='fit'){const stage=root.querySelector('.report-studio-stage'),available=Math.max(340,(stage?.clientWidth||900)-100);state.zoom=Math.max(.35,Math.min(1,Math.round((available/794)*100)/100));saveReportLayoutState(state);reportStudioRefresh();}if(cmd==='preview'){reportLayoutSession.preview=!reportLayoutSession.preview;reportStudioRefresh();}if(cmd==='save'){saveReportLayoutState(state);reportStudioMarkChanged('Taslak kaydedildi');reportStudioToast('Rapor taslağı kaydedildi.');}if(cmd==='save-exit'){reportStudioExit();}if(cmd==='export')reportStudioExport();if(cmd==='print')window.print();if(cmd==='import')root.querySelector('[data-studio-import]')?.click();if(cmd==='letterhead-upload')root.querySelector('[data-studio-letterhead-upload]')?.click();if(cmd==='letterhead-reset'){reportCaptureHistory();reportLetterheadDeleteBlob().catch(()=>{});if(window.__ototrReportLetterheadBlobUrl){URL.revokeObjectURL(window.__ototrReportLetterheadBlobUrl);window.__ototrReportLetterheadBlobUrl='';}state.letterhead=reportLayoutDefaultState().letterhead;saveReportLayoutState(state);reportApplyLetterheadSource(root,state);reportStudioRefresh();reportStudioToast('Varsayılan A4 antet geri yüklendi.');}return;}
+      if(command){const cmd=command.dataset.studioCommand;if(cmd==='grid'||cmd==='snap'||cmd==='rulers'){state[cmd]=!state[cmd];saveReportLayoutState(state);reportStudioRefresh();}if(cmd==='undo')reportLayoutUndo();if(cmd==='redo')reportLayoutRedo();if(cmd==='zoom-in'||cmd==='zoom-out'){state.zoom=Math.max(.35,Math.min(1.25,Math.round((state.zoom+(cmd==='zoom-in' ? .1 : -.1))*100)/100));saveReportLayoutState(state);reportStudioRefresh();}if(cmd==='fit'){const stage=root.querySelector('.report-studio-stage'),available=Math.max(340,(stage?.clientWidth||900)-100);state.zoom=Math.max(.35,Math.min(1,Math.round((available/794)*100)/100));saveReportLayoutState(state);reportStudioRefresh();}if(cmd==='preview'){reportLayoutSession.preview=!reportLayoutSession.preview;reportStudioRefresh();}if(cmd==='save'){saveReportLayoutState(state);reportStudioMarkChanged('Taslak kaydedildi');reportStudioToast('Rapor taslağı kaydedildi.');}if(cmd==='save-exit'){reportStudioExit();}if(cmd==='export')reportStudioExport();if(cmd==='print')reportStudioPrint();if(cmd==='import')root.querySelector('[data-studio-import]')?.click();if(cmd==='letterhead-upload')root.querySelector('[data-studio-letterhead-upload]')?.click();if(cmd==='letterhead-reset'){reportCaptureHistory();reportLetterheadDeleteBlob().catch(()=>{});if(window.__ototrReportLetterheadBlobUrl){URL.revokeObjectURL(window.__ototrReportLetterheadBlobUrl);window.__ototrReportLetterheadBlobUrl='';}state.letterhead=reportLayoutDefaultState().letterhead;saveReportLayoutState(state);reportApplyLetterheadSource(root,state);reportStudioRefresh();reportStudioToast('Varsayılan A4 antet geri yüklendi.');}return;}
       if(leftTab){reportLayoutSession.leftTab=leftTab.dataset.studioLeftTab;reportStudioRefresh();return;}if(inspectorTab){reportLayoutSession.inspectorTab=inspectorTab.dataset.studioInspectorTab;reportStudioRefresh();return;}
       if(pageBtn){state.activePage=pageBtn.dataset.studioPage;saveReportLayoutState(state);reportLayoutSession.selected=null;root.querySelector('.report-studio-stage')?.scrollTo({top:0,left:0,behavior:'smooth'});reportStudioRefresh();return;}
       if(layerSelect){selectReportLayoutElement(findReportLayoutElement(layerSelect.dataset.layerSelect));return;}
@@ -7149,6 +7155,7 @@
     }
     if(!window.__ototrReportControlsBound){
       window.__ototrReportControlsBound=true;
+      window.addEventListener('beforeprint',()=>{if(document.querySelector('.ototr-report.report-studio-active'))reportStudioExit('');});
       document.addEventListener('click',e=>{
         const filter=e.target.closest('[data-report-filter]');
         if(filter){

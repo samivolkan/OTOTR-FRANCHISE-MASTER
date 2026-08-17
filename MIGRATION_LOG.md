@@ -8,6 +8,8 @@
 - Added CRM navigation entry for `Kaporta Tasarim` pointing to `https://samivolkan.github.io/Ototr/kaporta-tasarim.html`.
 - Validation passed: inline classic script syntax check, Chrome desktop QA, Chrome mobile QA.
 - No Supabase migration, live database command, credential print, or production data operation was run.
+- Fixed report PDF/print flow so printing from the design studio first saves/exits the editor and restores the full report preview before browser PDF generation.
+- Validation passed: Chrome PDF QA generated 22 report pages with non-empty output and zero console errors.
 
 ## 2026-06-03
 
