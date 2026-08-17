@@ -288,3 +288,10 @@
 - Applied and verified the migration locally only.
 - No remote Supabase or production database command was run.
 - No secret, token or live credential was written into project files.
+
+## Report Header Overlay Cleanup - 2026-08-18
+
+- Removed the extra dynamic report number, date/time and page-count overlays from the locked A4 report letterhead in `apps/admin/prototype/index.html`.
+- Kept the locked letterhead image as the single source for the visible top header chrome, preventing duplicated/overlapping top fields.
+- Verified the report preview and PDF path locally with 23 pages, zero visible top overlay fields and zero console errors.
+- No Supabase, live database, secret, token or production operation was used.

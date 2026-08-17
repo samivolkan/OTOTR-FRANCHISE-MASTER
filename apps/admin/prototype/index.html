@@ -981,6 +981,7 @@
     .report-studio-file-row{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center}
     .report-studio-file-row input[type=file]{width:100%;font-size:11px}
     .report-studio-note{font-size:10px;line-height:1.45;color:#64748b;margin:0}
+    .report-letterhead-master .report-letterhead-field,.expertise-page>.report-page-count{display:none!important}
     .executive-summary-page .decision-layout{grid-template-columns:1fr 1fr 1fr;gap:7px}
     .executive-summary-page .decision-card{min-height:45mm;padding:9px}
     .executive-summary-page .decision-card h4{font-size:10.5px;margin-bottom:7px}
@@ -6640,13 +6641,11 @@
     function ReportPaperFrame(d=reportData){
       return `<div class="report-brand-frame report-letterhead-master" aria-hidden="true" data-report-letterhead-locked="1">
         <img class="report-letterhead-image" src="${rpEsc(reportLetterheadSource())}" alt="">
-        <div class="report-letterhead-field report-letterhead-report-no"><span>RAPOR NO</span><b>${rpEsc(d.reportNo)}</b></div>
-        <div class="report-letterhead-field report-letterhead-date"><span>TARİH / SAAT</span><b>${rpEsc(d.reportDate)}</b></div>
       </div>`;
     }
     ReportBrandFrame=function(d){return ReportPaperFrame(d);};
     function ReportPaperTemplate(){return `<article class="report-paper report-paper-template expertise-page" id="report-paper-template" data-page="00">${ReportPaperFrame()}</article>`;}
-    function ReportPage(page,total,title,subtitle,body,extra=''){const d=reportData,pageNo=String(page).padStart(2,'0'),totalNo=String(total).padStart(2,'0');return `<article class="report-page expertise-page ${extra}" id="report-page-${page}" data-page="${pageNo}">${ReportBrandFrame(d)}<div class="report-page-count">${pageNo} / ${totalNo}</div><header class="report-page-header"><div class="report-brand"><div class="report-logo">OT</div><div><b>OTOTR</b><span>${rpEsc(d.packageName)} ekspertiz raporu</span></div></div><div class="report-meta"><span>${rpEsc(d.reportNo)}</span><span>${rpEsc(d.plate)}</span><span>${rpEsc(d.vin)}</span><span>${rpEsc(d.reportDate)}</span><div class="report-qr" aria-label="QR doğrulama"></div></div></header><main><div class="report-page-title" data-page-label="${pageNo} / ${totalNo}"><div><h3>${rpEsc(title)}</h3><p>${rpEsc(subtitle)}</p></div></div>${body}</main><footer class="report-page-footer"><span>Rapor no: ${rpEsc(d.reportNo)} · Plaka: ${rpEsc(d.plate)} · Şasi: ${rpEsc(d.vin)} · Tarih: ${rpEsc(d.reportDate)}</span><span class="report-footer-proof"></span></footer></article>`;}
+    function ReportPage(page,total,title,subtitle,body,extra=''){const d=reportData,pageNo=String(page).padStart(2,'0'),totalNo=String(total).padStart(2,'0');return `<article class="report-page expertise-page ${extra}" id="report-page-${page}" data-page="${pageNo}">${ReportBrandFrame(d)}<header class="report-page-header"><div class="report-brand"><div class="report-logo">OT</div><div><b>OTOTR</b><span>${rpEsc(d.packageName)} ekspertiz raporu</span></div></div><div class="report-meta"><span>${rpEsc(d.reportNo)}</span><span>${rpEsc(d.plate)}</span><span>${rpEsc(d.vin)}</span><span>${rpEsc(d.reportDate)}</span><div class="report-qr" aria-label="QR doğrulama"></div></div></header><main><div class="report-page-title" data-page-label="${pageNo} / ${totalNo}"><div><h3>${rpEsc(title)}</h3><p>${rpEsc(subtitle)}</p></div></div>${body}</main><footer class="report-page-footer"><span>Rapor no: ${rpEsc(d.reportNo)} · Plaka: ${rpEsc(d.plate)} · Şasi: ${rpEsc(d.vin)} · Tarih: ${rpEsc(d.reportDate)}</span><span class="report-footer-proof"></span></footer></article>`;}
     function ReportCover(page,total){
       const d=reportData;
       const critical=[['Sağ arka kapı lokal boyalı.','Orta','amber'],['Ön tamponda sürtme ve çizik mevcut.','Orta','amber'],["OBD'de geçmiş arıza kaydı bulunmaktadır.",'Uyarı','orange'],['Tramer kaydında 1 adet hasar kaydı tespit edilmiştir.','Kritik','red']];

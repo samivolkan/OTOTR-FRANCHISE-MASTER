@@ -1165,3 +1165,17 @@ Notes:
 - Kanit dosyalari:
   - `apps/admin/prototype/bayi-portal/dealer-appointments-v2-viewport-1440x900.png`
   - `apps/admin/prototype/bayi-portal/dealer-appointments-v2-full-1440x900.png`
+
+## 2026-08-18 - Rapor antet ust alan cakisma temizligi
+
+- Kapsam:
+  - `apps/admin/prototype/index.html` rapor sayfasinda antetli kagidin uzerine sonradan bindirilen dinamik rapor no, tarih/saat ve sayfa numarasi alanlari kaldirildi.
+  - Antetli kagidin kendi basili ust alanlari korunarak ekstra ust katman cakismasi engellendi.
+
+- Dogrulama:
+  - Inline script syntax kontrolu: `Checked 7 classic scripts, skipped 9: OK`.
+  - Playwright rapor QA: 23 sayfa render oldu.
+  - Ust bindirme kontrolu: `topFields: 0`, `pageCounts: 0`, `visibleTopFields: 0`.
+  - PDF uretimi: `24,266,257` byte.
+  - Console error sayisi: `0`.
+  - `node tools/test-index.mjs`: mevcut smoke locator'i `Dijital` metninin gizli ilk eslesmesinde takiliyor; hedef antet/PDF QA'si ayrica gecirildi.
