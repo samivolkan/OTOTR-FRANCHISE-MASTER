@@ -1,5 +1,23 @@
 ﻿# Test Results
 
+## 2026-08-18 - CRM Ekspertiz Rapor Tasarım Stüdyosu A4 Antet QA
+
+- Klasor: `apps/admin/prototype`
+- Degisiklik: Rapor tasarim editorune kilitli A4 antet yukleme, varsayilana donme ve `Kaydet ve Cik` akisi eklendi. CRM menusu altina `Kaporta Tasarim` baglantisi eklendi.
+- Asset dogrulama:
+  - `C:\Users\Samivolkannnn\Desktop\OTOTR_A4_MASTER_LOCKED_300DPI.png` ile `apps/admin/prototype/docs/ototr-a4-master-locked-300dpi.png` SHA256 hash birebir ayni.
+- Komutlar:
+  - Inline classic script syntax kontrolu - gecti (`Checked 15 classic scripts, skipped 1: OK`).
+  - Chrome/Playwright desktop QA - gecti.
+  - Chrome/Playwright mobil QA - gecti.
+- QA kapsami:
+  - Varsayilan antet 2480x3508 olarak yuklendi.
+  - Antet sekmesi gorunur ve aktif hale geliyor.
+  - PNG antet yukleme IndexedDB uzerinden kaydediliyor ve sayfalara `blob:` kaynakla uygulaniyor.
+  - `Kaydet ve Cik` editor panelini kapatip normal rapor onizlemesine donuyor.
+  - Desktop ve mobil QA'da console error: 0.
+- Not: Supabase, canli site veya production veri islemi yapilmadi.
+
 ## 2026-06-18 - Mobile Branch Password Recovery
 
 - Klasor: `apps/mobile-branch`

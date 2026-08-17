@@ -1,5 +1,14 @@
 # Migration Log
 
+## 2026-08-18
+
+- Updated `apps/admin/prototype/index.html` report design studio with locked A4 letterhead support.
+- Added default static letterhead asset under `apps/admin/prototype/docs/ototr-a4-master-locked-300dpi.png`; SHA256 matches the user-provided desktop PNG.
+- Added editable-studio controls for A4 letterhead upload, reset to default, and `Kaydet ve Cik`.
+- Added CRM navigation entry for `Kaporta Tasarim` pointing to `https://samivolkan.github.io/Ototr/kaporta-tasarim.html`.
+- Validation passed: inline classic script syntax check, Chrome desktop QA, Chrome mobile QA.
+- No Supabase migration, live database command, credential print, or production data operation was run.
+
 ## 2026-06-03
 
 - Created clean target folder `OTOTR-FRANCHISE-MASTER`.

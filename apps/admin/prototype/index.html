@@ -713,7 +713,17 @@
     @media(max-width:1180px){.passport-hero,.passport-grid{grid-template-columns:1fr}.passport-id-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.passport-table th,.passport-table td{font-size:8.5px;padding:6px}.passport-risk-cards,.passport-evidence{grid-template-columns:1fr}}
     @media(max-width:720px){.passport-id-grid,.passport-risk-cards,.passport-evidence{grid-template-columns:1fr}.passport-time-item{grid-template-columns:22px 1fr}.passport-delta{grid-column:2}.passport-hero{padding:12px}.passport-table{min-width:0}.passport-table th,.passport-table td{font-size:8px}}
     @page{size:A4 portrait;margin:0}
-    @media print{.ototr-report-toolbar,.ototr-report-nav{display:none!important}.ototr-report-shell{display:block!important}.ototr-report-preview{display:block!important}.report-paper,.report-page{width:210mm!important;max-width:none!important;min-height:297mm!important;height:297mm!important;margin:0!important;border:0!important;border-radius:0!important;box-shadow:none!important;page-break-after:always;break-after:page;overflow:hidden}.report-page:last-child{page-break-after:auto;break-after:auto}.report-cover-layout{grid-template-columns:78mm minmax(0,1fr)!important}.report-cover-side{padding:15mm 8mm 9mm!important}.report-cover-main{padding:13mm 7mm 7mm!important}.report-fast-strip{grid-template-columns:repeat(5,minmax(0,1fr))!important}}
+    @media print{.ototr-report-toolbar,.ototr-report-nav{display:none!important}.ototr-report-shell{display:block!important}.ototr-report-preview{display:block!important}.report-paper,.report-page{width:210mm!important;max-width:none!important;min-height:297mm!important;height:297mm!important;margin:0!important;border:0!important;border-radius:0!important;box-shadow:none!important;page-break-after:always;break-after:page;overflow:hidden}.report-page:last-child{page-break-after:auto;break-after:auto}.report-cover-layout{grid-template-columns:78mm minmax(0,1fr)!important}.report-cover-side{padding:15mm 8mm 9mm!important}.report-cover-main{padding:13mm 7mm 7mm!important}.report-fast-strip{grid-template-columns:repeat(5,minmax(0,1fr))!important}.report-layout-panel,.report-layout-selection,.report-layout-guide{display:none!important}}
+    .report-studio-active .ototr-report-toolbar,.report-studio-active>.ototr-report-shell>.ototr-report-nav{display:none!important}.report-studio-active .ototr-report-shell{display:block!important}.report-layout-panel{--studio-zoom:.72;width:100%;height:calc(100dvh - 38px);min-height:720px;border:1px solid #cbd5e1;border-radius:10px;background:#e9edf2;overflow:hidden;display:grid;grid-template-columns:248px minmax(520px,1fr) 292px;grid-template-rows:52px minmax(0,1fr);box-shadow:0 18px 48px rgba(15,23,42,.13);color:#111827}
+    .report-studio-toolbar{grid-column:1/-1;display:grid;grid-template-columns:248px minmax(0,1fr) 292px;align-items:center;background:#fff;border-bottom:1px solid #dbe3ee;z-index:30}.report-studio-brand{height:100%;padding:0 14px;display:flex;align-items:center;gap:10px;border-right:1px solid #e2e8f0}.report-studio-mark{width:30px;height:30px;border-radius:7px;background:#e30613;color:#fff;display:grid;place-items:center;font-size:10px;font-weight:950}.report-studio-brand b{display:block;font-size:12px}.report-studio-brand span{display:block;color:#64748b;font-size:9px;margin-top:2px}.report-studio-tools{height:100%;display:flex;align-items:center;justify-content:center;gap:4px;padding:0 8px;min-width:0}.report-studio-actions{height:100%;display:flex;align-items:center;justify-content:flex-end;gap:6px;padding:0 10px;border-left:1px solid #e2e8f0}.report-studio-tool{width:32px;height:32px;border:1px solid transparent;border-radius:6px;background:transparent;color:#334155;display:grid;place-items:center;cursor:pointer}.report-studio-tool:hover{background:#f1f5f9;border-color:#dbe3ee}.report-studio-tool.active{background:#07182d;color:#fff}.report-studio-tool:disabled{opacity:.35;cursor:not-allowed}.report-studio-tool i{width:16px;height:16px}.report-studio-separator{width:1px;height:23px;background:#e2e8f0;margin:0 4px}.report-studio-zoom{display:flex;align-items:center;border:1px solid #dbe3ee;border-radius:7px;background:#fff;overflow:hidden}.report-studio-zoom button{width:28px;height:30px;border:0;background:#fff;display:grid;place-items:center}.report-studio-zoom span{min-width:46px;text-align:center;font-size:10px;font-weight:900}.report-studio-primary{height:32px;border:1px solid #e30613;border-radius:7px;background:#e30613;color:#fff;padding:0 11px;display:inline-flex;align-items:center;gap:6px;font-size:10px;font-weight:950}.report-studio-primary i{width:14px;height:14px}
+    .report-studio-left,.report-studio-inspector{min-height:0;background:#fff;display:grid;grid-template-rows:auto minmax(0,1fr);z-index:20}.report-studio-left{border-right:1px solid #dbe3ee}.report-studio-inspector{border-left:1px solid #dbe3ee}.report-studio-tabs{display:grid;grid-template-columns:repeat(3,1fr);border-bottom:1px solid #e2e8f0;padding:7px 8px 0;gap:3px}.report-studio-tabs button{height:32px;border:0;border-bottom:2px solid transparent;background:transparent;color:#64748b;font-size:10px;font-weight:900}.report-studio-tabs button.active{color:#07182d;border-bottom-color:#e30613}.report-studio-pane{display:none;min-height:0;overflow:auto;padding:9px}.report-studio-pane.active{display:block}.report-studio-section{border-bottom:1px solid #e8edf3;padding:10px 0}.report-studio-section:first-child{padding-top:0}.report-studio-section:last-child{border-bottom:0}.report-studio-section-head{width:100%;border:0;background:transparent;padding:0 0 8px;display:flex;align-items:center;justify-content:space-between;gap:8px;text-align:left}.report-studio-section-head b{font-size:10px;text-transform:uppercase;color:#475569}.report-studio-section-head span{font-size:9px;color:#94a3b8}.report-studio-pages{display:grid;gap:6px}.report-studio-page-item{width:100%;border:1px solid transparent;border-radius:7px;background:#fff;padding:7px;display:grid;grid-template-columns:36px minmax(0,1fr) auto;gap:8px;align-items:center;text-align:left}.report-studio-page-item:hover{background:#f8fafc;border-color:#dbe3ee}.report-studio-page-item.active{background:#eff6ff;border-color:#93c5fd}.report-studio-page-thumb{width:32px;height:44px;border:1px solid #cbd5e1;border-radius:3px;background:linear-gradient(#07182d 0 5px,#fff 5px);box-shadow:0 3px 7px rgba(15,23,42,.08);display:grid;place-items:end center;padding-bottom:3px;color:#64748b;font-size:7px;font-weight:950}.report-studio-page-copy b{display:block;font-size:10px;line-height:1.25}.report-studio-page-copy span{display:block;margin-top:2px;color:#64748b;font-size:8.5px;line-height:1.25}.report-studio-page-state{width:7px;height:7px;border-radius:50%;background:#cbd5e1}.report-studio-page-state.changed{background:#e30613}
+    .report-layer-list{display:grid;gap:2px}.report-layer-row{min-height:32px;border:1px solid transparent;border-radius:6px;padding:4px 5px;display:grid;grid-template-columns:24px minmax(0,1fr) 24px 24px;gap:3px;align-items:center}.report-layer-row:hover{background:#f8fafc}.report-layer-row.active{background:#eff6ff;border-color:#bfdbfe}.report-layer-row.locked{background:#f8fafc;color:#64748b}.report-layer-icon,.report-layer-action{width:24px;height:24px;border:0;border-radius:5px;background:transparent;color:#64748b;display:grid;place-items:center}.report-layer-action:hover{background:#e2e8f0;color:#07182d}.report-layer-icon i,.report-layer-action i{width:13px;height:13px}.report-layer-name{min-width:0;font-size:9.5px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.report-library-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px}.report-library-item{min-height:74px;border:1px solid #dbe3ee;border-radius:8px;background:#fff;padding:8px;display:grid;align-content:center;justify-items:start;gap:6px;text-align:left}.report-library-item:hover{border-color:#93c5fd;background:#f8fbff}.report-library-item i{width:18px;height:18px;color:#185abc}.report-library-item b{font-size:9.5px}.report-library-item span{font-size:8px;color:#64748b;line-height:1.25}
+    .report-studio-stage{min-width:0;min-height:0;position:relative;overflow:auto;background-color:#dfe4ea;background-image:radial-gradient(#b9c3cf .7px,transparent .7px);background-size:16px 16px}.report-studio-stage-head{position:sticky;left:0;top:0;height:34px;z-index:25;background:rgba(255,255,255,.94);backdrop-filter:blur(8px);border-bottom:1px solid #cbd5e1;display:flex;align-items:center;justify-content:space-between;padding:0 10px;color:#475569;font-size:9px;font-weight:850}.report-studio-stage-status{display:flex;align-items:center;gap:8px}.report-studio-stage-status span{display:inline-flex;align-items:center;gap:5px}.report-studio-stage-status i{width:12px;height:12px}.report-studio-canvas-host{min-width:900px;min-height:calc(100% - 34px);padding:40px 54px 90px;display:grid;justify-content:center;align-content:start}.report-studio-canvas{width:794px;transform:scale(var(--studio-zoom));transform-origin:top center;position:relative}.report-studio-active .ototr-report-preview{display:block!important;grid-column:auto!important;padding:0!important}.report-studio-active .report-page{width:794px!important;max-width:794px!important;min-height:1123px!important;height:1123px!important;margin:0!important;border-radius:2px!important;box-shadow:0 18px 55px rgba(15,23,42,.22)!important;overflow:hidden!important}.report-studio-active .report-page.report-studio-page-hidden{display:none!important}.report-studio-active .report-brand-frame{pointer-events:none!important;user-select:none!important}.report-studio-ruler-x{position:absolute;left:0;right:0;top:34px;height:18px;background:repeating-linear-gradient(90deg,transparent 0 7px,#94a3b8 7px 8px,transparent 8px 39px,#64748b 39px 40px),#f8fafc;border-bottom:1px solid #cbd5e1;z-index:10;pointer-events:none}.report-studio-ruler-y{position:absolute;left:0;top:52px;bottom:0;width:18px;background:repeating-linear-gradient(180deg,transparent 0 7px,#94a3b8 7px 8px,transparent 8px 39px,#64748b 39px 40px),#f8fafc;border-right:1px solid #cbd5e1;z-index:10;pointer-events:none}.report-studio-hide-rulers .report-studio-ruler-x,.report-studio-hide-rulers .report-studio-ruler-y{display:none}
+    .report-layout-editing .report-page{user-select:none}.report-layout-editing.report-layout-grid .report-page:after{content:"";position:absolute;inset:13mm;z-index:2;pointer-events:none;background-image:linear-gradient(rgba(24,90,188,.10) 1px,transparent 1px),linear-gradient(90deg,rgba(24,90,188,.10) 1px,transparent 1px);background-size:10px 10px}.report-layout-editing [data-report-editable]{cursor:move;outline:1px dashed rgba(24,90,188,.28);outline-offset:2px;touch-action:none}.report-layout-editing [data-report-editable]:hover{outline-color:#185abc}.report-layout-editing [data-report-editable][data-report-locked="1"]{cursor:not-allowed;outline-color:rgba(100,116,139,.25)}.report-layout-editing [data-report-editable][data-report-hidden="1"]{display:none!important}.report-layout-editing [data-report-editable].selected{outline:0!important}.report-layout-selection{position:absolute;z-index:999;border:1.5px solid #185abc;pointer-events:none;box-shadow:0 0 0 1px rgba(255,255,255,.8)}.report-layout-selection-label{position:absolute;left:-1px;bottom:calc(100% + 4px);max-width:220px;border-radius:4px;background:#185abc;color:#fff;padding:3px 6px;font-size:8px;font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.report-resize-handle{position:absolute;width:9px;height:9px;border:1.5px solid #185abc;background:#fff;pointer-events:auto}.report-resize-handle[data-handle="nw"]{left:-5px;top:-5px;cursor:nwse-resize}.report-resize-handle[data-handle="n"]{left:50%;top:-5px;transform:translateX(-50%);cursor:ns-resize}.report-resize-handle[data-handle="ne"]{right:-5px;top:-5px;cursor:nesw-resize}.report-resize-handle[data-handle="e"]{right:-5px;top:50%;transform:translateY(-50%);cursor:ew-resize}.report-resize-handle[data-handle="se"]{right:-5px;bottom:-5px;cursor:nwse-resize}.report-resize-handle[data-handle="s"]{left:50%;bottom:-5px;transform:translateX(-50%);cursor:ns-resize}.report-resize-handle[data-handle="sw"]{left:-5px;bottom:-5px;cursor:nesw-resize}.report-resize-handle[data-handle="w"]{left:-5px;top:50%;transform:translateY(-50%);cursor:ew-resize}.report-layout-guide{position:absolute;z-index:998;background:#e30613;pointer-events:none}.report-layout-guide.vertical{width:1px;top:0;bottom:0}.report-layout-guide.horizontal{height:1px;left:0;right:0}.report-custom-element{position:absolute!important;min-width:48px;min-height:24px;padding:5px 7px;box-sizing:border-box;background:rgba(255,255,255,.96);border:1px solid #cbd5e1;color:#07182d;font:800 12px/1.35 Inter,Arial,sans-serif;overflow:hidden;z-index:12}.report-custom-element[data-custom-type="section"]{background:#07182d;color:#fff;border-color:#07182d;text-transform:uppercase}.report-custom-element[data-custom-type="divider"]{min-height:2px!important;height:2px!important;padding:0;border:0;background:#e30613}.report-custom-element[data-custom-type="image"]{display:grid;place-items:center;background:#f8fafc;color:#64748b;border-style:dashed}.report-custom-element[data-custom-type="metric"]{display:grid;align-content:center;border-left:4px solid #e30613}.report-custom-element[data-custom-type="metric"] b{font-size:18px}.report-custom-element[contenteditable="true"]{outline:2px solid #e30613!important;cursor:text}
+    .report-studio-inspector-head{padding:11px 12px;border-bottom:1px solid #e2e8f0}.report-studio-inspector-head b{display:block;font-size:11px}.report-studio-inspector-head span{display:block;margin-top:3px;color:#64748b;font-size:8.5px}.report-studio-inspector-body{min-height:0;overflow:auto;padding:0 11px 18px}.report-prop-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}.report-prop-grid.four{grid-template-columns:repeat(4,minmax(0,1fr))}.report-prop{display:grid;gap:4px;min-width:0}.report-prop.wide{grid-column:1/-1}.report-prop label{font-size:8px;font-weight:900;color:#64748b;text-transform:uppercase}.report-prop input,.report-prop select,.report-prop textarea{width:100%;border:1px solid #cbd5e1;border-radius:6px;background:#fff;color:#111827;padding:6px 7px;font:700 10px/1.3 Inter,Arial,sans-serif}.report-prop input,.report-prop select{height:31px}.report-prop textarea{min-height:78px;resize:vertical}.report-prop input[type="color"]{padding:3px}.report-prop input:disabled,.report-prop select:disabled,.report-prop textarea:disabled{background:#f1f5f9;color:#94a3b8}.report-segmented{display:grid;grid-template-columns:repeat(3,1fr);border:1px solid #cbd5e1;border-radius:6px;overflow:hidden}.report-segmented button{height:30px;border:0;border-right:1px solid #cbd5e1;background:#fff;display:grid;place-items:center;color:#64748b}.report-segmented button:last-child{border-right:0}.report-segmented button.active{background:#07182d;color:#fff}.report-segmented i{width:14px;height:14px}.report-prop-actions{display:flex;gap:6px;flex-wrap:wrap}.report-prop-action{min-height:30px;border:1px solid #cbd5e1;border-radius:6px;background:#fff;padding:5px 8px;display:inline-flex;align-items:center;gap:5px;font-size:9px;font-weight:900;color:#334155}.report-prop-action:hover{background:#f8fafc}.report-prop-action.danger{border-color:#fecaca;color:#b91c1c;background:#fff7f7}.report-prop-action i{width:13px;height:13px}.report-inspector-empty{padding:28px 14px;text-align:center;color:#64748b}.report-inspector-empty i{width:28px;height:28px;margin-bottom:8px}.report-inspector-empty b{display:block;color:#334155;font-size:11px}.report-inspector-empty span{display:block;margin-top:5px;font-size:9px;line-height:1.45}.report-table-cell-editor{display:grid;gap:5px;max-height:240px;overflow:auto}.report-table-cell-editor label{display:grid;grid-template-columns:42px minmax(0,1fr);gap:6px;align-items:center}.report-table-cell-editor span{font-size:8px;color:#64748b}.report-table-cell-editor input{height:29px;border:1px solid #cbd5e1;border-radius:5px;padding:0 6px;font-size:9px}.report-studio-toast{position:fixed;right:318px;bottom:24px;z-index:1000;border-radius:8px;background:#07182d;color:#fff;padding:9px 12px;font-size:10px;font-weight:850;box-shadow:0 12px 32px rgba(15,23,42,.28)}
+    .report-studio-preview-mode{grid-template-columns:1fr}.report-studio-preview-mode .report-studio-left,.report-studio-preview-mode .report-studio-inspector{display:none}.report-studio-preview-mode .report-studio-toolbar{grid-template-columns:220px minmax(0,1fr) 220px}.report-studio-preview-mode .report-studio-stage{grid-column:1}.report-studio-preview-mode .report-studio-canvas-host{min-width:850px}.report-studio-preview-mode .report-layout-selection,.report-studio-preview-mode .report-layout-guide{display:none!important}.report-studio-preview-mode [data-report-editable]{outline:0!important;cursor:default!important}
+    @media(max-width:1280px){.report-layout-panel{grid-template-columns:220px minmax(430px,1fr) 270px}.report-studio-toolbar{grid-template-columns:220px minmax(0,1fr) 270px}.report-studio-tools{justify-content:flex-start;overflow:auto}.report-studio-canvas-host{min-width:820px;padding-inline:28px}}
+    @media(max-width:900px){.report-layout-panel{height:auto;min-height:900px;grid-template-columns:1fr;grid-template-rows:52px auto minmax(650px,1fr) auto}.report-studio-toolbar{grid-template-columns:1fr auto}.report-studio-brand{display:none}.report-studio-tools{justify-content:flex-start}.report-studio-actions{border-left:0}.report-studio-left{grid-row:2;border-right:0;border-bottom:1px solid #dbe3ee;max-height:280px}.report-studio-inspector{grid-row:4;border-left:0;border-top:1px solid #dbe3ee;max-height:520px}.report-studio-stage{grid-row:3}.report-studio-canvas-host{min-width:820px}.report-studio-left .report-studio-tabs,.report-studio-inspector .report-studio-tabs{position:sticky;top:0;background:#fff;z-index:2}.report-studio-preview-mode{grid-template-columns:1fr;grid-template-rows:52px minmax(650px,1fr)}.report-studio-preview-mode .report-studio-toolbar{grid-template-columns:1fr}.report-studio-preview-mode .report-studio-actions{display:none}}
 
     /* =========================================================
        OTOTR REPORT TOP-LEFT PREMIUM GRADIENT CORNER FIX
@@ -951,6 +961,26 @@
     .report-brand-frame .frame-corner-accent {
       display: none !important;
     }
+    .report-letterhead-master{position:absolute!important;inset:0!important;z-index:2!important;display:block!important;overflow:hidden!important;pointer-events:none!important;background:#fff!important;color:#fff!important;isolation:isolate!important}
+    .report-letterhead-master::before,.report-letterhead-master::after{display:none!important}
+    .report-letterhead-image{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;object-fit:fill!important;display:block!important;user-select:none!important;-webkit-user-drag:none!important}
+    .report-letterhead-field{position:absolute!important;top:6.55mm!important;height:14.2mm!important;z-index:6!important;box-sizing:border-box!important;display:grid!important;align-content:center!important;gap:1mm!important;border:1px solid rgba(255,255,255,.42)!important;border-radius:2.2mm!important;background:#061116!important;color:#fff!important;padding:2.25mm 3mm!important;font-family:Inter,Arial,sans-serif!important;box-shadow:0 0 0 .35mm rgba(6,17,22,.94)!important;letter-spacing:0!important}
+    .report-letterhead-report-no{left:95.35mm!important;width:36.9mm!important}
+    .report-letterhead-date{left:134.85mm!important;width:34.7mm!important}
+    .report-letterhead-field span{font-size:7px!important;font-weight:950!important;line-height:1!important;color:#fff!important;text-transform:uppercase!important}
+    .report-letterhead-field b{font-size:9.3px!important;font-weight:850!important;line-height:1.1!important;color:#fff!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important}
+    .expertise-page:not(.source-art-page){background:#fff!important;background-image:none!important;padding:30mm 24mm 24mm 20mm!important;grid-template-rows:minmax(0,1fr)!important;gap:0!important}
+    .expertise-page:not(.source-art-page)>main{position:relative!important;z-index:7!important;min-width:0;min-height:0}
+    .expertise-page .report-page-count{position:absolute!important;left:174.25mm!important;right:auto!important;top:6.55mm!important;width:18.45mm!important;height:14.2mm!important;z-index:9!important;box-sizing:border-box!important;display:grid!important;place-items:end center!important;border:0!important;border-radius:2.25mm!important;background:#ef0016!important;color:#fff!important;padding:0 0 2.3mm!important;font-size:9.4px!important;font-weight:950!important;line-height:1!important;box-shadow:0 0 0 .4mm #ef0016!important;font-family:Inter,Arial,sans-serif!important;letter-spacing:0!important}
+    .expertise-page .report-page-count::before{content:"SAYFA";position:absolute;top:2.45mm;left:0;right:0;text-align:center;font-size:7.6px;font-weight:950;color:#fff}
+    .report-studio-active .report-letterhead-master{pointer-events:none!important}
+    .report-studio-stage-status .report-letterhead-name{max-width:240px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .report-studio-letterhead-box{display:grid;gap:8px}
+    .report-studio-letterhead-preview{height:158px;border:1px solid #dbe3ee;border-radius:8px;background:#f8fafc;display:grid;place-items:center;overflow:hidden}
+    .report-studio-letterhead-preview img{width:100%;height:100%;object-fit:contain}
+    .report-studio-file-row{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center}
+    .report-studio-file-row input[type=file]{width:100%;font-size:11px}
+    .report-studio-note{font-size:10px;line-height:1.45;color:#64748b;margin:0}
     .executive-summary-page .decision-layout{grid-template-columns:1fr 1fr 1fr;gap:7px}
     .executive-summary-page .decision-card{min-height:45mm;padding:9px}
     .executive-summary-page .decision-card h4{font-size:10.5px;margin-bottom:7px}
@@ -2926,7 +2956,7 @@
     const navGroups = [
       ['Genel Merkez', [['dashboard','Yönetim Kokpiti','layout-dashboard'],['intelligence','İş Zekası','chart-no-axes-column'],['actions','Aksiyon & Görev','target'],['crisis','Kriz Merkezi','siren'],['ai','AI Öneri','sparkles']]],
       ['Bayi & Şube Yönetimi', [['branches','Bayiler & Şubeler','building-2'],['dealer','Bayi Portalı','tablet-smartphone'],['ototr-web','OTOTR Web','globe'],['operations','Operasyon','workflow'],['quality','Kalite & Denetim','shield-check']]],
-      ['Ekspertiz & Rapor', [['report-design','Ekspertiz Rapor Tasarımı','file-check-2']]],
+      ['Ekspertiz & Rapor', [['report-design','Ekspertiz Rapor Tasarımı','file-check-2'],['kaporta-design','Kaporta Tasarım','panels-top-left']]],
       ['Müşteri & Satış', [['crm','CRM & Randevu','users'],['chronic-issues','Kronik Sorunlar','car-front'],['complaints','Müşteri Şikayetleri','message-circle-warning'],['google-reviews','Google Yorumlar','star'],['reputation','Sosyal Medya İtibar Radar','radar'],['marketing','Pazarlama','megaphone']]],
       ['Franchise Yönetimi', [['franchise','Franchise Satış','handshake'],['growth','Bayii Büyüme','map'],['finance','Finans & Royalty','banknote']]],
       ['Kurumsal Yönetim', [['academy','OTOTR Academy','graduation-cap'],['hr','İnsan Kaynakları','badge-check'],['legal','Hukuk & Risk','scale']]],
@@ -4050,6 +4080,10 @@
         }
         if(b.dataset.navRoute==='ototr-web'){
           window.open('ototr-web.html','_blank','noopener,noreferrer');
+          return;
+        }
+        if(b.dataset.navRoute==='kaporta-design'){
+          window.open('https://samivolkan.github.io/Ototr/kaporta-tasarim.html','_blank','noopener,noreferrer');
           return;
         }
         route(b.dataset.navRoute);
@@ -6595,82 +6629,24 @@
     function ReportBrandFrame(d){return `<div class="report-brand-frame" aria-hidden="true"><div class="frame-corner-accent"></div><div class="frame-left">ototr ekspertiz</div><div class="frame-right"><span>Güven</span><span>Şeffaflık</span><span>Değer</span><b>Premium 360</b></div><div class="frame-social"><i class="social-facebook"><svg viewBox="0 0 24 24"><path d="M14.4 8.2h2.4V4.5h-3c-3.1 0-5 1.9-5 5.2v2.1H6v3.9h2.8V22h4.1v-6.3h3.2l.6-3.9h-3.8V10c0-1.1.5-1.8 1.5-1.8Z"/></svg></i><i class="social-instagram"><svg viewBox="0 0 24 24"><rect x="5" y="5" width="14" height="14" rx="4"/><circle cx="12" cy="12" r="3.2"/><circle cx="16.7" cy="7.3" r="1"/></svg></i><i class="social-twitter"><svg viewBox="0 0 24 24"><path d="m5 5 14 14M19 5 5 19"/></svg></i></div><div class="frame-brand-lockup"><b>OTO<span>TR</span></b><small>güvenli ekspertiz standardı</small><em>www.ototr.com.tr<br>0850 888 0 888</em></div><div class="frame-print-strip"><span>${rpEsc(d.plate)} · ${rpEsc(d.reportDate)} · ${rpEsc(d.reportNo)}</span></div><div class="frame-bottom">${rpEsc(d.plate)} · ${rpEsc(d.reportDate)} · ${rpEsc(d.reportNo)}</div></div>`;}
     function ReportBottomBar(d){return `<div class="frame-print-strip"><div class="footer-segment"><span class="footer-label">Şube bilgileri</span><span class="footer-value">${rpEsc(d.branch)}</span><span class="footer-sub">${rpEsc(d.branchAddress||'Odunluk Mah. Lefkoşe Cad.')} · ${rpEsc(d.branchPhone||'0224 480 06 86')}</span></div><div class="footer-segment"><span class="footer-label">Rapor bilgileri</span><span class="footer-value">${rpEsc(d.reportNo)}</span><span class="footer-sub">${rpEsc(d.reportDate)}</span></div><div class="footer-segment footer-price"><span class="footer-label">Seçilen ekspertiz tutarı</span><span class="footer-value">${rpEsc(d.selectedExpertiseAmount||'10.000 TL')}</span><span class="footer-sub">${rpEsc(d.packageName)}</span></div></div>`;}
     function ReportPaperFrame(d=reportData){return `<div class="report-brand-frame" aria-hidden="true"><div class="frame-left"><span>TSE HYB-3779</span><svg class="frame-chevrons" viewBox="0 0 32 120" preserveAspectRatio="none"><polygon points="16,0 32,22 24,22 16,11 8,22 0,22" fill="#E30613"/><polygon points="16,26 32,48 24,48 16,37 8,48 0,48" fill="#D71920"/><polygon points="16,52 32,74 24,74 16,63 8,74 0,74" fill="#FF4A1C"/><polygon points="16,78 32,100 24,100 16,89 8,100 0,100" fill="#FF8A00"/></svg></div><div class="frame-social-rail"><svg viewBox="0 0 60 1000" preserveAspectRatio="none"><path d="M34 0 V884 C34 926 28 948 15 962 C7 971 7 985 17 993 C24 998 36 1000 54 1000"/></svg></div><div class="frame-right"><span>Güven</span><span>Şeffaflık</span><span>Değer</span><b>Premium 360</b></div><div class="frame-social"><i class="social-facebook"><svg viewBox="0 0 24 24"><path d="M14.4 8.2h2.4V4.5h-3c-3.1 0-5 1.9-5 5.2v2.1H6v3.9h2.8V22h4.1v-6.3h3.2l.6-3.9h-3.8V10c0-1.1.5-1.8 1.5-1.8Z"/></svg></i><i class="social-instagram"><svg viewBox="0 0 24 24"><rect x="5" y="5" width="14" height="14" rx="4" fill="none"/><circle cx="12" cy="12" r="3.2" fill="none"/><circle cx="16.7" cy="7.3" r="1"/></svg></i><i class="social-twitter"><svg viewBox="0 0 24 24"><path d="m5 5 14 14M19 5 5 19" fill="none"/></svg></i></div><div class="frame-corner-accent"><svg viewBox="0 0 160 205" preserveAspectRatio="none"><polygon points="0,205 0,116 63,205" fill="#E30613"/><polygon points="0,116 30,142 63,205 0,180" fill="#C40008"/><polygon points="30,142 88,205 63,205" fill="#7A0000"/><polygon points="0,205 36,205 18,152" fill="#B80000"/><polygon points="36,205 76,205 30,142" fill="#9B0000"/><polygon points="76,205 160,205 93,148" fill="#E30613"/><polygon points="30,142 93,148 160,205 88,205" fill="#8D0000"/><polygon points="0,164 30,142 18,205 0,205" fill="#F31318"/><polygon points="0,116 30,142 0,151" fill="#FF1C1C"/></svg></div>${ReportBottomBar(d)}</div>`;}
+    function reportLetterheadSource(){
+      try{
+        const state=typeof getReportLayoutState==='function'?getReportLayoutState():null;
+        const src=state?.letterhead?.src;
+        if(src==='indexeddb:ototr-report-letterhead')return window.__ototrReportLetterheadBlobUrl||'docs/ototr-a4-master-locked-300dpi.png';
+        return src||'docs/ototr-a4-master-locked-300dpi.png';
+      }catch(err){return 'docs/ototr-a4-master-locked-300dpi.png';}
+    }
     function ReportPaperFrame(d=reportData){
-      return `
-        <div class="report-brand-frame" aria-hidden="true">
-          <div class="frame-report-label">OTOTR Premium 360 Tarafsız Ekspertiz Raporu</div>
-          <div class="frame-report-meta">
-            <span>${rpEsc(d.reportNo)}</span>
-            <span>${rpEsc(d.plate)}</span>
-            <span>${rpEsc(d.vin)}</span>
-            <span>${rpEsc(d.reportDate)}</span>
-          </div>
-          <div class="frame-left">
-            <span>TSE HYB-3779</span>
-            <svg class="frame-chevrons" viewBox="0 0 32 120" preserveAspectRatio="none">
-              <polygon points="16,0 32,22 24,22 16,11 8,22 0,22" fill="#E30613"/>
-              <polygon points="16,26 32,48 24,48 16,37 8,48 0,48" fill="#D71920"/>
-              <polygon points="16,52 32,74 24,74 16,63 8,74 0,74" fill="#FF4A1C"/>
-              <polygon points="16,78 32,100 24,100 16,89 8,100 0,100" fill="#FF8A00"/>
-            </svg>
-          </div>
-          <div class="frame-logo-block">
-            <div>
-              <b class="frame-logo-word">OTO<span>TR</span></b>
-              <small class="frame-logo-slogan">GÜVEN. ŞEFFAFLIK. DEĞER.</small>
-            </div>
-          </div>
-          <div class="frame-social-rail">
-            <svg viewBox="0 0 60 1000" preserveAspectRatio="none">
-              <path d="M34 0 V884 C34 926 28 948 15 962 C7 971 7 985 17 993 C24 998 36 1000 54 1000"/>
-            </svg>
-          </div>
-          <div class="frame-right">
-            <span>Güven</span>
-            <span>Şeffaflık</span>
-            <span>Değer</span>
-            <b>Premium 360</b>
-          </div>
-          <div class="frame-social">
-            <i class="social-facebook">
-              <svg viewBox="0 0 24 24">
-                <path d="M14.4 8.2h2.4V4.5h-3c-3.1 0-5 1.9-5 5.2v2.1H6v3.9h2.8V22h4.1v-6.3h3.2l.6-3.9h-3.8V10c0-1.1.5-1.8 1.5-1.8Z"/>
-              </svg>
-            </i>
-            <i class="social-instagram">
-              <svg viewBox="0 0 24 24">
-                <rect x="5" y="5" width="14" height="14" rx="4" fill="none"/>
-                <circle cx="12" cy="12" r="3.2" fill="none"/>
-                <circle cx="16.7" cy="7.3" r="1"/>
-              </svg>
-            </i>
-            <i class="social-twitter">
-              <svg viewBox="0 0 24 24">
-                <path d="m5 5 14 14M19 5 5 19" fill="none"/>
-              </svg>
-            </i>
-          </div>
-          <div class="frame-corner-accent">
-            <svg viewBox="0 0 190 220" preserveAspectRatio="none">
-              <polygon points="0,0 0,220 118,220" fill="#E30613"/>
-              <polygon points="0,0 54,78 118,220 0,142" fill="#F31318"/>
-              <polygon points="0,78 54,78 118,220 0,164" fill="#C40008"/>
-              <polygon points="54,78 150,220 118,220" fill="#7A0000"/>
-              <polygon points="0,220 45,220 20,116" fill="#B80000"/>
-              <polygon points="45,220 86,220 54,78" fill="#9B0000"/>
-              <polygon points="86,220 190,220 128,150" fill="#E30613"/>
-              <polygon points="54,78 128,150 190,220 150,220" fill="#8D0000"/>
-              <polygon points="0,132 54,78 23,220 0,220" fill="#FF1C1C"/>
-              <polygon points="16,112 54,78 37,154" fill="#D71920"/>
-            </svg>
-          </div>
-          <div class="frame-print-strip"></div>
-        </div>
-      `;
+      return `<div class="report-brand-frame report-letterhead-master" aria-hidden="true" data-report-letterhead-locked="1">
+        <img class="report-letterhead-image" src="${rpEsc(reportLetterheadSource())}" alt="">
+        <div class="report-letterhead-field report-letterhead-report-no"><span>RAPOR NO</span><b>${rpEsc(d.reportNo)}</b></div>
+        <div class="report-letterhead-field report-letterhead-date"><span>TARİH / SAAT</span><b>${rpEsc(d.reportDate)}</b></div>
+      </div>`;
     }
     ReportBrandFrame=function(d){return ReportPaperFrame(d);};
     function ReportPaperTemplate(){return `<article class="report-paper report-paper-template expertise-page" id="report-paper-template" data-page="00">${ReportPaperFrame()}</article>`;}
-    function ReportPage(page,total,title,subtitle,body,extra=''){const d=reportData;return `<article class="report-page expertise-page ${extra}" id="report-page-${page}" data-page="${String(page).padStart(2,'0')}">${ReportBrandFrame(d)}<div class="report-page-count">${page} / ${total}</div><header class="report-page-header"><div class="report-brand"><div class="report-logo">OT</div><div><b>OTOTR</b><span>${rpEsc(d.packageName)} ekspertiz raporu</span></div></div><div class="report-meta"><span>${rpEsc(d.reportNo)}</span><span>${rpEsc(d.plate)}</span><span>${rpEsc(d.vin)}</span><span>${rpEsc(d.reportDate)}</span><div class="report-qr" aria-label="QR doğrulama"></div></div></header><main><div class="report-page-title" data-page-label="${String(page).padStart(2,'0')} / ${total}"><div><h3>${rpEsc(title)}</h3><p>${rpEsc(subtitle)}</p></div></div>${body}</main><footer class="report-page-footer"><span>Rapor no: ${rpEsc(d.reportNo)} · Plaka: ${rpEsc(d.plate)} · Şasi: ${rpEsc(d.vin)} · Tarih: ${rpEsc(d.reportDate)}</span><span class="report-footer-proof"></span></footer></article>`;}
+    function ReportPage(page,total,title,subtitle,body,extra=''){const d=reportData,pageNo=String(page).padStart(2,'0'),totalNo=String(total).padStart(2,'0');return `<article class="report-page expertise-page ${extra}" id="report-page-${page}" data-page="${pageNo}">${ReportBrandFrame(d)}<div class="report-page-count">${pageNo} / ${totalNo}</div><header class="report-page-header"><div class="report-brand"><div class="report-logo">OT</div><div><b>OTOTR</b><span>${rpEsc(d.packageName)} ekspertiz raporu</span></div></div><div class="report-meta"><span>${rpEsc(d.reportNo)}</span><span>${rpEsc(d.plate)}</span><span>${rpEsc(d.vin)}</span><span>${rpEsc(d.reportDate)}</span><div class="report-qr" aria-label="QR doğrulama"></div></div></header><main><div class="report-page-title" data-page-label="${pageNo} / ${totalNo}"><div><h3>${rpEsc(title)}</h3><p>${rpEsc(subtitle)}</p></div></div>${body}</main><footer class="report-page-footer"><span>Rapor no: ${rpEsc(d.reportNo)} · Plaka: ${rpEsc(d.plate)} · Şasi: ${rpEsc(d.vin)} · Tarih: ${rpEsc(d.reportDate)}</span><span class="report-footer-proof"></span></footer></article>`;}
     function ReportCover(page,total){
       const d=reportData;
       const critical=[['Sağ arka kapı lokal boyalı.','Orta','amber'],['Ön tamponda sürtme ve çizik mevcut.','Orta','amber'],["OBD'de geçmiş arıza kaydı bulunmaktadır.",'Uyarı','orange'],['Tramer kaydında 1 adet hasar kaydı tespit edilmiştir.','Kritik','red']];
@@ -6818,6 +6794,358 @@
       const total=pages.length;
       const navHtml=pages.map((p,i)=>`${i===0||p[0]!==pages[i-1][0]?`<div class="ototr-report-nav-section">${rpEsc(p[0])}</div>`:''}<a href="#report-design" data-report-scroll="report-page-${i+1}" class="${i===0?'active':''}"><strong>${i+1}</strong><span><b>${rpEsc(p[1])}</b></span></a>`).join('');
       return `<div class="ototr-report"><div class="ototr-report-shell"><div class="ototr-report-toolbar"><div><h2>OTOTR Ekspertiz Rapor Tasarımı</h2><p>Rapor akışı 5 ana bölümde düzenlendi: özet, kabul/iş emri, teknik testler, kanıt/hafıza, karar/onay. Kaporta ve şasi görsel analizleri kaynak tasarım sayfası olarak, detayları ise ayrı teknik sayfa olarak canlı girişe yansır.</p></div><div class="ototr-report-actions"><button class="btn primary" data-report-scroll="report-page-1">${icon('file-text')}PDF Önizleme</button><button class="btn" onclick="window.print()">${icon('printer')}Yazdır</button><button class="btn" data-report-mobile-view>${icon('smartphone')}Dijital Rapor</button><button class="btn" data-report-toggle-technical>${icon('list-checks')}Teknik Detay</button><button class="btn" data-report-scroll="report-page-18">${icon('history')}Araç Karnesi</button></div><div class="ototr-report-filters">${[['all','Tüm bulgular'],['critical','Kritik'],['service','Servis kontrolü'],['maintenance','Bakım gerekli'],['ok','Sorunsuz']].map((f,i)=>`<button class="micro-btn ${i===0?'active':''}" data-report-filter="${f[0]}">${f[1]}</button>`).join('')}</div></div><aside class="ototr-report-nav expertise-report-nav"><div class="ototr-report-nav-title">Rapor Akışı / Hızlı Menü</div>${navHtml}</aside><div class="ototr-report-preview">${pages.map((p,i)=>p[3](i+1,total)).join('')}</div></div></div>`;
+    }
+    const REPORT_LAYOUT_KEY='ototr-report-layout-designer-v2';
+    const REPORT_LAYOUT_LEGACY_KEY='ototr-report-layout-designer-v1';
+    const REPORT_LETTERHEAD_DB='ototr-report-assets';
+    const REPORT_LETTERHEAD_STORE='assets';
+    const REPORT_LETTERHEAD_KEY='ototr-report-letterhead';
+    const REPORT_DATA_BINDINGS={none:'Veri bağlantısı yok',reportNo:'Rapor no',reportDate:'Rapor tarihi',plate:'Plaka',vin:'Şasi / VIN',branch:'Şube',packageName:'Paket',mileage:'Kilometre',brandModel:'Marka / model'};
+    const reportLayoutSession={selected:null,drag:null,resize:null,undo:[],redo:[],preview:false,leftTab:'pages',inspectorTab:'design',selection:null};
+    function reportLayoutDefaultState(){return {version:2,enabled:true,grid:true,snap:true,rulers:true,zoom:.72,activePage:'report-page-1',letterhead:{src:'docs/ototr-a4-master-locked-300dpi.png',name:'OTOTR_A4_MASTER_LOCKED_300DPI.png',locked:true},items:{},custom:{},updatedAt:null};}
+    function getReportLayoutState(){
+      try{
+        let parsed=JSON.parse(localStorage.getItem(REPORT_LAYOUT_KEY)||'null');
+        if(!parsed){
+          const legacy=JSON.parse(localStorage.getItem(REPORT_LAYOUT_LEGACY_KEY)||'null');
+          parsed=legacy?{...reportLayoutDefaultState(),items:legacy.items||{},grid:legacy.grid!==false,snap:legacy.snap!==false}:reportLayoutDefaultState();
+        }
+        const defaults=reportLayoutDefaultState();
+        return {...defaults,...parsed,letterhead:{...defaults.letterhead,...(parsed.letterhead||{})},items:parsed.items||{},custom:parsed.custom||{}};
+      }catch(err){return reportLayoutDefaultState();}
+    }
+    function saveReportLayoutState(state){const defaults=reportLayoutDefaultState(),next={...defaults,...(state||{}),letterhead:{...defaults.letterhead,...((state||{}).letterhead||{})},version:2,updatedAt:new Date().toISOString()};localStorage.setItem(REPORT_LAYOUT_KEY,JSON.stringify(next));return next;}
+    function reportLayoutSnapshot(state=getReportLayoutState()){return JSON.stringify({items:state.items||{},custom:state.custom||{},letterhead:state.letterhead||{},activePage:state.activePage,grid:state.grid,snap:state.snap,rulers:state.rulers,zoom:state.zoom});}
+    function reportCaptureHistory(){const snap=reportLayoutSnapshot();if(reportLayoutSession.undo.at(-1)!==snap)reportLayoutSession.undo.push(snap);if(reportLayoutSession.undo.length>80)reportLayoutSession.undo.shift();reportLayoutSession.redo=[];reportStudioSyncToolbar();}
+    function reportRestoreSnapshot(snapshot){
+      if(!snapshot)return;
+      const current=getReportLayoutState(),next=JSON.parse(snapshot);
+      saveReportLayoutState({...current,...next});
+      reportLayoutSession.selected=null;
+      restoreReportStudioState();
+    }
+    function reportLayoutUndo(){if(!reportLayoutSession.undo.length)return;reportLayoutSession.redo.push(reportLayoutSnapshot());reportRestoreSnapshot(reportLayoutSession.undo.pop());}
+    function reportLayoutRedo(){if(!reportLayoutSession.redo.length)return;reportLayoutSession.undo.push(reportLayoutSnapshot());reportRestoreSnapshot(reportLayoutSession.redo.pop());}
+    function reportLayoutItemKey(el){if(!el)return '';return el.dataset.reportItemKey||`${el.closest('.report-page')?.id||'report-page'}:${el.dataset.reportEditKey||''}`;}
+    function reportStudioPages(root=document.querySelector('.ototr-report')){return [...(root?.querySelectorAll('.ototr-report-preview>.report-page')||[])];}
+    function reportStudioPageTitle(page,index=0){return page?.querySelector('.report-page-title h3')?.textContent?.trim()||page?.querySelector('main h2,main h3')?.textContent?.trim()||`Rapor Sayfası ${index+1}`;}
+    function reportLayoutLabel(el,index){
+      if(el.dataset.reportCustom==='1')return el.dataset.reportEditLabel||'Özel blok';
+      const title=el.matches('h1,h2,h3,h4,p,span,b')?el.textContent?.trim():el.querySelector?.(':scope > h2,:scope > h3,:scope > h4,:scope > p,.card-title,.combined-section-title')?.textContent?.trim();
+      const clean=title?.replace(/\s+/g,' ').slice(0,46);
+      const map={SECTION:'Bölüm',ARTICLE:'Kart',DIV:'İçerik bloğu',TABLE:'Tablo',FIGURE:'Görsel',IMG:'Görsel'};
+      return clean||`${map[el.tagName]||'İçerik'} ${index+1}`;
+    }
+    function reportContentTarget(el){
+      if(!el)return null;
+      if(el.dataset.reportCustom==='1'||el.matches('h1,h2,h3,h4,p,span,b,td,th'))return el;
+      return el.querySelector(':scope > h1,:scope > h2,:scope > h3,:scope > h4,:scope > p,:scope > .card-title,:scope > span,:scope > b');
+    }
+    function reportDataBindingValue(key){
+      const d=reportData||{};
+      const values={reportNo:d.reportNo,reportDate:d.reportDate,plate:d.plate,vin:d.vin,branch:d.branch,packageName:d.packageName,mileage:d.mileage,brandModel:[d.brand,d.model].filter(Boolean).join(' ')};
+      return values[key]??'';
+    }
+    function reportLetterheadObjectStore(mode='readonly'){
+      return new Promise((resolve,reject)=>{
+        if(!window.indexedDB){reject(new Error('IndexedDB desteklenmiyor.'));return;}
+        const request=indexedDB.open(REPORT_LETTERHEAD_DB,1);
+        request.onupgradeneeded=()=>{if(!request.result.objectStoreNames.contains(REPORT_LETTERHEAD_STORE))request.result.createObjectStore(REPORT_LETTERHEAD_STORE);};
+        request.onerror=()=>reject(request.error||new Error('Antet veritabanı açılamadı.'));
+        request.onsuccess=()=>resolve(request.result.transaction(REPORT_LETTERHEAD_STORE,mode).objectStore(REPORT_LETTERHEAD_STORE));
+      });
+    }
+    async function reportLetterheadPutBlob(file){
+      const store=await reportLetterheadObjectStore('readwrite');
+      return new Promise((resolve,reject)=>{const req=store.put({blob:file,name:file.name,type:file.type,updatedAt:new Date().toISOString()},REPORT_LETTERHEAD_KEY);req.onsuccess=()=>resolve();req.onerror=()=>reject(req.error||new Error('Antet kaydedilemedi.'));});
+    }
+    async function reportLetterheadGetBlob(){
+      const store=await reportLetterheadObjectStore('readonly');
+      return new Promise((resolve,reject)=>{const req=store.get(REPORT_LETTERHEAD_KEY);req.onsuccess=()=>resolve(req.result||null);req.onerror=()=>reject(req.error||new Error('Antet okunamadı.'));});
+    }
+    async function reportLetterheadDeleteBlob(){
+      const store=await reportLetterheadObjectStore('readwrite');
+      return new Promise((resolve,reject)=>{const req=store.delete(REPORT_LETTERHEAD_KEY);req.onsuccess=()=>resolve();req.onerror=()=>reject(req.error||new Error('Antet silinemedi.'));});
+    }
+    function reportLetterheadImageRatio(file){
+      return new Promise((resolve,reject)=>{
+        const url=URL.createObjectURL(file),img=new Image();
+        img.onload=()=>{const ratio=img.naturalWidth/img.naturalHeight;URL.revokeObjectURL(url);resolve({ratio,width:img.naturalWidth,height:img.naturalHeight});};
+        img.onerror=()=>{URL.revokeObjectURL(url);reject(new Error('Antet görseli okunamadı.'));};
+        img.src=url;
+      });
+    }
+    async function reportLoadStoredLetterhead(){
+      const state=getReportLayoutState();
+      if(state.letterhead?.src!=='indexeddb:ototr-report-letterhead')return false;
+      const stored=await reportLetterheadGetBlob().catch(()=>null);
+      if(!stored?.blob)return false;
+      if(window.__ototrReportLetterheadBlobUrl)URL.revokeObjectURL(window.__ototrReportLetterheadBlobUrl);
+      window.__ototrReportLetterheadBlobUrl=URL.createObjectURL(stored.blob);
+      state.letterhead={...state.letterhead,name:stored.name||state.letterhead.name,src:'indexeddb:ototr-report-letterhead'};
+      saveReportLayoutState(state);
+      reportApplyLetterheadSource(document.querySelector('.ototr-report'),state);
+      return true;
+    }
+    async function reportStudioUploadLetterhead(file){
+      if(!file)return;
+      if(file.type==='application/pdf'||/\.pdf$/i.test(file.name||'')){reportStudioToast('PDF antet doğrudan uygulanmadı. Lütfen 300DPI PNG/JPG olarak yükleyin.');return;}
+      if(!/^image\/(png|jpeg|webp)$/i.test(file.type)){reportStudioToast('Antet için PNG, JPG veya WEBP dosyası yükleyin.');return;}
+      const info=await reportLetterheadImageRatio(file).catch(err=>{reportStudioToast(err.message||'Antet görseli okunamadı.');return null;});
+      if(!info)return;
+      const a4Ratio=210/297,delta=Math.abs(info.ratio-a4Ratio);
+      if(delta>.035){reportStudioToast(`A4 oranı uyumsuz (${info.width}x${info.height}). 210x297 oranında antet yükleyin.`);return;}
+      reportCaptureHistory();
+      await reportLetterheadPutBlob(file);
+      if(window.__ototrReportLetterheadBlobUrl)URL.revokeObjectURL(window.__ototrReportLetterheadBlobUrl);
+      window.__ototrReportLetterheadBlobUrl=URL.createObjectURL(file);
+      const state=getReportLayoutState();
+      state.letterhead={src:'indexeddb:ototr-report-letterhead',name:file.name,locked:true,width:info.width,height:info.height,updatedAt:new Date().toISOString()};
+      saveReportLayoutState(state);
+      reportApplyLetterheadSource(document.querySelector('.ototr-report'),state);
+      reportStudioRefresh();
+      reportStudioToast('A4 antet yüklendi ve kilitlendi.');
+    }
+    function reportLayoutApply(el,item={}){
+      if(!el)return;
+      const x=Number(item.x)||0,y=Number(item.y)||0,rotation=Number(item.rotation)||0;
+      el.dataset.reportX=String(x);el.dataset.reportY=String(y);el.dataset.reportLocked=item.locked?'1':'0';el.dataset.reportHidden=item.hidden?'1':'0';
+      el.style.transform=`translate(${x}px, ${y}px) rotate(${rotation}deg)`;
+      if(el.dataset.reportCustom==='1'){el.style.left='0';el.style.top='0';}
+      [['width','w',24],['height','h',18]].forEach(([css,key,min])=>item[key]?el.style[css]=`${Math.max(min,Number(item[key])||min)}px`:el.style.removeProperty(css));
+      const styles={zIndex:item.z,opacity:item.opacity,fontFamily:item.fontFamily,fontSize:item.fontSize?`${item.fontSize}px`:null,fontWeight:item.fontWeight,lineHeight:item.lineHeight,color:item.color,backgroundColor:item.background,borderColor:item.borderColor,borderWidth:item.borderWidth!=null?`${item.borderWidth}px`:null,borderStyle:item.borderWidth?'solid':null,borderRadius:item.borderRadius!=null?`${item.borderRadius}px`:null,padding:item.padding!=null?`${item.padding}px`:null,textAlign:item.textAlign,letterSpacing:item.letterSpacing!=null?`${item.letterSpacing}px`:null};
+      Object.entries(styles).forEach(([key,value])=>value!==undefined&&value!==null&&value!==''?el.style[key]=String(value):el.style.removeProperty(key));
+      const contentTarget=reportContentTarget(el);
+      if(item.dataBinding&&item.dataBinding!=='none'&&contentTarget)contentTarget.textContent=String(reportDataBindingValue(item.dataBinding));
+      else if(item.content!==undefined&&contentTarget&&contentTarget.textContent!==item.content)contentTarget.textContent=item.content;
+      if(Array.isArray(item.tableCells))el.querySelectorAll('th,td').forEach((cell,index)=>{if(item.tableCells[index]!==undefined)cell.textContent=item.tableCells[index];});
+    }
+    function reportLayoutCurrentItem(el,state=getReportLayoutState()){
+      const saved=state.items[reportLayoutItemKey(el)]||{},rect=el?.getBoundingClientRect(),zoom=state.zoom||1;
+      return {...saved,x:Number(el?.dataset.reportX)||Number(saved.x)||0,y:Number(el?.dataset.reportY)||Number(saved.y)||0,w:Number(saved.w)||(rect?Math.round(rect.width/zoom):0),h:Number(saved.h)||(rect?Math.round(rect.height/zoom):0),rotation:Number(saved.rotation)||0,opacity:saved.opacity??1,z:Number(saved.z)||0};
+    }
+    function createReportCustomElement(page,key,meta,item){
+      if(!page||page.querySelector(`[data-report-item-key="${CSS.escape(key)}"]`))return;
+      const el=document.createElement('div');
+      el.className='report-custom-element';el.dataset.reportCustom='1';el.dataset.customType=meta.type||'text';el.dataset.reportEditable='1';el.dataset.reportItemKey=key;el.dataset.reportEditKey=key.split(':').pop();el.dataset.reportEditLabel=meta.label||'Özel blok';el.tabIndex=0;
+      if(meta.type==='metric')el.innerHTML=`<span>TOPLAM</span><b>${rpEsc(item.content||'0')}</b>`;else el.textContent=item.content||meta.content||'Yeni içerik';
+      page.appendChild(el);reportLayoutApply(el,item);
+    }
+    function restoreReportCustomElements(root,state=getReportLayoutState()){
+      root.querySelectorAll('[data-report-custom="1"]').forEach(el=>el.remove());
+      Object.entries(state.custom||{}).forEach(([key,meta])=>createReportCustomElement(root.querySelector(`#${CSS.escape(meta.pageId)}`),key,meta,state.items[key]||{}));
+    }
+    function markReportEditableBlocks(root,state=getReportLayoutState()){
+      reportStudioPages(root).forEach((page,pageIndex)=>{
+        page.dataset.reportStudioIndex=String(pageIndex+1);page.querySelector('.report-brand-frame')?.setAttribute('data-report-letterhead-locked','1');
+        const candidates=[...page.querySelectorAll(':scope > main > .report-page-title,:scope > main > *:not(.report-page-title)')];
+        candidates.forEach((el,index)=>{
+          if(el.closest('.report-brand-frame'))return;
+          el.dataset.reportEditable='1';el.dataset.reportEditKey=`block-${String(index+1).padStart(2,'0')}`;el.dataset.reportEditLabel=reportLayoutLabel(el,index);el.tabIndex=0;
+          const key=reportLayoutItemKey(el),legacyKey=`${page.id}:${String(index).padStart(3,'0')}`;
+          if(!state.items[key]&&state.items[legacyKey]){state.items[key]=state.items[legacyKey];delete state.items[legacyKey];saveReportLayoutState(state);}
+          reportLayoutApply(el,state.items[key]||{});
+        });
+      });
+      restoreReportCustomElements(root,state);
+    }
+    function reportStudioFrameHtml(state){return `
+      <header class="report-studio-toolbar">
+        <div class="report-studio-brand"><span class="report-studio-mark">OT</span><div><b>Rapor Tasarım Stüdyosu</b><span>Antet kilitli · A4 çalışma alanı</span></div></div>
+        <div class="report-studio-tools">
+          <button class="report-studio-tool active" title="Seçim aracı" data-studio-command="select">${icon('mouse-pointer-2')}</button>
+          <span class="report-studio-separator"></span>
+          <button class="report-studio-tool ${state.grid?'active':''}" title="Grid" data-studio-command="grid">${icon('grid-2x2')}</button>
+          <button class="report-studio-tool ${state.snap?'active':''}" title="Grid'e yapıştır" data-studio-command="snap">${icon('magnet')}</button>
+          <button class="report-studio-tool ${state.rulers?'active':''}" title="Cetveller" data-studio-command="rulers">${icon('ruler')}</button>
+          <span class="report-studio-separator"></span>
+          <button class="report-studio-tool" title="Geri al" data-studio-command="undo">${icon('undo-2')}</button>
+          <button class="report-studio-tool" title="İleri al" data-studio-command="redo">${icon('redo-2')}</button>
+          <span class="report-studio-separator"></span>
+          <button class="report-studio-tool" title="Sola hizala" data-report-align="left">${icon('align-start-horizontal')}</button>
+          <button class="report-studio-tool" title="Yatay ortala" data-report-align="center">${icon('align-center-horizontal')}</button>
+          <button class="report-studio-tool" title="Sağa hizala" data-report-align="right">${icon('align-end-horizontal')}</button>
+          <button class="report-studio-tool" title="Üste hizala" data-report-align="top">${icon('align-start-vertical')}</button>
+          <button class="report-studio-tool" title="Dikey ortala" data-report-align="middle">${icon('align-center-vertical')}</button>
+          <button class="report-studio-tool" title="Alta hizala" data-report-align="bottom">${icon('align-end-vertical')}</button>
+          <span class="report-studio-separator"></span>
+          <div class="report-studio-zoom"><button title="Uzaklaştır" data-studio-command="zoom-out">${icon('minus')}</button><span data-studio-zoom-label>%${Math.round(state.zoom*100)}</span><button title="Yakınlaştır" data-studio-command="zoom-in">${icon('plus')}</button></div>
+          <button class="report-studio-tool" title="Sayfaya sığdır" data-studio-command="fit">${icon('maximize-2')}</button>
+        </div>
+        <div class="report-studio-actions">
+          <button class="report-studio-tool" title="JSON içe aktar" data-studio-command="import">${icon('upload')}</button><input type="file" accept="application/json" data-studio-import hidden><input type="file" accept="image/png,image/jpeg,image/webp,application/pdf" data-studio-letterhead-upload hidden>
+          <button class="report-studio-tool" title="JSON dışa aktar" data-studio-command="export">${icon('download')}</button>
+          <button class="report-studio-tool" title="Raporu yazdır / PDF" data-studio-command="print">${icon('printer')}</button>
+          <button class="report-studio-tool" title="Temiz önizleme" data-studio-command="preview">${icon('eye')}</button>
+          <button class="report-studio-primary" data-studio-command="save">${icon('save')}Taslağı Kaydet</button>
+          <button class="report-studio-primary" data-studio-command="save-exit">${icon('log-out')}Kaydet ve Çık</button>
+        </div>
+      </header>
+      <aside class="report-studio-left"><div class="report-studio-tabs">${[['pages','Sayfalar'],['layers','Katmanlar'],['library','Ekle'],['letterhead','Antet']].map(x=>`<button class="${reportLayoutSession.leftTab===x[0]?'active':''}" data-studio-left-tab="${x[0]}">${x[1]}</button>`).join('')}</div><div class="report-studio-pane ${reportLayoutSession.leftTab==='pages'?'active':''}" data-studio-pane="pages"><div class="report-studio-pages" data-studio-pages></div></div><div class="report-studio-pane ${reportLayoutSession.leftTab==='layers'?'active':''}" data-studio-pane="layers"><div class="report-layer-list" data-studio-layers></div></div><div class="report-studio-pane ${reportLayoutSession.leftTab==='library'?'active':''}" data-studio-pane="library"><div class="report-library-grid" data-studio-library></div></div><div class="report-studio-pane ${reportLayoutSession.leftTab==='letterhead'?'active':''}" data-studio-pane="letterhead"><div class="report-studio-letterhead-box" data-studio-letterhead></div></div></aside>
+      <main class="report-studio-stage"><div class="report-studio-stage-head"><div class="report-studio-stage-status"><span>${icon('lock-keyhole')}Antetli kağıt kilitli</span><span>${icon('file-text')}A4 · 210 × 297 mm</span><span class="report-letterhead-name">${rpEsc(state.letterhead?.name||'Varsayılan antet')}</span></div><span data-studio-autosave>Değişiklik yok</span></div><div class="report-studio-ruler-x"></div><div class="report-studio-ruler-y"></div><div class="report-studio-canvas-host"><div class="report-studio-canvas" data-studio-canvas></div></div></main>
+      <aside class="report-studio-inspector"><div><div class="report-studio-inspector-head"><b data-inspector-title>Özellikler</b><span data-inspector-subtitle>Bir içerik katmanı seçin</span></div><div class="report-studio-tabs">${[['design','Tasarım'],['content','İçerik'],['data','Veri']].map(x=>`<button class="${reportLayoutSession.inspectorTab===x[0]?'active':''}" data-studio-inspector-tab="${x[0]}">${x[1]}</button>`).join('')}</div></div><div class="report-studio-inspector-body" data-studio-inspector></div></aside>`;}
+    function renderReportLayoutPanel(root,state=getReportLayoutState()){
+      let panel=root.querySelector('.report-layout-panel');
+      if(!panel){panel=document.createElement('section');panel.className='report-layout-panel';root.querySelector('.ototr-report-toolbar')?.insertAdjacentElement('afterend',panel);panel.innerHTML=reportStudioFrameHtml(state);}
+      const preview=root.querySelector('.ototr-report-preview');panel.querySelector('[data-studio-canvas]')?.appendChild(preview);
+      panel.style.setProperty('--studio-zoom',String(state.zoom));panel.classList.toggle('report-studio-hide-rulers',!state.rulers);panel.classList.toggle('report-studio-preview-mode',reportLayoutSession.preview);
+      return panel;
+    }
+    function reportStudioRenderPages(root,state=getReportLayoutState()){
+      const pages=reportStudioPages(root);if(!pages.some(p=>p.id===state.activePage))state.activePage=pages[0]?.id||'report-page-1';
+      pages.forEach(page=>page.classList.toggle('report-studio-page-hidden',page.id!==state.activePage));
+      const list=root.querySelector('[data-studio-pages]');if(!list)return;
+      list.innerHTML=pages.map((page,i)=>{const changed=Object.keys(state.items).some(k=>k.startsWith(page.id+':'));return `<button class="report-studio-page-item ${page.id===state.activePage?'active':''}" data-studio-page="${page.id}"><span class="report-studio-page-thumb">${i+1}</span><span class="report-studio-page-copy"><b>${rpEsc(reportStudioPageTitle(page,i))}</b><span>Sayfa ${i+1} / ${pages.length}</span></span><span class="report-studio-page-state ${changed?'changed':''}"></span></button>`;}).join('');
+    }
+    function reportStudioRenderLayers(root,state=getReportLayoutState()){
+      const page=root.querySelector(`#${CSS.escape(state.activePage)}`),list=root.querySelector('[data-studio-layers]');if(!page||!list)return;
+      const layers=[...page.querySelectorAll('[data-report-editable]')];
+      list.innerHTML=`<div class="report-layer-row locked"><span class="report-layer-icon">${icon('lock-keyhole')}</span><span class="report-layer-name">Antet / Kurumsal Çerçeve</span><span class="report-layer-icon">${icon('eye')}</span><span></span></div>`+layers.map((el,i)=>{const key=reportLayoutItemKey(el),item=state.items[key]||{},active=reportLayoutSession.selected===el;return `<div class="report-layer-row ${active?'active':''}" data-layer-key="${rpEsc(key)}"><button class="report-layer-icon" data-layer-select="${rpEsc(key)}">${icon(el.dataset.reportCustom==='1'?'box':'layers-3')}</button><button class="report-layer-name" data-layer-select="${rpEsc(key)}">${rpEsc(el.dataset.reportEditLabel||`Katman ${i+1}`)}</button><button class="report-layer-action" title="${item.hidden?'Göster':'Gizle'}" data-layer-action="visibility" data-layer-key="${rpEsc(key)}">${icon(item.hidden?'eye-off':'eye')}</button><button class="report-layer-action" title="${item.locked?'Kilidi aç':'Kilitle'}" data-layer-action="lock" data-layer-key="${rpEsc(key)}">${icon(item.locked?'lock-keyhole':'unlock')}</button></div>`;}).join('');
+    }
+    function reportStudioRenderLibrary(root){
+      const list=root.querySelector('[data-studio-library]');if(!list)return;
+      const items=[['text','Metin','type','Serbest açıklama'],['section','Bölüm Başlığı','heading','Lacivert bölüm şeridi'],['metric','Değer Kartı','gauge','Skor veya toplam'],['image','Görsel Alanı','image','Fotoğraf / teknik asset'],['divider','Ayraç','minus','Kırmızı ayırıcı çizgi'],['note','Not Kutusu','sticky-note','Eksper açıklaması']];
+      list.innerHTML=items.map(x=>`<button class="report-library-item" data-library-add="${x[0]}">${icon(x[2])}<b>${x[1]}</b><span>${x[3]}</span></button>`).join('');
+    }
+    function reportApplyLetterheadSource(root=document.querySelector('.ototr-report'),state=getReportLayoutState()){
+      const src=state.letterhead?.src==='indexeddb:ototr-report-letterhead'?(window.__ototrReportLetterheadBlobUrl||reportLayoutDefaultState().letterhead.src):(state.letterhead?.src||reportLayoutDefaultState().letterhead.src);
+      root?.querySelectorAll('.report-letterhead-image').forEach(img=>{if(img.getAttribute('src')!==src)img.setAttribute('src',src);});
+      const label=root?.querySelector('.report-letterhead-name');if(label)label.textContent=state.letterhead?.name||'Varsayılan antet';
+    }
+    function reportStudioRenderLetterhead(root,state=getReportLayoutState()){
+      const box=root.querySelector('[data-studio-letterhead]');if(!box)return;
+      const letterhead=state.letterhead||reportLayoutDefaultState().letterhead,src=letterhead.src==='indexeddb:ototr-report-letterhead'?(window.__ototrReportLetterheadBlobUrl||reportLayoutDefaultState().letterhead.src):letterhead.src;
+      box.innerHTML=`<section class="report-studio-section">
+        <button class="report-studio-section-head"><b>A4 Antetli Kağıt</b><span>Kilitli arka plan</span></button>
+        <div class="report-studio-letterhead-preview"><img src="${rpEsc(src)}" alt=""></div>
+        <p class="report-studio-note">Antet A4 oranında, kilitli ve düzenlenemez arka plan olarak uygulanır. İçerik katmanları bu kağıdın üzerine yerleştirilir.</p>
+        <div class="report-studio-file-row"><input type="text" value="${rpEsc(letterhead.name||'Varsayılan antet')}" disabled><button class="report-prop-action" data-studio-command="letterhead-upload">${icon('upload')}Yükle</button></div>
+        <div class="report-prop-actions"><button class="report-prop-action" data-studio-command="letterhead-reset">${icon('rotate-ccw')}Varsayılana dön</button></div>
+        <p class="report-studio-note">PNG, JPG veya WEBP önerilir. PDF dosyası seçilirse güvenilir baskı için önce 300DPI PNG olarak yüklenmelidir.</p>
+      </section>`;
+    }
+    function reportStudioSyncTabs(root){
+      root.querySelectorAll('[data-studio-left-tab]').forEach(btn=>btn.classList.toggle('active',btn.dataset.studioLeftTab===reportLayoutSession.leftTab));
+      root.querySelectorAll('[data-studio-pane]').forEach(pane=>pane.classList.toggle('active',pane.dataset.studioPane===reportLayoutSession.leftTab));
+      root.querySelectorAll('[data-studio-inspector-tab]').forEach(btn=>btn.classList.toggle('active',btn.dataset.studioInspectorTab===reportLayoutSession.inspectorTab));
+    }
+    function reportStudioInspectorEmpty(){return `<div class="report-inspector-empty">${icon('mouse-pointer-2')}<b>Katman seçilmedi</b><span>Sayfa üzerindeki bir içerik bloğuna veya Katmanlar listesindeki bir satıra tıklayın. Antet katmanı güvenlik nedeniyle düzenlenemez.</span></div>`;}
+    function reportStudioRenderInspector(root,state=getReportLayoutState()){
+      const body=root.querySelector('[data-studio-inspector]'),el=reportLayoutSession.selected?.isConnected?reportLayoutSession.selected:null,title=root.querySelector('[data-inspector-title]'),sub=root.querySelector('[data-inspector-subtitle]');if(!body)return;
+      if(!el){if(title)title.textContent='Özellikler';if(sub)sub.textContent='Bir içerik katmanı seçin';body.innerHTML=reportStudioInspectorEmpty();return;}
+      const item=reportLayoutCurrentItem(el,state),target=reportContentTarget(el),computed=getComputedStyle(el),key=reportLayoutItemKey(el),custom=el.dataset.reportCustom==='1';if(title)title.textContent=el.dataset.reportEditLabel||'İçerik';if(sub)sub.textContent=`${state.activePage} · ${custom?'Özel katman':'Rapor içeriği'}`;
+      if(reportLayoutSession.inspectorTab==='design')body.innerHTML=`
+        <section class="report-studio-section"><button class="report-studio-section-head"><b>Konum ve Boyut</b><span>px</span></button><div class="report-prop-grid four">${[['x','X',item.x],['y','Y',item.y],['w','W',item.w],['h','H',item.h]].map(x=>`<div class="report-prop"><label>${x[1]}</label><input type="number" value="${Math.round(x[2]||0)}" data-report-prop="${x[0]}"></div>`).join('')}</div><div class="report-prop-grid" style="margin-top:7px"><div class="report-prop"><label>Döndür</label><input type="number" value="${item.rotation||0}" data-report-prop="rotation"></div><div class="report-prop"><label>Saydamlık</label><input type="number" min="0" max="1" step=".05" value="${item.opacity??1}" data-report-prop="opacity"></div></div><div class="report-prop-actions" style="margin-top:8px">${[['left','align-start-horizontal'],['center','align-center-horizontal'],['right','align-end-horizontal'],['top','align-start-vertical'],['middle','align-center-vertical'],['bottom','align-end-vertical']].map(x=>`<button class="report-prop-action" title="${x[0]}" data-report-align="${x[0]}">${icon(x[1])}</button>`).join('')}</div></section>
+        <section class="report-studio-section"><button class="report-studio-section-head"><b>Tipografi</b><span>Metin</span></button><div class="report-prop-grid"><div class="report-prop wide"><label>Yazı tipi</label><select data-report-prop="fontFamily"><option value="Inter" ${String(item.fontFamily||computed.fontFamily).includes('Inter')?'selected':''}>Inter</option><option value="Montserrat" ${String(item.fontFamily||computed.fontFamily).includes('Montserrat')?'selected':''}>Montserrat</option><option value="Arial">Arial</option></select></div><div class="report-prop"><label>Boyut</label><input type="number" min="6" max="96" value="${Math.round(item.fontSize||parseFloat(computed.fontSize)||12)}" data-report-prop="fontSize"></div><div class="report-prop"><label>Kalınlık</label><select data-report-prop="fontWeight">${[400,500,600,700,800,900].map(v=>`<option value="${v}" ${String(item.fontWeight||computed.fontWeight)===String(v)?'selected':''}>${v}</option>`).join('')}</select></div><div class="report-prop"><label>Satır aralığı</label><input type="number" min=".8" max="3" step=".05" value="${Number(item.lineHeight)||1.3}" data-report-prop="lineHeight"></div><div class="report-prop"><label>Harf aralığı</label><input type="number" min="0" max="10" step=".1" value="${Number(item.letterSpacing)||0}" data-report-prop="letterSpacing"></div><div class="report-prop wide"><label>Hizalama</label><div class="report-segmented">${[['left','align-left'],['center','align-center'],['right','align-right']].map(x=>`<button class="${(item.textAlign||computed.textAlign)===x[0]?'active':''}" data-report-style="textAlign" data-report-style-value="${x[0]}">${icon(x[1])}</button>`).join('')}</div></div></div></section>
+        <section class="report-studio-section"><button class="report-studio-section-head"><b>Görünüm</b><span>Dolgu ve kenar</span></button><div class="report-prop-grid"><div class="report-prop"><label>Metin</label><input type="color" value="${reportColorToHex(item.color||computed.color,'#07182d')}" data-report-prop="color"></div><div class="report-prop"><label>Dolgu</label><input type="color" value="${reportColorToHex(item.background||computed.backgroundColor,'#ffffff')}" data-report-prop="background"></div><div class="report-prop"><label>Kenar</label><input type="color" value="${reportColorToHex(item.borderColor||computed.borderColor,'#cbd5e1')}" data-report-prop="borderColor"></div><div class="report-prop"><label>Kenar kalınlığı</label><input type="number" min="0" max="12" value="${item.borderWidth??(parseFloat(computed.borderWidth)||0)}" data-report-prop="borderWidth"></div><div class="report-prop"><label>Köşe</label><input type="number" min="0" max="80" value="${item.borderRadius??(parseFloat(computed.borderRadius)||0)}" data-report-prop="borderRadius"></div><div class="report-prop"><label>İç boşluk</label><input type="number" min="0" max="80" value="${item.padding??(parseFloat(computed.padding)||0)}" data-report-prop="padding"></div></div></section>
+        <section class="report-studio-section"><button class="report-studio-section-head"><b>Katman</b><span>Z sırası</span></button><div class="report-prop-grid"><div class="report-prop"><label>Sıra</label><input type="number" value="${item.z||0}" data-report-prop="z"></div><div class="report-prop"><label>Durum</label><select data-report-prop="locked"><option value="false" ${!item.locked?'selected':''}>Düzenlenebilir</option><option value="true" ${item.locked?'selected':''}>Kilitli</option></select></div></div><div class="report-prop-actions" style="margin-top:8px"><button class="report-prop-action" data-report-action="duplicate">${icon('copy')}Kopyala</button><button class="report-prop-action" data-report-action="reset">${icon('rotate-ccw')}Sıfırla</button>${custom?`<button class="report-prop-action danger" data-report-action="delete">${icon('trash-2')}Sil</button>`:`<button class="report-prop-action" data-report-action="hide">${icon(item.hidden?'eye':'eye-off')}${item.hidden?'Göster':'Gizle'}</button>`}</div></section>`;
+      if(reportLayoutSession.inspectorTab==='content'){
+        const cells=[...el.querySelectorAll('th,td')].slice(0,24);
+        body.innerHTML=`<section class="report-studio-section"><button class="report-studio-section-head"><b>Metin İçeriği</b><span>${target?'Düzenlenebilir':'Uygun değil'}</span></button><div class="report-prop"><label>Seçili metin</label><textarea data-report-content ${target?'':'disabled'}>${rpEsc(target?.textContent?.trim()||'')}</textarea></div><div class="report-prop-actions" style="margin-top:8px"><button class="report-prop-action" data-report-action="edit-text" ${target?'':'disabled'}>${icon('text-cursor-input')}Tuvalde düzenle</button></div></section>${cells.length?`<section class="report-studio-section"><button class="report-studio-section-head"><b>Tablo Hücreleri</b><span>${cells.length} hücre</span></button><div class="report-table-cell-editor">${cells.map((cell,i)=>`<label><span>${i+1}</span><input value="${rpEsc(cell.textContent.trim())}" data-report-cell="${i}"></label>`).join('')}</div></section>`:''}`;
+      }
+      if(reportLayoutSession.inspectorTab==='data')body.innerHTML=`<section class="report-studio-section"><button class="report-studio-section-head"><b>Canlı Veri Bağlantısı</b><span>Rapor sözleşmesi</span></button><div class="report-prop"><label>Alan</label><select data-report-prop="dataBinding">${Object.entries(REPORT_DATA_BINDINGS).map(([value,label])=>`<option value="${value}" ${(item.dataBinding||'none')===value?'selected':''}>${label}</option>`).join('')}</select></div><div class="report-prop" style="margin-top:8px"><label>Önizleme değeri</label><input value="${rpEsc(item.dataBinding&&item.dataBinding!=='none'?String(reportDataBindingValue(item.dataBinding)):'Bağlantı seçilmedi')}" disabled></div><div class="report-prop" style="margin-top:8px"><label>Veri anahtarı</label><input value="${rpEsc(key)}" disabled></div></section><section class="report-studio-section"><button class="report-studio-section-head"><b>Görünürlük Kuralı</b><span>Koşullu alan</span></button><div class="report-prop"><label>Rapor durumu</label><select data-report-prop="visibilityRule"><option value="always" ${(item.visibilityRule||'always')==='always'?'selected':''}>Her zaman göster</option><option value="has-value" ${item.visibilityRule==='has-value'?'selected':''}>Değer varsa göster</option><option value="critical" ${item.visibilityRule==='critical'?'selected':''}>Yalnız kritik bulguda</option></select></div></section>`;
+      if(window.lucide)lucide.createIcons();
+    }
+    function reportColorToHex(value,fallback='#ffffff'){
+      if(/^#[0-9a-f]{6}$/i.test(String(value||'')))return value;
+      const nums=String(value||'').match(/[\d.]+/g);if(!nums||nums.length<3)return fallback;
+      return '#'+nums.slice(0,3).map(n=>Math.max(0,Math.min(255,Math.round(Number(n)))).toString(16).padStart(2,'0')).join('');
+    }
+    function reportStudioSyncToolbar(){
+      const root=document.querySelector('.ototr-report'),state=getReportLayoutState(),panel=root?.querySelector('.report-layout-panel');if(!panel)return;
+      panel.style.setProperty('--studio-zoom',String(state.zoom));panel.classList.toggle('report-studio-hide-rulers',!state.rulers);panel.classList.toggle('report-studio-preview-mode',reportLayoutSession.preview);
+      const zoom=panel.querySelector('[data-studio-zoom-label]');if(zoom)zoom.textContent=`%${Math.round(state.zoom*100)}`;
+      ['grid','snap','rulers'].forEach(cmd=>panel.querySelector(`[data-studio-command="${cmd}"]`)?.classList.toggle('active',!!state[cmd]));
+      const undo=panel.querySelector('[data-studio-command="undo"]'),redo=panel.querySelector('[data-studio-command="redo"]');if(undo)undo.disabled=!reportLayoutSession.undo.length;if(redo)redo.disabled=!reportLayoutSession.redo.length;
+    }
+    function reportStudioUpdateSelection(){
+      document.querySelectorAll('.report-layout-selection,.report-layout-guide').forEach(x=>x.remove());
+      const el=reportLayoutSession.selected?.isConnected?reportLayoutSession.selected:null,state=getReportLayoutState();if(!el||reportLayoutSession.preview||el.dataset.reportHidden==='1')return;
+      const page=el.closest('.report-page'),zoom=state.zoom||1;if(!page||page.classList.contains('report-studio-page-hidden'))return;
+      const rect=el.getBoundingClientRect(),pageRect=page.getBoundingClientRect(),selection=document.createElement('div');selection.className='report-layout-selection';selection.style.left=`${(rect.left-pageRect.left)/zoom}px`;selection.style.top=`${(rect.top-pageRect.top)/zoom}px`;selection.style.width=`${rect.width/zoom}px`;selection.style.height=`${rect.height/zoom}px`;selection.innerHTML=`<span class="report-layout-selection-label">${rpEsc(el.dataset.reportEditLabel||'Katman')}</span>${['nw','n','ne','e','se','s','sw','w'].map(h=>`<i class="report-resize-handle" data-handle="${h}"></i>`).join('')}`;page.appendChild(selection);reportLayoutSession.selection=selection;
+    }
+    function reportStudioRefresh(){
+      const root=document.querySelector('.ototr-report');if(!root)return;const state=getReportLayoutState();
+      root.classList.add('report-studio-active');root.classList.toggle('report-layout-editing',!reportLayoutSession.preview);root.classList.toggle('report-layout-grid',state.grid&&!reportLayoutSession.preview);
+      reportStudioRenderPages(root,state);reportStudioRenderLayers(root,state);reportStudioRenderLibrary(root);reportStudioRenderLetterhead(root,state);reportApplyLetterheadSource(root,state);reportStudioRenderInspector(root,state);reportStudioSyncTabs(root);reportStudioSyncToolbar();requestAnimationFrame(reportStudioUpdateSelection);if(window.lucide)lucide.createIcons();
+    }
+    function restoreReportStudioState(){const root=document.querySelector('.ototr-report');if(!root)return;const state=getReportLayoutState();markReportEditableBlocks(root,state);reportStudioRefresh();}
+    function initReportLayoutDesigner(){
+      const root=document.querySelector('.ototr-report');if(!root)return;const state=getReportLayoutState();renderReportLayoutPanel(root,state);markReportEditableBlocks(root,state);reportStudioRefresh();
+      if(!window.__ototrReportLetterheadLoaded){window.__ototrReportLetterheadLoaded=true;reportLoadStoredLetterhead().then(loaded=>{if(loaded)reportStudioRefresh();}).catch(()=>{});}
+      if(!window.__ototrReportLayoutDesignerBound){window.__ototrReportLayoutDesignerBound=true;document.addEventListener('click',handleReportLayoutClick,true);document.addEventListener('input',handleReportLayoutInput,true);document.addEventListener('change',handleReportLayoutChange,true);document.addEventListener('pointerdown',handleReportLayoutPointerDown,true);document.addEventListener('dblclick',handleReportLayoutDoubleClick,true);document.addEventListener('keydown',handleReportLayoutKeyDown,true);}
+    }
+    function selectReportLayoutElement(el){document.querySelectorAll('[data-report-editable].selected').forEach(x=>x.classList.remove('selected'));reportLayoutSession.selected=el||null;if(el)el.classList.add('selected');reportStudioRefresh();}
+    function findReportLayoutElement(key){return [...document.querySelectorAll('[data-report-editable]')].find(el=>reportLayoutItemKey(el)===key)||null;}
+    function writeReportLayoutItem(el,patch,options={}){
+      if(!el)return;if(options.history!==false)reportCaptureHistory();const state=getReportLayoutState(),key=reportLayoutItemKey(el);state.items[key]={...(state.items[key]||{}),...patch};reportLayoutApply(el,state.items[key]);saveReportLayoutState(state);reportStudioMarkChanged();if(options.refresh!==false)reportStudioRefresh();
+    }
+    function reportStudioMarkChanged(message='Otomatik kaydedildi'){const node=document.querySelector('[data-studio-autosave]');if(node)node.textContent=message;}
+    function reportStudioToast(message){document.querySelector('.report-studio-toast')?.remove();const el=document.createElement('div');el.className='report-studio-toast';el.textContent=message;document.body.appendChild(el);setTimeout(()=>el.remove(),2200);}
+    function alignReportLayoutSelection(kind){
+      const el=reportLayoutSession.selected,page=el?.closest('.report-page');if(!el||!page||el.dataset.reportLocked==='1')return;const state=getReportLayoutState(),zoom=state.zoom||1,pageRect=page.getBoundingClientRect(),rect=el.getBoundingClientRect(),item=reportLayoutCurrentItem(el,state),margin=48*zoom;let dx=0,dy=0;
+      if(kind==='left')dx=(pageRect.left+margin)-rect.left;if(kind==='center')dx=(pageRect.left+pageRect.width/2)-(rect.left+rect.width/2);if(kind==='right')dx=(pageRect.right-margin)-rect.right;if(kind==='top')dy=(pageRect.top+margin)-rect.top;if(kind==='middle')dy=(pageRect.top+pageRect.height/2)-(rect.top+rect.height/2);if(kind==='bottom')dy=(pageRect.bottom-margin)-rect.bottom;
+      writeReportLayoutItem(el,{x:Math.round(item.x+dx/zoom),y:Math.round(item.y+dy/zoom)});
+    }
+    function reportStudioAddElement(type){
+      const state=getReportLayoutState(),pageId=state.activePage,id=`custom-${Date.now().toString(36)}`,key=`${pageId}:${id}`,labels={text:'Metin',section:'Bölüm Başlığı',metric:'Değer Kartı',image:'Görsel Alanı',divider:'Ayraç',note:'Not Kutusu'},contents={text:'Yeni metin',section:'YENİ BÖLÜM',metric:'0',image:'Görsel alanı',divider:'',note:'Eksper notu'};
+      reportCaptureHistory();state.custom[key]={pageId,type,label:labels[type]||'Özel blok',content:contents[type]};state.items[key]={x:85,y:145,w:type==='divider'?620:type==='image'?240:210,h:type==='divider'?2:type==='image'?160:type==='section'?34:68,z:20,content:contents[type],background:type==='section'?'#07182d':type==='note'?'#fff7ed':'#ffffff',color:type==='section'?'#ffffff':'#07182d',borderColor:type==='divider'?'#e30613':'#cbd5e1',borderWidth:type==='divider'?0:1,borderRadius:type==='section'?5:7,padding:type==='divider'?0:8};saveReportLayoutState(state);restoreReportStudioState();const el=findReportLayoutElement(key);selectReportLayoutElement(el);reportStudioToast(`${labels[type]} eklendi.`);
+    }
+    function reportStudioDuplicateSelection(){
+      const source=reportLayoutSession.selected;if(!source)return;const state=getReportLayoutState(),sourceItem=reportLayoutCurrentItem(source,state),pageId=state.activePage,id=`custom-${Date.now().toString(36)}`,key=`${pageId}:${id}`;reportCaptureHistory();state.custom[key]={pageId,type:source.dataset.customType||'text',label:`${source.dataset.reportEditLabel||'Katman'} Kopya`,content:reportContentTarget(source)?.textContent?.trim()||'Kopya'};state.items[key]={...sourceItem,x:sourceItem.x+16,y:sourceItem.y+16,z:(sourceItem.z||0)+1,content:reportContentTarget(source)?.textContent?.trim()||'Kopya'};saveReportLayoutState(state);restoreReportStudioState();selectReportLayoutElement(findReportLayoutElement(key));
+    }
+    function reportStudioDeleteSelection(){const el=reportLayoutSession.selected,key=reportLayoutItemKey(el),state=getReportLayoutState();if(!el||!state.custom[key])return;reportCaptureHistory();delete state.custom[key];delete state.items[key];saveReportLayoutState(state);el.remove();reportLayoutSession.selected=null;reportStudioRefresh();}
+    function reportStudioResetSelection(){const el=reportLayoutSession.selected,key=reportLayoutItemKey(el),state=getReportLayoutState();if(!el)return;reportCaptureHistory();if(state.custom[key]){const meta=state.custom[key];state.items[key]={x:85,y:145,w:210,h:68,z:20,content:meta.content||'Yeni içerik'};}else delete state.items[key];saveReportLayoutState(state);restoreReportStudioState();selectReportLayoutElement(findReportLayoutElement(key));}
+    function reportStudioExport(){const state=getReportLayoutState(),payload={schema:'ototr-report-layout',version:2,exportedAt:new Date().toISOString(),reportNo:reportData?.reportNo||null,layout:state};const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=`ototr-rapor-tasarimi-${Date.now()}.json`;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);reportStudioToast('Tasarım JSON dosyası indirildi.');}
+    function reportStudioImportFile(file){if(!file)return;const reader=new FileReader();reader.onload=()=>{try{const parsed=JSON.parse(reader.result),incoming=parsed.layout||parsed;if(parsed.schema&&parsed.schema!=='ototr-report-layout')throw new Error('Şema uyumsuz');const safe={...reportLayoutDefaultState(),...incoming,items:incoming.items||{},custom:incoming.custom||{}};Object.values(safe.custom).forEach(meta=>{delete meta.html;meta.content=String(meta.content||'Yeni içerik').slice(0,5000);});reportCaptureHistory();saveReportLayoutState(safe);restoreReportStudioState();reportStudioToast('Tasarım içe aktarıldı.');}catch(err){reportStudioToast('Geçersiz tasarım dosyası.');}};reader.readAsText(file);}
+    function reportStudioExit(){
+      const root=document.querySelector('.ototr-report');if(!root)return;
+      saveReportLayoutState(getReportLayoutState());
+      const shell=root.querySelector('.ototr-report-shell'),preview=root.querySelector('.ototr-report-preview');
+      if(shell&&preview&&!shell.contains(preview))shell.appendChild(preview);
+      root.classList.remove('report-studio-active','report-layout-editing','report-layout-grid');
+      root.querySelector('.report-layout-panel')?.remove();
+      reportLayoutSession.selected=null;reportLayoutSession.selection=null;reportStudioToast('Tasarım kaydedildi. Düzenleme modundan çıkıldı.');
+    }
+    function handleReportLayoutClick(e){
+      const root=document.querySelector('.ototr-report.report-studio-active');if(!root)return;
+      const command=e.target.closest('[data-studio-command]'),leftTab=e.target.closest('[data-studio-left-tab]'),inspectorTab=e.target.closest('[data-studio-inspector-tab]'),pageBtn=e.target.closest('[data-studio-page]'),layerSelect=e.target.closest('[data-layer-select]'),layerAction=e.target.closest('[data-layer-action]'),library=e.target.closest('[data-library-add]'),align=e.target.closest('[data-report-align]'),style=e.target.closest('[data-report-style]'),action=e.target.closest('[data-report-action]');
+      if(!command&&!leftTab&&!inspectorTab&&!pageBtn&&!layerSelect&&!layerAction&&!library&&!align&&!style&&!action)return;
+      e.preventDefault();e.stopPropagation();const state=getReportLayoutState();
+      if(command){const cmd=command.dataset.studioCommand;if(cmd==='grid'||cmd==='snap'||cmd==='rulers'){state[cmd]=!state[cmd];saveReportLayoutState(state);reportStudioRefresh();}if(cmd==='undo')reportLayoutUndo();if(cmd==='redo')reportLayoutRedo();if(cmd==='zoom-in'||cmd==='zoom-out'){state.zoom=Math.max(.35,Math.min(1.25,Math.round((state.zoom+(cmd==='zoom-in' ? .1 : -.1))*100)/100));saveReportLayoutState(state);reportStudioRefresh();}if(cmd==='fit'){const stage=root.querySelector('.report-studio-stage'),available=Math.max(340,(stage?.clientWidth||900)-100);state.zoom=Math.max(.35,Math.min(1,Math.round((available/794)*100)/100));saveReportLayoutState(state);reportStudioRefresh();}if(cmd==='preview'){reportLayoutSession.preview=!reportLayoutSession.preview;reportStudioRefresh();}if(cmd==='save'){saveReportLayoutState(state);reportStudioMarkChanged('Taslak kaydedildi');reportStudioToast('Rapor taslağı kaydedildi.');}if(cmd==='save-exit'){reportStudioExit();}if(cmd==='export')reportStudioExport();if(cmd==='print')window.print();if(cmd==='import')root.querySelector('[data-studio-import]')?.click();if(cmd==='letterhead-upload')root.querySelector('[data-studio-letterhead-upload]')?.click();if(cmd==='letterhead-reset'){reportCaptureHistory();reportLetterheadDeleteBlob().catch(()=>{});if(window.__ototrReportLetterheadBlobUrl){URL.revokeObjectURL(window.__ototrReportLetterheadBlobUrl);window.__ototrReportLetterheadBlobUrl='';}state.letterhead=reportLayoutDefaultState().letterhead;saveReportLayoutState(state);reportApplyLetterheadSource(root,state);reportStudioRefresh();reportStudioToast('Varsayılan A4 antet geri yüklendi.');}return;}
+      if(leftTab){reportLayoutSession.leftTab=leftTab.dataset.studioLeftTab;reportStudioRefresh();return;}if(inspectorTab){reportLayoutSession.inspectorTab=inspectorTab.dataset.studioInspectorTab;reportStudioRefresh();return;}
+      if(pageBtn){state.activePage=pageBtn.dataset.studioPage;saveReportLayoutState(state);reportLayoutSession.selected=null;root.querySelector('.report-studio-stage')?.scrollTo({top:0,left:0,behavior:'smooth'});reportStudioRefresh();return;}
+      if(layerSelect){selectReportLayoutElement(findReportLayoutElement(layerSelect.dataset.layerSelect));return;}
+      if(layerAction){const el=findReportLayoutElement(layerAction.dataset.layerKey),item=reportLayoutCurrentItem(el,state);if(layerAction.dataset.layerAction==='visibility')writeReportLayoutItem(el,{hidden:!item.hidden});if(layerAction.dataset.layerAction==='lock')writeReportLayoutItem(el,{locked:!item.locked});return;}
+      if(library){reportStudioAddElement(library.dataset.libraryAdd);return;}if(align){alignReportLayoutSelection(align.dataset.reportAlign);return;}
+      if(style&&reportLayoutSession.selected){writeReportLayoutItem(reportLayoutSession.selected,{[style.dataset.reportStyle]:style.dataset.reportStyleValue});return;}
+      if(action){const cmd=action.dataset.reportAction;if(cmd==='duplicate')reportStudioDuplicateSelection();if(cmd==='delete')reportStudioDeleteSelection();if(cmd==='reset')reportStudioResetSelection();if(cmd==='hide'){const item=reportLayoutCurrentItem(reportLayoutSession.selected);writeReportLayoutItem(reportLayoutSession.selected,{hidden:!item.hidden});}if(cmd==='edit-text')beginReportInlineEdit(reportLayoutSession.selected);}
+    }
+    function handleReportLayoutInput(e){
+      const root=e.target.closest('.ototr-report.report-studio-active');if(!root)return;const el=reportLayoutSession.selected;if(!el)return;
+      const prop=e.target.dataset.reportProp,content=e.target.matches('[data-report-content]'),cell=e.target.dataset.reportCell;if(!prop&&!content&&cell===undefined)return;
+      if(content){writeReportLayoutItem(el,{content:e.target.value},{refresh:false});reportLayoutApply(el,getReportLayoutState().items[reportLayoutItemKey(el)]||{});reportStudioUpdateSelection();return;}
+      if(cell!==undefined){const target=el.querySelectorAll('th,td')[Number(cell)];if(target){reportCaptureHistory();target.textContent=e.target.value;const state=getReportLayoutState(),key=reportLayoutItemKey(el),tableCells=[...el.querySelectorAll('th,td')].map(x=>x.textContent);state.items[key]={...(state.items[key]||{}),tableCells};saveReportLayoutState(state);reportStudioMarkChanged();}return;}
+      const numeric=['x','y','w','h','rotation','opacity','z','fontSize','lineHeight','letterSpacing','borderWidth','borderRadius','padding'];let value=numeric.includes(prop)?Number(e.target.value):e.target.value;if(prop==='locked')value=value==='true';writeReportLayoutItem(el,{[prop]:value},{refresh:false});reportStudioUpdateSelection();
+    }
+    function handleReportLayoutChange(e){const input=e.target.closest('[data-studio-import]'),letterheadInput=e.target.closest('[data-studio-letterhead-upload]');if(input){reportStudioImportFile(input.files?.[0]);input.value='';return;}if(letterheadInput){reportStudioUploadLetterhead(letterheadInput.files?.[0]);letterheadInput.value='';return;}const prop=e.target.dataset.reportProp;if(prop&&reportLayoutSession.selected){reportStudioRenderInspector(document.querySelector('.ototr-report'),getReportLayoutState());reportStudioRenderLayers(document.querySelector('.ototr-report'),getReportLayoutState());}}
+    function beginReportInlineEdit(el){const target=reportContentTarget(el);if(!target||el.dataset.reportLocked==='1')return;target.contentEditable='true';target.focus();document.getSelection()?.selectAllChildren(target);target.addEventListener('blur',()=>{target.contentEditable='false';writeReportLayoutItem(el,{content:target.textContent.trim()});},{once:true});}
+    function handleReportLayoutDoubleClick(e){const root=e.target.closest('.ototr-report.report-layout-editing');if(!root||e.target.closest('.report-layout-panel'))return;const el=e.target.closest('[data-report-editable]');if(!el)return;e.preventDefault();e.stopPropagation();selectReportLayoutElement(el);beginReportInlineEdit(el);}
+    function handleReportLayoutPointerDown(e){
+      const root=e.target.closest('.ototr-report.report-layout-editing');if(!root||e.target.closest('.report-studio-left,.report-studio-inspector,.report-studio-toolbar'))return;
+      const handle=e.target.closest('.report-resize-handle'),el=handle?reportLayoutSession.selected:e.target.closest('[data-report-editable]');if(!el||el.dataset.reportHidden==='1')return;e.preventDefault();e.stopPropagation();selectReportLayoutElement(el);if(el.dataset.reportLocked==='1')return;
+      const state=getReportLayoutState(),item=reportLayoutCurrentItem(el,state),zoom=state.zoom||1;reportCaptureHistory();const base={el,startX:e.clientX,startY:e.clientY,item:{...item},zoom,snap:state.snap?5:1};if(handle)reportLayoutSession.resize={...base,handle:handle.dataset.handle};else reportLayoutSession.drag=base;document.addEventListener('pointermove',handleReportLayoutPointerMove,true);document.addEventListener('pointerup',handleReportLayoutPointerUp,true);
+    }
+    function handleReportLayoutPointerMove(e){
+      const d=reportLayoutSession.drag||reportLayoutSession.resize;if(!d?.el)return;const dx=(e.clientX-d.startX)/d.zoom,dy=(e.clientY-d.startY)/d.zoom,s=d.snap||1,next={...d.item};
+      if(reportLayoutSession.drag){next.x=Math.round((d.item.x+dx)/s)*s;next.y=Math.round((d.item.y+dy)/s)*s;}
+      else{const h=d.handle;if(h.includes('e'))next.w=Math.max(24,Math.round((d.item.w+dx)/s)*s);if(h.includes('s'))next.h=Math.max(18,Math.round((d.item.h+dy)/s)*s);if(h.includes('w')){next.w=Math.max(24,Math.round((d.item.w-dx)/s)*s);next.x=Math.round((d.item.x+dx)/s)*s;}if(h.includes('n')){next.h=Math.max(18,Math.round((d.item.h-dy)/s)*s);next.y=Math.round((d.item.y+dy)/s)*s;}}
+      reportLayoutApply(d.el,next);const state=getReportLayoutState(),key=reportLayoutItemKey(d.el);state.items[key]={...(state.items[key]||{}),...next};saveReportLayoutState(state);reportStudioUpdateSelection();reportStudioMarkChanged();
+    }
+    function handleReportLayoutPointerUp(){document.removeEventListener('pointermove',handleReportLayoutPointerMove,true);document.removeEventListener('pointerup',handleReportLayoutPointerUp,true);reportLayoutSession.drag=null;reportLayoutSession.resize=null;reportStudioRefresh();}
+    function handleReportLayoutKeyDown(e){
+      if(current!=='report-design'||!document.querySelector('.report-studio-active'))return;const mod=e.ctrlKey||e.metaKey;if(mod&&e.key.toLowerCase()==='z'){e.preventDefault();e.shiftKey?reportLayoutRedo():reportLayoutUndo();return;}if(mod&&e.key.toLowerCase()==='y'){e.preventDefault();reportLayoutRedo();return;}if(mod&&e.key.toLowerCase()==='s'){e.preventDefault();saveReportLayoutState(getReportLayoutState());reportStudioToast('Rapor taslağı kaydedildi.');return;}if(e.key==='Escape'){selectReportLayoutElement(null);return;}
+      const el=reportLayoutSession.selected;if(!el||el.dataset.reportLocked==='1'||e.target.matches('input,textarea,select,[contenteditable="true"]'))return;if(['ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].includes(e.key)){e.preventDefault();const item=reportLayoutCurrentItem(el),step=e.shiftKey?10:1,patch={};if(e.key==='ArrowLeft')patch.x=item.x-step;if(e.key==='ArrowRight')patch.x=item.x+step;if(e.key==='ArrowUp')patch.y=item.y-step;if(e.key==='ArrowDown')patch.y=item.y+step;writeReportLayoutItem(el,patch);}if((e.key==='Delete'||e.key==='Backspace')&&el.dataset.reportCustom==='1'){e.preventDefault();reportStudioDeleteSelection();}
     }
     if(!window.__ototrReportControlsBound){
       window.__ototrReportControlsBound=true;
@@ -15704,7 +16032,7 @@
       history.replaceState(null,'','#'+(resolved==='hr'?hrRouteFor(HR_VIEW.room):resolved==='academy'?academyRouteFor(ACADEMY_VIEW.room):resolved));
       if(!options.preserveScroll) window.scrollTo({top:0,behavior:'smooth'});
       if(!options.skipDeferredEnhancements) setTimeout(()=>{renderCharts();initBranchMap();dealerEnhanceCockpitRevenue();},40);
-      if(resolved==='report-design') setTimeout(()=>{ syncExpertiseReportQuickMenu(); updateExpertiseReportNavActive(); },80);
+      if(resolved==='report-design') setTimeout(()=>{ syncExpertiseReportQuickMenu(); updateExpertiseReportNavActive(); initReportLayoutDesigner(); },80);
       if(resolved==='dealer') setTimeout(()=>{
         document.querySelector('#dealerWorkOrderForm [name="vin"],#dealerWorkOrderForm [name="plate"],#dealerWorkOrderForm [name="vehicleMake"]')?.dispatchEvent(new Event('input',{bubbles:true}));
       },180);
