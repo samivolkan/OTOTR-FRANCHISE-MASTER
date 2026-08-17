@@ -1179,3 +1179,19 @@ Notes:
   - PDF uretimi: `24,266,257` byte.
   - Console error sayisi: `0`.
   - `node tools/test-index.mjs`: mevcut smoke locator'i `Dijital` metninin gizli ilk eslesmesinde takiliyor; hedef antet/PDF QA'si ayrica gecirildi.
+
+## 2026-08-18 - ERP Rapor 2 ayri kopya route'u
+
+- Kapsam:
+  - ERP sol menusu altina `Rapor 2` route'u eklendi.
+  - `#report-design` eski rapor tasarimi olarak korundu; `#report2` yeni antetli A4 tasarimi ayri ekran olarak calisir hale getirildi.
+  - Rapor 2 icin layout ve antet saklama anahtarlari ayrildi: `ototr-report2-layout-designer-v2` ve `ototr-report2-letterhead`.
+  - Rapor scroll, hizli menu, layout studio, filtre, mobil onizleme ve print kontrolleri aktif rapor sayfasi kapsaminda calisacak sekilde scope'landi.
+
+- Dogrulama:
+  - Inline script syntax kontrolu: `Checked 7 classic scripts, skipped 9: OK`.
+  - `#report2` Playwright QA: route aktif, menude gorunur, eski `#report-design` aktif degil, 22 rapor sayfasi render oldu.
+  - `#report2` storage kontrolu: `ototr-report2-layout-designer-v2`.
+  - `#report2` PDF uretimi: `24,266,257` byte.
+  - `#report2` console error sayisi: `0`.
+  - `#report-design` regresyon kontrolu: eski route aktif, `#report2` pasif, 22 sayfa render oldu, storage `ototr-report-layout-designer-v2`, console error `0`.

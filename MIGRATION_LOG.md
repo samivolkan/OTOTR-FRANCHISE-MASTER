@@ -295,3 +295,11 @@
 - Kept the locked letterhead image as the single source for the visible top header chrome, preventing duplicated/overlapping top fields.
 - Verified the report preview and PDF path locally with 23 pages, zero visible top overlay fields and zero console errors.
 - No Supabase, live database, secret, token or production operation was used.
+
+## ERP Report 2 Route Copy - 2026-08-18
+
+- Added a separate ERP navigation route `#report2` named `Rapor 2` without removing or renaming the existing `#report-design` report screen.
+- Reused the current A4 report design for `Rapor 2`, but separated layout-studio and letterhead persistence so edits in `Rapor 2` do not overwrite the old report design draft.
+- Scoped report navigation, filters, mobile preview, layout studio and print actions to the active report page to avoid duplicate report-page IDs crossing between the old report and `Rapor 2`.
+- Verified both `#report2` and `#report-design` locally with Chrome/Playwright and zero console errors.
+- No Supabase, live database, secret, token or production operation was used.

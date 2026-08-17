@@ -982,6 +982,11 @@
     .report-studio-file-row input[type=file]{width:100%;font-size:11px}
     .report-studio-note{font-size:10px;line-height:1.45;color:#64748b;margin:0}
     .report-letterhead-master .report-letterhead-field,.expertise-page>.report-page-count{display:none!important}
+    body:has(#page-report2.active) .wrap{padding:18px 6px 42px}
+    body:has(#page-report2.active) .ototr-report{margin:0}
+    body:has(#page-report2.active) .ototr-report-preview{justify-items:center}
+    @media(min-width:1181px){body:has(#page-report2.active) .ototr-report-shell{grid-template-columns:minmax(0,1fr)}body:has(#page-report2.active) .ototr-report-preview{padding-right:218px;justify-items:center}body:has(#page-report2.active) .report-page{max-width:min(1180px,calc(100vw - var(--side-w) - 222px));margin-inline:auto}}
+    @media print{.page.active#page-report2{display:block!important}}
     .executive-summary-page .decision-layout{grid-template-columns:1fr 1fr 1fr;gap:7px}
     .executive-summary-page .decision-card{min-height:45mm;padding:9px}
     .executive-summary-page .decision-card h4{font-size:10.5px;margin-bottom:7px}
@@ -2957,13 +2962,13 @@
     const navGroups = [
       ['Genel Merkez', [['dashboard','Yönetim Kokpiti','layout-dashboard'],['intelligence','İş Zekası','chart-no-axes-column'],['actions','Aksiyon & Görev','target'],['crisis','Kriz Merkezi','siren'],['ai','AI Öneri','sparkles']]],
       ['Bayi & Şube Yönetimi', [['branches','Bayiler & Şubeler','building-2'],['dealer','Bayi Portalı','tablet-smartphone'],['ototr-web','OTOTR Web','globe'],['operations','Operasyon','workflow'],['quality','Kalite & Denetim','shield-check']]],
-      ['Ekspertiz & Rapor', [['report-design','Ekspertiz Rapor Tasarımı','file-check-2'],['kaporta-design','Kaporta Tasarım','panels-top-left']]],
+      ['Ekspertiz & Rapor', [['report-design','Ekspertiz Rapor Tasarımı','file-check-2'],['report2','Rapor 2','files'],['kaporta-design','Kaporta Tasarım','panels-top-left']]],
       ['Müşteri & Satış', [['crm','CRM & Randevu','users'],['chronic-issues','Kronik Sorunlar','car-front'],['complaints','Müşteri Şikayetleri','message-circle-warning'],['google-reviews','Google Yorumlar','star'],['reputation','Sosyal Medya İtibar Radar','radar'],['marketing','Pazarlama','megaphone']]],
       ['Franchise Yönetimi', [['franchise','Franchise Satış','handshake'],['growth','Bayii Büyüme','map'],['finance','Finans & Royalty','banknote']]],
       ['Kurumsal Yönetim', [['academy','OTOTR Academy','graduation-cap'],['hr','İnsan Kaynakları','badge-check'],['legal','Hukuk & Risk','scale']]],
       ['Ayarlar', [['architecture','Sistem Mimarisi','network'],['settings','Ayarlar','settings'],['legacy','Legacy Room','landmark']]]
     ];
-    const titles = {dashboard:'Yönetim Kokpiti',intelligence:'İş Zekası',branches:'Bayiler & Şubeler',dealer:'Bayi Portalı','ototr-web':'OTOTR Web',operations:'Operasyon',franchise:'Franchise Satış',crm:'CRM & Randevu','chronic-issues':'Kronik Sorunlar',complaints:'Müşteri Şikayetleri','google-reviews':'Google Haritalar İtibar Merkezi',reputation:'İtibar Radar',finance:'Finans & Royalty',marketing:'Pazarlama',quality:'Kalite & Denetim','report-design':'Ekspertiz Rapor Tasarımı','vehicle-passport':'Dijital Araç Karnesi',academy:'OTOTR Academy',hr:'İnsan Kaynakları',legal:'Hukuk & Risk',crisis:'Kriz Merkezi',actions:'Aksiyon & Görev',ai:'AI Öneri',growth:'Bayii Büyüme',legacy:'Legacy Room',architecture:'Sistem Mimarisi',settings:'Ayarlar',branchProfile:'Şube Profili',franchiseProfile:'Aday Değerlendirme',customerProfile:'Müşteri 360'};
+    const titles = {dashboard:'Yönetim Kokpiti',intelligence:'İş Zekası',branches:'Bayiler & Şubeler',dealer:'Bayi Portalı','ototr-web':'OTOTR Web',operations:'Operasyon',franchise:'Franchise Satış',crm:'CRM & Randevu','chronic-issues':'Kronik Sorunlar',complaints:'Müşteri Şikayetleri','google-reviews':'Google Haritalar İtibar Merkezi',reputation:'İtibar Radar',finance:'Finans & Royalty',marketing:'Pazarlama',quality:'Kalite & Denetim','report-design':'Ekspertiz Rapor Tasarımı',report2:'Rapor 2','vehicle-passport':'Dijital Araç Karnesi',academy:'OTOTR Academy',hr:'İnsan Kaynakları',legal:'Hukuk & Risk',crisis:'Kriz Merkezi',actions:'Aksiyon & Görev',ai:'AI Öneri',growth:'Bayii Büyüme',legacy:'Legacy Room',architecture:'Sistem Mimarisi',settings:'Ayarlar',branchProfile:'Şube Profili',franchiseProfile:'Aday Değerlendirme',customerProfile:'Müşteri 360'};
     function dealerPortalUrl(){
       const path=decodeURIComponent(location.pathname||'').replace(/\\/g,'/').toLowerCase();
       return path.includes('/bayi-portal/') ? 'index.html#dealer' : 'bayi-portal/index.html#dealer';
@@ -3012,6 +3017,7 @@
         'google-reviews':'kalite',
         reputation:'kalite',
         'report-design':'rapor',
+        report2:'rapor',
         'vehicle-passport':'rapor'
       }[id] || '';
     }
@@ -4126,6 +4132,7 @@
       marketing:['Pazarlama · Growth','Pazarlama / Lead Üretim Room','Google, Meta, WhatsApp, SEO, CPL, ROAS ve şehir/şube bazlı kampanya katkısını izleyin; leadleri CRM veya Franchise Satışa aktarın.'],
       quality:['Kontrol · Kalite Güvence','Kalite & Müşteri Deneyimi Merkezi','Şube denetimi, rapor kalitesi, gizli müşteri, şikayet, ISO 10002 ve düzeltici faaliyetleri kalite sistemi altında yönetin.'],
       'report-design':['Kontrol · Ekspertiz Raporu','OTOTR Ekspertiz Rapor Tasarımı','Premium kurumsal A4 rapor prototipi; müşteri karar özeti, teknik detay, kanıt arşivi, QR doğrulama ve hukuki onayları tek rapor standardında gösterir.'],
+      report2:['Kontrol · Ekspertiz Raporu','Rapor 2','Yeni antetli A4 rapor tasarımı ayrı kopya olarak korunur; eski rapor ekranı ve taslak kayıtları değiştirilmeden düzenlenebilir.'],
       'vehicle-passport':['Kontrol · Dijital Araç Karnesi','Dijital Araç Karnesi','Plaka/şasi bazlı OTOTR geçmiş hafızası; önceki ekspertizlerle güncel bulguları, kilometreyi, kaporta-boya değişimini ve kanıt arşivini karşılaştırır.'],
       academy:['Kontrol · Academy','OTOTR Academy / Eğitim Room','Kişi, şube, bölge ve genel merkez seviyesinde eğitim ataması, deadline, başarı oranı ve sertifika skorlarını yönetin.'],
       hr:['Kontrol · İnsan Kaynakları','İnsan Kaynakları / HR Room','Genel merkez, franchise şubeler, Academy, performans, prim simülasyonu ve personel giderlerini tek merkezden yönetin.'],
@@ -4143,7 +4150,7 @@
       if(id==='legal') return `<button class="btn primary" data-open-action-modal="Hukuk & Risk aksiyonu">${icon('clipboard-plus')}Aksiyon Oluştur</button><button class="btn" data-route="actions">${icon('target')}Görev motoru</button><button class="btn" data-route="crisis">${icon('siren')}Kriz merkezi</button>`;
       if(id==='hr') return `<button class="btn primary" data-hr-quick="action">${icon('clipboard-plus')}Aksiyon Oluştur</button><button class="btn" data-hr-room="employee360">${icon('users')}Personel 360</button><button class="btn" data-hr-room="recruitment">${icon('user-plus')}Talep Aç</button>`;
       if(id==='quality') return `<button class="btn primary" data-quality-open-audit>${icon('plus')}Yeni Denetim Oluştur</button><button class="btn" data-action="Kritik kalite bulguları filtrelendi.">${icon('siren')}Kritik Bulgular</button><button class="btn" data-route="academy">${icon('graduation-cap')}Academy Açıkları</button>`;
-      if(id==='report-design') return `<button class="btn primary" onclick="window.print()">${icon('printer')}Yazdır</button><button class="btn" data-report-scroll="report-page-1">${icon('file-text')}PDF Önizleme</button><button class="btn" data-report-scroll="report-page-18">${icon('badge-check')}Araç Karnesi</button><button class="btn" data-report-scroll="report-page-19">${icon('image')}Kanıt Arşivi</button>`;
+      if(id==='report-design'||id==='report2') return `<button class="btn primary" onclick="window.print()">${icon('printer')}Yazdır</button><button class="btn" data-report-scroll="report-page-1">${icon('file-text')}PDF Önizleme</button><button class="btn" data-report-scroll="report-page-18">${icon('badge-check')}Araç Karnesi</button><button class="btn" data-report-scroll="report-page-19">${icon('image')}Kanıt Arşivi</button>${id==='report2'?`<button class="btn" data-route="report-design">${icon('history')}Eski Rapor</button>`:`<button class="btn" data-route="report2">${icon('files')}Rapor 2</button>`}`;
       if(id==='vehicle-passport') return `<button class="btn primary" onclick="window.print()">${icon('printer')}Yazdır</button><button class="btn" data-route="report-design">${icon('file-check-2')}Tam Rapor</button><button class="btn" data-route="dealer">${icon('tablet-smartphone')}Bayi Portalı</button>`;
       if(id==='operations') return `<button class="btn primary" data-operation-action="SLA-001:delayed-report">${icon('clipboard-plus')}Geciken Rapor Aksiyonu</button><button class="btn" data-operation-action="CAP-001:capacity-warning">${icon('alert-triangle')}Kapasite Uyarısı</button><button class="btn" data-operation-scroll>${icon('list-checks')}Gün Sonu Özeti</button>`;
       if(id==='dealer') return `<button class="btn dealer-theme-switch" type="button" data-theme-toggle title="Açık / koyu geçiş">${icon('sun-moon')}<span>Tema</span></button><button class="btn primary" data-action="Tablet ekspertiz oturumu başlatıldı.">${icon('tablet-smartphone')}Tablet Başlat</button><button class="btn" data-dealer-prepare-report onclick="event.preventDefault();event.stopPropagation();dealerPrepareActiveReportPreview();">${icon('file-pen-line')}Raporu Hazırla</button><button class="btn" data-route="branches">${icon('building-2')}Şube 360</button>`;
@@ -4547,6 +4554,7 @@
         pageShell('dealer', DealerTabletReportPage())+
         pageShell('ototr-web', OtotrWebManagementPage())+
         pageShell('report-design', ExpertiseReportDesignPage())+
+        pageShell('report2', ExpertiseReportDesignPage({routeId:'report2'}))+
         pageShell('vehicle-passport', VehiclePassportStandalonePage())+
         pageShell('branchProfile', BranchProfilePage())+
         pageShell('operations', OperationsCenterPage())+
@@ -6784,15 +6792,17 @@
     function MarketServicePlan(page,total){const d=reportData;return ReportPage(page,total,'Pazar Değeri / Masraf ve Bakım Planı','Piyasa değeri, tahmini masraf ve bakım takvimi aynı karar sayfasında birleştirildi.',`<div class="report-grid-3">${ReportPanel('Ortalama piyasa değeri','1.215.000 TL','İlan bandı 1.150.000 - 1.280.000 TL','blue')}${ReportPanel('Tahmini bakım/onarım','42.850 TL','Kozmetik + bakım','orange')}${ReportPanel('Pazarlık avantajı','48.000 TL','Tahmini indirim fırsatı','green')}</div><div class="service-cost-layout"><section><div class="combined-section-title">Tahmini masraf listesi</div>${ReportTable(['Masraf kalemi','Tahmin'],d.costs)}<div class="report-note report-warning" style="margin-top:8px">Masraf kalemleri karar destek amaçlıdır; kesin fiyatlandırma servis ve parça tedarik teyidiyle netleşir.</div></section><section><div class="combined-section-title">Servis geçmişi / bakım takvimi</div><div class="service-mini-timeline">${d.serviceTimeline.map((x,i)=>`<div class="timeline-item"><div class="timeline-dot">${i+1}</div><div class="report-card"><span>${rpEsc(x[0])}</span><b>${rpEsc(x[1])}</b><p class="card-sub">${rpEsc(x[2])}</p></div></div>`).join('')}</div></section></div><div class="report-panel" style="margin-top:0"><span>Piyasa trend grafiği</span><div class="mini-bars" style="margin-top:8px">${['Ocak','Şubat','Mart','Nisan','Mayıs'].map((m,i)=>`<div class="mini-bar"><span>${m}</span><i style="width:${55+i*9}%"></i><b>${(1.08+i*.03).toFixed(2)}M</b></div>`).join('')}</div></div>`,'optimized-combined-page');}
     function PurchaseAiRecommendation(page,total){const d=reportData;return ReportPage(page,total,'Usta Kanaati ve AI Karar Desteği','Usta kanaati, satın alma skoru ve yapay zeka faktörleri tek karar destek sayfasında okunur.',`<div class="report-grid-3">${ReportScoreCard('Satın alma karar skoru',d.purchaseScore,'Olumlu','Servis kontrolü şartıyla','green')}${ReportPanel('Tahmini masraf','42.850 TL','Pazarlıkta dikkate alınabilir','orange')}${ReportPanel('Piyasa değeri','1.215.000 TL','Pazar bandı uyumlu','blue')}</div><div class="report-note">Mevcut ekspertiz bulgularına göre araçta kritik güvenlik riski tespit edilmemiştir. Satın alma öncesi servis kontrolü önerilen noktalar bulunmaktadır. Bu rapor aracın ekspertiz anındaki durumunu gösterir.</div><div class="compact-decision-grid">${['Neden değerlendirilebilir?','Dikkat edilecek öncelikler','Pazarlık avantajı','Piyasa değeri'].map((x,i)=>`<div class="finding-card report-card tone-${i===1?'orange':'green'}"><h4>${x}</h4><ul><li>${rpEsc(d.recommendation)}</li></ul></div>`).join('')}</div><section class="ai-wide"><div class="ai-badge">AI</div><div><b>Yapay zeka destekli uzman yorumu</b><p>Yapay zeka analizimize göre bu BMW 320i M Sport için genel durum iyi seviyededir. Kritik güvenlik bulgusu tespit edilmemiştir; önerilen işlemler aracın güvenliğini ve değerini korumaya yardımcı olacaktır.</p><b>Bu yorum karar destek amaçlıdır. Nihai satın alma kararı kullanıcıya aittir.</b></div><ul>${[['Motor',25],['Kaporta & boya',20],['Elektronik & OBD',15],['Fren & bakım',15],['Piyasa değeri',15],['Kullanıcı profili',10]].map(x=>`<li>${rpEsc(x[0])}: %${x[1]}</li>`).join('')}</ul></section>`,'optimized-combined-page');}
     function ComplianceApprovals(page,total){const d=reportData;return ReportPage(page,total,'Dijital Doğrulama / Yasal Kapsam / Onaylar','Rapor güvenliği, hukuki kapsam ve dijital onay zinciri final sayfasında birleştirildi.',`<div class="digital-warning">${icon('triangle-alert')}<div><b>Dikkat! Raporlar dijital olarak üretilmektedir.</b><span>Hiçbir raporumuzda el yazısı kullanılmamaktadır. El yazısı ile eklenti yapılan raporlar geçersizdir.</span></div></div><div class="compliance-grid"><section class="verify-panel"><div class="verify-panel-title"><b>01</b>Dijital doğrulama</div><div class="verify-security" style="margin-top:8px"><div>${ReportQrCard()}<b style="display:block;margin-top:6px;font-size:8px">A7B9-2Y1C-3D6E</b></div><div class="verify-cards">${[['Oluşturulma',d.reportDate],['Son görüntüleme','24.05.2026 - 15:22'],['Veri bütünlüğü','Doğrulandı'],['Zaman damgası','24.05.2026 / 14:35:22']].map(x=>`<div class="verify-mini"><span>${rpEsc(x[0])}</span><b>${rpEsc(x[1])}</b></div>`).join('')}</div></div></section><section class="verify-panel"><div class="verify-panel-title"><b>02</b>Yasal kapsam</div><div class="legal-mini-grid compact-legal-grid" style="margin-top:8px">${[['Rapor kapsamı',d.legal[0]],['Adli inceleme değildir',d.legal[1]],['Paket kapsamı dışı',d.legal[3]],['Kişisel veri gizliliği',d.legal[5]]].map(x=>`<div class="legal-mini"><b>${rpEsc(x[0])}</b><span>${rpEsc(x[1])}</span></div>`).join('')}</div></section></div><section class="verify-panel"><div class="verify-panel-title"><b>03</b>Onaylar ve dijital kayıt</div><div class="approval-cards" style="margin-top:8px">${[['Ekspertiz uzmanı',d.technician],['Kalite kontrol',d.qualityController],['Şube sorumlusu',d.approver],['Müşteri onayı',d.buyer],['Satıcı onayı',d.seller],['Sistem onayı','OTOTR Sistem']].map(x=>`<div class="approval-card"><b>${rpEsc(x[0])}</b><span>${rpEsc(x[1])}</span><div class="mini-sign">Dijital onay</div></div>`).join('')}</div></section><div class="report-grid-4">${ReportPanel('Şube',d.branch,d.branchPhone,'blue')}${ReportPanel('Paket',d.packageName,d.selectedExpertiseAmount,'orange')}${ReportPanel('Rapor no',d.reportNo,d.reportDate,'blue')}${ReportPanel('HYB / Kalite',d.tseHybNo,'Dijital onay zinciri','green')}</div><div class="report-note">Bu rapor OTOTR sisteminde rapor numarası, plaka, şasi, zaman damgası ve dijital onay zinciriyle eşleştirilerek saklanır. Baskı kopyası dijital doğrulama ile birlikte geçerlidir.</div>`,'optimized-combined-page final-compliance-page');}
-    function ExpertiseReportDesignPage(){
+    function ExpertiseReportDesignPage(options={}){
+      const routeId=typeof options==='string'?options:(options.routeId||'report-design');
+      const isReport2=routeId==='report2';
       syncDealerReportData();
       startReportLiveRefresh();
       const pages=[['Özet','Kapak','Araç güven paneli',ReportCover],['Özet','Yönetici Özeti','Karar destek paneli',ExecutiveSummary],['Özet','Hasar / KM / Kayıt','Dosya ekspertiz sorguları',DamageMileageRecords],['Kabul ve İş Emri','Araç Kabul / İş Emri','Araç ve taraf kimliği',VehicleIdentity],['Kabul ve İş Emri','Kabul Noktaları','5 nokta iş emri kabul',WorkOrderAcceptancePoints],['Kabul ve İş Emri','Canlı Girişler','Kabul ve usta kaynakları',WorkOrderSourceInputs],['Teknik Testler','Kaporta Görsel Analiz','Kaynak görsel rapor sayfası',BodyPaintAnalysis],['Teknik Testler','Kaporta Detayları','59 nokta, mikron ve kanıt',BodyPaintDetailAnalysis],['Teknik Testler','Şasi Görsel Analiz','Taşıyıcı risk haritası',ChassisInteriorAnalysis],['Teknik Testler','Şasi Detayları','22 nokta durum ve kanıt',ChassisDetailAnalysis],['Teknik Testler','Motor Üst Mekanik','37 nokta check-up',MechanicalInspection],['Teknik Testler','Conta Kaçak Testi','1 kritik motor testi',HeadGasketLeakSection],['Teknik Testler','Alt / Ön Mekanik','40 nokta lift kontrolü',MechanicalUnderbodyInspection],['Teknik Testler','OBD / Beyin Test','10 nokta modül tarama',ObdSection],['Teknik Testler','Airbag / SRS','9 nokta kontrol yöntemi',AirbagSection],['Teknik Testler','Fren / Süspansiyon','Cihaz ölçümü',BrakeSuspensionTyreSection],['Teknik Testler','Dyno / Yol / Lastik','Test ve skor çıktıları',TechnicalDashboard],['Kanıt ve Hafıza','Dijital Araç Karnesi','Plaka/şasi geçmiş kartı',VehiclePassportSection],['Kanıt ve Hafıza','Fotoğraf Kanıt Arşivi','Zaman çizelgesi',EvidenceTimeline],['Karar ve Onay','İç / Dış Kondisyon','Trim ve donanım',VehicleConditionEquipment],['Karar ve Onay','Pazar / Masraf / Bakım','Karar ve servis planı',MarketServicePlan],['Karar ve Onay','Doğrulama / Onaylar','Yasal ve dijital kayıt',ComplianceApprovals]];
       const purchaseAiPageIndex=pages.findIndex(p=>p[3]===PurchaseAiRecommendation);
       if(purchaseAiPageIndex>-1) pages.splice(purchaseAiPageIndex,1);
       const total=pages.length;
-      const navHtml=pages.map((p,i)=>`${i===0||p[0]!==pages[i-1][0]?`<div class="ototr-report-nav-section">${rpEsc(p[0])}</div>`:''}<a href="#report-design" data-report-scroll="report-page-${i+1}" class="${i===0?'active':''}"><strong>${i+1}</strong><span><b>${rpEsc(p[1])}</b></span></a>`).join('');
-      return `<div class="ototr-report"><div class="ototr-report-shell"><div class="ototr-report-toolbar"><div><h2>OTOTR Ekspertiz Rapor Tasarımı</h2><p>Rapor akışı 5 ana bölümde düzenlendi: özet, kabul/iş emri, teknik testler, kanıt/hafıza, karar/onay. Kaporta ve şasi görsel analizleri kaynak tasarım sayfası olarak, detayları ise ayrı teknik sayfa olarak canlı girişe yansır.</p></div><div class="ototr-report-actions"><button class="btn primary" data-report-scroll="report-page-1">${icon('file-text')}PDF Önizleme</button><button class="btn" onclick="window.print()">${icon('printer')}Yazdır</button><button class="btn" data-report-mobile-view>${icon('smartphone')}Dijital Rapor</button><button class="btn" data-report-toggle-technical>${icon('list-checks')}Teknik Detay</button><button class="btn" data-report-scroll="report-page-18">${icon('history')}Araç Karnesi</button></div><div class="ototr-report-filters">${[['all','Tüm bulgular'],['critical','Kritik'],['service','Servis kontrolü'],['maintenance','Bakım gerekli'],['ok','Sorunsuz']].map((f,i)=>`<button class="micro-btn ${i===0?'active':''}" data-report-filter="${f[0]}">${f[1]}</button>`).join('')}</div></div><aside class="ototr-report-nav expertise-report-nav"><div class="ototr-report-nav-title">Rapor Akışı / Hızlı Menü</div>${navHtml}</aside><div class="ototr-report-preview">${pages.map((p,i)=>p[3](i+1,total)).join('')}</div></div></div>`;
+      const navHtml=pages.map((p,i)=>`${i===0||p[0]!==pages[i-1][0]?`<div class="ototr-report-nav-section">${rpEsc(p[0])}</div>`:''}<a href="#${routeId}" data-report-scroll="report-page-${i+1}" class="${i===0?'active':''}"><strong>${i+1}</strong><span><b>${rpEsc(p[1])}</b></span></a>`).join('');
+      return `<div class="ototr-report" data-report-route="${routeId}"><div class="ototr-report-shell"><div class="ototr-report-toolbar"><div><h2>${isReport2?'OTOTR Ekspertiz Raporu 2':'OTOTR Ekspertiz Rapor Tasarımı'}</h2><p>${isReport2?'Yeni antetli A4 tasarım ayrı rapor kopyası olarak ERP içinde tutulur; eski rapor tasarım ekranı ve kayıtları korunur.':'Rapor akışı 5 ana bölümde düzenlendi: özet, kabul/iş emri, teknik testler, kanıt/hafıza, karar/onay. Kaporta ve şasi görsel analizleri kaynak tasarım sayfası olarak, detayları ise ayrı teknik sayfa olarak canlı girişe yansır.'}</p></div><div class="ototr-report-actions"><button class="btn primary" data-report-scroll="report-page-1">${icon('file-text')}PDF Önizleme</button><button class="btn" onclick="window.print()">${icon('printer')}Yazdır</button><button class="btn" data-report-mobile-view>${icon('smartphone')}Dijital Rapor</button><button class="btn" data-report-toggle-technical>${icon('list-checks')}Teknik Detay</button><button class="btn" data-report-scroll="report-page-18">${icon('history')}Araç Karnesi</button>${isReport2?`<button class="btn" data-route="report-design">${icon('history')}Eski Rapor</button>`:`<button class="btn" data-route="report2">${icon('files')}Rapor 2</button>`}</div><div class="ototr-report-filters">${[['all','Tüm bulgular'],['critical','Kritik'],['service','Servis kontrolü'],['maintenance','Bakım gerekli'],['ok','Sorunsuz']].map((f,i)=>`<button class="micro-btn ${i===0?'active':''}" data-report-filter="${f[0]}">${f[1]}</button>`).join('')}</div></div><aside class="ototr-report-nav expertise-report-nav"><div class="ototr-report-nav-title">Rapor Akışı / Hızlı Menü</div>${navHtml}</aside><div class="ototr-report-preview">${pages.map((p,i)=>p[3](i+1,total)).join('')}</div></div></div>`;
     }
     const REPORT_LAYOUT_KEY='ototr-report-layout-designer-v2';
     const REPORT_LAYOUT_LEGACY_KEY='ototr-report-layout-designer-v1';
@@ -6801,19 +6811,27 @@
     const REPORT_LETTERHEAD_KEY='ototr-report-letterhead';
     const REPORT_DATA_BINDINGS={none:'Veri bağlantısı yok',reportNo:'Rapor no',reportDate:'Rapor tarihi',plate:'Plaka',vin:'Şasi / VIN',branch:'Şube',packageName:'Paket',mileage:'Kilometre',brandModel:'Marka / model'};
     const reportLayoutSession={selected:null,drag:null,resize:null,undo:[],redo:[],preview:false,leftTab:'pages',inspectorTab:'design',selection:null};
+    function isReportRoute(id=current){return id==='report-design'||id==='report2';}
+    function activeReportShell(){return document.querySelector(`#page-${current}.active`)||document.querySelector('#page-report2.active,#page-report-design.active');}
+    function activeReportRoot(){return activeReportShell()?.querySelector('.ototr-report')||document.querySelector('.ototr-report.report-studio-active')||document.querySelector('.ototr-report');}
+    function activeReportTarget(id){const shell=activeReportShell();return shell?.querySelector(`#${id}`)||document.getElementById(id);}
+    function isReport2Context(){return current==='report2'||activeReportShell()?.id==='page-report2';}
+    function reportLayoutStorageKey(){return isReport2Context()?'ototr-report2-layout-designer-v2':REPORT_LAYOUT_KEY;}
+    function reportLayoutLegacyStorageKey(){return isReport2Context()?'ototr-report2-layout-designer-v1':REPORT_LAYOUT_LEGACY_KEY;}
+    function reportLetterheadStorageKey(){return isReport2Context()?'ototr-report2-letterhead':REPORT_LETTERHEAD_KEY;}
     function reportLayoutDefaultState(){return {version:2,enabled:true,grid:true,snap:true,rulers:true,zoom:.72,activePage:'report-page-1',letterhead:{src:'docs/ototr-a4-master-locked-300dpi.png',name:'OTOTR_A4_MASTER_LOCKED_300DPI.png',locked:true},items:{},custom:{},updatedAt:null};}
     function getReportLayoutState(){
       try{
-        let parsed=JSON.parse(localStorage.getItem(REPORT_LAYOUT_KEY)||'null');
+        let parsed=JSON.parse(localStorage.getItem(reportLayoutStorageKey())||'null');
         if(!parsed){
-          const legacy=JSON.parse(localStorage.getItem(REPORT_LAYOUT_LEGACY_KEY)||'null');
+          const legacy=JSON.parse(localStorage.getItem(reportLayoutLegacyStorageKey())||'null');
           parsed=legacy?{...reportLayoutDefaultState(),items:legacy.items||{},grid:legacy.grid!==false,snap:legacy.snap!==false}:reportLayoutDefaultState();
         }
         const defaults=reportLayoutDefaultState();
         return {...defaults,...parsed,letterhead:{...defaults.letterhead,...(parsed.letterhead||{})},items:parsed.items||{},custom:parsed.custom||{}};
       }catch(err){return reportLayoutDefaultState();}
     }
-    function saveReportLayoutState(state){const defaults=reportLayoutDefaultState(),next={...defaults,...(state||{}),letterhead:{...defaults.letterhead,...((state||{}).letterhead||{})},version:2,updatedAt:new Date().toISOString()};localStorage.setItem(REPORT_LAYOUT_KEY,JSON.stringify(next));return next;}
+    function saveReportLayoutState(state){const defaults=reportLayoutDefaultState(),next={...defaults,...(state||{}),letterhead:{...defaults.letterhead,...((state||{}).letterhead||{})},version:2,updatedAt:new Date().toISOString()};localStorage.setItem(reportLayoutStorageKey(),JSON.stringify(next));return next;}
     function reportLayoutSnapshot(state=getReportLayoutState()){return JSON.stringify({items:state.items||{},custom:state.custom||{},letterhead:state.letterhead||{},activePage:state.activePage,grid:state.grid,snap:state.snap,rulers:state.rulers,zoom:state.zoom});}
     function reportCaptureHistory(){const snap=reportLayoutSnapshot();if(reportLayoutSession.undo.at(-1)!==snap)reportLayoutSession.undo.push(snap);if(reportLayoutSession.undo.length>80)reportLayoutSession.undo.shift();reportLayoutSession.redo=[];reportStudioSyncToolbar();}
     function reportRestoreSnapshot(snapshot){
@@ -6826,7 +6844,7 @@
     function reportLayoutUndo(){if(!reportLayoutSession.undo.length)return;reportLayoutSession.redo.push(reportLayoutSnapshot());reportRestoreSnapshot(reportLayoutSession.undo.pop());}
     function reportLayoutRedo(){if(!reportLayoutSession.redo.length)return;reportLayoutSession.undo.push(reportLayoutSnapshot());reportRestoreSnapshot(reportLayoutSession.redo.pop());}
     function reportLayoutItemKey(el){if(!el)return '';return el.dataset.reportItemKey||`${el.closest('.report-page')?.id||'report-page'}:${el.dataset.reportEditKey||''}`;}
-    function reportStudioPages(root=document.querySelector('.ototr-report')){return [...(root?.querySelectorAll('.ototr-report-preview>.report-page')||[])];}
+    function reportStudioPages(root=activeReportRoot()){return [...(root?.querySelectorAll('.ototr-report-preview>.report-page')||[])];}
     function reportStudioPageTitle(page,index=0){return page?.querySelector('.report-page-title h3')?.textContent?.trim()||page?.querySelector('main h2,main h3')?.textContent?.trim()||`Rapor Sayfası ${index+1}`;}
     function reportLayoutLabel(el,index){
       if(el.dataset.reportCustom==='1')return el.dataset.reportEditLabel||'Özel blok';
@@ -6856,15 +6874,15 @@
     }
     async function reportLetterheadPutBlob(file){
       const store=await reportLetterheadObjectStore('readwrite');
-      return new Promise((resolve,reject)=>{const req=store.put({blob:file,name:file.name,type:file.type,updatedAt:new Date().toISOString()},REPORT_LETTERHEAD_KEY);req.onsuccess=()=>resolve();req.onerror=()=>reject(req.error||new Error('Antet kaydedilemedi.'));});
+      return new Promise((resolve,reject)=>{const req=store.put({blob:file,name:file.name,type:file.type,updatedAt:new Date().toISOString()},reportLetterheadStorageKey());req.onsuccess=()=>resolve();req.onerror=()=>reject(req.error||new Error('Antet kaydedilemedi.'));});
     }
     async function reportLetterheadGetBlob(){
       const store=await reportLetterheadObjectStore('readonly');
-      return new Promise((resolve,reject)=>{const req=store.get(REPORT_LETTERHEAD_KEY);req.onsuccess=()=>resolve(req.result||null);req.onerror=()=>reject(req.error||new Error('Antet okunamadı.'));});
+      return new Promise((resolve,reject)=>{const req=store.get(reportLetterheadStorageKey());req.onsuccess=()=>resolve(req.result||null);req.onerror=()=>reject(req.error||new Error('Antet okunamadı.'));});
     }
     async function reportLetterheadDeleteBlob(){
       const store=await reportLetterheadObjectStore('readwrite');
-      return new Promise((resolve,reject)=>{const req=store.delete(REPORT_LETTERHEAD_KEY);req.onsuccess=()=>resolve();req.onerror=()=>reject(req.error||new Error('Antet silinemedi.'));});
+      return new Promise((resolve,reject)=>{const req=store.delete(reportLetterheadStorageKey());req.onsuccess=()=>resolve();req.onerror=()=>reject(req.error||new Error('Antet silinemedi.'));});
     }
     function reportLetterheadImageRatio(file){
       return new Promise((resolve,reject)=>{
@@ -6883,7 +6901,7 @@
       window.__ototrReportLetterheadBlobUrl=URL.createObjectURL(stored.blob);
       state.letterhead={...state.letterhead,name:stored.name||state.letterhead.name,src:'indexeddb:ototr-report-letterhead'};
       saveReportLayoutState(state);
-      reportApplyLetterheadSource(document.querySelector('.ototr-report'),state);
+      reportApplyLetterheadSource(activeReportRoot(),state);
       return true;
     }
     async function reportStudioUploadLetterhead(file){
@@ -6901,7 +6919,7 @@
       const state=getReportLayoutState();
       state.letterhead={src:'indexeddb:ototr-report-letterhead',name:file.name,locked:true,width:info.width,height:info.height,updatedAt:new Date().toISOString()};
       saveReportLayoutState(state);
-      reportApplyLetterheadSource(document.querySelector('.ototr-report'),state);
+      reportApplyLetterheadSource(activeReportRoot(),state);
       reportStudioRefresh();
       reportStudioToast('A4 antet yüklendi ve kilitlendi.');
     }
@@ -7007,7 +7025,7 @@
       const items=[['text','Metin','type','Serbest açıklama'],['section','Bölüm Başlığı','heading','Lacivert bölüm şeridi'],['metric','Değer Kartı','gauge','Skor veya toplam'],['image','Görsel Alanı','image','Fotoğraf / teknik asset'],['divider','Ayraç','minus','Kırmızı ayırıcı çizgi'],['note','Not Kutusu','sticky-note','Eksper açıklaması']];
       list.innerHTML=items.map(x=>`<button class="report-library-item" data-library-add="${x[0]}">${icon(x[2])}<b>${x[1]}</b><span>${x[3]}</span></button>`).join('');
     }
-    function reportApplyLetterheadSource(root=document.querySelector('.ototr-report'),state=getReportLayoutState()){
+    function reportApplyLetterheadSource(root=activeReportRoot(),state=getReportLayoutState()){
       const src=state.letterhead?.src==='indexeddb:ototr-report-letterhead'?(window.__ototrReportLetterheadBlobUrl||reportLayoutDefaultState().letterhead.src):(state.letterhead?.src||reportLayoutDefaultState().letterhead.src);
       root?.querySelectorAll('.report-letterhead-image').forEach(img=>{if(img.getAttribute('src')!==src)img.setAttribute('src',src);});
       const label=root?.querySelector('.report-letterhead-name');if(label)label.textContent=state.letterhead?.name||'Varsayılan antet';
@@ -7052,7 +7070,7 @@
       return '#'+nums.slice(0,3).map(n=>Math.max(0,Math.min(255,Math.round(Number(n)))).toString(16).padStart(2,'0')).join('');
     }
     function reportStudioSyncToolbar(){
-      const root=document.querySelector('.ototr-report'),state=getReportLayoutState(),panel=root?.querySelector('.report-layout-panel');if(!panel)return;
+      const root=activeReportRoot(),state=getReportLayoutState(),panel=root?.querySelector('.report-layout-panel');if(!panel)return;
       panel.style.setProperty('--studio-zoom',String(state.zoom));panel.classList.toggle('report-studio-hide-rulers',!state.rulers);panel.classList.toggle('report-studio-preview-mode',reportLayoutSession.preview);
       const zoom=panel.querySelector('[data-studio-zoom-label]');if(zoom)zoom.textContent=`%${Math.round(state.zoom*100)}`;
       ['grid','snap','rulers'].forEach(cmd=>panel.querySelector(`[data-studio-command="${cmd}"]`)?.classList.toggle('active',!!state[cmd]));
@@ -7065,14 +7083,15 @@
       const rect=el.getBoundingClientRect(),pageRect=page.getBoundingClientRect(),selection=document.createElement('div');selection.className='report-layout-selection';selection.style.left=`${(rect.left-pageRect.left)/zoom}px`;selection.style.top=`${(rect.top-pageRect.top)/zoom}px`;selection.style.width=`${rect.width/zoom}px`;selection.style.height=`${rect.height/zoom}px`;selection.innerHTML=`<span class="report-layout-selection-label">${rpEsc(el.dataset.reportEditLabel||'Katman')}</span>${['nw','n','ne','e','se','s','sw','w'].map(h=>`<i class="report-resize-handle" data-handle="${h}"></i>`).join('')}`;page.appendChild(selection);reportLayoutSession.selection=selection;
     }
     function reportStudioRefresh(){
-      const root=document.querySelector('.ototr-report');if(!root)return;const state=getReportLayoutState();
+      const root=activeReportRoot();if(!root)return;const state=getReportLayoutState();
       root.classList.add('report-studio-active');root.classList.toggle('report-layout-editing',!reportLayoutSession.preview);root.classList.toggle('report-layout-grid',state.grid&&!reportLayoutSession.preview);
       reportStudioRenderPages(root,state);reportStudioRenderLayers(root,state);reportStudioRenderLibrary(root);reportStudioRenderLetterhead(root,state);reportApplyLetterheadSource(root,state);reportStudioRenderInspector(root,state);reportStudioSyncTabs(root);reportStudioSyncToolbar();requestAnimationFrame(reportStudioUpdateSelection);if(window.lucide)lucide.createIcons();
     }
-    function restoreReportStudioState(){const root=document.querySelector('.ototr-report');if(!root)return;const state=getReportLayoutState();markReportEditableBlocks(root,state);reportStudioRefresh();}
+    function restoreReportStudioState(){const root=activeReportRoot();if(!root)return;const state=getReportLayoutState();markReportEditableBlocks(root,state);reportStudioRefresh();}
     function initReportLayoutDesigner(){
-      const root=document.querySelector('.ototr-report');if(!root)return;const state=getReportLayoutState();renderReportLayoutPanel(root,state);markReportEditableBlocks(root,state);reportStudioRefresh();
-      if(!window.__ototrReportLetterheadLoaded){window.__ototrReportLetterheadLoaded=true;reportLoadStoredLetterhead().then(loaded=>{if(loaded)reportStudioRefresh();}).catch(()=>{});}
+      const root=activeReportRoot();if(!root)return;const state=getReportLayoutState();renderReportLayoutPanel(root,state);markReportEditableBlocks(root,state);reportStudioRefresh();
+      const loadedFlag=isReport2Context()?'__ototrReport2LetterheadLoaded':'__ototrReportLetterheadLoaded';
+      if(!window[loadedFlag]){window[loadedFlag]=true;reportLoadStoredLetterhead().then(loaded=>{if(loaded)reportStudioRefresh();}).catch(()=>{});}
       if(!window.__ototrReportLayoutDesignerBound){window.__ototrReportLayoutDesignerBound=true;document.addEventListener('click',handleReportLayoutClick,true);document.addEventListener('input',handleReportLayoutInput,true);document.addEventListener('change',handleReportLayoutChange,true);document.addEventListener('pointerdown',handleReportLayoutPointerDown,true);document.addEventListener('dblclick',handleReportLayoutDoubleClick,true);document.addEventListener('keydown',handleReportLayoutKeyDown,true);}
     }
     function selectReportLayoutElement(el){document.querySelectorAll('[data-report-editable].selected').forEach(x=>x.classList.remove('selected'));reportLayoutSession.selected=el||null;if(el)el.classList.add('selected');reportStudioRefresh();}
@@ -7099,7 +7118,7 @@
     function reportStudioExport(){const state=getReportLayoutState(),payload={schema:'ototr-report-layout',version:2,exportedAt:new Date().toISOString(),reportNo:reportData?.reportNo||null,layout:state};const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=`ototr-rapor-tasarimi-${Date.now()}.json`;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);reportStudioToast('Tasarım JSON dosyası indirildi.');}
     function reportStudioImportFile(file){if(!file)return;const reader=new FileReader();reader.onload=()=>{try{const parsed=JSON.parse(reader.result),incoming=parsed.layout||parsed;if(parsed.schema&&parsed.schema!=='ototr-report-layout')throw new Error('Şema uyumsuz');const safe={...reportLayoutDefaultState(),...incoming,items:incoming.items||{},custom:incoming.custom||{}};Object.values(safe.custom).forEach(meta=>{delete meta.html;meta.content=String(meta.content||'Yeni içerik').slice(0,5000);});reportCaptureHistory();saveReportLayoutState(safe);restoreReportStudioState();reportStudioToast('Tasarım içe aktarıldı.');}catch(err){reportStudioToast('Geçersiz tasarım dosyası.');}};reader.readAsText(file);}
     function reportStudioExit(message='Tasarım kaydedildi. Düzenleme modundan çıkıldı.'){
-      const root=document.querySelector('.ototr-report.report-studio-active')||document.querySelector('.ototr-report');if(!root)return;
+      const root=document.querySelector('.ototr-report.report-studio-active')||activeReportRoot();if(!root)return;
       saveReportLayoutState(getReportLayoutState());
       const shell=root.querySelector('[data-report-studio-shell="1"]')||[...root.children].find(el=>el.classList?.contains('ototr-report-shell'))||root.querySelector('.ototr-report-shell'),preview=root.querySelector('[data-report-studio-preview="1"]')||root.querySelector('.report-studio-canvas > .ototr-report-preview');
       if(shell&&preview&&preview.parentElement!==shell)shell.appendChild(preview);
@@ -7109,7 +7128,7 @@
       reportLayoutSession.selected=null;reportLayoutSession.selection=null;if(message)reportStudioToast(message);
     }
     function reportStudioPrint(){
-      if(document.querySelector('.ototr-report.report-studio-active'))reportStudioExit('PDF için tasarım kaydedildi ve düzenleme modu kapatıldı.');
+      if(activeReportRoot()?.classList.contains('report-studio-active')||document.querySelector('.ototr-report.report-studio-active'))reportStudioExit('PDF için tasarım kaydedildi ve düzenleme modu kapatıldı.');
       setTimeout(()=>window.print(),80);
     }
     function handleReportLayoutClick(e){
@@ -7133,7 +7152,7 @@
       if(cell!==undefined){const target=el.querySelectorAll('th,td')[Number(cell)];if(target){reportCaptureHistory();target.textContent=e.target.value;const state=getReportLayoutState(),key=reportLayoutItemKey(el),tableCells=[...el.querySelectorAll('th,td')].map(x=>x.textContent);state.items[key]={...(state.items[key]||{}),tableCells};saveReportLayoutState(state);reportStudioMarkChanged();}return;}
       const numeric=['x','y','w','h','rotation','opacity','z','fontSize','lineHeight','letterSpacing','borderWidth','borderRadius','padding'];let value=numeric.includes(prop)?Number(e.target.value):e.target.value;if(prop==='locked')value=value==='true';writeReportLayoutItem(el,{[prop]:value},{refresh:false});reportStudioUpdateSelection();
     }
-    function handleReportLayoutChange(e){const input=e.target.closest('[data-studio-import]'),letterheadInput=e.target.closest('[data-studio-letterhead-upload]');if(input){reportStudioImportFile(input.files?.[0]);input.value='';return;}if(letterheadInput){reportStudioUploadLetterhead(letterheadInput.files?.[0]);letterheadInput.value='';return;}const prop=e.target.dataset.reportProp;if(prop&&reportLayoutSession.selected){reportStudioRenderInspector(document.querySelector('.ototr-report'),getReportLayoutState());reportStudioRenderLayers(document.querySelector('.ototr-report'),getReportLayoutState());}}
+    function handleReportLayoutChange(e){const input=e.target.closest('[data-studio-import]'),letterheadInput=e.target.closest('[data-studio-letterhead-upload]');if(input){reportStudioImportFile(input.files?.[0]);input.value='';return;}if(letterheadInput){reportStudioUploadLetterhead(letterheadInput.files?.[0]);letterheadInput.value='';return;}const prop=e.target.dataset.reportProp;if(prop&&reportLayoutSession.selected){const root=activeReportRoot();reportStudioRenderInspector(root,getReportLayoutState());reportStudioRenderLayers(root,getReportLayoutState());}}
     function beginReportInlineEdit(el){const target=reportContentTarget(el);if(!target||el.dataset.reportLocked==='1')return;target.contentEditable='true';target.focus();document.getSelection()?.selectAllChildren(target);target.addEventListener('blur',()=>{target.contentEditable='false';writeReportLayoutItem(el,{content:target.textContent.trim()});},{once:true});}
     function handleReportLayoutDoubleClick(e){const root=e.target.closest('.ototr-report.report-layout-editing');if(!root||e.target.closest('.report-layout-panel'))return;const el=e.target.closest('[data-report-editable]');if(!el)return;e.preventDefault();e.stopPropagation();selectReportLayoutElement(el);beginReportInlineEdit(el);}
     function handleReportLayoutPointerDown(e){
@@ -7149,26 +7168,26 @@
     }
     function handleReportLayoutPointerUp(){document.removeEventListener('pointermove',handleReportLayoutPointerMove,true);document.removeEventListener('pointerup',handleReportLayoutPointerUp,true);reportLayoutSession.drag=null;reportLayoutSession.resize=null;reportStudioRefresh();}
     function handleReportLayoutKeyDown(e){
-      if(current!=='report-design'||!document.querySelector('.report-studio-active'))return;const mod=e.ctrlKey||e.metaKey;if(mod&&e.key.toLowerCase()==='z'){e.preventDefault();e.shiftKey?reportLayoutRedo():reportLayoutUndo();return;}if(mod&&e.key.toLowerCase()==='y'){e.preventDefault();reportLayoutRedo();return;}if(mod&&e.key.toLowerCase()==='s'){e.preventDefault();saveReportLayoutState(getReportLayoutState());reportStudioToast('Rapor taslağı kaydedildi.');return;}if(e.key==='Escape'){selectReportLayoutElement(null);return;}
+      if(!isReportRoute(current)||!document.querySelector('.report-studio-active'))return;const mod=e.ctrlKey||e.metaKey;if(mod&&e.key.toLowerCase()==='z'){e.preventDefault();e.shiftKey?reportLayoutRedo():reportLayoutUndo();return;}if(mod&&e.key.toLowerCase()==='y'){e.preventDefault();reportLayoutRedo();return;}if(mod&&e.key.toLowerCase()==='s'){e.preventDefault();saveReportLayoutState(getReportLayoutState());reportStudioToast('Rapor taslağı kaydedildi.');return;}if(e.key==='Escape'){selectReportLayoutElement(null);return;}
       const el=reportLayoutSession.selected;if(!el||el.dataset.reportLocked==='1'||e.target.matches('input,textarea,select,[contenteditable="true"]'))return;if(['ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].includes(e.key)){e.preventDefault();const item=reportLayoutCurrentItem(el),step=e.shiftKey?10:1,patch={};if(e.key==='ArrowLeft')patch.x=item.x-step;if(e.key==='ArrowRight')patch.x=item.x+step;if(e.key==='ArrowUp')patch.y=item.y-step;if(e.key==='ArrowDown')patch.y=item.y+step;writeReportLayoutItem(el,patch);}if((e.key==='Delete'||e.key==='Backspace')&&el.dataset.reportCustom==='1'){e.preventDefault();reportStudioDeleteSelection();}
     }
     if(!window.__ototrReportControlsBound){
       window.__ototrReportControlsBound=true;
-      window.addEventListener('beforeprint',()=>{if(document.querySelector('.ototr-report.report-studio-active'))reportStudioExit('');});
+      window.addEventListener('beforeprint',()=>{if(activeReportRoot()?.classList.contains('report-studio-active')||document.querySelector('.ototr-report.report-studio-active'))reportStudioExit('');});
       document.addEventListener('click',e=>{
         const filter=e.target.closest('[data-report-filter]');
         if(filter){
           e.preventDefault();e.stopPropagation();
-          const root=document.querySelector('.ototr-report'); if(!root) return;
+          const root=filter.closest('.ototr-report')||activeReportRoot(); if(!root) return;
           const value=filter.dataset.reportFilter;
           root.querySelectorAll('[data-report-filter]').forEach(b=>b.classList.toggle('active',b===filter));
           root.querySelectorAll('.risk-item').forEach(el=>{el.style.display=(value==='all'||el.dataset.risk===value)?'':'none';});
           if(typeof toast==='function') toast('Rapor bulgu filtresi: '+filter.textContent.trim());
         }
         const tech=e.target.closest('[data-report-toggle-technical]');
-        if(tech){e.preventDefault();e.stopPropagation();document.querySelector('.ototr-report')?.classList.toggle('hide-technical');}
+        if(tech){e.preventDefault();e.stopPropagation();(tech.closest('.ototr-report')||activeReportRoot())?.classList.toggle('hide-technical');}
         const mobile=e.target.closest('[data-report-mobile-view]');
-        if(mobile){e.preventDefault();e.stopPropagation();document.querySelector('.ototr-report')?.classList.toggle('mobile-preview');}
+        if(mobile){e.preventDefault();e.stopPropagation();(mobile.closest('.ototr-report')||activeReportRoot())?.classList.toggle('mobile-preview');}
       });
     }
     const DEALER_LIVE_KEY='ototr-dealer-live-workorders-v1';
@@ -7209,7 +7228,7 @@
       }).join('|');
     }
     async function refreshReportDesignFromLiveData(reason='auto'){
-      if(current!=='report-design'||reportLiveRefreshInFlight) return;
+      if(!isReportRoute(current)||reportLiveRefreshInFlight) return;
       reportLiveRefreshInFlight=true;
       try{
         if(typeof dealerSupabaseSession==='function'&&(dealerSupabaseSession()||dealerStoredSupabaseSession())&&!dealerSupabaseSyncInFlight){
@@ -7227,7 +7246,7 @@
           reportLiveRefreshSignature=nextSignature;
           window.__OTOTR_FULL_ADMIN_PAGES_RENDERED__=true;
           renderPages();
-          route('report-design',{preserveScroll:true});
+          route(current,{preserveScroll:true});
         }
       }catch(err){
         if(typeof saveDealerSupabaseSyncState==='function') saveDealerSupabaseSyncState({lastError:err.message||String(err)});
@@ -16038,7 +16057,7 @@
       history.replaceState(null,'','#'+(resolved==='hr'?hrRouteFor(HR_VIEW.room):resolved==='academy'?academyRouteFor(ACADEMY_VIEW.room):resolved));
       if(!options.preserveScroll) window.scrollTo({top:0,behavior:'smooth'});
       if(!options.skipDeferredEnhancements) setTimeout(()=>{renderCharts();initBranchMap();dealerEnhanceCockpitRevenue();},40);
-      if(resolved==='report-design') setTimeout(()=>{ syncExpertiseReportQuickMenu(); updateExpertiseReportNavActive(); initReportLayoutDesigner(); },80);
+      if(isReportRoute(resolved)) setTimeout(()=>{ syncExpertiseReportQuickMenu(); updateExpertiseReportNavActive(); initReportLayoutDesigner(); },80);
       if(resolved==='dealer') setTimeout(()=>{
         document.querySelector('#dealerWorkOrderForm [name="vin"],#dealerWorkOrderForm [name="plate"],#dealerWorkOrderForm [name="vehicleMake"]')?.dispatchEvent(new Event('input',{bubbles:true}));
       },180);
@@ -16096,20 +16115,21 @@
       panel.innerHTML=`<div><b>${title} · ${score}/100</b><span>${copy}</span></div><button class="micro-btn" data-route="${routeId}">İlgili modül</button>`;
     }
     function updateExpertiseReportNavActive(targetId){
-      const links=[...document.querySelectorAll('.expertise-report-nav [data-report-scroll]')];
+      const shell=activeReportShell()||document;
+      const links=[...shell.querySelectorAll('.expertise-report-nav [data-report-scroll]')];
       if(!links.length) return;
       let activeId=targetId;
       if(!activeId){
         const marker=Math.max(120,window.innerHeight*.28);
-        const pages=[...document.querySelectorAll('.expertise-page')];
+        const pages=[...shell.querySelectorAll('.expertise-page')];
         const active=pages.find(p=>{ const r=p.getBoundingClientRect(); return r.top<=marker && r.bottom>marker; }) || pages[0];
         activeId=active?.id;
       }
       links.forEach(a=>a.classList.toggle('active',a.dataset.reportScroll===activeId));
     }
     function syncExpertiseReportQuickMenu(){
-      const root=document.querySelector('.ototr-report');
-      if(!root || current!=='report-design') return;
+      const root=activeReportRoot();
+      if(!root || !isReportRoute(current)) return;
       const first=root.querySelector('.report-paper-template,.report-page');
       if(!first) return;
       const top=Math.max(18,Math.round(first.getBoundingClientRect().top));
@@ -16117,11 +16137,11 @@
     }
     let expertiseReportNavTick=false;
     window.addEventListener('scroll',()=>{
-      if(current!=='report-design' || expertiseReportNavTick) return;
+      if(!isReportRoute(current) || expertiseReportNavTick) return;
       expertiseReportNavTick=true;
       requestAnimationFrame(()=>{ expertiseReportNavTick=false; syncExpertiseReportQuickMenu(); updateExpertiseReportNavActive(); });
     },{passive:true});
-    window.addEventListener('resize',()=>{ if(current==='report-design') requestAnimationFrame(syncExpertiseReportQuickMenu); },{passive:true});
+    window.addEventListener('resize',()=>{ if(isReportRoute(current)) requestAnimationFrame(syncExpertiseReportQuickMenu); },{passive:true});
     document.addEventListener('click',e=>{
       const riskEl=e.target.closest('[data-risk-title]');
       if(riskEl){
@@ -16379,7 +16399,7 @@
         e.preventDefault();
         e.stopPropagation();
         updateExpertiseReportNavActive(reportScrollEl.dataset.reportScroll);
-        document.getElementById(reportScrollEl.dataset.reportScroll)?.scrollIntoView({behavior:'smooth',block:'start'});
+        activeReportTarget(reportScrollEl.dataset.reportScroll)?.scrollIntoView({behavior:'smooth',block:'start'});
         return;
       }
       const aiActionEl=e.target.closest('[data-ai-action]');
@@ -16510,7 +16530,7 @@
     document.addEventListener('click',e=>{ if(!e.target.closest('.search')) closeSearchResults(); });
 
     function ensureInspectionSchemaForRoute(resolved){
-      const schemaRoutes=['dealer','report-design','vehicle-passport'];
+      const schemaRoutes=['dealer','report-design','report2','vehicle-passport'];
       if(!schemaRoutes.includes(resolved) || window.OTOTR_INSPECTION_SCHEMA || window.__OTOTR_SCHEMA_LOAD_PENDING__) return;
       window.__OTOTR_SCHEMA_LOAD_PENDING__ = true;
       window.OTOTR_ASSET_LOADER?.loadInspectionSchema?.().then(()=>{
@@ -16669,7 +16689,7 @@
       initTheme({skipRender:true});
       dealerScrubSensitiveUrlParams();
       syncDealerStandaloneMode(current);
-      if(['dealer','report-design','vehicle-passport'].includes(current)){
+      if(['dealer','report-design','report2','vehicle-passport'].includes(current)){
         await window.OTOTR_ASSET_LOADER?.loadInspectionSchema?.().catch(()=>null);
         if(typeof applyInspectionSchemaToReportData === 'function') applyInspectionSchemaToReportData();
       }
