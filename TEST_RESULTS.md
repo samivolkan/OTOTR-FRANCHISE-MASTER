@@ -1195,3 +1195,23 @@ Notes:
   - `#report2` PDF uretimi: `24,266,257` byte.
   - `#report2` console error sayisi: `0`.
   - `#report-design` regresyon kontrolu: eski route aktif, `#report2` pasif, 22 sayfa render oldu, storage `ototr-report-layout-designer-v2`, console error `0`.
+
+## 2026-08-18 - Rapor 2 final 24 sayfa tasarim akisi
+
+- Kapsam:
+  - `#report2` final rapor akisi yeni antetli A4 kagit uzerinde 24 sayfaya indirildi; 25 sayfa siniri asilmadi.
+  - Kaporta & Boya bolumu 3 sayfa olarak siralandi: gorsel analiz, harita/olcum ozeti, 28 nokta detay.
+  - Sasi & Yapısal Govde bolumu 3 sayfa olarak siralandi: gorsel analiz, 22 nokta detay, yapisal kanit/risk ozeti.
+  - Dijital arac karnesi tek ozet sayfaya alindi; fotograf ve kanit arsivi raporun son sayfasi yapildi.
+  - Eski `#report-design` rapor tasarimi 22 sayfa olarak korunmaya devam ediyor.
+
+- Dogrulama:
+  - Inline script syntax kontrolu: `{"ok":15,"skip":1}`.
+  - `#report2` Playwright desktop QA: `24` sayfa, final sinif aktif, nav basligi `Final Rapor Akışı / 24 Sayfa`.
+  - `#report2` sayfa dizilimi: kaporta `3` sayfa, sasi/yapisal `3` sayfa, dijital arac karnesi `21`, fotograf kanit arsivi `24`.
+  - `#report2` antet kontrolu: `24/24` antet gorseli yuklendi, ust dinamik cakisma alani `0`.
+  - `#report2` PDF uretimi: `25,176,532` byte.
+  - `#report2` desktop console error sayisi: `0`.
+  - `#report2` mobil QA: `24` sayfa, overflow count `0`, console error sayisi `0`.
+  - `#report-design` regresyon kontrolu: `22` sayfa, report2 final sinifi yok, PDF `24,268,136` byte, console error sayisi `0`.
+  - `node tools/test-index.mjs` (`apps/admin/prototype` altinda): gecti; genel ERP smoke `navCount: 40`, `checkedRoutes: dashboard, franchise, branches, academy, report-design, crm, finance, settings`, `status: ok`.

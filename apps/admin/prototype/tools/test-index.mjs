@@ -85,9 +85,9 @@ const leadAfter = await page.locator("#page-franchise.active .deal").count();
 
 await page.locator('#nav [data-nav-route="report-design"]').click();
 await page.waitForSelector("#page-report-design.active");
-await page.locator("#page-report-design.active").getByText("Dijital").first().waitFor();
-await page.locator("#page-report-design.active").getByText("Arac Kabul Kontrol Noktalari").first().waitFor();
-await page.locator("#page-report-design.active").getByText("Conta Kacak Testi").first().waitFor();
+await page.locator("#page-report-design.active .report-page-title h3").filter({ hasText: "Dijital Araç Karnesi" }).first().waitFor({ state: "attached" });
+await page.locator("#page-report-design.active .report-page-title h3").filter({ hasText: "Arac Kabul Kontrol Noktalari" }).first().waitFor({ state: "attached" });
+await page.locator("#page-report-design.active .report-page-title h3").filter({ hasText: "Conta Kacak Testi" }).first().waitFor({ state: "attached" });
 
 await page.locator('#nav [data-nav-route="academy"]').click();
 await page.waitForSelector("#page-academy.active");

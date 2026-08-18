@@ -303,3 +303,14 @@
 - Scoped report navigation, filters, mobile preview, layout studio and print actions to the active report page to avoid duplicate report-page IDs crossing between the old report and `Rapor 2`.
 - Verified both `#report2` and `#report-design` locally with Chrome/Playwright and zero console errors.
 - No Supabase, live database, secret, token or production operation was used.
+
+## ERP Report 2 Final 24-Page Flow - 2026-08-18
+
+- Updated only the separate `#report2` route with the final report sequence on the locked A4 letterhead; the original `#report-design` route remains unchanged at 22 pages.
+- Capped the final report at 24 pages, keeping it below the 25-page product limit.
+- Centered the report flow around the latest Kaporta & Boya and Sasi/Yapisal Govde preparation: 3 body-paint pages, 3 structural pages, then technical tests, vehicle memory, final approval and photo evidence.
+- Added final flow, body-paint map summary, structural evidence summary and approval/scope pages for `Rapor 2`.
+- Kept the photo/evidence archive as the final report page and moved digital vehicle card content into a condensed single page.
+- Verified `#report2` desktop and mobile locally with Playwright: 24 pages, zero visible top header overlays, all letterheads loaded, zero console errors and a generated PDF.
+- Updated the admin prototype smoke test report-page locator to assert rendered report titles instead of a hidden toolbar text match; the smoke test now passes again.
+- No Supabase, live database, secret, token or production database operation was used.
