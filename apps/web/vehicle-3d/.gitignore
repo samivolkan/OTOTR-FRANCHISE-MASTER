@@ -1,0 +1,8 @@
+node_modules/
+dist/
+dist-erp/
+.local/
+.env*
+!.env.example
+OTOTR-VISION-ornek-proje.zip
+OTOTR-VISION-gercek-fotograf-alternatifi.zip

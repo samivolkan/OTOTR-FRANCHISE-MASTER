@@ -1,0 +1,38 @@
+{
+  "schemaVersion": "ototr.body-part-map.v1",
+  "status": "proposal-not-connected",
+  "source": "apps/mobile-branch/lib/data/generated/inspection_schema_catalog.dart",
+  "liveSchemaVerified": false,
+  "mapping": {
+    "hood": "report.body_paint_checkup.on_kaput",
+    "roof": "report.body_paint_checkup.tavan",
+    "trunk": "report.body_paint_checkup.arka_bagaj",
+    "left_front_fender": "report.body_paint_checkup.sol_on_camurluk",
+    "left_front_door": "report.body_paint_checkup.sol_on_kapi",
+    "left_rear_door": "report.body_paint_checkup.sol_arka_kapi",
+    "left_rear_fender": "report.body_paint_checkup.sol_arka_camurluk",
+    "left_sill": "report.body_paint_checkup.sol_marsbiyel",
+    "right_front_fender": "report.body_paint_checkup.sag_on_camurluk",
+    "right_front_door": "report.body_paint_checkup.sag_on_kapi",
+    "right_rear_door": "report.body_paint_checkup.sag_arka_kapi",
+    "right_rear_fender": "report.body_paint_checkup.sag_arka_camurluk",
+    "right_sill": "report.body_paint_checkup.sag_marsbiyel",
+    "front_bumper": "report.body_paint_checkup.on_tampon",
+    "rear_bumper": "report.body_paint_checkup.arka_tampon",
+    "windshield": "report.body_paint_checkup.on_cam",
+    "rear_glass": "report.body_paint_checkup.arka_cam",
+    "left_a_pillar": null,
+    "left_b_pillar": null,
+    "left_c_pillar": null,
+    "right_a_pillar": null,
+    "right_b_pillar": null,
+    "right_c_pillar": null,
+    "left_mirror": null,
+    "right_mirror": null
+  },
+  "notes": [
+    "Exterior pillars must not be equated with interior pillar inspection fields.",
+    "Existing enum/checkbox values require an explicit reviewed transformation, not a string-copy assumption.",
+    "Source catalogue and live API schema must be reconciled before integration."
+  ]
+}

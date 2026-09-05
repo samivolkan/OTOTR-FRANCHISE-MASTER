@@ -1,0 +1,28 @@
+/* Core reading and touch targets stay readable in the studio's dense layout. */
+.real-alternative-link{display:flex;align-items:center;gap:7px;font-size:12px;font-weight:600;color:#c41b22;text-decoration:none}.real-alternative-link .icon{width:15px;height:15px}
+@media(max-width:700px){.topbar-right>.demo-pill{display:none}.real-alternative-link{font-size:10px}.real-alternative-link .icon:last-child{display:none}.topbar{gap:10px}.breadcrumb{gap:6px}}
+@media(min-width:801px){
+  .page-heading p{font-size:14px}.page-heading .button{font-size:14px}
+  .breadcrumb{font-size:13px}.demo-pill{font-size:11px}.session-id{font-size:12px}
+  .vehicle-name>span{font-size:12px}.vehicle-facts small{font-size:10px}.vehicle-facts strong span{font-size:12px}
+  .segmented button{font-size:12px;padding:9px 11px}.model-origin{font-size:9px}
+  .inspection-layout{align-items:stretch}.viewer-card{height:640px}.detail-card{min-height:640px}
+  .detail-kicker{font-size:11px}.detail-title h2{font-size:25px}.detail-title .status-chip{font-size:12px}
+  .part-group{font-size:12px}.detail-subtitle{font-size:13px}.detail-subtitle>span{font-size:8px}
+  .measurement-grid small{font-size:11px}.measurement-grid strong{font-size:22px}.measurement-grid strong span{font-size:10px}
+  .expert-note>span{font-size:10px}.expert-note p{font-size:14px;line-height:1.75}
+  .evidence-heading h3{font-size:13px}.evidence-photo img{height:77px}.evidence-photo>span{font-size:9px}
+  .detail-edit{font-size:13px;padding:11px}.detail-disclaimer{font-size:10px}
+  .legend{column-gap:15px}.legend>span{font-size:11px}.viewer-footer{font-size:11px}.viewer-footer button{font-size:11px}
+  .section-heading h2{font-size:18px}.section-heading>div>span{font-size:13px}.section-heading>.text-button{font-size:12px}
+  .film-card>strong{font-size:12px;white-space:normal}.film-card>small{font-size:11px}.film-card>div>span{font-size:8px}
+  .photo-origin-note{font-size:12px}.part-row{font-size:14px;padding:14px 5px}.part-row .status-chip{font-size:11px}
+  .filter-label,.filter-label select{font-size:12px}.scope-note{font-size:12px}.page-footer,.page-footer button{font-size:12px}
+  .capture-summary p{font-size:14px}.capture-summary>.button{font-size:13px}.capture-status{font-size:12px}
+  .capture-guide>p,.capture-tip p{font-size:14px}.capture-tip strong{font-size:14px}
+  .guide-facts span{font-size:12px}.guide-facts strong{font-size:14px}.guide-nav .button{font-size:13px}
+  .upload-note{font-size:11px}.preview-label{font-size:11px}.shot-tile strong{font-size:12px}.shot-tile small{font-size:11px}
+  .shot-group-title{font-size:14px}.equipment-grid p,.software-grid ul{font-size:14px}
+  .equipment-grid h3{font-size:16px}.equipment-grid b{font-size:12px}.software-grid p,.pilot-steps p{font-size:13px}
+  td{font-size:13px}.table-note{font-size:12px}
+}
