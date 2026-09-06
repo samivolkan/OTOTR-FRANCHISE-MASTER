@@ -1215,3 +1215,15 @@ Notes:
   - `#report2` mobil QA: `24` sayfa, overflow count `0`, console error sayisi `0`.
   - `#report-design` regresyon kontrolu: `22` sayfa, report2 final sinifi yok, PDF `24,268,136` byte, console error sayisi `0`.
   - `node tools/test-index.mjs` (`apps/admin/prototype` altinda): gecti; genel ERP smoke `navCount: 40`, `checkedRoutes: dashboard, franchise, branches, academy, report-design, crm, finance, settings`, `status: ok`.
+
+## 2026-09-06 — Kaporta 360 operasyon pilotu
+
+- npm test: 11/11 geçti. Gerçek PostgreSQL/PGlite + pgcrypto ve rollerle migration/RLS/RPC testi; sahiplik, bayi, başlangıç kanıtı durumu, müdürün teknik yazma yasağı, sürüm çakışması, 28 açı, asıl/aynı dosya, kanıt bağı, ölçüm, işaret sınırı, kendi kaydını onaylayamama, ayrı onaycı, nihai rapor kilidi/sürümü, süre dolumu ve iptal sınandı. Müşteri endpoint testi yalnız onaylı fotoğrafları imzalar ve iç kimlikleri çıkarır.
+- npm run build:erp geçti. Pilot ve demo ayrı girişler; browser config yalnız public publishable key içerir.
+- node tools/check-pilot.cjs: 14/14 geçti; sentetik HTTP fixtures, masaüstü ve 390px. Kesilen yükleme, kalıcı kuyruk/yeniden deneme, ölçüm/işlem/bulgu, metin kaçışlama, yakın plan ve değişmez asıl üstüne ayrı alan, salt okunur inceleme, asıl fotoğraf erişimi, oturum çıkışı, müşteri token görünümü ve iptal; sıfır sayfa çalışma hatası.
+- node tools/check-pilot-backend.cjs: gerçek serviste 5/5 olumsuz/okuma kontrolü: anonim işler ve kimlik 401, var olmayan müşteri bağlantısı 404, izinli CORS 204, yabancı origin 403. Müşteri satırı okunmadı/yazılmadı.
+- node tools/check-erp-publication.cjs: sahnelenen pakette 10/10; --live: canlı yayında 10/10 geçti. Menüden pilot, demo geçişi, 24 ayrı orijinal fotoğrafın çözülmesi, 23 parça, dönüş/mobil/doğrudan bağlantı; modülde asset veya çalışma hatası yok.
+- GitHub Pages run 34029679768 success; yayın commit c2cbd06.
+- Son sunucu metadata kontrolü: beş tabloda RLS; özel bucket; anonim çalışma RPC yok; doğrudan authenticated write yok; share resolver yalnız service_role; teknisyen yazma koruması aktif; 0 çekim kaydı. Advisor'ın beş guarded SECURITY DEFINER uyarısı ve üç deny-all tablo notu packages/database/kaporta-360-review.md içinde incelendi/gerekçelendirildi; sıfır-advisor iddiası yok.
+
+Sınır: geçerli gerçek teknisyen/onaycı hesaplarıyla gerçek aracın uçtan uca testi ve fiziksel telefon çekimi yapılmadı. UI fixture testi gerçek müşteri ekspertizi değildir; staging pilotu production-ready olarak işaretlenmedi.

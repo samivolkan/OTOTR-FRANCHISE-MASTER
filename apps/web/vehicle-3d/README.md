@@ -1,8 +1,10 @@
 # OTOTR VISION — 3D ekspertiz örnek projesi
 
-6 Eylül 2026 · Yerel ve bağımsız prototip
+6 Eylül 2026 · Fotoğraf prototipleri ve ERP’ye bağlı kullanım pilotu
 
-**ERP yayını:** [Kaporta 360](https://samivolkan.github.io/Ototr/kaporta-360/). ERP menüsünde **Ekspertiz & Rapor → Kaporta 360**. Demo verileriyle sunulur; gerçek iş emri/rapor entegrasyonu değildir. Yeniden yayın paketi için `npm.cmd run build:erp`; çıktı `dist-erp/`. Bu paket ERP kökünün `kaporta-360/` altına konur. Yerel alternatiflerin tamamını derlemek için normal `npm.cmd run build` kullanılır.
+**Personel pilotu:** [Kaporta 360 — iş emirleri](https://samivolkan.github.io/Ototr/kaporta-360/pilot.html). ERP menüsünde **Ekspertiz & Rapor → Kaporta 360**. Mevcut Supabase Auth hesabı ve atanmış kaporta göreviyle çalışır. 24 çevre + 4 üst açı, özel asıl fotoğraf deposu, parça/kanıt/ölçüm kayıtları, teknik inceleme ve nihai ERP onayıyla açılabilen süreli müşteri bağlantısı içerir. Bağlı proje `ototr-staging`; saha kabulü tamamlanmış üretim sürümü değildir. [Pilot kullanım ve sınırlar](docs/KAPORTA-360-KULLANIM.md).
+
+**Örnek tasarım:** [24 gerçek fotoğraflı demo](https://samivolkan.github.io/Ototr/kaporta-360/). Bu ayrı girişte veriler kurgusaldır ve ERP kayıtlarına yazılmaz. Aşağıdaki eski 3D/yerel demo açıklamaları bu örneklere aittir; personel pilotunun güvenlik ve asıl fotoğraf davranışı farklıdır. Yayın için `npm.cmd run build:erp`; `dist-erp/` ERP kökünün `kaporta-360/` altına konur. Yerel eski alternatifler için `npm.cmd run build` kullanılır.
 
 OTOTR markası için iki ayrı tasarım alternatifi: gerçek fotoğraflarla 360° araç turu ve semantik 3D model üzerinde kaporta anlatımı.
 

@@ -314,3 +314,13 @@
 - Verified `#report2` desktop and mobile locally with Playwright: 24 pages, zero visible top header overlays, all letterheads loaded, zero console errors and a generated PDF.
 - Updated the admin prototype smoke test report-page locator to assert rendered report titles instead of a hidden toolbar text match; the smoke test now passes again.
 - No Supabase, live database, secret, token or production database operation was used.
+
+## 2026-09-06 — Kaporta 360 operasyon pilotu
+
+Kullanıcı onayıyla mevcut fotoğraf demosuna iş emrine bağlı kullanım pilotu eklendi. Kaynak apps/web/vehicle-3d; ERP menüsü kaporta-360/pilot.html açar. 24 çevre + 4 üst açı, özel asıl fotoğraf deposu, kullanıcıya ait yükleme kuyruğu, ayrı işlem/yüzey bulguları, ölçüm, yakın plan/alan işaretleri, teknik inceleme ve ERP nihai onay/kilit kapılı müşteri bağlantısı hazırlandı.
+
+Supabase aracında ototr-staging olarak doğrulanan projeye yalnız packages/database altında incelenmiş 20260906101627_kaporta_360_pilot ve 20260906110018_kaporta_360_technician_write_guard uygulandı. Mevcut tablolar/iş emri satırları değiştirilmedi; yeni çekim tablosu son kontrolde boş. Kaporta onayı mevcut görevleri veya nihai raporu otomatik tamamlamaz. Müşteri endpoint’i custom 256-bit token doğrulamasıyla aktif.
+
+Yayın deposu Ototr main: c2cbd06e3a31c12526543a6adba942dbe7e000a2. GitHub Pages run 34029679768 success. Personel: https://samivolkan.github.io/Ototr/kaporta-360/pilot.html ; örnek: https://samivolkan.github.io/Ototr/kaporta-360/ . İlgisiz çalışma alanı değişiklikleri bu commit'e alınmadı.
+
+Kullanım/sınırlar: apps/web/vehicle-3d/docs/KAPORTA-360-KULLANIM.md. Güvenlik/geri alma: packages/database/kaporta-360-review.md. Üretim kabulü için fiziksel Android/iPhone, OTOTR aracı ve ayrı teknisyen/onaycıyla saha doğrulaması halen gerekli.

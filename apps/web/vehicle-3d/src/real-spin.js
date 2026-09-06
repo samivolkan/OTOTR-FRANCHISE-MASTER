@@ -40,7 +40,7 @@ $('#real-app').innerHTML=`
 
 if(erpMode){
   $('.r-brand').href='./';$('.r-brand').setAttribute('aria-label','Ototr Kaporta 360');$('.r-brand em').textContent='KAPORTA 360';
-  $('.r-header nav').innerHTML=`<span class="header-active">Kaporta 360</span><a href="../index.html#dashboard">ERP'ye dön ${icon('arrow')}</a>`;
+  $('.r-header nav').innerHTML=`<a href="./pilot.html">Ekspertiz iş emrini aç ${icon('arrow')}</a><a href="../index.html#dashboard">ERP'ye dön ${icon('arrow')}</a>`;
   $('.r-demo').textContent='DEMO';
   $('.r-footer small').textContent='Kaynak gösterimli demo. Fotoğrafların ticari kullanım izni doğrulanmadı.';
   $('.r-guide-lead').textContent='Bu 24 karenin tamamı çevre turudur. Tavan, bulgu yakın planları ve iç yapısal yüzeyler için ek kanıt çekimleri gerekir.';
