@@ -1238,3 +1238,16 @@ Sınır: geçerli gerçek teknisyen/onaycı hesaplarıyla gerçek aracın uçtan
 - node tools/check-presentation-publication.cjs --live: 8 canlı yayın kontrolü geçti; tam modül yolu, güncel paket, demo etiketi, etkileşim, gerçek fotoğraf, mobil ve pilot bağlantısı. Yayın commit 9b79c2dcbeb2c41d672797922ba46820fcb6be9c.
 
 UI testleri sentetik rapor payload'larıyla izole tarayıcıda çalıştı. Gerçek müşteri kaydı oluşturulmadı. Fiziksel cihaz/gerçek araç/ayrı uzman ve onaycıyla uçtan uca saha kabulü yapılmadı. Referans fotoğrafların ticari kullanım izni doğrulanmadı; canlı müşteri raporuna örnek fotoğraf taşınmaz.
+
+## 2026-09-08 — Kaporta 360 gerçek fotoğraf katmanları
+
+- npm test: 33/33 geçti. 8 yeni fotoğraf konturu testi; 8 açı, kimlik/URL/kare eşleşmesi, müşteri raporunda kontur yasağı, görünür parça eşlemesi ve kaynak fotoğraf bütünlüğü. Önceki model, rapor, PostgreSQL/RLS ve onay testleri de geçti.
+- 24 JPG dosyasının kaynak manifestteki SHA-256 değerleri değişmedi. Kaynak görüntü dosyalarına raster düzenleme yapılmadı; SVG kesimleri tarayıcıda kaynak pikselleri gösterir.
+- npm run build:erp geçti. release.json fotoğraf katmanlarının 8 açı / 59 bölge / reference-set-only kapsamını bildirir.
+- node tools/check-photo-layers.cjs: 15/15; gerçek maske noktasına mouse tıklaması, SVG Enter/Space, parça paneli, 8 açı, üç mod ve gerçek dönüşümler, 0 mesafede tüm panellerin birim dönüşümü, maskesiz birleşik görüntü, 24 kare, tur, saydamlık, 3D şemaya geçiş, 390 px, gerçek müşteri raporunda örnek kontur bulunmaması, geçersiz/iptal bağlantıda temizleme. Konsol/çalışma/beklenmeyen dış istek hatası yok.
+- node tools/check-presentation.cjs: 19/19. Eski 3D kontrolleri artık 3D şema sekmesi açıkça seçilerek çalışır; salt okunur rapor ve WebGL alternatifi korunur.
+- node tools/check-presentation-publication.cjs: 8/8 sahnelenen yayın kontrolü; tam modül yolu ve derlenmiş dosyanın SHA-256 eşleşmesi.
+- node tools/check-photo-layers.cjs --live: canlı yayında 15/15 geçti. Yayın commit 0eb03a3ba8a09a528dd1c91d1c6cadfc0941b403.
+- Görsel kontrol: 22/19/16/1/13 açılarında birleştirme/ayırma, izole kapının camsız sac kesiti, tüm 8 açı ve mobil görünüm incelendi. İnce beyaz maske dikişleri ile açılma sıfırken seçili panelin ayrık kalması düzeltildi.
+
+Sınırlar: katman hareketi fiziksel söküm veya ölçülebilir 3D rekonstrüksiyon değildir. Belirsiz/görünmeyen konturlar uydurulmaz; kontursuz parçada genel fotoğraf açılır. Fotoğrafların ticari kullanım izni doğrulanmadı. Gerçek OTOTR çekimi, çekime özel konturlar ve ayrı teknik onayla saha kabulü henüz yapılmadı. Canlı test müşteri payload'ları izole tarayıcıda sentetik olarak karşılandı; gerçek müşteri verisi okunmadı/yazılmadı.

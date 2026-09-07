@@ -2,6 +2,16 @@
 
 8 Eylül 2026
 
+## Gerçek fotoğraftan parçalar güncellemesi
+
+Örnek sunum artık gerçek fotoğraf katmanlarıyla açılır. Fotoğraf setindeki 1, 4, 7, 10, 13, 16, 19 ve 22 numaralı kare için 59 görünür bölge, 18 farklı parça türüne elle konturlanmıştır. Konturu hazırlanmamış bir parça seçilirse ilgili genel fotoğraf açılır. Tüm 24 kare ayrıca “24 fotoğraf” sekmesindedir. Önceki genel geometri “3D şema” sekmesine taşınmıştır.
+
+“Birleştir” asıl fotoğrafı doğrudan ve maskesiz gösterir; şeffaf seçim konturları etkileşimi korur. “Parçaları ayır” fotoğrafın gerçek piksellerini dışarı taşır; sıfır mesafede tüm parçalar kaynak konumundadır. “Tek parça” seçilen fotoğraf kesitini büyütür. Aynı işlem sekiz hazır açıdan gösterilebilir. Açılan boşluklardaki nötr renk yalnız konum rehberidir; araç içi veya parça arkası olarak yorumlanmamalıdır.
+
+Bu konturlar referans fotoğraflara özgüdür. Onaylı müşteri raporu kendi fotoğraflarıyla açılır, demo kesimleri gerçek araca uygulanmaz. İşletmenin kendi araçlarında bu etkiyi kullanmak için her çekime özel parça konturları hazırlanmalı ve teknik kontrol kapsamında onaylanmalıdır; mevcut sürümde bunun sunucu kayıt/onay akışı henüz eklenmemiştir. Yeni ekran araç fotoğrafını otomatik tanıyıp parçalamaz.
+
+Ek doğrulama: `node --test tests/photo-mask-domain.test.mjs`; `node tools/check-photo-layers.cjs` ve canlı sürüm için `--live`. Fotoğraf dosyalarının 24 kaynak SHA-256 değeri değişmemiştir.
+
 ## Teslim edilen deneyim
 
 Sunum `sunum.html` girişinde açılır. Sol kapı seçili ve gövde ayrılmış halde başlayan referans ekran, müşteriye etkileşimi ilk anda gösterir. Seçili parça gövdeden yükselir; kamera seçilen yüzeye döner. Tüm gövdeyi birleştirmek, açılmayı ayarlamak, tek parçayı öne çıkarmak ve diğer yüzeyleri saydamlaştırmak mümkündür. Klavye ile erişilen tüm parça listesi, 3D seçimine alternatif sağlar.

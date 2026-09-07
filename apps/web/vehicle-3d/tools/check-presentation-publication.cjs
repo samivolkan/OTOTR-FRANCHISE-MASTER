@@ -76,6 +76,7 @@ async function main() {
     page.on('response', response => { if (response.status() >= 400) failedResponses.push({ url: response.url(), status: response.status() }); });
     const ready = async () => {
       await page.locator('#part-title').waitFor({ timeout: 30000 });
+      await page.locator('[data-action=view][data-view=model]').click();
       await page.waitForFunction(() => document.querySelector('.scene-host canvas') && !document.querySelector('.scene')?.classList.contains('loading'));
       assert.equal(await page.locator('.scene-host canvas').count(), 1);
       assert.equal(await page.locator('.part-chip').count(), 23);

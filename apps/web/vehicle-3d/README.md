@@ -4,6 +4,8 @@
 
 ## Parçalı müşteri sunumu
 
+Gerçek fotoğraf güncellemesi: `sunum.html` artık **Fotoğraftan parçalar** görünümüyle açılır. Aynı 24 özgün kare korunur; sekiz elle konturlanmış açıda toplam 59 görünür parça bölgesi kaynak pikselleriyle ayrılır. “Birleştir”, “Parçaları ayır” ve “Tek parça” gerçek fotoğraf katmanlarını hareket ettirir. Eski model “3D şema” sekmesindedir. Bu, fotoğraf katmanlarıyla bir anlatım efektidir; görünmeyen yüzeyler veya ölçülebilir 3D geometri üretilmez. Konturlar yalnız referans setine aittir; başka müşteri fotoğrafına otomatik uygulanmaz.
+
 `sunum.html`, tıklanan panelin öne geldiği yeni sunum ekranıdır. Gövdeyi birleştirme, parçaları ayırma, ayrılma mesafesi, tek parçaya odaklanma, saydam gövde, otomatik dönüş ve tam ekran desteklenir. Bulgu turu, uzman kaydı ve gerçek fotoğraf görünümü bir aradadır. Üç kapılı şablonda 23, diğer genel şablonlarda 25 parça bulunur.
 
 - Örnek: https://samivolkan.github.io/Ototr/kaporta-360/sunum.html

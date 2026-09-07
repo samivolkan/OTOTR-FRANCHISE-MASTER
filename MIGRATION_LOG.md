@@ -334,3 +334,11 @@ Personel girişindeki örnek bağlantısı ve onaylı müşteri raporundaki sunu
 Yayın Ototr main: 9b79c2dcbeb2c41d672797922ba46820fcb6be9c. Canlı: https://samivolkan.github.io/Ototr/kaporta-360/sunum.html . Kaynak apps/web/vehicle-3d; dağıtım apps/admin/prototype/kaporta-360. Eski hash'li yayın varlıkları korunur. İlgisiz çalışma ağacı değişiklikleri ve ara derlemeler commit'e alınmadı.
 
 Karar: docs/decisions/2026-09-08-kaporta-360-customer-presentation.md. Kullanım ve sonraki adımlar: apps/web/vehicle-3d/docs/KAPORTA-360-SUNUM.md. Geometri anlatım şablonudur; üreticinin birebir modeli veya fotoğraflardan rekonstrüksiyon değildir. Fiziksel telefonlar ve OTOTR'nin gerçek aracıyla saha kabulü halen sonraki aşamadır.
+
+## 2026-09-08 — Kaporta 360 gerçek fotoğraf katmanları
+
+Kullanıcının gerçek araç görsellerini parçalarına ayırma isteği uygulandı. sunum.html varsayılanı gerçek fotoğraf katmanlarıdır; eski model 3D şema sekmesindedir. 8 kaynak açı, 59 elle konturlanmış görünür bölge ve 18 parça türü desteklenir. 24 özgün fotoğraf korunur. Kapı sacı camdan, çamurluk tekerlekten ayrılır; seçilen kesit büyür, görünür yüzeyler açılır ve tekrar birleştirilir. Sıfır mesafe ile Birleştir modunda maske dikişleri olmadan özgün fotoğraf gösterilir.
+
+Konturlar yalnız aynı referans setine aittir. Gerçek müşteri raporunda bu konturlar kapalıdır; kendi fotoğrafları ve ayrı temsili 3D şema görünür. Araca özel kontur kaydı/onayı sonraki aşamadır. Veritabanı, auth, teknik/nihai onay, görev sahipliği veya asıl fotoğraf kayıtları değiştirilmedi. Gizli yüzey/araç içi/sentetik hasar üretilmedi.
+
+Yayın Ototr main 0eb03a3ba8a09a528dd1c91d1c6cadfc0941b403; https://samivolkan.github.io/Ototr/kaporta-360/sunum.html . Kaynak apps/web/vehicle-3d, derlenmiş kopya apps/admin/prototype/kaporta-360. Yalnız bu çalışmanın dosyaları ve log ekleri commit edildi; önceki çalışma ağacı değişiklikleri korundu. Karar: docs/decisions/2026-09-08-kaporta-360-photographic-panels.md.
