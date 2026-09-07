@@ -324,3 +324,13 @@ Supabase aracında ototr-staging olarak doğrulanan projeye yalnız packages/dat
 Yayın deposu Ototr main: c2cbd06e3a31c12526543a6adba942dbe7e000a2. GitHub Pages run 34029679768 success. Personel: https://samivolkan.github.io/Ototr/kaporta-360/pilot.html ; örnek: https://samivolkan.github.io/Ototr/kaporta-360/ . İlgisiz çalışma alanı değişiklikleri bu commit'e alınmadı.
 
 Kullanım/sınırlar: apps/web/vehicle-3d/docs/KAPORTA-360-KULLANIM.md. Güvenlik/geri alma: packages/database/kaporta-360-review.md. Üretim kabulü için fiziksel Android/iPhone, OTOTR aracı ve ayrı teknisyen/onaycıyla saha doğrulaması halen gerekli.
+
+## 2026-09-08 — Kaporta 360 parçalı müşteri sunumu
+
+Kullanıcının mevcut parçaları ayırma etkileşimini müşteri sunumunun merkezine alma isteğiyle sunum.html eklendi. 23/25 parça, tıklanan panelin öne gelmesi, ayrılma mesafesi, tek parça/saydam gövde, kamera, tam ekran, gerçek fotoğraf ve uzman açıklaması birlikte sunulur. Referans demoda 24 gerçek kare ve açıkça temsili 3 bulgu var; kalan 20 parça incelenmemiştir.
+
+Personel girişindeki örnek bağlantısı ve onaylı müşteri raporundaki sunum bağlantısı mevcut ERP'ye eklendi. Aynı capability servisi ve teknik/nihai onay kapısı kullanılır; veritabanı, auth, görev yetkileri ve fotoğraf kayıtlarına bu değişiklikte yazılmadı. Eksik/iptal edilmiş müşteri raporu demo ile doldurulmaz.
+
+Yayın Ototr main: 9b79c2dcbeb2c41d672797922ba46820fcb6be9c. Canlı: https://samivolkan.github.io/Ototr/kaporta-360/sunum.html . Kaynak apps/web/vehicle-3d; dağıtım apps/admin/prototype/kaporta-360. Eski hash'li yayın varlıkları korunur. İlgisiz çalışma ağacı değişiklikleri ve ara derlemeler commit'e alınmadı.
+
+Karar: docs/decisions/2026-09-08-kaporta-360-customer-presentation.md. Kullanım ve sonraki adımlar: apps/web/vehicle-3d/docs/KAPORTA-360-SUNUM.md. Geometri anlatım şablonudur; üreticinin birebir modeli veya fotoğraflardan rekonstrüksiyon değildir. Fiziksel telefonlar ve OTOTR'nin gerçek aracıyla saha kabulü halen sonraki aşamadır.

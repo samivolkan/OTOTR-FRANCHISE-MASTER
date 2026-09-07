@@ -1227,3 +1227,14 @@ Notes:
 - Son sunucu metadata kontrolü: beş tabloda RLS; özel bucket; anonim çalışma RPC yok; doğrudan authenticated write yok; share resolver yalnız service_role; teknisyen yazma koruması aktif; 0 çekim kaydı. Advisor'ın beş guarded SECURITY DEFINER uyarısı ve üç deny-all tablo notu packages/database/kaporta-360-review.md içinde incelendi/gerekçelendirildi; sıfır-advisor iddiası yok.
 
 Sınır: geçerli gerçek teknisyen/onaycı hesaplarıyla gerçek aracın uçtan uca testi ve fiziksel telefon çekimi yapılmadı. UI fixture testi gerçek müşteri ekspertizi değildir; staging pilotu production-ready olarak işaretlenmedi.
+
+## 2026-09-08 — Kaporta 360 parçalı müşteri sunumu
+
+- npm test: 25/25 geçti. Önceki sahiplik/RLS/teknik-nihai onay kontrollerine 10 rapor/veri ve 4 parça/model testi eklendi. Son kamera değişikliğinden sonra 4 geometri testi tekrar geçti. Bilinmeyen/parça dışı alanlar, güvenli URL, kanıt ilişkisi, temsili veri ayrımı, 23/25 parça ve mobil kadraj sınandı.
+- npm run build:erp geçti. 3D kütüphanesi ayrı sunum girişinde; personel girişi 3D bundle yüklemez. Üç giriş ve 24 fotoğraf bütünlüğü paketlenir. Vite'ın Three.js içeren 645 KB ham sunum chunk boyutu uyarısı sürüyor; gzip 168 KB. Derlenmiş shader dizgilerinde Git whitespace notları var, kaynak/test hatası yok.
+- node tools/check-presentation.cjs: 19/19 geçti. 23 parça, üç mod, ayırma mesafesi, tur/klavye/duraklatma, 24 ayrı fotoğraf, Escape, tam ekranda fotoğraf penceresi, normalize işaret, WebGL yokluğu alternatifi, 390 px, 25 bulgu / 12 ölçüm, güvenli metin, boş/iptal rapor, demo sızıntısı olmaması. Geç fotoğraf callback'inin kaldırılmış DOM'a erişmesi düzeltildi; son çalışmada sıfır çalışma/konsol/beklenmeyen dış istek hatası.
+- Renderer bağımsız tarayıcı kontrolleri 11/11: gerçek ray seçimi, sürükleme, pointercancel, çoklu dokunma, azaltılmış hareket, bağlam kaybı ve dispose. Kamera geçişi sonrası mobil tüm gövde kadrajı görsel olarak doğrulandı.
+- node tools/check-pilot.cjs: 14/14; mevcut personel/kuyruk/onay/müşteri akışı korunuyor. node tools/check-erp-publication.cjs: sahnelenen ERP'de ve canlı yayında 10/10.
+- node tools/check-presentation-publication.cjs --live: 8 canlı yayın kontrolü geçti; tam modül yolu, güncel paket, demo etiketi, etkileşim, gerçek fotoğraf, mobil ve pilot bağlantısı. Yayın commit 9b79c2dcbeb2c41d672797922ba46820fcb6be9c.
+
+UI testleri sentetik rapor payload'larıyla izole tarayıcıda çalıştı. Gerçek müşteri kaydı oluşturulmadı. Fiziksel cihaz/gerçek araç/ayrı uzman ve onaycıyla uçtan uca saha kabulü yapılmadı. Referans fotoğrafların ticari kullanım izni doğrulanmadı; canlı müşteri raporuna örnek fotoğraf taşınmaz.

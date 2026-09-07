@@ -1,6 +1,18 @@
 # OTOTR VISION — 3D ekspertiz örnek projesi
 
-6 Eylül 2026 · Fotoğraf prototipleri ve ERP’ye bağlı kullanım pilotu
+8 Eylül 2026 · Fotoğraf prototipleri, ERP kullanım pilotu ve parçalı müşteri sunumu
+
+## Parçalı müşteri sunumu
+
+`sunum.html`, tıklanan panelin öne geldiği yeni sunum ekranıdır. Gövdeyi birleştirme, parçaları ayırma, ayrılma mesafesi, tek parçaya odaklanma, saydam gövde, otomatik dönüş ve tam ekran desteklenir. Bulgu turu, uzman kaydı ve gerçek fotoğraf görünümü bir aradadır. Üç kapılı şablonda 23, diğer genel şablonlarda 25 parça bulunur.
+
+- Örnek: https://samivolkan.github.io/Ototr/kaporta-360/sunum.html
+- Müşteri: onaylı `pilot.html#rapor=…` raporundaki “Parçalı 3D sunumu aç” bağlantısı. Aynı süreli rapor yetkisini kullanır; düzenleme veya yeni onay vermez.
+- Ayrı giriş sayfası sayesinde 3D kütüphanesi personel çekim ekranına yüklenmez. `npm run build:erp` üç girişi birlikte paketler.
+- `src/presentation-car.js`: seçilebilir gövde, animasyon ve kamera. `src/presentation-domain.js`: sadece onaylı rapor dönüşümü, demo ayrımı ve anlatım turu. `src/presentation.js` / `.css`: müşteri ekranı.
+- Kontrol: `npm test`, `npm run build:erp`, `node tools/check-presentation.cjs`. İzole tarayıcı testlerinde gerçek müşteri verisi kullanılmaz.
+
+3D yüzeyler anlatım şablonudur; referans Opel fotoğraflarından çıkarılmış geometri veya üreticiye ait birebir model değildir. Bulgular ve ölçümler örnek sayfada temsili olarak etiketlenir. Gerçek müşteri raporuna demo fotoğrafı veya sonucu eklenmez. Fotoğraflı kanıt ve uzman kararı esas alınır. Uygulama notları: `docs/KAPORTA-360-SUNUM.md`.
 
 **Personel pilotu:** [Kaporta 360 — iş emirleri](https://samivolkan.github.io/Ototr/kaporta-360/pilot.html). ERP menüsünde **Ekspertiz & Rapor → Kaporta 360**. Mevcut Supabase Auth hesabı ve atanmış kaporta göreviyle çalışır. 24 çevre + 4 üst açı, özel asıl fotoğraf deposu, parça/kanıt/ölçüm kayıtları, teknik inceleme ve nihai ERP onayıyla açılabilen süreli müşteri bağlantısı içerir. Bağlı proje `ototr-staging`; saha kabulü tamamlanmış üretim sürümü değildir. [Pilot kullanım ve sınırlar](docs/KAPORTA-360-KULLANIM.md).
 
