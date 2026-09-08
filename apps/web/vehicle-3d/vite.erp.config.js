@@ -5,6 +5,6 @@ export default defineConfig({
   build:{
     outDir:'dist-erp',
     copyPublicDir:false,
-    rollupOptions:{input:{demo:fileURLToPath(new URL('./kaporta-360.html',import.meta.url)),pilot:fileURLToPath(new URL('./pilot.html',import.meta.url)),presentation:fileURLToPath(new URL('./sunum.html',import.meta.url))}}
+    rollupOptions:{input:{demo:fileURLToPath(new URL('./kaporta-360.html',import.meta.url)),pilot:fileURLToPath(new URL('./pilot.html',import.meta.url)),presentation:fileURLToPath(new URL('./sunum.html',import.meta.url)),studio:fileURLToPath(new URL('./studio.html',import.meta.url))}}
   }
 });

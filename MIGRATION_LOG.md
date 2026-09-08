@@ -350,3 +350,14 @@ Kullanıcının 3D şemada özgün fotoğraflarla daha profesyonel sunum isteği
 24 kaynak JPG değişmedi. Eski 8 açı / 59 kesit görünümü Fotoğraftan parçalar sekmesi ve ?view=cutout girişinde korunur. Dokular yalnız aynı referans kimliğine ve tam fotoğraf setine uygulanır. Onaylı müşteri raporu kendi fotoğraflarıyla açılır; demo dokusu alamaz. Veritabanı, auth, paylaşım/onay kapıları ve görev sahipliği değişmedi.
 
 Yayın Ototr main dd8d849ffe4dfe244d812b925e1fd0b3d8386c92; https://samivolkan.github.io/Ototr/kaporta-360/sunum.html . Kaynak ve derlenmiş ERP kopyası yalnız bu çalışmaya ait dosyalarla commit edildi; önceki çalışma ağacı değişiklikleri korundu. Karar: docs/decisions/2026-09-08-kaporta-360-photographic-3d.md.
+
+
+## 2026-09-08 — Kaporta 360 Sunum Stüdyosu
+
+Gerçek fotoğrafla parça ayırmayı iş emrine bağlı hazırlık akışına taşıyan altı adımlı studio.html eklendi: araç/ekipman, 24+4 çekim kontrolü, 3–40 noktalı fotoğraf konturu, kayıtlı ölçüme bağlı işaret, 5–20 saniyelik kanıtlı anlatım ve teknik teslim. Müşteri sunumu onaylı raporun kendi fotoğraf kesitlerini, ölçüm noktalarını ve anlatım planını gösterir. Referans görüntüler gerçek müşteri raporuna aktarılmaz. Saha/ekipman rehberi studio-guide.html üzerinden yayımlandı.
+
+Reviewed migration 20260908104520_kaporta_360_presentation_studio.sql aynı SHA-256 ile iki zincirde tutuldu; yalnız bu ek migration ototr-staging üzerinde uygulandı (uzak sürüm 20260908111128). Yeni JSON planı, yetkili/revizyonlu save RPC ve inceleme geçiş kontrolü; mevcut sahiplik, bağımsız onay ve nihai ERP kilidi korunur. Customer Edge Function version 2 ACTIVE. Gerçek müşteri verisi test için okunmadı/yazılmadı.
+
+Yayın: Ototr main 5690ffc6692a7c534f2391bbc6d77ef83c7889f1. Canlı studio.html, sunum.html ve saha rehberi doğrulandı. 24 kaynak JPG değişmedi. Ana ERP derlenmiş kopyası yayımlanan paketle aynı. Önceki kullanıcı değişiklikleri ve eski hashli dosyalar korundu; bu çalışmanın kaynak, migration, test, dokümantasyon ve derlenmiş dosyaları ayrı stage edildi.
+
+Karar ve geri alma: docs/decisions/2026-09-08-kaporta-360-studio.md; migration incelemesi packages/database/kaporta-360-studio-review.md. İlk gerçek araç kimliği, üretici/kasa özel model varlığı ve fiziksel Android/iPhone/bağımsız uzman kabulü henüz yoktur; örnek çalışma bu kabulün yerine geçmez.

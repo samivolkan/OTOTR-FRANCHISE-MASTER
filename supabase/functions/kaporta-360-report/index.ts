@@ -28,8 +28,10 @@ export function createHandler(env: (name: string) => string | undefined, fetcher
    const signed=await fetcher(base+'/storage/v1/object/sign/kaporta-360',{method:'POST',headers:serverHeaders,body:JSON.stringify({expiresIn:120,paths})});
    if(!signed.ok)return reply(503,{message:'Rapor fotoğrafları yüklenemedi. Tekrar deneyin.'});
    const signedRows=await signed.json();
-   const photos=source.map((p:{id:string;slot:string;kind:string;path:string})=>{const row=signedRows.find((s:{path:string})=>s.path===p.path);const relative=row?.signedURL||row?.signedUrl;if(!relative)throw Error('Missing signed photo');return{id:p.id,slot:p.slot,kind:p.kind,url:base+'/storage/v1'+relative};});
-   return reply(200,{session:{profile:report.session.profile,status:'approved',photo_slots:report.session.photo_slots,findings:report.session.findings},job:{plate:report.job.plate,brand:report.job.brand,model:report.job.model,work_order_no:report.job.work_order_no},photos,approvedBy:report.approvedBy,approvedAt:report.approvedAt,reportId:report.reportId,customerView:true});
+   const photos=source.map((p:{id:string;slot:string;kind:string;path:string;width:number;height:number;sha256:string})=>{const row=signedRows.find((s:{path:string})=>s.path===p.path);const relative=row?.signedURL||row?.signedUrl;if(!relative)throw Error('Missing signed photo');return{id:p.id,slot:p.slot,kind:p.kind,width:p.width,height:p.height,sha256:p.sha256,url:base+'/storage/v1'+relative};});
+   const prepared=report.session.studio;
+   const studio=prepared?.enabled?{version:prepared.version,enabled:true,modelKey:prepared.modelKey,summary:prepared.summary,bindings:prepared.bindings,pins:prepared.pins,tour:prepared.tour}:null;
+   return reply(200,{session:{profile:report.session.profile,status:'approved',studio,photo_slots:report.session.photo_slots,findings:report.session.findings},job:{plate:report.job.plate,brand:report.job.brand,model:report.job.model,work_order_no:report.job.work_order_no},photos,approvedBy:report.approvedBy,approvedAt:report.approvedAt,reportId:report.reportId,customerView:true});
   } catch {return reply(400,{message:'Rapor yüklenemedi. Bağlantıyı kontrol edip tekrar deneyin.'});}
  };
 }

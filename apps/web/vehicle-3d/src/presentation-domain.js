@@ -1,5 +1,6 @@
 import {PROFILES, OUTCOMES, PROCESSES, DEFECTS, partsFor} from './pilot-domain.js';
 import {BEST_FRAME, directionForFrame} from './spin-domain.js';
+import {publicStudio} from './studio-domain.js';
 
 const own = (object, key) => object != null && Object.hasOwn(object, key);
 const record = value => value !== null && typeof value === 'object' && !Array.isArray(value);
@@ -115,6 +116,9 @@ export function fromApprovedReport(report) {
     const active = slots[slot] === source.id;
     const frame = source.kind === 'ring' && active ? frameNumber(slot) : null;
     photos.push({id: source.id, slot, frame, url, kind: source.kind, active,
+      width:Number.isInteger(source.width)&&source.width>=720&&source.width<=83333?source.width:null,
+      height:Number.isInteger(source.height)&&source.height>=720&&source.height<=83333?source.height:null,
+      sha256:typeof source.sha256==='string'&&/^[a-f0-9]{64}$/.test(source.sha256)?source.sha256:null,
       caption: source.kind === 'ring' ? `${directionForFrame(frameNumber(slot))} · Kayıtlı fotoğraf`
         : source.kind === 'upper' ? 'Üst açı · Kayıtlı fotoğraf' : 'Parça detayı · Bağlı fotoğraf', illustrative: false});
     seen.add(source.id);
@@ -124,6 +128,7 @@ export function fromApprovedReport(report) {
   const job = record(report.job) ? report.job : {};
   const brand = text(job.brand, 100), model = text(job.model, 100);
   return freeze({kind: 'approved', profile, reportId: text(report.reportId, 100),
+    studio:publicStudio(session.studio,session,photos),
     approvedAt: report.approvedAt, approvedBy: text(report.approvedBy, 200),
     vehicle: {plate: text(job.plate, 40), label: [brand, model].filter(Boolean).join(' ') || 'Rapor aracı', brand, model,
       workOrderNo: text(job.work_order_no, 100), bodyType: PROFILES[profile]},
@@ -144,6 +149,10 @@ export function getSummary(presentation) {
 }
 
 export function buildTour(presentation, {findingsOnly = true} = {}) {
+  if(presentation?.studio?.enabled&&presentation.studio.tour.length)return presentation.studio.tour.flatMap(s=>{
+    const part=presentation.parts.find(p=>p.id===s.partId),photo=part?.evidence.find(p=>p.id===s.photoId);
+    return part&&photo?[{...s,id:s.partId,title:part.name,outcome:part.outcome,process:part.process,summary:s.caption,frame:photo.frame}]:[];
+  });
   const rank = {replaced: 0, repaired: 1, painted: 2, local: 3, removed: 4, original: 5, none: 6};
   const parts = Array.isArray(presentation?.parts) ? presentation.parts : [];
   return parts.filter(p => findingsOnly ? p.outcome === 'inspected' && (p.process !== 'none' && p.process !== 'original' || p.defects.length)

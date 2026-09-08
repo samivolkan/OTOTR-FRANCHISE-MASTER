@@ -1264,3 +1264,17 @@ Sınırlar: katman hareketi fiziksel söküm veya ölçülebilir 3D rekonstrüks
 - Görsel kontrol: ön, sol, sağ, arka, ön çapraz; birleşik/açılmış/izole gövde ve mobil. Kaput–çamurluk boşluğu, yinelenmiş far, tavan çıkıntısı, cam–sac kemer boşluğu ve açık renkli parça arkalarının dışa sızması düzeltilerek son görünüm tekrar incelendi.
 
 Sınırlar: referans araca özel hazırlanmış sunum kabuğudur; otomatik fotogrametri veya üretici CAD modeli değildir. Tavan üstü/parça arkası/lastik derinliği temsili, bulgular örnektir. Ticari fotoğraf izni doğrulanmadı. OTOTR çekimlerine özel UV hazırlama ve gerçek cihaz/uzman saha kabulü sonraki aşamadır. Canlı testler sentetik tarayıcı rapor yanıtlarıyla yapıldı; gerçek müşteri verisi okunmadı/yazılmadı.
+
+
+## 2026-09-08 — Kaporta 360 Sunum Stüdyosu doğrulaması
+
+- npm test: 46/46. PostgreSQL/PGlite gerçek migration/RLS/rol/iş emri kapıları, kontur geometrisi, aktif kaynak/hash, ölçüm değişikliği, taslak/tam hazırlık ve Edge Function özel alan filtreleri.
+- npm run build:erp: dört uygulama girişi ve bağımsız saha rehberi üretildi. 24 fotoğraf SHA bütünlüğü korundu. Three.js ortak paketi için mevcut >500 kB uyarısı var; üretilmiş shader metinlerindeki whitespace elle değiştirilmedi.
+- node tools/check-studio.cjs ve --live: 16/16. Altı adım, gerçek kontur sürükleme, geri/ileri, ölçüm konumu, sıra değişimi, özgün kesitler, WebGL, 390 px tüm adımlar, güvenli hazırlık dışa aktarımı, kamera izni reddi, saha rehberi, yeniden çekimde eski kontur/kontrol/referans dokusu temizliği ve boş iş emri kimliğinde kapalı hata ekranı. Canlı sürüm 5690ffc.
+- node tools/check-studio-erp.cjs: 10/10 sentetik tarayıcı iş emri senaryosu. Revizyonlu kayıt, 25 parçalı müşteri konturu, eski revizyon reddi, salt okunur inceleme, aynı oturuma teknik inceleme dönüşü, erişim kaybında temizleme, onaylı müşteriye kendi kesiti/ölçüm noktası, kaydedilmiş tur süresi ve mobil görünüm.
+- node tools/check-studio-backend.cjs: 4/4 canlı, salt okunur kamu sınırı kontrolü: anonim kayıt 401, olmayan paylaşım 404, yabancı origin 403, izinli preflight 204. Yeni sütun/RLS/trigger ve RPC izinleri metadata ile doğrulandı. Güvenlik danışmanı yeni guarded SECURITY DEFINER bildirimi inceleme notunda gerekçelendirildi.
+- Mevcut akış regresyonları: check-presentation 19/19, check-photo-layers 15/15, check-photo-body 13/13, check-pilot 14/14.
+- Paket/yayın: check-presentation-publication 8/8 hem staged hem live; check-erp-publication 10/10 staged. Canlı sunum JS modülü hash'i beklenen derlemeyle eşleşti; tüm 24 kaynak fotoğraf özgün boyutlarında açıldı.
+- Görsel kontrol: masaüstü kaynak fotoğraf/kontur editörü, ayrılmış gerçek fotoğraf ön izlemesi, mobil 3D/prova ve mobil rehber. Başarılı akışlarda uncaught browser hatası yok. Farklı sayfalarda açık raporun iptalinde özel görüntü ve metin temizlendi.
+
+Sınırlar: otomatik fotogrametri, üretici model kütüphanesi, buluttan ses/video üretimi veya hasar kararı yapılmadı. Kalite sayıları sezgisel yardım; fiziksel cihaz ve gerçek araç saha kabulü henüz yapılmadı. Kaynak SHA ve boyutlar istemci beyanıdır; adli sunucu doğrulaması iddia edilmez. Ticari referans fotoğraf izni doğrulanmadı. Testler sentetik verilerle; canlı yazma yetkisi gerçek müşteri kaydı oluşturmadan kontrol edildi.
