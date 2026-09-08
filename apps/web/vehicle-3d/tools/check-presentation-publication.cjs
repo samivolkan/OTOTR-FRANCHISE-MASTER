@@ -85,7 +85,8 @@ async function main() {
     await page.goto(url, { waitUntil: 'domcontentloaded' }); await ready();
     assert.equal(await page.locator('script[type=module]').getAttribute('src'), expectedModule);
     assert.match(await page.locator('.pill.demo').first().textContent(), /ÖRNEK SUNUM/);
-    assert.match(await page.locator('.studio-source').textContent(), /temsili bir modeldir.*Fotoğraflardan üretilmez/);
+    await page.waitForFunction(() => document.querySelector('.scene-host')?.dataset.photoTextureState === 'ready');
+    assert.match(await page.locator('.studio-source').textContent(), /Özgün araç fotoğrafları.*3D yüzeylere.*ölçülebilir 3D tarama değildir/);
     assert.match(await page.locator('.vehicle-label').textContent(), /Opel ADAM/);
     assert.equal(await page.locator('[data-id=left_rear_door].part-chip,[data-id=right_rear_door].part-chip').count(), 0);
     pass('Public reference demo is clearly labelled and renders 23 correct selectable body parts');

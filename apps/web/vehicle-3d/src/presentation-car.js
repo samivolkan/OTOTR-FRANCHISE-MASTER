@@ -3,6 +3,7 @@ import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 import { createCar } from './car.js';
+import { createPhotoBodyGeometry } from './photo-body-geometry.js';
 
 const V = (x = 0, y = 0, z = 0) => new THREE.Vector3(x, y, z);
 const SILVER = new THREE.Color('#9aa6b0');
@@ -10,7 +11,7 @@ const AMBER = new THREE.Color('#cc934c');
 const MODES = new Set(['assembled', 'exploded', 'isolate']);
 const PROFILES = new Set(['hatchback3', 'hatchback5', 'sedan4', 'suv5']);
 
-function disposeObject(root) {
+function disposeObject(root, ownedTextures = new Set()) {
   const geometries = new Set(), materials = new Set(), textures = new Set();
   root.traverse(object => {
     if (object.geometry) geometries.add(object.geometry);
@@ -20,9 +21,79 @@ function disposeObject(root) {
     }
     object.shadow?.map?.dispose();
   });
-  textures.forEach(texture => texture.dispose());
+  textures.forEach(texture => { if (!ownedTextures.has(texture)) texture.dispose(); });
   geometries.forEach(geometry => geometry.dispose());
   materials.forEach(material => material.dispose());
+}
+
+function validatedPhotoReference(reference, profile) {
+  if (reference == null) return null;
+  if (profile !== 'hatchback3' || reference.referenceId !== 'ototr-adam-reference-v1' || !Array.isArray(reference.frames)) {
+    throw new Error('Fotoğraflı 3D referansı bu araçla eşleşmiyor.');
+  }
+  const frames = new Map();
+  for (const photo of reference.frames) {
+    if (![1, 7, 13, 19, 22].includes(photo?.frame) || frames.has(photo.frame)
+      || photo.url !== `./real-car/frame-${String(photo.frame).padStart(2, '0')}.jpg`) {
+      throw new Error('Fotoğraflı 3D için özgün referans kareleri gerekli.');
+    }
+    frames.set(photo.frame, photo.url);
+  }
+  if (![1, 7, 13, 19].every(frame => frames.has(frame))) throw new Error('Fotoğraflı 3D referans kareleri eksik.');
+  return { referenceId: reference.referenceId, frames };
+}
+
+// Only boundary edges are drawn; triangle edges would turn the photograph into
+// a wireframe. Coordinate welding also supports non-indexed photo surfaces.
+function photoBoundaryGeometry(geometry) {
+  const position = geometry.getAttribute('position'), normal = geometry.getAttribute('normal');
+  if (!position) return null;
+  const contour = geometry.userData.outlinePositions;
+  if (Array.isArray(contour) && contour.length >= 9 && contour.length % 3 === 0 && contour.every(Number.isFinite)) {
+    const outward = V();
+    if (normal) for (let i = 0; i < normal.count; i++) outward.add(V().fromBufferAttribute(normal, i));
+    outward.normalize().multiplyScalar(.004);
+    const points = [];
+    for (let i = 0; i < contour.length; i += 3) {
+      for (const offset of [i, (i + 3) % contour.length]) {
+        points.push(contour[offset] + outward.x, contour[offset + 1] + outward.y, contour[offset + 2] + outward.z);
+      }
+    }
+    const boundary = new THREE.BufferGeometry();
+    boundary.setAttribute('position', new THREE.Float32BufferAttribute(points, 3));
+    return boundary;
+  }
+  const vertices = new Map(), keys = [], edges = new Map();
+  for (let index = 0; index < position.count; index++) {
+    const point = V().fromBufferAttribute(position, index);
+    const key = [point.x, point.y, point.z].map(value => Math.round(value * 1e6)).join(',');
+    keys.push(key);
+    if (!vertices.has(key)) vertices.set(key, { point, normal: V() });
+    if (normal) vertices.get(key).normal.add(V().fromBufferAttribute(normal, index));
+  }
+  const index = geometry.index;
+  for (let triangle = 0; triangle + 2 < (index?.count ?? position.count); triangle += 3) {
+    const indices = [0, 1, 2].map(offset => index ? index.getX(triangle + offset) : triangle + offset);
+    for (let edge = 0; edge < 3; edge++) {
+      const a = keys[indices[edge]], b = keys[indices[(edge + 1) % 3]];
+      if (a === b) continue;
+      const key = a < b ? `${a}|${b}` : `${b}|${a}`;
+      if (edges.has(key)) edges.get(key).count++;
+      else edges.set(key, { a, b, count: 1 });
+    }
+  }
+  const points = [];
+  for (const edge of edges.values()) {
+    if (edge.count !== 1) continue;
+    for (const key of [edge.a, edge.b]) {
+      const vertex = vertices.get(key);
+      points.push(...vertex.point.clone().addScaledVector(vertex.normal.clone().normalize(), .003).toArray());
+    }
+  }
+  if (!points.length) return null;
+  const boundary = new THREE.BufferGeometry();
+  boundary.setAttribute('position', new THREE.Float32BufferAttribute(points, 3));
+  return boundary;
 }
 
 function compactMeshes(root, groups) {
@@ -178,10 +249,14 @@ export function presentationOffset(id, amount = 1) {
 }
 
 export class PresentationCar {
-  constructor(host, { profile = 'hatchback3', onSelect = () => {} } = {}) {
+  constructor(host, { profile = 'hatchback3', onSelect = () => {}, photoReference = null } = {}) {
     if (!PROFILES.has(profile)) throw new Error('Desteklenmeyen araç gövdesi.');
     if (!host?.append) throw new Error('3D görünüm alanı bulunamadı.');
     this.host = host; this.profile = profile; this.onSelect = onSelect;
+    this.photoReference = validatedPhotoReference(photoReference, profile);
+    this.photoTextureState = this.photoReference ? 'loading' : 'none';
+    this.photoTextures = new Set(); this.loadedPhotoFrames = new Set(); this.photoOutlines = [];
+    host.dataset.photoTextureState = this.photoTextureState;
     this.mode = 'assembled'; this.explodeAmount = 1; this.ghost = false; this.selected = null;
     this.findings = {}; this.disposed = false; this.contextLost = false; this.events = [];
     this.activePointers = new Set(); this.tap = null; this.cameraFlight = null;
@@ -195,7 +270,9 @@ export class PresentationCar {
     canvas.style.width = '100%'; canvas.style.height = '100%'; canvas.style.display = 'block';
     canvas.style.touchAction = 'none'; canvas.style.cursor = 'grab';
     canvas.setAttribute('role', 'img');
-    canvas.setAttribute('aria-label', 'Temsili üç boyutlu kaporta. Döndürmek için sürükleyin, parçayı ayırmak için dokunun. Parça listesiyle klavye seçimi de yapılabilir.');
+    canvas.setAttribute('aria-label', this.photoReference
+      ? 'Özgün araç fotoğraflarıyla kaplanmış temsili üç boyutlu kaporta. Döndürmek için sürükleyin, parçayı seçmek için dokunun. Parça listesiyle klavye seçimi de yapılabilir.'
+      : 'Temsili üç boyutlu kaporta. Döndürmek için sürükleyin, parçayı ayırmak için dokunun. Parça listesiyle klavye seçimi de yapılabilir.');
     host.append(canvas); host.dataset.rendererState = 'ready';
     this.scene = new THREE.Scene(); this.scene.background = new THREE.Color('#171b1e');
     this.scene.fog = new THREE.Fog('#171b1e', 13, 31);
@@ -218,9 +295,9 @@ export class PresentationCar {
     key.shadow.normalBias = .025; key.shadow.bias = -.00015; this.scene.add(key);
     const rim = new THREE.DirectionalLight('#c1d6ee', 1.8); rim.position.set(4, 5, -4); this.scene.add(rim);
     const front = new THREE.DirectionalLight('#f0eee8', .72); front.position.set(-6, 2, -2); this.scene.add(front);
-    const floor = new THREE.Mesh(new THREE.PlaneGeometry(90, 90), new THREE.MeshBasicMaterial({ color: '#171b1e' }));
+    const floor = new THREE.Mesh(new THREE.PlaneGeometry(90, 90), new THREE.MeshBasicMaterial({ color: '#171b1e', toneMapped: !this.photoReference }));
     floor.rotation.x = -Math.PI / 2; floor.position.y = .026; this.scene.add(floor);
-    const shadows = new THREE.Mesh(new THREE.PlaneGeometry(90, 90), new THREE.ShadowMaterial({ opacity: .36, depthWrite: false }));
+    const shadows = new THREE.Mesh(new THREE.PlaneGeometry(90, 90), new THREE.ShadowMaterial({ opacity: this.photoReference ? .20 : .36, depthWrite: false }));
     shadows.rotation.x = -Math.PI / 2; shadows.position.y = .027; shadows.receiveShadow = true; this.scene.add(shadows);
     // A layered radial decal adds contact grounding without fabricating vehicle internals.
     const shadowCanvas = document.createElement('canvas'); shadowCanvas.width = shadowCanvas.height = 128;
@@ -232,7 +309,9 @@ export class PresentationCar {
     contact.rotation.x = -Math.PI / 2; contact.position.y = .028; this.scene.add(contact);
     const ring = new THREE.Mesh(new THREE.RingGeometry(3.40, 3.41, 144), new THREE.MeshBasicMaterial({ color: '#8a969f', transparent: true, opacity: .10, depthWrite: false, side: THREE.DoubleSide }));
     ring.rotation.x = -Math.PI / 2; ring.position.y = .031; this.scene.add(ring);
-    this.car = createPresentationGeometry(profile); this.scene.add(this.car.root);
+    this.car = this.photoReference ? createPhotoBodyGeometry() : createPresentationGeometry(profile);
+    this.scene.add(this.car.root);
+    if (this.photoReference) this.loadPhotoTextures();
     this.centers = new Map(); this.partBounds = new Map(); this.tethers = new Map(); this.markers = new Map();
     this.car.root.updateMatrixWorld(true);
     this.bodyBounds = new THREE.Box3().setFromObject(this.car.root);
@@ -242,8 +321,8 @@ export class PresentationCar {
       const anchor = bounds.getCenter(V());
       // A bounding-box center can fall inside a wheel opening. Keep finding markers
       // and labels anchored to the actual fender sheet, above the wheel arch.
-      if (id.includes('front_fender')) anchor.set(-1.10, .95, id.startsWith('left') ? .91 : -.91);
-      if (id.includes('rear_fender')) anchor.set(1.25, 1.045, id.startsWith('left') ? .91 : -.91);
+      if (id.includes('front_fender')) anchor.set(this.photoReference ? -1.25 : -1.10, .95, id.startsWith('left') ? .91 : -.91);
+      if (id.includes('rear_fender')) anchor.set(this.photoReference ? 1.47 : 1.25, 1.045, id.startsWith('left') ? .91 : -.91);
       this.centers.set(id, anchor);
       const geometry = new THREE.BufferGeometry(); geometry.setAttribute('position', new THREE.Float32BufferAttribute(new Float32Array(6), 3));
       const tether = new THREE.Line(geometry, new THREE.LineBasicMaterial({ color: '#b4c0c7', transparent: true, opacity: .2, depthWrite: false }));
@@ -298,6 +377,69 @@ export class PresentationCar {
     this.frameId = requestAnimationFrame(this.animate);
   }
 
+  setPhotoTextureState(state) {
+    if (this.disposed) return;
+    this.photoTextureState = state; this.host.dataset.photoTextureState = state;
+    this.host.dispatchEvent(new CustomEvent('presentation-photo-state', { detail: { state } }));
+  }
+
+  loadPhotoTextures() {
+    const frames = [...new Set(this.car.sourceFrames || [])];
+    const surfaces = [];
+    this.car.root.traverse(mesh => {
+      if (!mesh.isMesh || !mesh.userData.photoSurface) return;
+      surfaces.push(mesh);
+      mesh.material.color.set('#343b40'); mesh.material.toneMapped = false;
+      if (!mesh.userData.partId || !mesh.userData.pickable) return;
+      const geometry = photoBoundaryGeometry(mesh.geometry);
+      if (!geometry) return;
+      const outline = new THREE.LineSegments(geometry, new THREE.LineBasicMaterial({
+        color: AMBER, transparent: true, opacity: .95, depthTest: true, depthWrite: false,
+        toneMapped: false,
+      }));
+      outline.visible = false; outline.userData.photoOutline = true;
+      outline.renderOrder = 2; mesh.add(outline);
+      this.photoOutlines.push({ outline, mesh, partId: mesh.userData.partId });
+    });
+    this.photoSurfaceCount = surfaces.length;
+    if (!frames.length || frames.some(frame => !this.photoReference.frames.has(frame))
+      || surfaces.some(mesh => !frames.includes(mesh.userData.photoFrame))) {
+      this.setPhotoTextureState('error'); return;
+    }
+    this.setPhotoTextureState('loading');
+    const loader = new THREE.TextureLoader();
+    const anisotropy = Math.min(8, this.renderer.capabilities.getMaxAnisotropy());
+    for (const frame of frames) {
+      let texture;
+      try {
+        texture = loader.load(this.photoReference.frames.get(frame), loaded => {
+          if (this.disposed || this.photoTextureState === 'error') {
+            if (this.photoTextures.delete(loaded)) loaded.dispose();
+            return;
+          }
+          loaded.colorSpace = THREE.SRGBColorSpace; loaded.anisotropy = anisotropy;
+          loaded.wrapS = loaded.wrapT = THREE.ClampToEdgeWrapping;
+          loaded.needsUpdate = true;
+          for (const mesh of surfaces) {
+            if (mesh.userData.photoFrame !== frame) continue;
+            mesh.material.map = loaded; mesh.material.color.set('#ffffff');
+            mesh.material.toneMapped = false; mesh.material.needsUpdate = true;
+          }
+          this.loadedPhotoFrames.add(frame);
+          if (this.loadedPhotoFrames.size === frames.length) this.setPhotoTextureState('ready');
+        }, undefined, () => {
+          if (texture && this.photoTextures.delete(texture)) texture.dispose();
+          if (!this.disposed) this.setPhotoTextureState('error');
+        });
+        this.photoTextures.add(texture);
+      } catch {
+        if (texture && this.photoTextures.delete(texture)) texture.dispose();
+        this.setPhotoTextureState('error');
+        break;
+      }
+    }
+  }
+
   setFindings(findings = {}) {
     if (this.disposed) return;
     if (!findings || typeof findings !== 'object') findings = {};
@@ -340,6 +482,12 @@ export class PresentationCar {
   }
 
   homePosition(mode = this.mode) {
+    if (this.photoReference) {
+      // A closer, lower front-quarter view gives the original side details the
+      // hero space; the exploded view retains room around all separated skins.
+      return (mode === 'exploded' ? V(-5.4, 2.6, 5.65) : V(-4.2, 2.1, 4.45))
+        .multiplyScalar(this.camera.aspect < .85 ? 1.35 : 1);
+    }
     const factor = (mode === 'exploded' ? 1.17 : 1) * (this.camera.aspect < .85 ? 1.35 : 1);
     return V(-5.9, 3.2, 5.7).multiplyScalar(factor);
   }
@@ -354,8 +502,8 @@ export class PresentationCar {
     const selected = id === this.selected;
     const amount = this.mode === 'exploded' ? this.explodeAmount : 0;
     const offset = presentationOffset(id, amount);
-    if (selected) {
-      const lift = this.mode === 'isolate' ? .84 : this.mode === 'exploded' ? .42 : .34;
+    if (selected && (!this.photoReference || this.mode === 'isolate' || (this.mode === 'exploded' && amount > 0))) {
+      const lift = this.mode === 'isolate' ? .84 : this.mode === 'exploded' ? .42 * (this.photoReference ? amount : 1) : .34;
       offset.add(presentationOffset(id, 1).normalize().multiplyScalar(lift));
     }
     return offset;
@@ -368,7 +516,7 @@ export class PresentationCar {
       : id === 'roof' ? V(-.4, 1.25, .55)
       : ['trunk', 'rear_bumper', 'rear_glass'].includes(id) ? V(1, .48, .5) : V(-1, .5, .55);
     const mobile = this.camera.aspect < .85;
-    const distance = (this.mode === 'isolate' ? 4.2 : 6.0) * (mobile ? 1.25 : 1);
+    const distance = (this.mode === 'isolate' ? 4.2 : this.photoReference && this.mode === 'exploded' ? 8.0 : 6.0) * (mobile ? 1.25 : 1);
     // Keep enough of the car in view to explain where the selected panel belongs.
     const target = this.mode === 'isolate' ? center : center.clone().lerp(V(0, .85, 0), .44);
     this.flyTo(target.clone().add(direction.normalize().multiplyScalar(distance)), target);
@@ -486,6 +634,9 @@ export class PresentationCar {
         material.emissiveIntensity = selected ? .16 : 0;
       }
     });
+    for (const { outline, mesh, partId } of this.photoOutlines) {
+      outline.visible = this.photoTextureState === 'ready' && partId === this.selected && mesh.visible && mesh.material.opacity > .5;
+    }
     this.car.root.updateMatrixWorld(true);
   }
 
@@ -501,7 +652,11 @@ export class PresentationCar {
     return { profile: this.profile, mode: this.mode, selected: this.selected, explodeAmount: this.explodeAmount,
       ghost: this.ghost, reducedMotion: this.reducedMotion, autoRotate: Boolean(this.controls?.autoRotate),
       disposed: this.disposed, contextLost: this.contextLost, partCount: Object.keys(this.car?.groups || {}).length,
-      partIds: Object.keys(this.car?.groups || {}), geometrySource: 'authored-semantic-template', reconstructedFromPhotos: false,
+      partIds: Object.keys(this.car?.groups || {}), geometrySource: this.car?.root.userData.geometrySource || 'authored-semantic-template', reconstructedFromPhotos: false,
+      referenceId: this.photoReference?.referenceId || null, photoTextureState: this.photoTextureState,
+      photoTextureCount: this.loadedPhotoFrames.size, photoSurfaceCount: this.photoSurfaceCount || 0,
+      photoMeshCount: this.photoSurfaceCount || 0,
+      photoSourceFrames: [...this.loadedPhotoFrames].sort((a, b) => a - b),
       canvasCount: this.host.querySelectorAll('canvas').length };
   }
 
@@ -532,11 +687,14 @@ export class PresentationCar {
     this.events.splice(0).forEach(remove => remove());
     this.controls.removeEventListener('start', this.listenControls); this.controls.dispose();
     this.activePointers.clear(); this.tap = null; this.cameraFlight = null; this.findings = {};
-    disposeObject(this.scene); this.environment.dispose();
+    disposeObject(this.scene, this.photoTextures); this.environment.dispose();
+    this.photoTextures.forEach(texture => texture.dispose()); this.photoTextures.clear();
+    this.loadedPhotoFrames.clear(); this.photoOutlines = []; this.photoReference = null;
     this.renderer.renderLists.dispose(); this.renderer.dispose(); this.renderer.forceContextLoss();
     this.scene.clear(); this.scene.environment = null;
     this.car.root.clear(); this.car.meshes = []; this.car.groups = {};
     this.centers.clear(); this.partBounds.clear(); this.tethers.clear(); this.markers.clear(); this.onSelect = () => {};
     this.renderer.domElement.remove(); this.host.dataset.rendererState = 'disposed';
+    this.photoTextureState = 'disposed'; this.host.dataset.photoTextureState = 'disposed';
   }
 }

@@ -2,9 +2,19 @@
 
 8 Eylül 2026
 
-## Gerçek fotoğraftan parçalar güncellemesi
+## Özgün fotoğraflı 3D gövde
 
-Örnek sunum artık gerçek fotoğraf katmanlarıyla açılır. Fotoğraf setindeki 1, 4, 7, 10, 13, 16, 19 ve 22 numaralı kare için 59 görünür bölge, 18 farklı parça türüne elle konturlanmıştır. Konturu hazırlanmamış bir parça seçilirse ilgili genel fotoğraf açılır. Tüm 24 kare ayrıca “24 fotoğraf” sekmesindedir. Önceki genel geometri “3D şema” sekmesine taşınmıştır.
+Referans sunum **Fotoğraflı 3D** sekmesinde birleşik gövdeyle açılır. `src/photo-body-geometry.js` aynı aracın görünür konturlarına göre elle hazırlanmış üç kapılı dış yüzeyleri oluşturur. 1, 7, 13 ve 19 numaralı ön/sağ/arka/sol fotoğrafların pikselleri bu yüzeylere UV koordinatlarıyla uygulanır. Orijinal dosyalar değiştirilmez. Kapılar, çamurluklar, tamponlar ve camlar farklı açılardan görülebilir; seçildiğinde fotoğraf renkleri korunur ve ince kenar çizgisi kullanılır. Tekerlek fotoğrafları bağlam içindir, ilave ekspertiz kalemi değildir.
+
+Üst açı çekimi bulunmayan tavanın üstü ve parça arkaları sade temsili yüzeylerdir. Model araca göre hizalanmış bir sunum kabuğudur; ölçülebilir 3D tarama, üretici CAD modeli veya otomatik fotogrametri değildir. İç yapı ve mekanik durum üretilmez. Her dört doku yüklenmeden hazır durumu verilmez; yükleme hatasında genel fotoğraflara geçiş sunulur.
+
+`photo-body-domain.js` referans kimliği, üç kapılı profil ve 24 fotoğrafın tekil kare/kimlik/URL/örnek niteliğini birlikte doğrular. Onaylı müşteri raporu bu kaplamayı alamaz; kendi fotoğraflarıyla açılır ve genel temsili şemayı kullanabilir. OTOTR çekimlerine bu görünümü uygulamak için araca özel yüzey/UV hazırlama ve teknik kabul gerekir. Arka uç, görev sahipliği ve onay kapıları bu güncellemede değişmez.
+
+Ek kontrol: `node tools/check-photo-body.cjs` ve canlı sürüm için `--live`; UV/kaynak ve müşteri ayrımı `npm test` içindedir.
+
+## Gerçek fotoğraftan parçalar görünümü
+
+“Fotoğraftan parçalar” sekmesi veya `?view=cutout` bağlantısı gerçek fotoğraf katmanlarını açar. Fotoğraf setindeki 1, 4, 7, 10, 13, 16, 19 ve 22 numaralı kare için 59 görünür bölge, 18 farklı parça türüne elle konturlanmıştır. Konturu hazırlanmamış bir parça seçilirse ilgili genel fotoğraf açılır. Tüm 24 kare ayrıca “24 fotoğraf” sekmesindedir.
 
 “Birleştir” asıl fotoğrafı doğrudan ve maskesiz gösterir; şeffaf seçim konturları etkileşimi korur. “Parçaları ayır” fotoğrafın gerçek piksellerini dışarı taşır; sıfır mesafede tüm parçalar kaynak konumundadır. “Tek parça” seçilen fotoğraf kesitini büyütür. Aynı işlem sekiz hazır açıdan gösterilebilir. Açılan boşluklardaki nötr renk yalnız konum rehberidir; araç içi veya parça arkası olarak yorumlanmamalıdır.
 
@@ -14,7 +24,7 @@ Ek doğrulama: `node --test tests/photo-mask-domain.test.mjs`; `node tools/check
 
 ## Teslim edilen deneyim
 
-Sunum `sunum.html` girişinde açılır. Sol kapı seçili ve gövde ayrılmış halde başlayan referans ekran, müşteriye etkileşimi ilk anda gösterir. Seçili parça gövdeden yükselir; kamera seçilen yüzeye döner. Tüm gövdeyi birleştirmek, açılmayı ayarlamak, tek parçayı öne çıkarmak ve diğer yüzeyleri saydamlaştırmak mümkündür. Klavye ile erişilen tüm parça listesi, 3D seçimine alternatif sağlar.
+Sunum `sunum.html` girişinde açılır. Sol kapı seçili ve gövde birleşik halde başlar. “Parçaları ayır” seçilince yüzeyler dışarı taşınır; “Tek parça” seçilen yüzeye odaklanır. Birleşik görünümde ve sıfır açılmada seçili parça da özgün gövde konumundadır. Tüm gövdeyi birleştirmek, açılmayı ayarlamak, tek parçayı öne çıkarmak ve diğer yüzeyleri saydamlaştırmak mümkündür. Klavye ile erişilen tüm parça listesi, 3D seçimine alternatif sağlar.
 
 Sağ panelde işlem, yüzey bulgusu, kaydedilmiş boya kalınlıkları, uzman açıklaması ve bağlı fotoğraf birlikte gösterilir. Genel çevre fotoğrafı, bulgu yakın planı olarak sunulmaz. Varsa uzmanın dikdörtgen işaretleri özgün fotoğraftan ayrı katmanda, fotoğrafın gerçek görüntü alanına hizalanır. Fotoğraf tam ekran sunum sırasında da büyütülebilir.
 

@@ -1251,3 +1251,16 @@ UI testleri sentetik rapor payload'larıyla izole tarayıcıda çalıştı. Ger�
 - Görsel kontrol: 22/19/16/1/13 açılarında birleştirme/ayırma, izole kapının camsız sac kesiti, tüm 8 açı ve mobil görünüm incelendi. İnce beyaz maske dikişleri ile açılma sıfırken seçili panelin ayrık kalması düzeltildi.
 
 Sınırlar: katman hareketi fiziksel söküm veya ölçülebilir 3D rekonstrüksiyon değildir. Belirsiz/görünmeyen konturlar uydurulmaz; kontursuz parçada genel fotoğraf açılır. Fotoğrafların ticari kullanım izni doğrulanmadı. Gerçek OTOTR çekimi, çekime özel konturlar ve ayrı teknik onayla saha kabulü henüz yapılmadı. Canlı test müşteri payload'ları izole tarayıcıda sentetik olarak karşılandı; gerçek müşteri verisi okunmadı/yazılmadı.
+
+## 2026-09-08 — Kaporta 360 özgün fotoğraf dokulu 3D
+
+- npm test: 41/41 geçti. Özgün UV/piksel eşlemesi, sonlu ve seçilebilir geometri, sıfır mesafede birleşme, müşteri raporunda referans doku yasağı ve değişmiş/eksik/tekil olmayan kaynak reddi kontrol edildi. Önceki rapor ve PostgreSQL/RLS/onay kontrolleri de geçti.
+- npm run build:erp geçti; 24 JPG kaynak SHA-256 değeri değişmedi. release.json fotoğraflı 3D için dört kaynak kareyi, reference-set-only kapsamını ve geometri kökenini bildirir.
+- node tools/check-photo-body.cjs: 13/13; dört 1072×586 özgün fotoğrafın WebGL doku yüklemesi doğrudan gözlendi. Gerçek canvas yüzeyine tıklama, 23 seçim, ayırma/izolasyon/0–100 mesafe, gerçek piksel farkları, sürükleme, saydamlık, hareket azaltma, 390 px, dokunun yüklenememesi ve onaylı raporda referans istek/yükleme bulunmaması doğrulandı.
+- node tools/check-photo-layers.cjs: 15/15; önceki sekiz açılı kaynak fotoğraf katmanları, klavye, bulgu turu, asıl fotoğraflar ve iptal temizliği korundu.
+- node tools/check-presentation.cjs: 19/19; mevcut müşteri raporu, fotoğraf büyütme, WebGL alternatifi, 25 parçalı genel şema ve veri temizleme kontrolü geçti.
+- node tools/check-presentation-publication.cjs: 8/8 sahnelenen yayın; canlı --live: 8/8. Son modül yolu ve derlenmiş dosyanın SHA-256 değeri birebir eşleşti.
+- node tools/check-photo-body.cjs --live: 13/13. Yayın commit dd8d849ffe4dfe244d812b925e1fd0b3d8386c92. Başarılı akışlarda tarayıcı/konsol/beklenmeyen dış istek hatası yok.
+- Görsel kontrol: ön, sol, sağ, arka, ön çapraz; birleşik/açılmış/izole gövde ve mobil. Kaput–çamurluk boşluğu, yinelenmiş far, tavan çıkıntısı, cam–sac kemer boşluğu ve açık renkli parça arkalarının dışa sızması düzeltilerek son görünüm tekrar incelendi.
+
+Sınırlar: referans araca özel hazırlanmış sunum kabuğudur; otomatik fotogrametri veya üretici CAD modeli değildir. Tavan üstü/parça arkası/lastik derinliği temsili, bulgular örnektir. Ticari fotoğraf izni doğrulanmadı. OTOTR çekimlerine özel UV hazırlama ve gerçek cihaz/uzman saha kabulü sonraki aşamadır. Canlı testler sentetik tarayıcı rapor yanıtlarıyla yapıldı; gerçek müşteri verisi okunmadı/yazılmadı.

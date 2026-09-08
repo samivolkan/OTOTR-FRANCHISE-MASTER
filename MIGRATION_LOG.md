@@ -342,3 +342,11 @@ Kullanıcının gerçek araç görsellerini parçalarına ayırma isteği uygula
 Konturlar yalnız aynı referans setine aittir. Gerçek müşteri raporunda bu konturlar kapalıdır; kendi fotoğrafları ve ayrı temsili 3D şema görünür. Araca özel kontur kaydı/onayı sonraki aşamadır. Veritabanı, auth, teknik/nihai onay, görev sahipliği veya asıl fotoğraf kayıtları değiştirilmedi. Gizli yüzey/araç içi/sentetik hasar üretilmedi.
 
 Yayın Ototr main 0eb03a3ba8a09a528dd1c91d1c6cadfc0941b403; https://samivolkan.github.io/Ototr/kaporta-360/sunum.html . Kaynak apps/web/vehicle-3d, derlenmiş kopya apps/admin/prototype/kaporta-360. Yalnız bu çalışmanın dosyaları ve log ekleri commit edildi; önceki çalışma ağacı değişiklikleri korundu. Karar: docs/decisions/2026-09-08-kaporta-360-photographic-panels.md.
+
+## 2026-09-08 — Kaporta 360 özgün fotoğraf dokulu 3D
+
+Kullanıcının 3D şemada özgün fotoğraflarla daha profesyonel sunum isteği uygulandı. sunum.html referans araç için Fotoğraflı 3D / birleşik görünümle açılır. Aracın konturlarına göre elle hazırlanmış 23 parçalı üç kapılı dış gövdeye ön/sağ/arka/sol 1/7/13/19 kaynak fotoğrafları UV ile yerleştirilir. Fotoğraf renkleri seçimde korunur; ince kenar çizgisi, parça açılma/izolasyon, serbest dönüş ve daha büyük, alçak açılı sahne kullanılır. Tavan üstü ve parçaların arka yüzleri temsili kalır; fotogrametri veya ölçülebilir tarama iddiası yoktur.
+
+24 kaynak JPG değişmedi. Eski 8 açı / 59 kesit görünümü Fotoğraftan parçalar sekmesi ve ?view=cutout girişinde korunur. Dokular yalnız aynı referans kimliğine ve tam fotoğraf setine uygulanır. Onaylı müşteri raporu kendi fotoğraflarıyla açılır; demo dokusu alamaz. Veritabanı, auth, paylaşım/onay kapıları ve görev sahipliği değişmedi.
+
+Yayın Ototr main dd8d849ffe4dfe244d812b925e1fd0b3d8386c92; https://samivolkan.github.io/Ototr/kaporta-360/sunum.html . Kaynak ve derlenmiş ERP kopyası yalnız bu çalışmaya ait dosyalarla commit edildi; önceki çalışma ağacı değişiklikleri korundu. Karar: docs/decisions/2026-09-08-kaporta-360-photographic-3d.md.

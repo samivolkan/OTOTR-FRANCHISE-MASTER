@@ -2,7 +2,7 @@ const fs=require('node:fs'),path=require('node:path'),http=require('node:http'),
 const {chromium}=require('playwright');
 const app=path.resolve(__dirname,'..'),dist=path.join(app,'dist-erp'),out=path.join(app,'.local');
 const live=process.argv.includes('--live'),localOrigin='http://127.0.0.1:4334';
-const url=live?'https://samivolkan.github.io/Ototr/kaporta-360/sunum.html':localOrigin+'/kaporta-360/sunum.html';
+const url=(live?'https://samivolkan.github.io/Ototr/kaporta-360/sunum.html':localOrigin+'/kaporta-360/sunum.html')+'?view=cutout';
 const origin=new URL(url).origin,apiOrigin='https://photolayersqa.supabase.co',token='b'.repeat(64);
 const counts={1:5,4:8,7:8,10:9,13:3,16:9,19:8,22:9};
 const mime={'.html':'text/html','.js':'text/javascript','.css':'text/css','.jpg':'image/jpeg','.json':'application/json','.ttf':'font/ttf','.woff2':'font/woff2'};
@@ -49,7 +49,7 @@ function fixture(){return {customerView:true,reportId:'QA-PHOTO-LAYERS',approved
   assert.equal(await page.locator('.scene').getAttribute('data-view'),'cutout');assert.equal(await page.locator('.scene-host canvas').count(),0);
   assert.equal(await page.locator('.photographic-svg').count(),1);assert.equal(await page.locator('.photo-layer-host').getAttribute('data-photo-frame'),'22');assert.equal(await page.locator('[data-photo-part]').count(),9);assert.equal(apiCalls,0);
   const hrefs=await page.locator('.photographic-svg image').evaluateAll(nodes=>nodes.map(n=>n.getAttribute('href')));assert.equal(hrefs.length,10);assert.ok(hrefs.every(h=>h==='./real-car/frame-22.jpg'));
-  await page.waitForFunction(()=>document.querySelector('.evidence-media img')?.naturalWidth>0);await noOverflow();await screenshot('desktop');pass('Default uses nine original-photo panels from frame 22, without WebGL or API requests');
+  await page.waitForFunction(()=>document.querySelector('.evidence-media img')?.naturalWidth>0);await noOverflow();await screenshot('desktop');pass('Cutout entry uses nine original-photo panels from frame 22, without WebGL or API requests');
 
   await selectByPhoto('hood');assert.equal(await page.locator('.scene').getAttribute('data-selected'),'hood');
   await selectByPhoto('left_front_door');assert.equal(await page.locator('#part-title').innerText(),'Sol kapı');assert.equal(await group('left_front_door').getAttribute('aria-pressed'),'true');assert.match(await page.locator('.expert-note').innerText(),/Temsili senaryo/);pass('Clicking real photographic hood and door surfaces updates the selected finding');

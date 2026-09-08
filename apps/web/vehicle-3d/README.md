@@ -4,7 +4,9 @@
 
 ## Parçalı müşteri sunumu
 
-Gerçek fotoğraf güncellemesi: `sunum.html` artık **Fotoğraftan parçalar** görünümüyle açılır. Aynı 24 özgün kare korunur; sekiz elle konturlanmış açıda toplam 59 görünür parça bölgesi kaynak pikselleriyle ayrılır. “Birleştir”, “Parçaları ayır” ve “Tek parça” gerçek fotoğraf katmanlarını hareket ettirir. Eski model “3D şema” sekmesindedir. Bu, fotoğraf katmanlarıyla bir anlatım efektidir; görünmeyen yüzeyler veya ölçülebilir 3D geometri üretilmez. Konturlar yalnız referans setine aittir; başka müşteri fotoğrafına otomatik uygulanmaz.
+Fotoğraflı 3D güncellemesi: `sunum.html` artık **Fotoğraflı 3D** görünümünde birleşik araçla açılır. Referans aracın hatlarına göre hazırlanmış üç kapılı dış gövde, 1/7/13/19 numaralı özgün ön/sağ/arka/sol fotoğraflarla kaplanır. Kapı, çamurluk, tampon ve cam yüzeyleri serbestçe döndürülür, seçilir, ayrılır ve birleştirilir. Seçim fotoğrafı boyamaz; ince bir kenar çizgisiyle belirtilir. Üst açı çekimi bulunmayan tavan üstü ile parçaların arka yüzleri temsili malzemedir. Bu, ölçülebilir 3D tarama veya üretici CAD modeli değildir.
+
+**Fotoğraftan parçalar** sekmesi ve `?view=cutout` girişi, sekiz elle konturlanmış açıda 59 görünür fotoğraf bölgesini korur. **24 fotoğraf** sekmesi tüm asıl kareleri gösterir. Her iki hazırlama da yalnız aynı referans setine aittir. Gerçek müşteri raporuna demo fotoğrafı veya UV eşlemesi uygulanmaz; onaylı rapor kendi fotoğraflarıyla açılır ve genel temsili 3D şema ayrı sekmede kalır.
 
 `sunum.html`, tıklanan panelin öne geldiği yeni sunum ekranıdır. Gövdeyi birleştirme, parçaları ayırma, ayrılma mesafesi, tek parçaya odaklanma, saydam gövde, otomatik dönüş ve tam ekran desteklenir. Bulgu turu, uzman kaydı ve gerçek fotoğraf görünümü bir aradadır. Üç kapılı şablonda 23, diğer genel şablonlarda 25 parça bulunur.
 
@@ -12,9 +14,9 @@ Gerçek fotoğraf güncellemesi: `sunum.html` artık **Fotoğraftan parçalar** 
 - Müşteri: onaylı `pilot.html#rapor=…` raporundaki “Parçalı 3D sunumu aç” bağlantısı. Aynı süreli rapor yetkisini kullanır; düzenleme veya yeni onay vermez.
 - Ayrı giriş sayfası sayesinde 3D kütüphanesi personel çekim ekranına yüklenmez. `npm run build:erp` üç girişi birlikte paketler.
 - `src/presentation-car.js`: seçilebilir gövde, animasyon ve kamera. `src/presentation-domain.js`: sadece onaylı rapor dönüşümü, demo ayrımı ve anlatım turu. `src/presentation.js` / `.css`: müşteri ekranı.
-- Kontrol: `npm test`, `npm run build:erp`, `node tools/check-presentation.cjs`. İzole tarayıcı testlerinde gerçek müşteri verisi kullanılmaz.
+- Kontrol: `npm test`, `npm run build:erp`, `node tools/check-photo-body.cjs`, `node tools/check-photo-layers.cjs`, `node tools/check-presentation.cjs`. İzole tarayıcı testlerinde gerçek müşteri verisi kullanılmaz. Canlı fotoğraflı 3D kontrolü: `node tools/check-photo-body.cjs --live`.
 
-3D yüzeyler anlatım şablonudur; referans Opel fotoğraflarından çıkarılmış geometri veya üreticiye ait birebir model değildir. Bulgular ve ölçümler örnek sayfada temsili olarak etiketlenir. Gerçek müşteri raporuna demo fotoğrafı veya sonucu eklenmez. Fotoğraflı kanıt ve uzman kararı esas alınır. Uygulama notları: `docs/KAPORTA-360-SUNUM.md`.
+3D yüzeyler elle hazırlanmış anlatım geometrisidir; fotoğrafların pikselleri UV koordinatlarıyla bu yüzeylere yerleştirilir. Otomatik fotogrametri yapılmaz. Bulgular ve ölçümler örnek sayfada temsili olarak etiketlenir. Gerçek müşteri raporuna demo fotoğrafı veya sonucu eklenmez. Fotoğraflı kanıt ve uzman kararı esas alınır. Uygulama notları: `docs/KAPORTA-360-SUNUM.md`.
 
 **Personel pilotu:** [Kaporta 360 — iş emirleri](https://samivolkan.github.io/Ototr/kaporta-360/pilot.html). ERP menüsünde **Ekspertiz & Rapor → Kaporta 360**. Mevcut Supabase Auth hesabı ve atanmış kaporta göreviyle çalışır. 24 çevre + 4 üst açı, özel asıl fotoğraf deposu, parça/kanıt/ölçüm kayıtları, teknik inceleme ve nihai ERP onayıyla açılabilen süreli müşteri bağlantısı içerir. Bağlı proje `ototr-staging`; saha kabulü tamamlanmış üretim sürümü değildir. [Pilot kullanım ve sınırlar](docs/KAPORTA-360-KULLANIM.md).
 
