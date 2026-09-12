@@ -1286,3 +1286,5 @@ Sınırlar: otomatik fotogrametri, üretici model kütüphanesi, buluttan ses/vi
 - npm.cmd run build:erp: passed; existing 672 kB shared 3D chunk warning remains.
 - In-app browser: verified source recommendation, filters, review count 9 -> 8 -> 9, draft priority and missing upper-angle navigation. Viewed desktop 1440x1000 and mobile 390x844; no page overflow or browser errors observed.
 - Evidence screenshots are in apps/web/vehicle-3d/.local/audit-2026-09-13. No real customer data, physical camera or authenticated field acceptance exercised this turn.
+
+- Publication verified: Ototr main 2abad39. Live studio.html, studio-CYCLWog6.js and studio-DGXnHbg3.css returned HTTP 200 and exact local-build SHA-256. Live browser confirmed pending filter, rear-bumper selection and its linked rear photograph. Existing unrelated package-matrix commit was preserved by rebase.
