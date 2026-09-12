@@ -1304,3 +1304,5 @@ Sınırlar: otomatik fotogrametri, üretici model kütüphanesi, buluttan ses/vi
 
 - ERP build passed; 55 existing tests passed. Planning JSON checked against canonical 25 parts and 28 unique shots, all inspection outcomes unchecked, no model/evidence and customerPublishable false.
 - In-app browser checked desktop 1440x1000 and mobile 390x844, section navigation, counts and download links. No page overflow or browser errors observed. No physical print or real vehicle acceptance this turn.
+
+- Public release 34fc593 verified: Passat HTML/JSON/model brief, studio HTML and studio-Em-F5QPx.js returned HTTP 200 with byte-exact build SHA-256 after Pages deployment. Unrelated package-matrix mobile update was preserved.
