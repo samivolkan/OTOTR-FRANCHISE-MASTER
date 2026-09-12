@@ -1288,3 +1288,11 @@ Sınırlar: otomatik fotogrametri, üretici model kütüphanesi, buluttan ses/vi
 - Evidence screenshots are in apps/web/vehicle-3d/.local/audit-2026-09-13. No real customer data, physical camera or authenticated field acceptance exercised this turn.
 
 - Publication verified: Ototr main 2abad39. Live studio.html, studio-CYCLWog6.js and studio-DGXnHbg3.css returned HTTP 200 and exact local-build SHA-256. Live browser confirmed pending filter, rear-bumper selection and its linked rear photograph. Existing unrelated package-matrix commit was preserved by rebase.
+
+
+## 2026-09-13 — Kaporta 360 precision editor
+
+- npm.cmd test: 55 passed, 0 failed (4 new viewport/pixel tests). build:erp passed; existing large shared 3D chunk warning remains.
+- In-app browser verified zoom/pan preserve source points, 1px/10px keyboard nudges, pointer drag and undo/redo, 8x mirror fit, source reset and unsaved-boundary save guard. Reviewed contour saved and sample plan validated.
+- Desktop 1440x1050 and mobile 390x844 checked. Resize handle shrink fixed; desktop handle diameter measured 16 CSS px. Draft cutout previews verified. Evidence: apps/web/vehicle-3d/.local/precision-qa.
+- No physical camera/touch device or real customer write tested in this turn.

@@ -368,3 +368,10 @@ Karar ve geri alma: docs/decisions/2026-09-08-kaporta-360-studio.md; migration i
 - Audited the six live studio steps and documented ordered field/model/editor requirements in docs/decisions/2026-09-13-kaporta-360-next-stages.md.
 - Added current-source per-part coverage, counted filters, evidence-based source navigation and missing-capture shortcuts to studio.html. Inspection status and approval gates are unchanged.
 - Scoped deployment consists of the studio module/CSS, studio.html and release metadata. No database or Edge deployment. Previous hashed assets retained for rollback.
+
+
+## 2026-09-13 — Kaporta 360 precision editor
+
+- Added bounded 1x-8x photo zoom/pan, contour fit, source-pixel keyboard adjustments, point navigation and live isolated/exploded draft cutout preview.
+- Source photo and normalized saved geometry are preserved. No database, Edge, ownership or approval-gate changes. Previous hashed studio assets retained for rollback.
+- Decision and field limitations: docs/decisions/2026-09-13-kaporta-360-precision-editor.md.
