@@ -1278,3 +1278,11 @@ Sınırlar: referans araca özel hazırlanmış sunum kabuğudur; otomatik fotog
 - Görsel kontrol: masaüstü kaynak fotoğraf/kontur editörü, ayrılmış gerçek fotoğraf ön izlemesi, mobil 3D/prova ve mobil rehber. Başarılı akışlarda uncaught browser hatası yok. Farklı sayfalarda açık raporun iptalinde özel görüntü ve metin temizlendi.
 
 Sınırlar: otomatik fotogrametri, üretici model kütüphanesi, buluttan ses/video üretimi veya hasar kararı yapılmadı. Kalite sayıları sezgisel yardım; fiziksel cihaz ve gerçek araç saha kabulü henüz yapılmadı. Kaynak SHA ve boyutlar istemci beyanıdır; adli sunucu doğrulaması iddia edilmez. Ticari referans fotoğraf izni doğrulanmadı. Testler sentetik verilerle; canlı yazma yetkisi gerçek müşteri kaydı oluşturmadan kontrol edildi.
+
+
+## 2026-09-13 — Kaporta 360 preparation coverage
+
+- npm.cmd test: 51 passed, including 5 new coverage/retake/source/priority/count tests.
+- npm.cmd run build:erp: passed; existing 672 kB shared 3D chunk warning remains.
+- In-app browser: verified source recommendation, filters, review count 9 -> 8 -> 9, draft priority and missing upper-angle navigation. Viewed desktop 1440x1000 and mobile 390x844; no page overflow or browser errors observed.
+- Evidence screenshots are in apps/web/vehicle-3d/.local/audit-2026-09-13. No real customer data, physical camera or authenticated field acceptance exercised this turn.

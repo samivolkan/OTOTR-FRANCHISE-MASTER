@@ -361,3 +361,10 @@ Reviewed migration 20260908104520_kaporta_360_presentation_studio.sql aynı SHA-
 Yayın: Ototr main 5690ffc6692a7c534f2391bbc6d77ef83c7889f1. Canlı studio.html, sunum.html ve saha rehberi doğrulandı. 24 kaynak JPG değişmedi. Ana ERP derlenmiş kopyası yayımlanan paketle aynı. Önceki kullanıcı değişiklikleri ve eski hashli dosyalar korundu; bu çalışmanın kaynak, migration, test, dokümantasyon ve derlenmiş dosyaları ayrı stage edildi.
 
 Karar ve geri alma: docs/decisions/2026-09-08-kaporta-360-studio.md; migration incelemesi packages/database/kaporta-360-studio-review.md. İlk gerçek araç kimliği, üretici/kasa özel model varlığı ve fiziksel Android/iPhone/bağımsız uzman kabulü henüz yoktur; örnek çalışma bu kabulün yerine geçmez.
+
+
+## 2026-09-13 — Kaporta 360 preparation coverage
+
+- Audited the six live studio steps and documented ordered field/model/editor requirements in docs/decisions/2026-09-13-kaporta-360-next-stages.md.
+- Added current-source per-part coverage, counted filters, evidence-based source navigation and missing-capture shortcuts to studio.html. Inspection status and approval gates are unchanged.
+- Scoped deployment consists of the studio module/CSS, studio.html and release metadata. No database or Edge deployment. Previous hashed assets retained for rollback.
