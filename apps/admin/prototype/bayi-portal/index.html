@@ -25,6 +25,23 @@ button,input,select,textarea{font:inherit}.app{min-height:100vh;display:grid;gri
 .quick-form{display:grid;grid-template-columns:1fr 1fr 1fr;gap:9px}.field label{display:block;font-size:11px;color:var(--muted);font-weight:700;margin-bottom:5px}.field input,.field select{width:100%;height:36px;border:1px solid var(--border);border-radius:8px;padding:0 10px;outline:none;background:#fff;font-size:13px}.field input:focus,.field select:focus{border-color:#f97066;box-shadow:0 0 0 3px rgba(227,6,19,.08)}.span-2{grid-column:span 2}.span-3{grid-column:1/-1}.form-actions{grid-column:1/-1;display:flex;justify-content:space-between;align-items:center;padding-top:4px}.hint{font-size:11px;color:var(--muted)}
 .vehicle-entry-card .card-head{height:auto;min-height:58px;padding-top:10px;padding-bottom:10px}.vehicle-entry-card .card-title{display:flex;align-items:center;gap:8px}.step-badge{width:22px;height:22px;border-radius:8px;background:var(--brand);color:#fff;display:inline-grid;place-items:center;font-size:12px;font-weight:850}.entry-note{display:flex;align-items:center;gap:7px;font-size:11px;color:#667085}.entry-note:before{content:"";width:7px;height:7px;border-radius:50%;background:var(--green)}.vehicle-entry-card .field label.required:after,.drawer .field label.required:after{content:" *";color:var(--brand);font-weight:900}.vehicle-entry-actions{display:flex;gap:7px;align-items:center;justify-content:flex-end}.vehicle-package-strip{grid-column:1/-1;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:7px;margin-top:2px}.package-pill{border:1px solid var(--border);border-radius:9px;background:#fff;min-height:62px;padding:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:3px;cursor:pointer;color:#182230}.package-pill:hover{border-color:#f97066;background:#fffafb}.package-pill.is-selected{border-color:var(--brand);background:var(--brand-soft);box-shadow:0 0 0 2px rgba(227,6,19,.06)}.package-pill b{font-size:12px;font-weight:760}.package-pill small{font-size:10px;color:#667085;line-height:1.2}.package-pill strong{font-size:12px;font-weight:800;color:#101828}.vehicle-entry-card .quick-addon-grid{grid-template-columns:repeat(6,minmax(0,1fr));gap:6px;margin-top:2px}.vehicle-entry-card .quick-addon-card{min-height:82px;padding:10px 26px 20px 8px;border-radius:9px;gap:4px}.vehicle-entry-card .quick-addon-card b{font-size:11px}.vehicle-entry-card .quick-addon-card span{font-size:11px}.vehicle-entry-card .quick-addon-card svg{width:18px;height:18px}.vehicle-entry-card .quick-addon-gift{width:24px;height:24px;border-radius:7px;right:6px;top:6px}.vehicle-entry-card .quick-addon-gift svg{width:13px;height:13px}
 .vehicle-entry-actions .btn:disabled{opacity:.45;cursor:not-allowed;background:#f2f4f7;border-color:#e4e7ec;color:#98a2b3}
+
+/* Compact visual package chooser: name, level and price only. */
+.vehicle-package-strip{grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin-top:5px}
+.package-pill{position:relative;min-height:78px;padding:11px 12px;display:grid;grid-template-columns:30px minmax(0,1fr);grid-template-rows:1fr auto;align-items:center;column-gap:10px;text-align:left;border-radius:10px;background:#fff;transition:border-color .16s ease,box-shadow .16s ease,transform .16s ease}
+.package-pill:hover{transform:translateY(-1px);border-color:#98a2b3;background:#fff}
+.package-pill small,.entry-package-card small{display:none}
+.package-pill-index{grid-row:1 / span 2;width:30px;height:30px;border-radius:8px;background:#f2f4f7;color:#344054;display:grid;place-items:center;font-size:10px;font-weight:900;letter-spacing:.04em}
+.package-pill b{font-size:12px;font-weight:850;line-height:1.15}
+.package-pill strong{font-size:14px;font-weight:900;color:var(--brand);letter-spacing:0}
+.package-pill.is-selected{border-color:#111827;background:#111827;box-shadow:0 8px 16px rgba(16,24,40,.14)}
+.package-pill.is-selected b{color:#fff}.package-pill.is-selected strong{color:#ff6670}.package-pill.is-selected .package-pill-index{background:var(--brand);color:#fff}
+.entry-packages .entry-package-card{position:relative;min-height:88px;padding:12px;display:grid;grid-template-columns:32px minmax(0,1fr);grid-template-rows:1fr auto;align-items:center;column-gap:9px;text-align:left;border-radius:10px}
+.entry-packages .entry-package-icon{grid-row:1 / span 2;width:32px;height:32px;border-radius:8px;background:#f2f4f7;color:#344054;font-size:10px;font-weight:900}
+.entry-packages .entry-package-card b{font-size:12px;line-height:1.15}.entry-packages .entry-package-card strong{justify-self:start;margin:0;color:var(--brand);font-size:13px;font-weight:900}
+.entry-packages .entry-package-card.is-selected{background:#111827;border-color:#111827;box-shadow:0 8px 16px rgba(16,24,40,.14)}
+.entry-packages .entry-package-card.is-selected b{color:#fff}.entry-packages .entry-package-card.is-selected strong{color:#ff6670}.entry-packages .entry-package-card.is-selected .entry-package-icon{background:var(--brand);color:#fff}
+@media(max-width:780px){.vehicle-package-strip{grid-template-columns:repeat(2,minmax(0,1fr))}.entry-packages{grid-template-columns:repeat(2,minmax(0,1fr))}}
 .field{position:relative}.field input.is-invalid,.field select.is-invalid{border-color:#f04438;background:#fff8f8;box-shadow:0 0 0 3px rgba(240,68,56,.08)}.field input.is-valid,.field select.is-valid{border-color:#12b76a;background:#f6fffa;box-shadow:0 0 0 3px rgba(18,183,106,.10)}.field.is-valid:after{content:"✓";position:absolute;right:9px;bottom:8px;width:18px;height:18px;border-radius:50%;display:grid;place-items:center;background:#12b76a;color:#fff;font-size:12px;font-weight:900;pointer-events:none}.field.is-valid input,.field.is-valid select{padding-right:34px}.field.is-invalid label{color:#d92d20}.field.is-valid label{color:#067647}
 .grid-a.has-new-entry>article:nth-child(2){display:none}
 .timeline{display:grid;gap:7px}.slot{display:grid;grid-template-columns:54px 82px 1fr 72px;align-items:center;gap:8px;min-height:37px;border:1px solid var(--border);background:var(--surface-2);border-radius:8px;padding:5px 7px}.slot.alert{background:var(--danger-soft);border-color:#fecdca}.time{font-weight:800;font-size:12px}.status{display:inline-flex;align-items:center;justify-content:center;height:22px;border-radius:999px;padding:0 8px;font-size:10.5px;font-weight:800}.s-green{background:var(--green-soft);color:#067647}.s-orange{background:var(--orange-soft);color:#b54708}.s-red{background:var(--danger-soft);color:var(--danger)}.s-blue{background:var(--blue-soft);color:var(--blue)}.s-purple{background:var(--purple-soft);color:var(--purple)}.slot-main strong{font-size:12px;display:block}.slot-main small{font-size:10.5px;color:var(--muted)}.mini-btn{height:24px;border:1px solid var(--border);border-radius:6px;background:#fff;font-size:10.5px;font-weight:800;color:var(--brand)}
@@ -179,6 +196,30 @@ button,input,select,textarea{font:inherit}.app{min-height:100vh;display:grid;gri
   .package-point-editor-page.v2 .package-point-v2-shell,
   .package-point-editor-page.v2 .package-point-shell{grid-template-columns:minmax(340px,.95fr) minmax(460px,1.25fr)!important;}
   @media (max-width:1100px){.package-point-editor-page.v2 .package-point-v2-shell,.package-point-editor-page.v2 .package-point-shell{grid-template-columns:1fr!important;}}
+  .package-matrix-panel{margin-top:14px;border:1px solid #e5e7eb;border-radius:14px;background:#fff;box-shadow:0 4px 18px rgba(17,24,39,.045);overflow:hidden}
+  .package-matrix-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:15px 18px;border-bottom:1px solid #e5e7eb}
+  .package-matrix-head h2{margin:0;color:#111827;font-size:17px;letter-spacing:0;font-weight:850}
+  .package-matrix-head span{display:block;margin-top:3px;color:#667085;font-size:11.5px;font-weight:700}
+  .package-matrix-actions{display:flex;gap:7px;flex-wrap:wrap;justify-content:flex-end}
+  .package-matrix-action{height:30px;border:1px solid #dbe3ee;border-radius:8px;background:#fff;color:#344054;padding:0 10px;font-size:11px;font-weight:850;cursor:pointer}
+  .package-matrix-action.active{background:#111827;border-color:#111827;color:#fff}
+  .package-matrix-action.save{background:#e30613;border-color:#e30613;color:#fff}
+  .package-matrix-scroll{overflow:auto}
+  .package-matrix-table{width:100%;min-width:1180px;border-collapse:separate;border-spacing:0;font-size:11.5px}
+  .package-matrix-table th,.package-matrix-table td{border-right:1px solid #eef2f6;border-bottom:1px solid #eef2f6;padding:8px 9px;text-align:center;vertical-align:middle}
+  .package-matrix-table th:first-child,.package-matrix-table td:first-child{position:sticky;left:0;background:#fff;z-index:1;text-align:left}
+  .package-matrix-table thead th{position:sticky;top:0;background:#f8fafc;z-index:2;color:#475467;font-size:10px;text-transform:uppercase;letter-spacing:.04em}
+  .package-matrix-table thead th:first-child{z-index:3;background:#f8fafc}
+  .package-matrix-row-title b{display:block;color:#111827;font-size:12px;line-height:1.22}
+  .package-matrix-row-title span{display:block;margin-top:2px;color:#667085;font-size:10.5px}
+  .package-matrix-pkg b{display:block;color:#111827;font-size:12px;text-transform:none;letter-spacing:0}
+  .package-matrix-pkg span{display:block;margin-top:2px;color:#d71920;font-size:11px;font-weight:950;text-transform:none;letter-spacing:0}
+  .package-matrix-check{width:23px;height:23px;border-radius:8px;display:inline-grid;place-items:center;border:1px solid #bbf7d0;background:#ecfdf3;color:#067647;font-weight:950}
+  .package-matrix-dash{width:23px;height:23px;border-radius:8px;display:inline-grid;place-items:center;border:1px solid #e5e7eb;background:#f8fafc;color:#98a2b3;font-weight:950}
+  .package-matrix-summary{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px;padding:12px 18px;background:#f8fafc;border-top:1px solid #e5e7eb}
+  .package-matrix-summary div{border:1px solid #e5e7eb;border-radius:10px;background:#fff;padding:9px;min-width:0}
+  .package-matrix-summary span{display:block;color:#667085;font-size:10px;font-weight:850}.package-matrix-summary b{display:block;margin-top:3px;color:#111827;font-size:15px}
+  @media(max-width:900px){.package-matrix-head{display:grid}.package-matrix-actions{justify-content:flex-start}.package-matrix-summary{grid-template-columns:repeat(2,minmax(0,1fr))}}
   </style>
 <style>
 .appointment-page-open .content>:not(#appointmentPage){display:none!important}.appointment-page{display:none}.appointment-page-open #appointmentPage{display:block!important}.appointment-summary-card{grid-column:span 2}.appt-summary-top{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-bottom:12px}.appt-mini-kpi{border:1px solid #dbe3ee;border-radius:10px;background:#f8fbff;padding:10px}.appt-mini-kpi span{display:block;color:#667085;font-size:10px;font-weight:900;text-transform:uppercase}.appt-mini-kpi b{display:block;margin-top:4px;font-size:19px}.appt-mini-kpi.good{border-top:3px solid var(--green)}.appt-mini-kpi.warn{border-top:3px solid var(--orange)}.appt-mini-kpi.bad{border-top:3px solid var(--brand)}.appt-table-wrap{overflow:auto;border:1px solid #e4e7ec;border-radius:11px}.appt-table{width:100%;border-collapse:collapse;min-width:760px}.appt-table th,.appt-table td{padding:10px;border-bottom:1px solid #eef2f6;text-align:left;font-size:12px;vertical-align:middle}.appt-table th{background:#f8fafc;color:#475467;font-size:10px;text-transform:uppercase;letter-spacing:.04em}.appt-table tr:last-child td{border-bottom:0}.appt-customer b{display:block;font-size:13px}.appt-customer small{display:block;color:#667085;margin-top:2px}.appt-action-row{display:flex;gap:6px;flex-wrap:wrap}.appt-status{display:inline-flex;align-items:center;justify-content:center;min-width:76px;height:24px;border-radius:999px;font-size:11px;font-weight:850}.appt-status.confirmed{background:#e8fff1;color:#067647}.appt-status.pending{background:#fff5df;color:#b54708}.appt-status.risk{background:#fff1f3;color:#d71920}.appt-status.open{background:#eff6ff;color:#1769ff}.appt-page-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;margin-bottom:12px}.appt-page-title h1{font-size:23px;margin:0}.appt-page-title p{margin:5px 0 0;color:#667085;font-size:13px}.appt-page-actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}.appt-shell{display:grid;grid-template-columns:1.35fr .75fr;gap:12px;align-items:start}.appt-panel{border:1px solid #dbe3ee;border-radius:14px;background:#fff;box-shadow:0 8px 24px rgba(16,24,40,.05);min-width:0}.appt-panel-head{padding:14px 16px;border-bottom:1px solid #e4e7ec;display:flex;justify-content:space-between;gap:12px;align-items:center}.appt-panel-head h3{margin:0;font-size:16px}.appt-panel-head p{margin:3px 0 0;color:#667085;font-size:12px}.appt-panel-body{padding:14px 16px}.appt-filterbar{display:flex;gap:7px;flex-wrap:wrap}.appt-chip{height:30px;border:1px solid #dbe3ee;background:#fff;border-radius:999px;padding:0 11px;font-size:11px;font-weight:850;color:#344054;cursor:pointer}.appt-chip.active{background:#1769ff;color:#fff;border-color:#1769ff}.appt-calendar{border:1px solid #dce5f0;border-radius:13px;background:#fff;overflow:auto}.appt-week-grid{min-width:850px;display:grid;grid-template-columns:64px repeat(7,minmax(108px,1fr))}.appt-week-corner,.appt-week-day,.appt-week-time,.appt-week-cell{border-right:1px solid #e5ebf3;border-bottom:1px solid #e5ebf3}.appt-week-corner,.appt-week-day{min-height:54px;background:linear-gradient(135deg,#f8fafc,#fff);display:grid;align-content:center}.appt-week-corner{place-items:center;color:#98a2b3;font-size:11px;font-weight:950;text-transform:uppercase}.appt-week-day{padding:8px 10px}.appt-week-day span{color:#778194;font-size:11px;font-weight:950;text-transform:uppercase}.appt-week-day b{font-size:16px;margin-top:3px}.appt-week-day.today{box-shadow:inset 0 3px 0 var(--brand);background:#fff7f8}.appt-week-time{min-height:74px;display:grid;place-items:start center;padding-top:9px;color:#778194;font-size:11px;font-weight:950;background:#fbfdff}.appt-week-cell{min-height:74px;padding:7px;background:linear-gradient(90deg,rgba(226,232,240,.38) 0 1px,transparent 1px 100%)}.appt-week-cell.empty{background:#fbfdff}.appt-week-event{height:100%;min-height:54px;border:1px solid #d8e6ff;border-left:4px solid #1769ff;border-radius:10px;background:linear-gradient(135deg,#f6f9ff,#fff);padding:7px;display:grid;align-content:start;gap:4px;box-shadow:0 8px 16px rgba(24,90,188,.06);cursor:pointer;overflow:hidden}.appt-week-event.done{border-color:#c5ead5;border-left-color:#12a15c;background:linear-gradient(135deg,#f6fcf8,#fff)}.appt-week-event.warn{border-color:#ffe0a6;border-left-color:#ff7a00;background:linear-gradient(135deg,#fffaf0,#fff)}.appt-week-event.risk{border-color:#ffd7db;border-left-color:#d71920;background:linear-gradient(135deg,#fff7f8,#fff)}.appt-week-event b{font-size:12px;line-height:1.2;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.appt-week-event small{color:#5f6876;font-size:10px;line-height:1.3;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.appt-empty-slot{height:100%;min-height:54px;border-radius:9px;background:repeating-linear-gradient(135deg,#fbfdff 0,#fbfdff 8px,#f6f8fb 8px,#f6f8fb 16px)}.appt-side-list{display:grid;gap:8px}.appt-item{border:1px solid #e4e7ec;border-radius:11px;background:#f8fafc;padding:10px;display:grid;grid-template-columns:48px 1fr auto;gap:9px;align-items:center}.appt-item time{font-size:13px;font-weight:950;color:#d71920}.appt-item b{display:block;font-size:13px}.appt-item small{display:block;color:#667085;font-size:11px;margin-top:2px}.appt-detail{display:grid;gap:10px}.appt-detail-box{border:1px solid #e4e7ec;border-radius:11px;background:#f8fbff;padding:11px}.appt-detail-box span{display:block;color:#667085;font-size:10px;font-weight:900;text-transform:uppercase}.appt-detail-box b{display:block;margin-top:4px;font-size:14px}.appt-progress-row{margin-top:12px}.appt-call-kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.appt-call-kpi{border:1px solid #dbe3ee;border-radius:11px;background:#fff;padding:10px}.appt-call-kpi span{color:#64748b;font-size:10px;font-weight:950;text-transform:uppercase}.appt-call-kpi b{display:block;font-size:19px;margin-top:4px}.appt-call-kpi small{display:block;color:#64748b;font-size:11px;margin-top:2px}.appt-modal{position:fixed;inset:0;z-index:80;display:none;place-items:center;background:rgba(15,23,42,.52);padding:18px}.appt-modal.open{display:grid}.appt-modal-card{width:min(720px,100%);max-height:calc(100dvh - 36px);overflow:auto;border:1px solid #dbe3ee;border-radius:16px;background:#fff;box-shadow:0 28px 80px rgba(15,23,42,.28);padding:16px;display:grid;gap:14px}.appt-form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.appt-form .field.wide{grid-column:1/-1}.appt-form textarea{width:100%;border:1px solid #d0d5dd;border-radius:8px;padding:10px;font:inherit;font-size:13px;resize:vertical}.appt-toast{position:fixed;right:20px;bottom:20px;z-index:90;background:#111827;color:#fff;border-radius:12px;padding:11px 14px;font-size:13px;font-weight:800;box-shadow:0 16px 40px rgba(15,23,42,.24);opacity:0;transform:translateY(10px);pointer-events:none;transition:.2s}.appt-toast.show{opacity:1;transform:translateY(0)}@media(max-width:1500px){.appointment-summary-card{grid-column:1/-1}.appt-shell{grid-template-columns:1fr}.appt-summary-top{grid-template-columns:repeat(2,1fr)}}@media(max-width:900px){.appt-summary-top,.appt-call-kpis,.appt-form{grid-template-columns:1fr}.appt-page-head{display:grid}.appt-page-actions{justify-content:flex-start}}
@@ -701,7 +742,7 @@ button,input,select,textarea{font:inherit}.app{min-height:100vh;display:grid;gri
       <a href="#" id="navFinance"><span class="nav-icon">₺</span>Finans & Kasa</a>
       <a href="#" id="navWarranty"><span class="nav-icon">☂</span>Garanti & Risk</a>
       <a href="#" id="navCustomerExperience"><span class="nav-icon">★</span>Müşteri Deneyimi</a>
-      <a href="#" id="navPackageBuilder"><span class="nav-icon">PK</span>Paket Oluşturucu</a>
+      <a href="#" id="navPackageBuilder"><span class="nav-icon">PK</span>Paket Seçim Matrisi</a>
       <div class="nav-submenu" aria-label="Paket oluşturucu alt menüsü">
         <a href="#" class="package-subnav-link active" data-package-manager-view="existing">Mevcut Paketler</a>
         <a href="#" class="package-subnav-link" data-package-manager-view="builder">Paket Oluştur / Düzenle / Sil</a>
@@ -776,15 +817,15 @@ button,input,select,textarea{font:inherit}.app{min-height:100vh;display:grid;gri
             <div class="field"><label class="required">Model</label><input data-entry-field="model" placeholder="Model yazın veya seçin" /></div>
             <div class="field"><label class="required">Model Yılı</label><input data-entry-field="year" /></div>
             <div class="vehicle-package-strip" data-package-scope="dashboard">
-              <button class="package-pill is-selected" type="button" data-package-name="Paket 1" data-package-price="5500"><b>Paket 1</b><small>Temel 3 test + 5664</small><strong>5.500 TL</strong></button>
-              <button class="package-pill" type="button" data-package-name="Paket 2" data-package-price="6900"><b>Paket 2</b><small>Paket 1 + Motor Kontrol</small><strong>6.900 TL</strong></button>
-              <button class="package-pill" type="button" data-package-name="Paket 3" data-package-price="7800"><b>Paket 3</b><small>Dyno testi ve sorgular</small><strong>7.800 TL</strong></button>
-              <button class="package-pill" type="button" data-package-name="Paket 4" data-package-price="9000"><b>Paket 4</b><small>Test hattı + iç/dış</small><strong>9.000 TL</strong></button>
-              <button class="package-pill" type="button" data-package-name="Paket 5" data-package-price="11000"><b>Paket 5</b><small>Conta + 1 ay garanti</small><strong>11.000 TL</strong></button>
-              <button class="package-pill" type="button" data-package-name="Paket 6" data-package-price="13000"><b>Paket 6</b><small>Airbag dahil tam kapsam</small><strong>13.000 TL</strong></button>
-              <button class="package-pill" type="button" data-package-name="Paket 7" data-package-price="16000"><b>Paket 7</b><small>3 ay / 5000 km garanti</small><strong>16.000 TL</strong></button>
-              <button class="package-pill" type="button" data-package-name="Paket 8" data-package-price="19000"><b>Paket 8</b><small>Tam kapsam</small><strong>19.000 TL</strong></button>
-              <button class="package-pill" type="button" data-package-name="Paket 9" data-package-price="22000"><b>Paket 9</b><small>3 ay garanti</small><strong>22.000 TL</strong></button>
+              <button class="package-pill is-selected" type="button" data-package-name="Paket 1" data-package-price="5500"><span class="package-pill-index">01</span><b>Paket 1</b><strong>5.500 TL</strong></button>
+              <button class="package-pill" type="button" data-package-name="Paket 2" data-package-price="6900"><span class="package-pill-index">02</span><b>Paket 2</b><strong>6.900 TL</strong></button>
+              <button class="package-pill" type="button" data-package-name="Paket 3" data-package-price="7800"><span class="package-pill-index">03</span><b>Paket 3</b><strong>7.800 TL</strong></button>
+              <button class="package-pill" type="button" data-package-name="Paket 4" data-package-price="9000"><span class="package-pill-index">04</span><b>Paket 4</b><strong>9.000 TL</strong></button>
+              <button class="package-pill" type="button" data-package-name="Paket 5" data-package-price="11000"><span class="package-pill-index">05</span><b>Paket 5</b><strong>11.000 TL</strong></button>
+              <button class="package-pill" type="button" data-package-name="Paket 6" data-package-price="13000"><span class="package-pill-index">06</span><b>Paket 6</b><strong>13.000 TL</strong></button>
+              <button class="package-pill" type="button" data-package-name="Paket 7" data-package-price="16000"><span class="package-pill-index">07</span><b>Paket 7</b><strong>16.000 TL</strong></button>
+              <button class="package-pill" type="button" data-package-name="Paket 8" data-package-price="19000"><span class="package-pill-index">08</span><b>Paket 8</b><strong>19.000 TL</strong></button>
+              <button class="package-pill" type="button" data-package-name="Paket 9" data-package-price="22000"><span class="package-pill-index">09</span><b>Paket 9</b><strong>22.000 TL</strong></button>
             </div>
             <div class="quick-form-note">Ek hizmetler ve garanti kapsamı artık Paket Oluşturucu şablonunun içinde yönetilir.</div>
             <div class="form-actions"><span class="entry-note">Hızlıdan tam iş emrine geçince veriler korunur.</span><div class="vehicle-entry-actions"><button class="btn" id="openFullFromDashboard" type="button">Tam İş Emrine Geç</button><button class="btn primary" type="button" id="createQuickEntry">İş Emri Aç</button></div></div>
@@ -1414,6 +1455,20 @@ button,input,select,textarea{font:inherit}.app{min-height:100vh;display:grid;gri
             </div>
           </aside>
         </div>
+        <section class="package-matrix-panel" id="packageScopeMatrixPanel" aria-label="Paket kapsam matrisi">
+          <div class="package-matrix-head">
+            <div><h2>Paket Seçim Matrisi</h2><span>Şablon paketleri, kaydedilen paketleri ve aktif taslağı aynı hizmet satırlarında karşılaştırır.</span></div>
+            <div class="package-matrix-actions" role="group" aria-label="Matris görünümü">
+              <button class="package-matrix-action active" data-package-matrix-filter="all" type="button">Tümü</button>
+              <button class="package-matrix-action" data-package-matrix-filter="main" type="button">Ana test</button>
+              <button class="package-matrix-action" data-package-matrix-filter="extra" type="button">Ek test</button>
+              <button class="package-matrix-action" data-package-matrix-filter="query" type="button">Sorgu</button>
+              <button class="package-matrix-action" data-package-matrix-filter="warranty" type="button">Garanti</button>
+              <button class="package-matrix-action save" data-package-matrix-save type="button">Matrisi Kaydet</button>
+            </div>
+          </div>
+          <div id="packageScopeMatrix"></div>
+        </section>
         </div>
       </section>
   <section class="module-page package-point-editor-page v2" id="packagePointEditorPage">
@@ -1692,6 +1747,7 @@ const packageBuilderTestPriceStorageKey='ototr-package-builder-test-prices-v1';
 const packageBuilderControlPointStorageKey='ototr-package-builder-control-points-v1';
 const packageBuilderManagedTestStorageKey='ototr-package-builder-managed-tests-v1';
 const packageBuilderHiddenSeedPackageStorageKey='ototr-package-builder-hidden-seed-packages-v1';
+const packageBuilderMatrixStorageKey='ototr-package-selection-matrix-v1';
 const dealerPortalBuildStamp='02.07.2026 02:31:49';
 function packageBuilderReadHiddenSeedPackages(){
   try{
@@ -2529,6 +2585,7 @@ const packageBuilderState={
   pointStatusFilter:'all',
   pointPackageFilter:'all',
   pointIssueFilter:'all',
+  matrixFilter:'all',
   lastCategory:'Filo Garantili Paket',
   collapsedRuleSections:new Set(['guarantee','eligibility']),
   selectedMainTests:new Set(packageMainTests.filter(item=>item.defaultSelected).map(item=>item.id)),
@@ -5613,6 +5670,116 @@ function renderPackageArchiveList(){
   }
   target.innerHTML=archived.map(item=>packageBuilderPackageCard(item,true)).join('');
 }
+function packageBuilderMatrixPackages(){
+  const seedPackages=packageTemplates.map(template=>({
+    id:template.id,
+    name:template.name,
+    category:template.category,
+    price:template.price,
+    mainTests:template.mainTests||[],
+    extraServices:template.extraServices||[],
+    source:'Şablon'
+  }));
+  const createdPackages=packageBuilderState.createdPackages
+    .filter(item=>!packageBuilderPackageIsArchived(item))
+    .map(item=>({
+      id:item.id,
+      name:item.name,
+      category:item.category,
+      price:item.salesPrice||item.basePrice||0,
+      mainTests:item.mainTests||[],
+      extraServices:item.extraServices||[],
+      source:item.status||'Kayıt'
+    }));
+  const draftInfo=packageBuilderInfo();
+  const draft={
+    id:'active-draft',
+    name:draftInfo.name||'Aktif Taslak',
+    category:draftInfo.category||'Taslak',
+    price:packageBuilderTotals().salesPrice,
+    mainTests:[...packageBuilderState.selectedMainTests],
+    extraServices:[...packageBuilderState.selectedExtraServices],
+    source:'Ekrandaki taslak'
+  };
+  const merged=[draft,...createdPackages,...seedPackages];
+  const seen=new Set();
+  return merged.filter(pkg=>{
+    const key=packageBuilderNormalizeText(`${pkg.name}-${pkg.source}`);
+    if(seen.has(key))return false;
+    seen.add(key);
+    return true;
+  }).slice(0,14);
+}
+function packageBuilderMatrixRows(){
+  const selectedIds=new Set([
+    ...packageTemplates.flatMap(item=>[...(item.mainTests||[]),...(item.extraServices||[])]),
+    ...packageBuilderState.createdPackages.flatMap(item=>[...(item.mainTests||[]),...(item.extraServices||[])]),
+    ...packageBuilderState.selectedMainTests,
+    ...packageBuilderState.selectedExtraServices
+  ]);
+  return [...packageMainTests,...packageExtraServices]
+    .filter(item=>selectedIds.has(item.id))
+    .map(item=>{
+      const target=packageBuilderTargetForItem(item);
+      return {
+        item,
+        type:target==='main'?'main':target==='query'?'query':target==='warranty'?'warranty':'extra',
+        label:target==='main'?'Ana test':target==='query'?'Sorgu':target==='warranty'?'Garanti':'Ek test'
+      };
+    });
+}
+function renderPackageScopeMatrix(){
+  const target=document.getElementById('packageScopeMatrix');
+  if(!target)return;
+  const filter=packageBuilderState.matrixFilter||'all';
+  const packages=packageBuilderMatrixPackages();
+  const rows=packageBuilderMatrixRows().filter(row=>filter==='all'||row.type===filter);
+  const guaranteedCount=packages.filter(pkg=>packageBuilderHasWarrantySignal(pkg)).length;
+  const maxPrice=Math.max(...packages.map(pkg=>Number(pkg.price||0)),0);
+  const maxControlPoints=Math.max(...packages.map(pkg=>[...(pkg.mainTests||[]),...(pkg.extraServices||[])].map(packageBuilderFindTestItem).filter(Boolean).reduce((sum,item)=>sum+packageBuilderItemControlPointCount(item),0)),0);
+  if(!rows.length||!packages.length){
+    target.innerHTML='<div class="package-empty">Matris için paket veya test kapsamı bulunamadı.</div>';
+    return;
+  }
+  const body=rows.map(row=>`<tr><td><div class="package-matrix-row-title"><b>${escapeHtml(row.item.name)}</b><span>${escapeHtml(row.label)} · ${packageBuilderItemControlPointCount(row.item)} kontrol · ${escapeHtml(row.item.evidence||'Kanıt yok')}</span></div></td>${packages.map(pkg=>{
+    const active=(pkg.mainTests||[]).includes(row.item.id)||(pkg.extraServices||[]).includes(row.item.id);
+    return `<td>${active?'<span class="package-matrix-check">✓</span>':'<span class="package-matrix-dash">-</span>'}</td>`;
+  }).join('')}</tr>`).join('');
+  target.innerHTML=`<div class="package-matrix-scroll"><table class="package-matrix-table"><thead><tr><th>Hizmet / kontrol</th>${packages.map(pkg=>`<th><div class="package-matrix-pkg"><b>${escapeHtml(pkg.name)}</b><span>${escapeHtml(formatTL(pkg.price||0))}</span><small>${escapeHtml(pkg.source)}</small></div></th>`).join('')}</tr></thead><tbody>${body}</tbody></table></div><div class="package-matrix-summary"><div><span>Paket sayısı</span><b>${packages.length}</b></div><div><span>Kontrol satırı</span><b>${rows.length}</b></div><div><span>Garantili kapsam</span><b>${guaranteedCount}</b></div><div><span>En yüksek fiyat</span><b>${formatTL(maxPrice)}</b></div><div><span>En geniş kapsam</span><b>${maxControlPoints} nokta</b></div><div><span>Görünüm</span><b>${filter==='all'?'Tümü':rows[0]?.label||'Tümü'}</b></div></div>`;
+  document.querySelectorAll('[data-package-matrix-filter]').forEach(button=>button.classList.toggle('active',button.dataset.packageMatrixFilter===filter));
+}
+function packageBuilderSaveSelectionMatrix(){
+  const packages=packageBuilderMatrixPackages();
+  const rows=packageBuilderMatrixRows();
+  const payload={
+    savedAt:new Date().toISOString(),
+    filter:packageBuilderState.matrixFilter||'all',
+    packages:packages.map(pkg=>({
+      id:pkg.id,
+      name:pkg.name,
+      category:pkg.category,
+      price:pkg.price,
+      source:pkg.source,
+      mainTests:pkg.mainTests||[],
+      extraServices:pkg.extraServices||[]
+    })),
+    rows:rows.map(row=>({
+      id:row.item.id,
+      name:row.item.name,
+      type:row.type,
+      label:row.label,
+      controlPoints:packageBuilderItemControlPointCount(row.item),
+      evidence:row.item.evidence||'',
+      includedIn:packages.filter(pkg=>(pkg.mainTests||[]).includes(row.item.id)||(pkg.extraServices||[]).includes(row.item.id)).map(pkg=>pkg.id)
+    }))
+  };
+  try{
+    localStorage.setItem(packageBuilderMatrixStorageKey,JSON.stringify(payload));
+    packageBuilderShowToast(`Paket seçim matrisi kaydedildi: ${packages.length} paket, ${rows.length} satır.`);
+  }catch(err){
+    packageBuilderShowToast('Paket seçim matrisi kaydedilemedi.');
+  }
+}
 function renderPackageBuilderPage(){
   const page=document.getElementById('packageBuilderPage');
   if(!page)return;
@@ -5627,6 +5794,7 @@ function renderPackageBuilderPage(){
   renderPackageTestManagementList();
   renderPackageManagerView();
   renderDealerCreatedPackagesInEntry();
+  renderPackageScopeMatrix();
   packageBuilderUpdateGuaranteeUI();
   packageBuilderState.rendered=true;
 }
@@ -5956,6 +6124,10 @@ function wirePackageBuilderPage(){
     if(packageRestore){event.preventDefault();packageBuilderRestorePackage(packageRestore.dataset.packageRestore);return;}
     const packageDelete=event.target.closest('[data-package-delete]');
     if(packageDelete){event.preventDefault();packageBuilderDeletePackage(packageDelete.dataset.packageDelete);return;}
+    const matrixSave=event.target.closest('[data-package-matrix-save]');
+    if(matrixSave){event.preventDefault();packageBuilderSaveSelectionMatrix();return;}
+    const matrixFilter=event.target.closest('[data-package-matrix-filter]');
+    if(matrixFilter){event.preventDefault();packageBuilderState.matrixFilter=matrixFilter.dataset.packageMatrixFilter||'all';renderPackageScopeMatrix();return;}
     const submit=event.target.closest('[data-package-submit]');
     if(submit){event.preventDefault();packageBuilderSubmit(submit.dataset.packageSubmit);return;}
   });
