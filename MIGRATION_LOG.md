@@ -375,3 +375,10 @@ Karar ve geri alma: docs/decisions/2026-09-08-kaporta-360-studio.md; migration i
 - Added bounded 1x-8x photo zoom/pan, contour fit, source-pixel keyboard adjustments, point navigation and live isolated/exploded draft cutout preview.
 - Source photo and normalized saved geometry are preserved. No database, Edge, ownership or approval-gate changes. Previous hashed studio assets retained for rollback.
 - Decision and field limitations: docs/decisions/2026-09-13-kaporta-360-precision-editor.md.
+
+
+## 2026-09-13 — Passat B8 pilot preparation
+
+- User selected Passat B8 as a candidate. Created provisional sedan preparation pack: 28 capture angles, 25 existing inspection regions, model delivery brief and planning JSON. Body/year/trim and actual evidence remain pending.
+- Linked the pack from demo studio preparation; generated in ERP builds. No model purchased/downloaded, no seller contacted, no customer data or database changes.
+- Research found editorial-use label and wheelbase listing discrepancy on candidate 917105; not accepted for integration. Decision: docs/decisions/2026-09-13-passat-b8-pilot.md.

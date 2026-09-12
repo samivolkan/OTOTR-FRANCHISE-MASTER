@@ -1298,3 +1298,9 @@ Sınırlar: otomatik fotogrametri, üretici model kütüphanesi, buluttan ses/vi
 - No physical camera/touch device or real customer write tested in this turn.
 
 - Live release 7eae58a verified: studio.html, studio-Brredeqe.js and studio-Bv60l7s0.css HTTP 200 with exact build SHA-256. In-app browser confirmed 208% door focus, 15 points and separated draft cutout; no error/warning logs observed.
+
+
+## 2026-09-13 — Passat B8 pilot preparation
+
+- ERP build passed; 55 existing tests passed. Planning JSON checked against canonical 25 parts and 28 unique shots, all inspection outcomes unchecked, no model/evidence and customerPublishable false.
+- In-app browser checked desktop 1440x1000 and mobile 390x844, section navigation, counts and download links. No page overflow or browser errors observed. No physical print or real vehicle acceptance this turn.

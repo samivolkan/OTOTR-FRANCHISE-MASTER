@@ -4,6 +4,7 @@ const crypto=require('node:crypto');
 const root=path.resolve(__dirname,'..'),output=path.join(root,'dist-erp');
 fs.renameSync(path.join(output,'kaporta-360.html'),path.join(output,'index.html'));
 fs.copyFileSync(path.join(root,'public/studio-guide.html'),path.join(output,'studio-guide.html'));
+for(const file of ['passat-b8-pilot.html','passat-b8-pilot.json','passat-b8-model-brief.txt'])fs.copyFileSync(path.join(root,'public',file),path.join(output,file));
 for(const dir of ['fonts','real-car'])fs.cpSync(path.join(root,'public',dir),path.join(output,dir),{recursive:true});
 const config=JSON.parse(fs.readFileSync(path.join(root,'public/runtime-config.json'),'utf8'));
 if(!/^https:\/\/[a-z0-9]+\.supabase\.co$/.test(config.url)||!config.publishableKey?.startsWith('sb_publishable_'))throw Error('Pilot için yalnız public publishable key yapılandırılmalı.');
