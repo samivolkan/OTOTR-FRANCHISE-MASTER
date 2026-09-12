@@ -1296,3 +1296,5 @@ Sınırlar: otomatik fotogrametri, üretici model kütüphanesi, buluttan ses/vi
 - In-app browser verified zoom/pan preserve source points, 1px/10px keyboard nudges, pointer drag and undo/redo, 8x mirror fit, source reset and unsaved-boundary save guard. Reviewed contour saved and sample plan validated.
 - Desktop 1440x1050 and mobile 390x844 checked. Resize handle shrink fixed; desktop handle diameter measured 16 CSS px. Draft cutout previews verified. Evidence: apps/web/vehicle-3d/.local/precision-qa.
 - No physical camera/touch device or real customer write tested in this turn.
+
+- Live release 7eae58a verified: studio.html, studio-Brredeqe.js and studio-Bv60l7s0.css HTTP 200 with exact build SHA-256. In-app browser confirmed 208% door focus, 15 points and separated draft cutout; no error/warning logs observed.
