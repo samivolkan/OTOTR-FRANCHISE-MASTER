@@ -8,7 +8,7 @@ returns boolean language sql stable security definer set search_path='' as $$sel
 create or replace function finance_private.current_actor_can_read_scope(
   p_actor_id uuid,p_legal_entity_id uuid,p_dealer_account_id uuid,p_branch_id uuid,p_operation_id text
 ) returns boolean language sql stable security definer set search_path=pg_catalog as $$
-  select p_operation_id in ('getDealerFinanceSummary','getDealerStatement')
+  select p_operation_id in ('getDealerFinanceSummary','getDealerStatement','listPayments')
 $$;
 
 do $test$
@@ -34,6 +34,7 @@ declare
   open_2 constant uuid := '88000000-0000-4000-8000-000000000006';
   payment_id constant uuid := '88000000-0000-4000-8000-000000000007';
   allocation_id constant uuid := '88000000-0000-4000-8000-000000000008';
+  payment_id_2 constant uuid := '88000000-0000-4000-8000-000000000009';
   corr constant uuid := '98000000-0000-4000-8000-000000000001';
   totals jsonb; result jsonb; replay jsonb; page_1 jsonb; page_2 jsonb; filtered jsonb;
   cursor_value text; denied boolean:=false;
@@ -98,8 +99,11 @@ begin
     id,legal_entity_id,dealer_account_id,branch_id,idempotency_key,intent_hash,external_reference,payment_date,
     value_date,payment_method_code,currency_code,received_amount,verified_amount,allocated_amount,status,
     prepared_by,verified_by,verified_at_utc,created_by,correlation_id
-  ) values(payment_id,hq,account_a,branch_a,'read-payment',repeat('1',64),'READ-PAYMENT-001',date '2026-11-11',
-    date '2026-11-11','BANK_TRANSFER','TRY',100,100,40,'PARTIALLY_ALLOCATED',actor,reader,now(),actor,corr);
+  ) values
+    (payment_id,hq,account_a,branch_a,'read-payment',repeat('1',64),'READ-PAYMENT-001',date '2026-11-11',
+      date '2026-11-11','BANK_TRANSFER','TRY',100,100,40,'PARTIALLY_ALLOCATED',actor,reader,now(),actor,corr),
+    (payment_id_2,hq,account_a,branch_a,'read-payment-2',repeat('3',64),'READ-PAYMENT-002',date '2026-11-09',
+      date '2026-11-09','BANK_TRANSFER','TRY',50,50,0,'VERIFIED',actor,reader,now(),actor,corr);
   insert into finance.payment_allocations(
     id,payment_id,open_item_id,allocation_sequence,currency_code,amount,status,created_by,correlation_id
   ) values(allocation_id,payment_id,open_1,1,'TRY',40,'ACTIVE',reader,corr);
@@ -149,13 +153,38 @@ begin
     raise exception 'statement status filter mismatch: %',filtered;
   end if;
 
+  page_1:=finance_api.list_payments(hq,account_a,branch_a,date '2026-11-01',date '2026-11-30',null,null,1);
+  if (page_1->>'hasMore')::boolean is distinct from true or jsonb_array_length(page_1->'items')<>1
+     or page_1#>>'{items,0,paymentId}'<>payment_id::text
+     or page_1#>>'{items,0,unallocatedAmount,amount}'<>'60.00000000'
+     or page_1#>>'{items,0,allocationCount}'<>'1' then
+    raise exception 'payment list first page mismatch: %',page_1;
+  end if;
+  cursor_value:=page_1->>'nextCursor';
+  page_2:=finance_api.list_payments(hq,account_a,branch_a,null,null,null,cursor_value,1);
+  if (page_2->>'hasMore')::boolean is distinct from false or jsonb_array_length(page_2->'items')<>1
+     or page_2#>>'{items,0,paymentId}'<>payment_id_2::text then
+    raise exception 'payment list second page mismatch: %',page_2;
+  end if;
+  filtered:=finance_api.list_payments(hq,account_a,branch_a,null,null,'VERIFIED',null,50);
+  if jsonb_array_length(filtered->'items')<>1 or filtered#>>'{items,0,externalReference}'<>'READ-PAYMENT-002' then
+    raise exception 'payment status filter mismatch: %',filtered;
+  end if;
+
   begin
     perform finance_api.get_dealer_statement(hq,account_a,branch_b,null,null,null,null,50);
   exception when insufficient_privilege then denied:=true;
   end;
   if not denied then raise exception 'cross-dealer branch read was not denied'; end if;
 
-  raise notice 'DEALER READ MODELS E2E PASSED: summary 300 accrued / 40 collected / 260 open; statement pagination and scope isolation verified';
+  denied:=false;
+  begin
+    perform finance_api.list_payments(hq,account_a,branch_b,null,null,null,null,50);
+  exception when insufficient_privilege then denied:=true;
+  end;
+  if not denied then raise exception 'cross-dealer payment list was not denied'; end if;
+
+  raise notice 'DEALER READ MODELS E2E PASSED: summary, statement and payment-list pagination/filter/scope isolation verified';
 end
 $test$;
 
