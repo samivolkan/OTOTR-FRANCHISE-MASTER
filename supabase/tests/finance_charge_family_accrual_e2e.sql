@@ -2,6 +2,9 @@
 
 begin;
 
+create or replace function finance_api.authorize_scope(p_legal_entity_id uuid,p_dealer_account_id uuid,p_branch_id uuid,p_operation_id text)
+returns boolean language sql stable security definer set search_path='' as $$select true$$;
+
 -- Test-only authorization ports. Overrides and data are rolled back together.
 create or replace function finance_api.authorize_accrual_calculation_scope(
   p_legal_entity_id uuid,p_dealer_legal_entity_id uuid,p_branch_id uuid,p_permission text
@@ -32,7 +35,7 @@ declare
   nets numeric[] := array[1000.00,100.00,250.00,300.00];
   fee_id uuid; rule_id uuid; mapping_id uuid; source_id uuid; event_id uuid;
   context jsonb; rule jsonb; command jsonb; calculation jsonb; result jsonb; replay jsonb;
-  i integer; journal_count integer; accrual_count integer; open_count integer;
+  i integer; journal_count integer; accrual_count integer; open_count integer; test_accrual uuid;
   gross numeric(24,8); expected_total numeric(24,8):=1980.00000000;
 begin
   insert into finance.legal_entities(id,entity_code,legal_name,status,created_by,correlation_id)
@@ -149,6 +152,14 @@ begin
   ) then raise exception 'a charge-family journal is not balanced'; end if;
   if (select count(*) from finance.calculation_runs where legal_entity_id=hq)<>4 then
     raise exception 'replay created duplicate calculation runs';
+  end if;
+  select id into test_accrual from finance.accruals where legal_entity_id=hq order by id limit 1;
+  result:=finance_api.get_accrual_detail(hq,account,branch,test_accrual);
+  if result->>'accrualId'<>test_accrual::text
+     or jsonb_array_length(result#>'{journalEntry,lines}')<2
+     or result#>>'{calculation,status}'<>'CALCULATED'
+     or result->>'openItemId' is null then
+    raise exception 'accrual read projection mismatch: %',result;
   end if;
 
   raise notice 'CHARGE FAMILY ACCRUAL E2E PASSED: ENTRY_FRANCHISE + QUERY + EXTERNAL_SERVICE + OPTIONAL_PRODUCT_SERVICE = 1980 TRY';

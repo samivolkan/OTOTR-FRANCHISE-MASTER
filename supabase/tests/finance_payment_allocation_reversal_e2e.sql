@@ -10,6 +10,8 @@ create or replace function finance_private.current_payment_allocation_worker_is_
 returns boolean language sql stable security definer set search_path='' as $$select true$$;
 create or replace function finance_private.current_allocation_reversal_worker_is_trusted()
 returns boolean language sql stable security definer set search_path='' as $$select true$$;
+create or replace function finance_api.authorize_scope(p_legal_entity_id uuid,p_dealer_account_id uuid,p_branch_id uuid,p_operation_id text)
+returns boolean language sql stable security definer set search_path='' as $$select true$$;
 
 do $test$
 declare
@@ -170,6 +172,14 @@ begin
   if replay->>'outcome'<>'REPLAY' then raise exception 'allocation reversal replay failed: %',replay; end if;
   if (select count(*) from finance.payment_allocations where reversal_of_id=allocation_id)<>1 then
     raise exception 'replay created duplicate reversal';
+  end if;
+
+  result:=finance_api.get_payment(hq,account,branch,payment_id);
+  if result#>>'{payment,status}'<>'VERIFIED'
+     or result#>>'{unallocatedAmount,amount}'<>'100.00000000'
+     or jsonb_array_length(result->'allocations')<>2
+     or jsonb_array_length(result#>'{payment,documents}')<>1 then
+    raise exception 'payment read projection mismatch: %',result;
   end if;
 
   raise notice 'PAYMENT E2E PASSED: 100 TRY verified -> 80 TRY allocated -> allocation reversed -> 100 TRY unallocated';

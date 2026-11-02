@@ -28,6 +28,7 @@
     "allocation reversal restores both payment and open-item balances",
     "reversal allocation references the original allocation",
     "identical reversal retry returns REPLAY and creates no duplicate reversal",
+    "authorized payment projection returns verified status, evidence document, reversal chain and restored unallocated amount",
     "transaction rollback leaves no synthetic finance row"
   ],
   "execution": {

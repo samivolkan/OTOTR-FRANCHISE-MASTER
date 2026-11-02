@@ -29,6 +29,7 @@
     "each family category is preserved in the server-resolved rule context",
     "each family creates one posted accrual and one branch debit open item",
     "each accounting journal is balanced",
+    "authorized accrual detail projection returns calculation snapshot, open item and at least two journal lines",
     "identical retry returns REPLAY and creates no duplicate calculation run",
     "transaction rollback leaves no synthetic finance row"
   ],
