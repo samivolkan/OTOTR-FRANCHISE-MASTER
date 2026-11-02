@@ -1,5 +1,6 @@
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const READ_OPERATION = 'getDealerFinanceSummary';
+const STATEMENT_OPERATION = 'getDealerStatement';
 
 export class FinanceBridgeError extends Error {
   constructor(code, message, status = 0) {
@@ -47,12 +48,10 @@ async function jsonOrNull(response) {
 export function createFinanceSummaryClient({getConfig, getAccessToken, fetchImpl = globalThis.fetch, correlationFactory = () => crypto.randomUUID(), timeoutMs = 10000} = {}) {
   if (typeof getConfig !== 'function' || typeof getAccessToken !== 'function' || typeof fetchImpl !== 'function') throw new FinanceBridgeError('CONFIGURATION_ERROR', 'Finans istemci bağımlılıkları eksik.');
   if (!Number.isInteger(timeoutMs) || timeoutMs < 1000 || timeoutMs > 30000) throw new FinanceBridgeError('CONFIGURATION_ERROR', 'Finans timeout değeri geçersiz.');
-  return Object.freeze({
-    async getDealerFinanceSummary(rawScope, {asOf} = {}) {
+  async function execute(rawScope, operationId, query) {
       const scope = validateFinanceScope(rawScope);
       const config = validatedConfig(await getConfig());
       const accessToken = validatedToken(await getAccessToken());
-      if (asOf !== undefined && !/^\d{4}-\d{2}-\d{2}$/.test(asOf)) throw new FinanceBridgeError('VALIDATION_ERROR', 'asOf YYYY-MM-DD biçiminde olmalıdır.');
       const correlationId = correlationFactory();
       if (!UUID.test(correlationId)) throw new FinanceBridgeError('CORRELATION_UNAVAILABLE', 'Geçerli correlation UUID üretilemedi.');
       const controller = new AbortController();
@@ -61,7 +60,7 @@ export function createFinanceSummaryClient({getConfig, getAccessToken, fetchImpl
         const response = await fetchImpl(`${config.url}/functions/v1/finance-read`, {
           method: 'POST', signal: controller.signal,
           headers: {apikey: config.publishableKey, Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json; charset=utf-8', 'X-Client-Info': 'ototr-finance-web/0.1', 'Correlation-Id': correlationId},
-          body: JSON.stringify({operationId: READ_OPERATION, scope, pathParams: {dealerAccountId: scope.dealerAccountId}, query: {asOf}}),
+          body: JSON.stringify({operationId, scope, pathParams: {dealerAccountId: scope.dealerAccountId}, query}),
         });
         const payload = await jsonOrNull(response);
         if (!response.ok) throw new FinanceBridgeError(payload?.error?.code || (response.status === 403 ? 'SCOPE_DENIED' : 'FINANCE_READ_FAILED'), payload?.error?.message || 'Finans özeti alınamadı.', response.status);
@@ -73,6 +72,19 @@ export function createFinanceSummaryClient({getConfig, getAccessToken, fetchImpl
         if (error instanceof FinanceBridgeError) throw error;
         throw new FinanceBridgeError('TRANSPORT_ERROR', 'Finans servisine ulaşılamadı.');
       } finally { clearTimeout(timer); }
+  }
+  return Object.freeze({
+    async getDealerFinanceSummary(rawScope, {asOf} = {}) {
+      if (asOf !== undefined && !/^\d{4}-\d{2}-\d{2}$/.test(asOf)) throw new FinanceBridgeError('VALIDATION_ERROR', 'asOf YYYY-MM-DD biçiminde olmalıdır.');
+      return execute(rawScope, READ_OPERATION, {asOf});
+    },
+    async getDealerStatement(rawScope, {from,to,status,cursor,limit} = {}) {
+      for (const [field,value] of [['from',from],['to',to]]) if (value !== undefined && !/^\d{4}-\d{2}-\d{2}$/.test(value)) throw new FinanceBridgeError('VALIDATION_ERROR', `${field} YYYY-MM-DD biçiminde olmalıdır.`);
+      if (from && to && from > to) throw new FinanceBridgeError('VALIDATION_ERROR', 'Ekstre tarih aralığı geçersiz.');
+      if (status !== undefined && !['OPEN','PARTIALLY_ALLOCATED','CLOSED','DISPUTED','REVERSED'].includes(status)) throw new FinanceBridgeError('VALIDATION_ERROR', 'Ekstre durum filtresi geçersiz.');
+      if (cursor !== undefined && (typeof cursor !== 'string' || !cursor.length || cursor.length > 512)) throw new FinanceBridgeError('VALIDATION_ERROR', 'Ekstre cursor değeri geçersiz.');
+      if (limit !== undefined && (!Number.isInteger(limit) || limit < 1 || limit > 200)) throw new FinanceBridgeError('VALIDATION_ERROR', 'Ekstre limit değeri 1–200 arasında olmalıdır.');
+      return execute(rawScope, STATEMENT_OPERATION, {from,to,status,cursor,limit});
     }
   });
 }
@@ -110,6 +122,11 @@ if (auth && ui) {
       const scope = configuredScope || refreshContext();
       if (!scope) throw new FinanceBridgeError('FINANCE_SCOPE_UNAVAILABLE', 'ERP finans kapsamı henüz sağlanmadı.');
       return api.connect(scope, options);
+    },
+    async getDealerStatement(options = {}) {
+      const scope = configuredScope || refreshContext();
+      if (!scope) throw new FinanceBridgeError('FINANCE_SCOPE_UNAVAILABLE', 'ERP finans kapsamı henüz sağlanmadı.');
+      return client.getDealerStatement(scope, options);
     },
   };
   globalThis.OTOTRFinance = Object.freeze(api);

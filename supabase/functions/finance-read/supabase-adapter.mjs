@@ -31,5 +31,17 @@ export function createFinanceSupabaseAdapter({ supabaseUrl, publishableKey, fetc
   async function readSummary({ actor, scope, dealerAccountId, asOf }) {
     return post('/rest/v1/rpc/get_dealer_finance_summary', actor.token, { p_legal_entity_id: scope.legalEntityId, p_dealer_account_id: dealerAccountId, p_branch_id: scope.branchId, p_as_of: asOf || null }, 'finance_api');
   }
-  return Object.freeze({ authenticate, authorizeScope, readSummary });
+  async function readStatement({ actor, scope, dealerAccountId, from, to, status, cursor, limit }) {
+    return post('/rest/v1/rpc/get_dealer_statement', actor.token, {
+      p_legal_entity_id: scope.legalEntityId,
+      p_dealer_account_id: dealerAccountId,
+      p_branch_id: scope.branchId,
+      p_from: from || null,
+      p_to: to || null,
+      p_status: status || null,
+      p_cursor: cursor || null,
+      p_limit: limit || 50,
+    }, 'finance_api');
+  }
+  return Object.freeze({ authenticate, authorizeScope, readSummary, readStatement });
 }

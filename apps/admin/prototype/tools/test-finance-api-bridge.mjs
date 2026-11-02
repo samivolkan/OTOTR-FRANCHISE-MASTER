@@ -27,6 +27,8 @@ assert.equal(captured.options.headers.apikey, publishableKey);
 assert.equal(captured.options.headers.Authorization, `Bearer ${token}`);
 assert.equal(captured.options.headers['Correlation-Id'], correlationId);
 assert.deepEqual(JSON.parse(captured.options.body), { operationId: 'getDealerFinanceSummary', scope, pathParams: { dealerAccountId: scope.dealerAccountId }, query: { asOf: '2026-11-03' } });
+await client.getDealerStatement(scope, { from: '2026-11-01', to: '2026-11-30', status: 'OPEN', cursor: 'cursor', limit: 25 });
+assert.deepEqual(JSON.parse(captured.options.body), { operationId: 'getDealerStatement', scope, pathParams: { dealerAccountId: scope.dealerAccountId }, query: { from: '2026-11-01', to: '2026-11-30', status: 'OPEN', cursor: 'cursor', limit: 25 } });
 
 const rejectsWithCode = async (factory, code) => assert.rejects(factory, error => error instanceof FinanceBridgeError && error.code === code);
 assert.throws(() => validateFinanceScope({ ...scope, branchId: 'not-a-uuid' }), error => error.code === 'FINANCE_SCOPE_INVALID');
@@ -40,6 +42,9 @@ for (const invalidConfig of [
 }
 const unauthenticated = createFinanceSummaryClient({ getConfig: () => ({ url: 'https://example.com', publishableKey }), getAccessToken: () => '', fetchImpl: async () => { throw new Error('must not run'); } });
 await rejectsWithCode(() => unauthenticated.getDealerFinanceSummary(scope), 'AUTH_REQUIRED');
+await rejectsWithCode(() => client.getDealerStatement(scope, { from: '2026-11-30', to: '2026-11-01' }), 'VALIDATION_ERROR');
+await rejectsWithCode(() => client.getDealerStatement(scope, { status: 'INVALID' }), 'VALIDATION_ERROR');
+await rejectsWithCode(() => client.getDealerStatement(scope, { limit: 201 }), 'VALIDATION_ERROR');
 
 const denied = createFinanceSummaryClient({
   getConfig: () => ({ url: 'https://example.com', publishableKey }), getAccessToken: () => token,
@@ -64,6 +69,7 @@ globalThis.OTOTR_FINANCE_CONTEXT = scope;
 await import(`../bayi-portal/assets/finance-api-bridge.mjs?configured-context=${Date.now()}`);
 assert.deepEqual(contextRendered, scope);
 assert.equal(typeof globalThis.OTOTRFinance.connectConfiguredScope, 'function');
+assert.equal(typeof globalThis.OTOTRFinance.getDealerStatement, 'function');
 assert.equal(typeof clickListener, 'function');
 globalThis.OTOTR_FINANCE_CONTEXT = { ...scope, branchId: 'invalid' };
 assert.equal(globalThis.OTOTRFinance.refreshContext(), null);
@@ -73,4 +79,4 @@ delete globalThis.OTOTRFinanceUI;
 delete globalThis.OTOTR_FINANCE_CONTEXT;
 delete globalThis.OTOTRFinance;
 
-console.log('PASS finance-api-bridge: scoped POST, publishable key, auth, safe failures');
+console.log('PASS finance-api-bridge: scoped summary + statement POST, publishable key, auth, safe failures');
