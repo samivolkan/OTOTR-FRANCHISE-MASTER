@@ -52,7 +52,7 @@ async function body(request, maxBytes) {
   try { parsed = JSON.parse(raw); } catch { throw new FinanceReadError(400, 'INVALID_JSON', 'Geçerli JSON zorunludur.'); }
   if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) throw new FinanceReadError(400, 'INVALID_REQUEST', 'İstek nesne olmalıdır.');
   if (Object.keys(parsed).some(key => !KEYS.has(key))) throw new FinanceReadError(400, 'UNKNOWN_FIELD', 'İstek bilinmeyen alan içeriyor.');
-  if (!['getDealerFinanceSummary','getDealerStatement','getPayment','getAccrualDetail','getRoyaltyRefundTrace'].includes(parsed.operationId)) throw new FinanceReadError(403, 'OPERATION_DENIED', 'Finans okuma operasyonuna izin verilmiyor.');
+  if (!['getDealerFinanceSummary','getDealerStatement','getPayment','getAccrualDetail','getRoyaltyRefundTrace','getFinancePeriod'].includes(parsed.operationId)) throw new FinanceReadError(403, 'OPERATION_DENIED', 'Finans okuma operasyonuna izin verilmiyor.');
   const scope = Object.freeze({
     legalEntityId: uuid(parsed.scope?.legalEntityId, 'legalEntityId'),
     dealerAccountId: uuid(parsed.scope?.dealerAccountId, 'dealerAccountId'),
@@ -70,6 +70,12 @@ async function body(request, maxBytes) {
   const dealerAccountId = uuid(parsed.pathParams.dealerAccountId, 'dealerAccountId');
   if (dealerAccountId !== scope.dealerAccountId) throw new FinanceReadError(403, 'SCOPE_DENIED', 'Bayi hesabı finans kapsamıyla uyuşmuyor.');
   const query = parsed.query && typeof parsed.query === 'object' && !Array.isArray(parsed.query) ? parsed.query : {};
+  if (parsed.operationId === 'getFinancePeriod') {
+    if (Object.keys(query).some(key=>key!=='asOf')) throw new FinanceReadError(400,'INVALID_QUERY','getFinancePeriod yalnız asOf kabul eder.');
+    const asOf=calendarDate(query.asOf);
+    if (!asOf) throw new FinanceReadError(400,'INVALID_QUERY','getFinancePeriod için asOf zorunludur.');
+    return Object.freeze({operationId:parsed.operationId,scope,dealerAccountId,asOf});
+  }
   if (parsed.operationId === 'getPayment') {
     if (Object.keys(query).length) throw new FinanceReadError(400, 'INVALID_QUERY', 'getPayment query parametresi kabul etmez.');
     return Object.freeze({ operationId: parsed.operationId, scope, dealerAccountId, paymentId: uuid(parsed.pathParams.paymentId, 'paymentId') });
@@ -97,13 +103,13 @@ async function body(request, maxBytes) {
   return Object.freeze({ operationId: parsed.operationId, scope, dealerAccountId, from, to, status: query.status, cursor: query.cursor, limit: query.limit });
 }
 
-export function createFinanceReadHandler({ allowedOrigins, authenticate, authorizeScope, readSummary, readStatement, readPayment, readAccrualDetail, readRefundTrace, correlationFactory = () => crypto.randomUUID(), maxBodyBytes = 32768 } = {}) {
+export function createFinanceReadHandler({ allowedOrigins, authenticate, authorizeScope, readSummary, readStatement, readPayment, readAccrualDetail, readRefundTrace, readCurrentPeriod, correlationFactory = () => crypto.randomUUID(), maxBodyBytes = 32768 } = {}) {
   const origins = new Set(allowedOrigins || []);
   const invalidOrigin = value => {
     try { const url = new URL(value); return value === '*' || url.origin !== value || (url.protocol !== 'https:' && !(url.protocol === 'http:' && ['localhost', '127.0.0.1'].includes(url.hostname))); } catch { return true; }
   };
   if (!origins.size || [...origins].some(invalidOrigin)) throw new Error('HTTPS veya local HTTP açık origin allowlist zorunludur.');
-  if (![authenticate, authorizeScope, readSummary, readStatement, readPayment, readAccrualDetail, readRefundTrace].every(fn => typeof fn === 'function')) throw new Error('Finans sunucu portları zorunludur.');
+  if (![authenticate, authorizeScope, readSummary, readStatement, readPayment, readAccrualDetail, readRefundTrace, readCurrentPeriod].every(fn => typeof fn === 'function')) throw new Error('Finans sunucu portları zorunludur.');
   if (!Number.isInteger(maxBodyBytes) || maxBodyBytes < 1024 || maxBodyBytes > 65536) throw new Error('maxBodyBytes 1024–65536 arasında olmalıdır.');
   return async request => {
     const correlationId = correlation(request.headers.get('correlation-id'), correlationFactory);
@@ -126,7 +132,9 @@ export function createFinanceReadHandler({ allowedOrigins, authenticate, authori
             ? await readPayment({ actor, ...input })
             : input.operationId === 'getAccrualDetail'
               ? await readAccrualDetail({ actor, ...input })
-              : await readRefundTrace({ actor, ...input });
+              : input.operationId === 'getRoyaltyRefundTrace'
+                ? await readRefundTrace({ actor, ...input })
+                : await readCurrentPeriod({ actor, ...input });
       return json(origin, correlationId, 200, { data });
     } catch (error) {
       const known = error instanceof FinanceReadError;

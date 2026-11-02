@@ -50,6 +50,15 @@ try {
     const body = route.request().postDataJSON();
     requests.push(body);
     await new Promise(resolve => setTimeout(resolve, 75));
+    if(body.operationId==='getDealerFinanceSummary'){
+      const money={netAmount:'100.00000000',taxAmount:'20.00000000',grossAmount:'120.00000000',currency:'TRY'};
+      const data={...scope,asOf:'2026-11-03',accrued:money,invoiced:money,collected:money,open:money,overdue:{netAmount:'0',taxAmount:'0',grossAmount:'0',currency:'TRY'},calculatedAtUtc:'2026-11-03T10:00:00Z'};
+      await route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({data})});return;
+    }
+    if(body.operationId==='getFinancePeriod'){
+      const data={periodId:'18181818-1818-4818-8818-181818181818',parentPeriodId:'19191919-1919-4919-8919-191919191919',dealerAccountId:scope.dealerAccountId,branchId:scope.branchId,periodStart:'2026-11-01',periodEnd:'2026-11-30',currencyCode:'TRY',status:'LOCKED',sourceSnapshotHash:'a'.repeat(64),checkSnapshotHash:'b'.repeat(64),lockedAtUtc:'2026-11-30T20:00:00Z',version:3};
+      await route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({data})});return;
+    }
     if (body.operationId === 'getPayment') {
       const paymentId = body.pathParams.paymentId;
       const data = {
@@ -104,6 +113,13 @@ try {
 
   await page.goto(`${origin}/index.html`, {waitUntil:'networkidle'});
   await page.click('#navFinance');
+  await page.click('[data-finance-connect]');
+  await page.waitForFunction(()=>document.querySelector('[data-finance-state]')?.textContent.includes('READY'));
+  await page.click('[data-finance-screen="SCR-12"]');
+  assert.equal(await page.locator('[data-finance-period-detail]').isVisible(),true);
+  assert.match(await page.locator('[data-finance-period-detail]').innerText(),/LOCKED/);
+  assert.match(await page.locator('[data-finance-period-detail]').innerText(),/v3/);
+  assert.match(await page.locator('[data-finance-period-detail]').innerText(),/aaaaaaaaaaaa/);
   await page.click('[data-finance-screen="SCR-07"]');
   await assert.doesNotReject(() => page.waitForSelector('[data-finance-statement]:not([hidden])'));
   assert.equal(await page.locator('[data-finance-statement-refresh]').isEnabled(), true);
@@ -168,7 +184,7 @@ try {
   assert.match(await page.locator('[data-finance-statement-state]').innerText(), /geçici olarak kullanılamıyor/i);
   assert.equal(await page.locator('[data-finance-statement-refresh]').isEnabled(), true);
 
-  console.log('PASS finance-statement-browser: scoped statement, payment, accrual and royalty refund trace; state and cursor flows');
+  console.log('PASS finance-statement-browser: scoped period, statement, payment, accrual and royalty refund trace flows');
 } finally {
   await browser?.close();
   await new Promise(resolve => server.close(resolve));

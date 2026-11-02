@@ -1325,6 +1325,16 @@ button,input,select,textarea{font:inherit}.app{min-height:100vh;display:grid;gri
               <article><span>Tahsil edilen</span><b data-finance-kpi="collected">—</b><small>Doğrulanmış ödeme verisi yok</small></article>
               <article><span>Açık / geciken</span><b data-finance-kpi="open">—</b><small data-finance-overdue>Açık kalem projectionı yok</small></article>
             </section>
+            <section class="finance-period-detail" data-finance-period-detail hidden aria-labelledby="financePeriodTitle">
+              <div class="finance-period-detail-head"><div><span class="finance-screen-code">ŞUBE DÖNEM PROJECTION</span><h3 id="financePeriodTitle">Dönem, Mutabakat ve Kilit</h3></div><span class="finance-state-chip" data-finance-period-state>EMPTY · YETKİLİ VERİ BEKLENİYOR</span></div>
+              <div class="finance-period-grid" data-finance-period-content hidden>
+                <article><span>Durum</span><b data-finance-period-status>—</b><small data-finance-period-range>—</small></article>
+                <article><span>Sürüm / kilit</span><b data-finance-period-version>—</b><small data-finance-period-locked>—</small></article>
+                <article><span>Kaynak snapshot</span><b data-finance-period-source-hash>—</b><small>Kaynak dondurma kanıtı</small></article>
+                <article><span>Kontrol snapshot</span><b data-finance-period-check-hash>—</b><small>Mutabakat kontrol kanıtı</small></article>
+              </div>
+              <div class="finance-statement-state" data-finance-period-empty>Kapsam ve yetkili dönem verisi bekleniyor.</div>
+            </section>
             <section class="finance-statement" data-finance-statement hidden aria-labelledby="financeStatementTitle">
               <div class="finance-statement-head">
                 <div>

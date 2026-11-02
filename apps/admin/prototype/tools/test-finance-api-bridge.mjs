@@ -38,6 +38,8 @@ assert.deepEqual(JSON.parse(captured.options.body), { operationId:'getAccrualDet
 const reversalAccrualId = '77777777-7777-4777-8777-777777777777';
 await client.getRoyaltyRefundTrace(scope,reversalAccrualId);
 assert.deepEqual(JSON.parse(captured.options.body), { operationId:'getRoyaltyRefundTrace',scope,pathParams:{dealerAccountId:scope.dealerAccountId,reversalAccrualId},query:{} });
+await client.getCurrentFinancePeriod(scope,{asOf:'2026-11-03'});
+assert.deepEqual(JSON.parse(captured.options.body),{operationId:'getFinancePeriod',scope,pathParams:{dealerAccountId:scope.dealerAccountId},query:{asOf:'2026-11-03'}});
 
 const rejectsWithCode = async (factory, code) => assert.rejects(factory, error => error instanceof FinanceBridgeError && error.code === code);
 assert.throws(() => validateFinanceScope({ ...scope, branchId: 'not-a-uuid' }), error => error.code === 'FINANCE_SCOPE_INVALID');
@@ -57,6 +59,9 @@ await rejectsWithCode(() => client.getDealerStatement(scope, { limit: 201 }), 'V
 await rejectsWithCode(() => client.getPayment(scope, 'invalid'), 'VALIDATION_ERROR');
 await rejectsWithCode(() => client.getAccrualDetail(scope, 'invalid'), 'VALIDATION_ERROR');
 await rejectsWithCode(() => client.getRoyaltyRefundTrace(scope,'invalid'),'VALIDATION_ERROR');
+await rejectsWithCode(()=>client.getCurrentFinancePeriod(scope,{}),'VALIDATION_ERROR');
+const emptyPeriodClient=createFinanceSummaryClient({getConfig:()=>({url:'https://example.com',publishableKey}),getAccessToken:()=>token,correlationFactory:()=>correlationId,fetchImpl:async()=>({ok:true,status:200,headers:{get:name=>name==='content-type'?'application/json':null},json:async()=>({data:null})})});
+assert.equal((await emptyPeriodClient.getCurrentFinancePeriod(scope,{asOf:'2026-11-03'})).data,null);
 
 const denied = createFinanceSummaryClient({
   getConfig: () => ({ url: 'https://example.com', publishableKey }), getAccessToken: () => token,
@@ -85,6 +90,7 @@ assert.equal(typeof globalThis.OTOTRFinance.getDealerStatement, 'function');
 assert.equal(typeof globalThis.OTOTRFinance.getPayment, 'function');
 assert.equal(typeof globalThis.OTOTRFinance.getAccrualDetail, 'function');
 assert.equal(typeof globalThis.OTOTRFinance.getRoyaltyRefundTrace,'function');
+assert.equal(typeof globalThis.OTOTRFinance.getCurrentFinancePeriod,'function');
 assert.equal(typeof clickListener, 'function');
 globalThis.OTOTR_FINANCE_CONTEXT = { ...scope, branchId: 'invalid' };
 assert.equal(globalThis.OTOTRFinance.refreshContext(), null);
@@ -94,4 +100,4 @@ delete globalThis.OTOTRFinanceUI;
 delete globalThis.OTOTR_FINANCE_CONTEXT;
 delete globalThis.OTOTRFinance;
 
-console.log('PASS finance-api-bridge: scoped summary + statement + payment + accrual + refund trace POST, publishable key, auth, safe failures');
+console.log('PASS finance-api-bridge: scoped summary, statement, payment, accrual, refund and period POST; safe failures');

@@ -67,5 +67,10 @@ export function createFinanceSupabaseAdapter({ supabaseUrl, publishableKey, fetc
       p_reversal_accrual_id:reversalAccrualId,
     }, 'finance_api');
   }
-  return Object.freeze({ authenticate, authorizeScope, readSummary, readStatement, readPayment, readAccrualDetail, readRefundTrace });
+  async function readCurrentPeriod({actor,scope,dealerAccountId,asOf}) {
+    return post('/rest/v1/rpc/get_current_finance_period',actor.token,{
+      p_legal_entity_id:scope.legalEntityId,p_dealer_account_id:dealerAccountId,p_branch_id:scope.branchId,p_as_of:asOf,
+    },'finance_api');
+  }
+  return Object.freeze({ authenticate, authorizeScope, readSummary, readStatement, readPayment, readAccrualDetail, readRefundTrace, readCurrentPeriod });
 }

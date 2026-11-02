@@ -4,6 +4,7 @@ const STATEMENT_OPERATION = 'getDealerStatement';
 const PAYMENT_OPERATION = 'getPayment';
 const ACCRUAL_OPERATION = 'getAccrualDetail';
 const REFUND_TRACE_OPERATION = 'getRoyaltyRefundTrace';
+const PERIOD_OPERATION = 'getFinancePeriod';
 
 export class FinanceBridgeError extends Error {
   constructor(code, message, status = 0) {
@@ -51,7 +52,7 @@ async function jsonOrNull(response) {
 export function createFinanceSummaryClient({getConfig, getAccessToken, fetchImpl = globalThis.fetch, correlationFactory = () => crypto.randomUUID(), timeoutMs = 10000} = {}) {
   if (typeof getConfig !== 'function' || typeof getAccessToken !== 'function' || typeof fetchImpl !== 'function') throw new FinanceBridgeError('CONFIGURATION_ERROR', 'Finans istemci bağımlılıkları eksik.');
   if (!Number.isInteger(timeoutMs) || timeoutMs < 1000 || timeoutMs > 30000) throw new FinanceBridgeError('CONFIGURATION_ERROR', 'Finans timeout değeri geçersiz.');
-  async function execute(rawScope, operationId, query, extraPathParams = {}) {
+  async function execute(rawScope, operationId, query, extraPathParams = {}, allowNull = false) {
       const scope = validateFinanceScope(rawScope);
       const config = validatedConfig(await getConfig());
       const accessToken = validatedToken(await getAccessToken());
@@ -67,8 +68,8 @@ export function createFinanceSummaryClient({getConfig, getAccessToken, fetchImpl
         });
         const payload = await jsonOrNull(response);
         if (!response.ok) throw new FinanceBridgeError(payload?.error?.code || (response.status === 403 ? 'SCOPE_DENIED' : 'FINANCE_READ_FAILED'), payload?.error?.message || 'Finans özeti alınamadı.', response.status);
-        const data = payload?.data ?? payload;
-        if (!data || typeof data !== 'object') throw new FinanceBridgeError('INVALID_RESPONSE', 'Finans servisi geçersiz yanıt verdi.', 502);
+        const data = payload && Object.prototype.hasOwnProperty.call(payload,'data') ? payload.data : payload;
+        if (!(allowNull && data === null) && (!data || typeof data !== 'object')) throw new FinanceBridgeError('INVALID_RESPONSE', 'Finans servisi geçersiz yanıt verdi.', 502);
         return Object.freeze({data, scope, correlationId: response.headers?.get?.('correlation-id') || correlationId});
       } catch (error) {
         if (error?.name === 'AbortError') throw new FinanceBridgeError('TIMEOUT', 'Finans servisi zaman aşımına uğradı.');
@@ -100,6 +101,10 @@ export function createFinanceSummaryClient({getConfig, getAccessToken, fetchImpl
     async getRoyaltyRefundTrace(rawScope, reversalAccrualId) {
       const normalizedId = requiredUuid(reversalAccrualId, 'reversalAccrualId', 'VALIDATION_ERROR');
       return execute(rawScope, REFUND_TRACE_OPERATION, {}, {reversalAccrualId:normalizedId});
+    },
+    async getCurrentFinancePeriod(rawScope,{asOf}={}) {
+      if (typeof asOf!=='string' || !/^\d{4}-\d{2}-\d{2}$/.test(asOf)) throw new FinanceBridgeError('VALIDATION_ERROR','asOf YYYY-MM-DD biçiminde zorunludur.');
+      return execute(rawScope,PERIOD_OPERATION,{asOf},{},true);
     }
   });
 }
@@ -127,6 +132,8 @@ if (auth && ui) {
       try {
         const result = await client.getDealerFinanceSummary(scope, options);
         ui.renderSummary(result.data, result.scope);
+        const periodResult=await client.getCurrentFinancePeriod(scope,{asOf:result.data.asOf});
+        ui.renderCurrentPeriod?.(periodResult.data);
         return result;
       } catch (error) {
         ui.setConnectionState('ERROR', error instanceof FinanceBridgeError ? error.message : 'Finans servisine ulaşılamadı.');
@@ -157,6 +164,11 @@ if (auth && ui) {
       const scope = configuredScope || refreshContext();
       if (!scope) throw new FinanceBridgeError('FINANCE_SCOPE_UNAVAILABLE', 'ERP finans kapsamı henüz sağlanmadı.');
       return client.getRoyaltyRefundTrace(scope, reversalAccrualId);
+    },
+    async getCurrentFinancePeriod(options={}) {
+      const scope=configuredScope||refreshContext();
+      if(!scope) throw new FinanceBridgeError('FINANCE_SCOPE_UNAVAILABLE','ERP finans kapsamı henüz sağlanmadı.');
+      return client.getCurrentFinancePeriod(scope,options);
     },
     async loadRoyaltyRefundTrace(reversalAccrualId) {
       ui.setRefundState?.('LOADING','Orijinal tahsilat, royalty ve dönem provenance yükleniyor…');

@@ -83,6 +83,16 @@
   const refundReversal = root.querySelector('[data-finance-refund-reversal]');
   const refundPostingPeriod = root.querySelector('[data-finance-refund-posting-period]');
   const refundProvenance = root.querySelector('[data-finance-refund-provenance]');
+  const periodDetail = root.querySelector('[data-finance-period-detail]');
+  const periodDetailState = root.querySelector('[data-finance-period-state]');
+  const periodContent = root.querySelector('[data-finance-period-content]');
+  const periodEmpty = root.querySelector('[data-finance-period-empty]');
+  const periodStatus = root.querySelector('[data-finance-period-status]');
+  const periodRange = root.querySelector('[data-finance-period-range]');
+  const periodVersion = root.querySelector('[data-finance-period-version]');
+  const periodLocked = root.querySelector('[data-finance-period-locked]');
+  const periodSourceHash = root.querySelector('[data-finance-period-source-hash]');
+  const periodCheckHash = root.querySelector('[data-finance-period-check-hash]');
   let scopeReady = false;
   let statementRowCount = 0;
 
@@ -107,6 +117,7 @@
     renderList(sections, screenSections);
     renderList(actions, screenActions);
     statement.hidden = id !== 'SCR-07';
+    periodDetail.hidden = id !== 'SCR-12';
   };
 
   const canonicalDecimal = value => {
@@ -262,6 +273,16 @@
     refundProvenance.replaceChildren(...items.map(value=>{const span=document.createElement('span');span.textContent=value;return span;}));
     setRefundState('READY');
   };
+  const resetCurrentPeriod = message => {
+    periodContent.hidden=true; periodEmpty.hidden=false; periodEmpty.textContent=message || 'Kapsam ve yetkili dönem verisi bekleniyor.'; periodDetailState.textContent='EMPTY · YETKİLİ VERİ BEKLENİYOR';
+  };
+  const renderCurrentPeriod = payload => {
+    if (payload===null) { resetCurrentPeriod('Seçili iş tarihinde şubeye ait finans dönemi bulunamadı.'); return; }
+    if (!payload || !uuidPattern.test(payload.periodId || '') || !uuidPattern.test(payload.dealerAccountId || '') || !uuidPattern.test(payload.branchId || '') || !/^\d{4}-\d{2}-\d{2}$/.test(payload.periodStart || '') || !/^\d{4}-\d{2}-\d{2}$/.test(payload.periodEnd || '') || typeof payload.status!=='string' || !Number.isInteger(payload.version)) throw new Error('INVALID_FINANCE_PERIOD');
+    const shortHash=value=>typeof value==='string'&&/^[0-9a-f]{64}$/i.test(value)?`${value.slice(0,12)}…${value.slice(-8)}`:'Henüz oluşmadı';
+    periodStatus.textContent=payload.status; periodRange.textContent=`${payload.periodStart} – ${payload.periodEnd}`; periodVersion.textContent=`v${payload.version}`; periodLocked.textContent=payload.lockedAtUtc?`Kilit: ${new Date(payload.lockedAtUtc).toLocaleString('tr-TR')}`:'Kilitlenmedi'; periodSourceHash.textContent=shortHash(payload.sourceSnapshotHash); periodCheckHash.textContent=shortHash(payload.checkSnapshotHash);
+    periodContent.hidden=false; periodEmpty.hidden=true; periodDetailState.textContent='READY · SCOPED PERIOD';
+  };
 
   const resetAmounts = () => {
     Object.values(kpis).forEach(node => { node.textContent = '—'; });
@@ -309,6 +330,7 @@
     contextStatus.textContent = ready ? 'KAPSAM HAZIR · SUNUCU ONAYI GEREKİR' : 'KAPSAM BEKLENİYOR';
     contextStatus.classList.toggle('is-ready', Boolean(ready));
     resetStatement(ready ? 'Henüz yetkili ekstre isteği yapılmadı.' : 'Kapsam ve yetkili bağlantı bekleniyor.');
+    resetCurrentPeriod(ready ? 'Yetkili veri getirildiğinde şube dönemi burada gösterilir.' : 'Kapsam ve yetkili dönem verisi bekleniyor.');
     if (!ready) setConnectionState('UNCONFIGURED', 'ERP kimlik köprüsünden tüzel kişi, bayi hesabı ve şube kapsamı bekleniyor.');
     return Boolean(ready);
   };
@@ -339,5 +361,5 @@
   refundCloseButton.addEventListener('click',resetRefund);
 
   selectScreen(screens[0]);
-  window.OTOTRFinanceUI = Object.freeze({setConnectionState, setScopeContext, renderSummary, setStatementState, renderStatementPage, resetStatement, getStatementFilters, setPaymentState, renderPaymentDetail, resetPayment, setAccrualState, renderAccrualDetail, resetAccrual, setRefundState, renderRefundTrace, resetRefund, connectButton, statementRefreshButton, statementMoreButton, statementStatus});
+  window.OTOTRFinanceUI = Object.freeze({setConnectionState, setScopeContext, renderSummary, setStatementState, renderStatementPage, resetStatement, getStatementFilters, setPaymentState, renderPaymentDetail, resetPayment, setAccrualState, renderAccrualDetail, resetAccrual, setRefundState, renderRefundTrace, resetRefund, renderCurrentPeriod, resetCurrentPeriod, connectButton, statementRefreshButton, statementMoreButton, statementStatus});
 })();
