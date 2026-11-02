@@ -1383,25 +1383,24 @@ button,input,select,textarea{font:inherit}.app{min-height:100vh;display:grid;gri
                   <tbody data-finance-statement-body></tbody>
                 </table>
               </div>
-              <section class="finance-payment-detail finance-refund-detail" data-finance-refund-detail hidden aria-labelledby="financeRefundTitle">
-                <div class="finance-payment-detail-head">
-                  <div><span class="finance-screen-code">ROYALTY TERS KAYIT İZİ</span><h4 id="financeRefundTitle">Müşteri İadesi ve Royalty Azaltımı</h4></div>
-                  <button class="btn" type="button" data-finance-refund-close>Kapat</button>
-                </div>
-                <div class="finance-payment-detail-state" data-finance-refund-state role="status">İade seçilmedi.</div>
-                <div data-finance-refund-content hidden>
-                  <div class="finance-payment-kpis">
-                    <article><span>Müşteri iadesi</span><b data-finance-refund-gross>—</b><small data-finance-refund-id>—</small></article>
-                    <article><span>Orijinal royalty</span><b data-finance-refund-original>—</b><small data-finance-refund-original-period>—</small></article>
-                    <article><span>Royalty ters kayıt</span><b data-finance-refund-reversal>—</b><small data-finance-refund-posting-period>—</small></article>
-                  </div>
-                  <div class="finance-refund-provenance" data-finance-refund-provenance></div>
-                </div>
-              </section>
               <div class="finance-statement-footer">
                 <span data-finance-statement-count>0 kayıt</span>
                 <button class="btn" type="button" data-finance-statement-more hidden disabled>Daha Fazla</button>
               </div>
+            </section>
+            <section class="finance-statement" data-finance-refunds hidden aria-labelledby="financeRefundsTitle">
+              <div class="finance-statement-head">
+                <div><span class="finance-screen-code">YETKİLİ İADE PROJECTION</span><h3 id="financeRefundsTitle">Müşteri İadeleri ve Royalty Ters Kayıtları</h3><p>Kesinleşmiş iadeler, ilk royalty ve dönem kökeni seçili şube kapsamında gösterilir.</p></div>
+                <div class="finance-statement-controls"><button class="btn" type="button" data-finance-refunds-refresh disabled>İadeleri Getir</button></div>
+              </div>
+              <div class="finance-statement-state" data-finance-refunds-state role="status">Kapsam ve yetkili bağlantı bekleniyor.</div>
+              <div class="finance-statement-table-wrap" data-finance-refunds-table hidden><table class="finance-statement-table"><thead><tr><th>İade tarihi / kimliği</th><th>Orijinal tahsilat</th><th>Müşteri iadesi</th><th>İlk royalty</th><th>Royalty azaltımı</th><th>Dönem / işlem</th></tr></thead><tbody data-finance-refunds-body></tbody></table></div>
+              <section class="finance-payment-detail finance-refund-detail" data-finance-refund-detail hidden aria-labelledby="financeRefundTitle">
+                <div class="finance-payment-detail-head"><div><span class="finance-screen-code">ROYALTY TERS KAYIT İZİ</span><h4 id="financeRefundTitle">Müşteri İadesi ve Royalty Azaltımı</h4></div><button class="btn" type="button" data-finance-refund-close>Seçimi Temizle</button></div>
+                <div class="finance-payment-detail-state" data-finance-refund-state role="status">İade listesinden bir kayıt seçin.</div>
+                <div data-finance-refund-content hidden><div class="finance-payment-kpis"><article><span>Müşteri iadesi</span><b data-finance-refund-gross>—</b><small data-finance-refund-id>—</small></article><article><span>Orijinal royalty</span><b data-finance-refund-original>—</b><small data-finance-refund-original-period>—</small></article><article><span>Royalty ters kayıt</span><b data-finance-refund-reversal>—</b><small data-finance-refund-posting-period>—</small></article></div><div class="finance-refund-provenance" data-finance-refund-provenance></div></div>
+              </section>
+              <div class="finance-statement-footer"><span data-finance-refunds-count>0 kayıt</span><button class="btn" type="button" data-finance-refunds-more hidden disabled>Daha Fazla</button></div>
             </section>
             <section class="finance-statement" data-finance-payments hidden aria-labelledby="financePaymentsTitle">
               <div class="finance-statement-head">

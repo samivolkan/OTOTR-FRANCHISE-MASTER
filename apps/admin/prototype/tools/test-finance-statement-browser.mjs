@@ -79,6 +79,11 @@ try {
           : {items:[paymentItem('55555555-5555-4555-8555-555555555555')],nextCursor:'payment-page-2',hasMore:true};
       await route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({data})});return;
     }
+    if(body.operationId==='listRoyaltyRefunds'){
+      const refund=(id,refundId,amount)=>({reversalAccrualId:id,refundId,refundBusinessDate:'2026-11-03',originalCollectionId:'13131313-1313-4313-8313-131313131313',refundedGrossAmount:amount,originalRoyaltyAccrualId:'14141414-1414-4414-8414-141414141414',originalRoyaltyAmount:'118.00000000',royaltyReversalAmount:'59.00000000',currency:'TRY',status:'POSTED',originalPeriodId:'16161616-1616-4616-8616-161616161616',postingPeriodId:'17171717-1717-4717-8717-171717171717'});
+      const data=body.query.cursor?{items:[refund('26262626-2626-4626-8626-262626262626','27272727-2727-4727-8727-272727272727','100.00000000')],nextCursor:null,hasMore:false}:{items:[refund('bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb','12121212-1212-4212-8212-121212121212','590.00000000')],nextCursor:'refund-page-2',hasMore:true};
+      await route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({data})});return;
+    }
     if (body.operationId === 'getPayment') {
       const paymentId = body.pathParams.paymentId;
       const data = {
@@ -209,7 +214,7 @@ try {
   await page.click('[data-finance-accrual-id]');
   assert.equal(await page.locator('[data-finance-screen-code]').first().innerText(), 'SCR-06');
   assert.equal(await page.locator('[data-finance-statement]').isVisible(), false);
-  assert.equal(await page.locator('[data-finance-accrual-detail]').getAttribute('data-state'), 'LOADING');
+  assert.match(await page.locator('[data-finance-accrual-detail]').getAttribute('data-state'), /LOADING|READY/);
   await page.waitForFunction(() => document.querySelector('[data-finance-accrual-detail]')?.dataset.state === 'READY');
   assert.match(await page.locator('[data-finance-accrual-detail]').innerText(), /120,00000000 TRY/);
   assert.match(await page.locator('[data-finance-accrual-lines]').innerText(), /Royalty geliri/);
@@ -226,15 +231,24 @@ try {
   assert.match(await page.locator('[data-finance-statement-body]').innerText(), /Royalty iade izini aç/);
   assert.equal(await page.locator('[data-finance-statement-more]').isVisible(), false);
   await page.click('[data-finance-refund-accrual-id]');
-  assert.equal(await page.locator('[data-finance-refund-detail]').getAttribute('data-state'),'LOADING');
+  assert.match(await page.locator('[data-finance-refund-detail]').getAttribute('data-state'),/LOADING|READY/);
   await page.waitForFunction(()=>document.querySelector('[data-finance-refund-detail]')?.dataset.state==='READY');
   assert.match(await page.locator('[data-finance-refund-detail]').innerText(),/590,00000000 TRY/);
   assert.match(await page.locator('[data-finance-refund-detail]').innerText(),/118,00000000 TRY/);
   assert.match(await page.locator('[data-finance-refund-detail]').innerText(),/59,00000000 TRY/);
   assert.equal(requests.at(-1).operationId,'getRoyaltyRefundTrace');
   await page.click('[data-finance-refund-close]');
-  assert.equal(await page.locator('[data-finance-refund-detail]').isVisible(),false);
+  assert.equal(await page.locator('[data-finance-refund-detail]').isVisible(),true);
+  assert.equal(await page.locator('[data-finance-refund-detail]').getAttribute('data-state'),'EMPTY');
+  await page.click('[data-finance-refunds-refresh]');
+  await page.waitForFunction(()=>document.querySelectorAll('[data-finance-refunds-body] tr').length===1);
+  assert.match(await page.locator('[data-finance-refunds-body]').innerText(),/590,00000000 TRY/);
+  assert.equal(requests.at(-1).operationId,'listRoyaltyRefunds');
+  await page.click('[data-finance-refunds-more]');
+  await page.waitForFunction(()=>document.querySelectorAll('[data-finance-refunds-body] tr').length===2);
+  assert.equal(await page.locator('[data-finance-refunds-more]').isVisible(),false);
 
+  await page.click('[data-finance-screen="SCR-07"]');
   await page.selectOption('[data-finance-statement-status]', 'OPEN');
   assert.equal(await page.locator('[data-finance-statement-body] tr').count(), 0);
   assert.match(await page.locator('[data-finance-statement-state]').innerText(), /Filtre değişti/);

@@ -60,6 +60,13 @@
   const paymentsTable = root.querySelector('[data-finance-payments-table]');
   const paymentsBody = root.querySelector('[data-finance-payments-body]');
   const paymentsCount = root.querySelector('[data-finance-payments-count]');
+  const refunds = root.querySelector('[data-finance-refunds]');
+  const refundsRefreshButton = root.querySelector('[data-finance-refunds-refresh]');
+  const refundsMoreButton = root.querySelector('[data-finance-refunds-more]');
+  const refundsState = root.querySelector('[data-finance-refunds-state]');
+  const refundsTable = root.querySelector('[data-finance-refunds-table]');
+  const refundsBody = root.querySelector('[data-finance-refunds-body]');
+  const refundsCount = root.querySelector('[data-finance-refunds-count]');
   const paymentDetail = root.querySelector('[data-finance-payment-detail]');
   const paymentCloseButton = root.querySelector('[data-finance-payment-close]');
   const paymentState = root.querySelector('[data-finance-payment-state]');
@@ -125,6 +132,7 @@
   let scopeReady = false;
   let statementRowCount = 0;
   let paymentRowCount = 0;
+  let refundRowCount = 0;
   let contractRuleRowCount = 0;
   let contractRulesVersionId = null;
   let activeScreenId = 'SCR-01';
@@ -158,6 +166,7 @@
       ? 'Kaynak olay, bedel kodu, brüt tutar, açık bakiye ve fatura bağlantıları şube kapsamında gösterilir.'
       : 'Yalnız seçili tüzel kişi, bayi hesabı ve şube kapsamındaki doğrulanmış hareketler.';
     payments.hidden = id !== 'SCR-08';
+    refunds.hidden = id !== 'SCR-17';
     contractWorkspace.hidden = !contractScreenIds.has(id);
     contractTitle.textContent = id === 'SCR-04' ? 'Bedel Kataloğu ve Kural Yapısı' : 'Sözleşme ve Kural Sürümleri';
     contractSubtitle.textContent = id === 'SCR-04' ? 'Geçerli sürümdeki bedel aileleri, tetikleyiciler ve hesaplama yapıları.' : 'Seçili şubenin aktif sözleşmesi, geçerli sürümü ve bekleyen sürümü.';
@@ -326,6 +335,23 @@
   };
   const getPaymentFilters = () => Object.freeze({status:paymentsStatus.value || undefined,limit:25});
 
+  const setRefundsState=(next,message)=>{
+    if(!['EMPTY','LOADING','READY','ERROR'].includes(next)) throw new Error('INVALID_FINANCE_REFUNDS_STATE');
+    refunds.dataset.state=next;refundsState.textContent=message||({EMPTY:'İade bulunamadı.',LOADING:'Yetkili iadeler yükleniyor…',READY:'İadeler yüklendi.',ERROR:'İade listesi yüklenemedi.'})[next];refundsState.hidden=next==='READY'&&refundRowCount>0;refundsRefreshButton.disabled=!scopeReady||next==='LOADING';if(next==='LOADING') refundsMoreButton.disabled=true;
+  };
+  const resetRefunds=message=>{refundsBody.replaceChildren();refundRowCount=0;refundsTable.hidden=true;refundsMoreButton.hidden=true;refundsMoreButton.disabled=true;refundsCount.textContent='0 kayıt';resetRefund();setRefundsState('EMPTY',message||'Henüz yetkili iade isteği yapılmadı.');};
+  const renderRefundsPage=(payload,{append=false}={})=>{
+    if(!payload||!Array.isArray(payload.items)||typeof payload.hasMore!=='boolean'||!(payload.nextCursor==null||typeof payload.nextCursor==='string')) throw new Error('INVALID_FINANCE_REFUNDS');
+    const rows=payload.items.map(item=>{
+      if(!item||!uuidPattern.test(item.reversalAccrualId||'')||!uuidPattern.test(item.refundId||'')||!uuidPattern.test(item.originalRoyaltyAccrualId||'')||!uuidPattern.test(item.originalPeriodId||'')||!uuidPattern.test(item.postingPeriodId||'')||!/^[A-Z]{3}$/.test(item.currency||'')||!/^\d{4}-\d{2}-\d{2}$/.test(item.refundBusinessDate||'')) throw new Error('INVALID_FINANCE_REFUND_ITEM');
+      const identity=document.createElement('td');const date=document.createElement('div');date.className='finance-statement-fee';date.textContent=new Intl.DateTimeFormat('tr-TR').format(new Date(`${item.refundBusinessDate}T00:00:00Z`));const id=document.createElement('small');id.textContent=item.refundId;identity.append(date,id);
+      const action=document.createElement('td');const provenance=document.createElement('small');provenance.textContent=item.originalPeriodId===item.postingPeriodId?'Aynı dönem':'Kilitli ilk dönem → açık kayıt dönemi';const button=document.createElement('button');button.type='button';button.className='finance-inline-action';button.dataset.financeRefundAccrualId=item.reversalAccrualId;button.textContent='İade izini aç';action.append(provenance,button);
+      const tr=document.createElement('tr');tr.append(identity,cell(item.originalCollectionId||'—'),cell(amount(item.refundedGrossAmount,item.currency)),cell(amount(item.originalRoyaltyAmount,item.currency)),cell(amount(item.royaltyReversalAmount,item.currency)),action);return tr;
+    });
+    if(!append){refundsBody.replaceChildren();refundRowCount=0;resetRefund();}refundsBody.append(...rows);refundRowCount+=rows.length;refundsCount.textContent=`${refundRowCount} kayıt`;refundsTable.hidden=refundRowCount===0;refundsMoreButton.hidden=!payload.hasMore;refundsMoreButton.disabled=!payload.hasMore;refundsMoreButton.dataset.cursor=payload.nextCursor||'';setRefundsState(refundRowCount?'READY':'EMPTY',refundRowCount?'İadeler yüklendi.':'Seçili kapsamda kesinleşmiş iade bulunamadı.');
+  };
+  const getRefundFilters=()=>Object.freeze({limit:25});
+
   const setPaymentState = (next, message) => {
     if (!['EMPTY','LOADING','READY','ERROR'].includes(next)) throw new Error('INVALID_FINANCE_PAYMENT_STATE');
     paymentDetail.hidden = false;
@@ -401,13 +427,13 @@
     refundDetail.hidden=false; refundDetail.dataset.state=next; refundState.hidden=next==='READY'; refundContent.hidden=next!=='READY';
     refundState.textContent=message || ({EMPTY:'İade seçilmedi.',LOADING:'Royalty iade izi yükleniyor…',READY:'Royalty iade izi yüklendi.',ERROR:'Royalty iade izi yüklenemedi.'})[next];
   };
-  const resetRefund = () => { refundDetail.hidden=true; refundContent.hidden=true; refundProvenance.replaceChildren(); };
+  const resetRefund = () => { refundDetail.dataset.state='EMPTY';refundDetail.hidden=activeScreenId!=='SCR-17';refundState.hidden=false;refundState.textContent='İade listesinden bir kayıt seçin.';refundContent.hidden=true;refundProvenance.replaceChildren(); };
   const renderRefundTrace = payload => {
     const refund=payload?.refundEvent, original=payload?.originalRoyaltyAccrual, reversal=payload?.reversalAccrual, periods=payload?.periodProvenance, collection=payload?.originalCollection, credit=payload?.creditOpenItem;
     if (!refund || !uuidPattern.test(refund.refundId || '') || !original || !uuidPattern.test(original.accrualId || '') || !reversal || !uuidPattern.test(reversal.accrualId || '') || !periods || !uuidPattern.test(periods.originalPeriodId || '') || !uuidPattern.test(periods.postingPeriodId || '') || refund.currency!==original.currency || refund.currency!==reversal.currency || !collection || collection.currency!==refund.currency || !credit || credit.currency!==refund.currency) throw new Error('INVALID_FINANCE_REFUND_TRACE');
     refundGross.textContent=amount(refund.refundedGrossAmount,refund.currency); refundId.textContent=refund.refundId;
     refundOriginal.textContent=amount(original.grossAmount,original.currency); refundOriginalPeriod.textContent=`Orijinal dönem: ${periods.originalPeriodId}`;
-    refundReversal.textContent=amount(reversal.grossAmount,reversal.currency); refundPostingPeriod.textContent=`Kayıt dönemi: ${periods.postingPeriodId}`;
+    refundReversal.textContent=amount(String(reversal.grossAmount).replace(/^-/,''),reversal.currency); refundPostingPeriod.textContent=`Kayıt dönemi: ${periods.postingPeriodId}`;
     const items=[`Tahsilat: ${amount(collection.collectedGrossAmount,collection.currency)}`,`Orijinal tahakkuk: ${original.accrualId}`,`Ters tahakkuk: ${reversal.accrualId}`,`Alacak açık kalemi: ${credit.openItemId}`];
     refundProvenance.replaceChildren(...items.map(value=>{const span=document.createElement('span');span.textContent=value;return span;}));
     setRefundState('READY');
@@ -468,12 +494,14 @@
     statementStatus.disabled = !ready;
     paymentsRefreshButton.disabled = !ready;
     paymentsStatus.disabled = !ready;
+    refundsRefreshButton.disabled = !ready;
     contractRefreshButton.disabled = !ready;
     contractRuleStatus.disabled = !ready;
     contextStatus.textContent = ready ? 'KAPSAM HAZIR · SUNUCU ONAYI GEREKİR' : 'KAPSAM BEKLENİYOR';
     contextStatus.classList.toggle('is-ready', Boolean(ready));
     resetStatement(ready ? 'Henüz yetkili ekstre isteği yapılmadı.' : 'Kapsam ve yetkili bağlantı bekleniyor.');
     resetPayments(ready ? 'Henüz yetkili ödeme isteği yapılmadı.' : 'Kapsam ve yetkili bağlantı bekleniyor.');
+    resetRefunds(ready ? 'Henüz yetkili iade isteği yapılmadı.' : 'Kapsam ve yetkili bağlantı bekleniyor.');
     resetContract(ready ? 'Henüz yetkili sözleşme isteği yapılmadı.' : 'Kapsam ve yetkili bağlantı bekleniyor.');
     resetCurrentPeriod(ready ? 'Yetkili veri getirildiğinde şube dönemi burada gösterilir.' : 'Kapsam ve yetkili dönem verisi bekleniyor.');
     if (!ready) setConnectionState('UNCONFIGURED', 'ERP kimlik köprüsünden tüzel kişi, bayi hesabı ve şube kapsamı bekleniyor.');
@@ -505,16 +533,17 @@
       window.dispatchEvent(new CustomEvent('ototr:finance-accrual-requested',{detail:{accrualId:accrualButton.dataset.financeAccrualId}}));
     }
     const refundButton=event.target.closest('[data-finance-refund-accrual-id]');
-    if (refundButton) window.dispatchEvent(new CustomEvent('ototr:finance-refund-requested',{detail:{reversalAccrualId:refundButton.dataset.financeRefundAccrualId}}));
+    if (refundButton) { selectScreen(screens.find(screen=>screen[0]==='SCR-17')); window.dispatchEvent(new CustomEvent('ototr:finance-refund-requested',{detail:{reversalAccrualId:refundButton.dataset.financeRefundAccrualId}})); }
   });
   paymentsBody.addEventListener('click', event => {
     const button=event.target.closest('[data-finance-payment-id]');
     if(button) window.dispatchEvent(new CustomEvent('ototr:finance-payment-requested',{detail:{paymentId:button.dataset.financePaymentId}}));
   });
+  refundsBody.addEventListener('click',event=>{const button=event.target.closest('[data-finance-refund-accrual-id]');if(button) window.dispatchEvent(new CustomEvent('ototr:finance-refund-requested',{detail:{reversalAccrualId:button.dataset.financeRefundAccrualId}}));});
   paymentCloseButton.addEventListener('click', resetPayment);
   accrualCloseButton.addEventListener('click', resetAccrual);
   refundCloseButton.addEventListener('click',resetRefund);
 
   selectScreen(screens[0]);
-  window.OTOTRFinanceUI = Object.freeze({setConnectionState, setScopeContext, renderSummary, setStatementState, renderStatementPage, resetStatement, getStatementFilters, setContractState, renderCurrentContract, resetContract, setContractRulesState, renderContractRulesPage, resetContractRules, setContractRulesVersion, getContractRulesVersion, getContractRuleFilters, setPaymentsState, renderPaymentsPage, resetPayments, getPaymentFilters, setPaymentState, renderPaymentDetail, resetPayment, setAccrualState, renderAccrualDetail, resetAccrual, setRefundState, renderRefundTrace, resetRefund, renderCurrentPeriod, resetCurrentPeriod, connectButton, statementRefreshButton, statementMoreButton, statementStatus, contractRefreshButton, contractMoreButton, contractRuleStatus, paymentsRefreshButton, paymentsMoreButton, paymentsStatus});
+  window.OTOTRFinanceUI = Object.freeze({setConnectionState, setScopeContext, renderSummary, setStatementState, renderStatementPage, resetStatement, getStatementFilters, setContractState, renderCurrentContract, resetContract, setContractRulesState, renderContractRulesPage, resetContractRules, setContractRulesVersion, getContractRulesVersion, getContractRuleFilters, setPaymentsState, renderPaymentsPage, resetPayments, getPaymentFilters, setRefundsState,renderRefundsPage,resetRefunds,getRefundFilters,setPaymentState, renderPaymentDetail, resetPayment, setAccrualState, renderAccrualDetail, resetAccrual, setRefundState, renderRefundTrace, resetRefund, renderCurrentPeriod, resetCurrentPeriod, connectButton, statementRefreshButton, statementMoreButton, statementStatus, contractRefreshButton, contractMoreButton, contractRuleStatus, paymentsRefreshButton, paymentsMoreButton, paymentsStatus,refundsRefreshButton,refundsMoreButton});
 })();

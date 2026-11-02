@@ -26,7 +26,7 @@
     {"id":"SCR-14","name":"Entegrasyon İzleme ve Hata Kuyruğu","status":"SHELL_ONLY","operations":[],"evidence":[],"remaining":["Hata kuyruğu listesi","Maskeli detay","Retry/çöz/ata UI","Gecikme alarmları"]},
     {"id":"SCR-15","name":"Onay İş Listesi","status":"SHELL_ONLY","operations":[],"evidence":[],"remaining":["Birleşik onay projectionı","Risk/tutar sıralaması","Kanıt erişimi","Maker-checker karar UI"]},
     {"id":"SCR-16","name":"Audit ve Değişiklik İzi","status":"SHELL_ONLY","operations":[],"evidence":[],"remaining":["Audit listesi","Correlation zinciri","Bütünlük doğrulama","Yetkili export"]},
-    {"id":"SCR-17","name":"Müşteri İadeleri ve Royalty Ters Kayıtları","status":"SHELL_ONLY","operations":[],"evidence":[],"remaining":["İade listesi","Bağımsız detay rotası","Tahsilat/tahakkuk derin bağlantıları","İtiraz aksiyonu"]}
+    {"id":"SCR-17","name":"Müşteri İadeleri ve Royalty Ters Kayıtları","status":"PARTIAL_LIVE_READ","operations":["listRoyaltyRefunds","getRoyaltyRefundTrace"],"evidence":["apps/admin/prototype/tools/test-finance-statement-browser.mjs","apps/admin/prototype/tools/test-finance-api-bridge.mjs","apps/admin/prototype/tools/test-finance-read-edge.mjs"],"remaining":["Tahsilat/tahakkuk derin bağlantıları","İtiraz aksiyonu","Ters kayıt yazma yetkisi"]}
   ],
   "crossScreenCapabilities": [
     {"id":"CAP-01","name":"Ekstre satırından ödeme ve tahsis detayı","hostScreen":"SCR-07","status":"LIVE_READ_VERIFIED","operation":"getPayment"},

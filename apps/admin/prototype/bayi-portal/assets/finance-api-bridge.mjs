@@ -4,6 +4,7 @@ const STATEMENT_OPERATION = 'getDealerStatement';
 const PAYMENTS_OPERATION = 'listPayments';
 const PAYMENT_OPERATION = 'getPayment';
 const ACCRUAL_OPERATION = 'getAccrualDetail';
+const REFUNDS_OPERATION = 'listRoyaltyRefunds';
 const REFUND_TRACE_OPERATION = 'getRoyaltyRefundTrace';
 const PERIOD_OPERATION = 'getFinancePeriod';
 const CURRENT_CONTRACT_OPERATION = 'getCurrentFranchiseContract';
@@ -113,6 +114,13 @@ export function createFinanceSummaryClient({getConfig, getAccessToken, fetchImpl
       const normalizedId = requiredUuid(reversalAccrualId, 'reversalAccrualId', 'VALIDATION_ERROR');
       return execute(rawScope, REFUND_TRACE_OPERATION, {}, {reversalAccrualId:normalizedId});
     },
+    async listRoyaltyRefunds(rawScope,{from,to,cursor,limit}={}) {
+      for(const [field,value] of [['from',from],['to',to]]) if(value!==undefined&&!/^\d{4}-\d{2}-\d{2}$/.test(value)) throw new FinanceBridgeError('VALIDATION_ERROR',`${field} YYYY-MM-DD biçiminde olmalıdır.`);
+      if(from&&to&&from>to) throw new FinanceBridgeError('VALIDATION_ERROR','İade tarih aralığı geçersiz.');
+      if(cursor!==undefined&&(typeof cursor!=='string'||!cursor.length||cursor.length>512)) throw new FinanceBridgeError('VALIDATION_ERROR','İade cursor değeri geçersiz.');
+      if(limit!==undefined&&(!Number.isInteger(limit)||limit<1||limit>200)) throw new FinanceBridgeError('VALIDATION_ERROR','İade limit değeri 1–200 arasında olmalıdır.');
+      return execute(rawScope,REFUNDS_OPERATION,{from,to,cursor,limit});
+    },
     async getCurrentFinancePeriod(rawScope,{asOf}={}) {
       if (typeof asOf!=='string' || !/^\d{4}-\d{2}-\d{2}$/.test(asOf)) throw new FinanceBridgeError('VALIDATION_ERROR','asOf YYYY-MM-DD biçiminde zorunludur.');
       return execute(rawScope,PERIOD_OPERATION,{asOf},{},true);
@@ -194,6 +202,11 @@ if (auth && ui) {
       if (!scope) throw new FinanceBridgeError('FINANCE_SCOPE_UNAVAILABLE', 'ERP finans kapsamı henüz sağlanmadı.');
       return client.getRoyaltyRefundTrace(scope, reversalAccrualId);
     },
+    async listRoyaltyRefunds(options={}) {
+      const scope=configuredScope||refreshContext();
+      if(!scope) throw new FinanceBridgeError('FINANCE_SCOPE_UNAVAILABLE','ERP finans kapsamı henüz sağlanmadı.');
+      return client.listRoyaltyRefunds(scope,options);
+    },
     async getCurrentFinancePeriod(options={}) {
       const scope=configuredScope||refreshContext();
       if(!scope) throw new FinanceBridgeError('FINANCE_SCOPE_UNAVAILABLE','ERP finans kapsamı henüz sağlanmadı.');
@@ -237,6 +250,12 @@ if (auth && ui) {
       ui.setRefundState?.('LOADING','Orijinal tahsilat, royalty ve dönem provenance yükleniyor…');
       try { const result=await api.getRoyaltyRefundTrace(reversalAccrualId); ui.renderRefundTrace?.(result.data); return result; }
       catch(error){ ui.setRefundState?.('ERROR',error instanceof FinanceBridgeError?error.message:'Royalty iade izi alınamadı.'); throw error; }
+    },
+    async loadRoyaltyRefunds({append=false}={}) {
+      const cursor=append?ui.refundsMoreButton?.dataset?.cursor:undefined;
+      ui.setRefundsState?.('LOADING',append?'İade devam sayfası yükleniyor…':'Yetkili iade listesi yükleniyor…');
+      try { const result=await api.listRoyaltyRefunds({...ui.getRefundFilters?.(),cursor}); ui.renderRefundsPage?.(result.data,{append}); return result; }
+      catch(error){ ui.setRefundsState?.('ERROR',error instanceof FinanceBridgeError?error.message:'İade listesi alınamadı.'); throw error; }
     },
     async loadAccrualDetail(accrualId) {
       ui.setAccrualState?.('LOADING', 'Kaynak olay, hesaplama ve çift taraflı fiş yükleniyor…');
@@ -296,6 +315,8 @@ if (auth && ui) {
   ui.paymentsRefreshButton?.addEventListener('click', () => { void api.loadPayments().catch(() => {}); });
   ui.paymentsMoreButton?.addEventListener('click', () => { void api.loadPayments({append:true}).catch(() => {}); });
   ui.paymentsStatus?.addEventListener('change', () => { ui.resetPayments?.('Filtre değişti. Güncel ödemeleri getirin.'); });
+  ui.refundsRefreshButton?.addEventListener('click',()=>{void api.loadRoyaltyRefunds().catch(()=>{});});
+  ui.refundsMoreButton?.addEventListener('click',()=>{void api.loadRoyaltyRefunds({append:true}).catch(()=>{});});
   ui.contractRefreshButton?.addEventListener('click',()=>{void api.loadContractWorkspace().catch(()=>{});});
   ui.contractMoreButton?.addEventListener('click',()=>{void api.loadContractWorkspace({append:true}).catch(()=>{});});
   ui.contractRuleStatus?.addEventListener('change',()=>{ui.resetContractRules?.('Filtre değişti. Kuralları yeniden getirin.');});

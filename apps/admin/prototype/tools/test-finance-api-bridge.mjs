@@ -40,6 +40,8 @@ assert.deepEqual(JSON.parse(captured.options.body), { operationId:'getAccrualDet
 const reversalAccrualId = '77777777-7777-4777-8777-777777777777';
 await client.getRoyaltyRefundTrace(scope,reversalAccrualId);
 assert.deepEqual(JSON.parse(captured.options.body), { operationId:'getRoyaltyRefundTrace',scope,pathParams:{dealerAccountId:scope.dealerAccountId,reversalAccrualId},query:{} });
+await client.listRoyaltyRefunds(scope,{from:'2026-11-01',to:'2026-11-30',cursor:'refund-cursor',limit:25});
+assert.deepEqual(JSON.parse(captured.options.body),{operationId:'listRoyaltyRefunds',scope,pathParams:{dealerAccountId:scope.dealerAccountId},query:{from:'2026-11-01',to:'2026-11-30',cursor:'refund-cursor',limit:25}});
 await client.getCurrentFinancePeriod(scope,{asOf:'2026-11-03'});
 assert.deepEqual(JSON.parse(captured.options.body),{operationId:'getFinancePeriod',scope,pathParams:{dealerAccountId:scope.dealerAccountId},query:{asOf:'2026-11-03'}});
 await client.getCurrentFranchiseContract(scope,{asOf:'2026-11-03'});
@@ -68,6 +70,7 @@ await rejectsWithCode(() => client.listPayments(scope,{from:'2026-11-30',to:'202
 await rejectsWithCode(() => client.getPayment(scope, 'invalid'), 'VALIDATION_ERROR');
 await rejectsWithCode(() => client.getAccrualDetail(scope, 'invalid'), 'VALIDATION_ERROR');
 await rejectsWithCode(() => client.getRoyaltyRefundTrace(scope,'invalid'),'VALIDATION_ERROR');
+await rejectsWithCode(()=>client.listRoyaltyRefunds(scope,{from:'2026-11-30',to:'2026-11-01'}),'VALIDATION_ERROR');
 await rejectsWithCode(()=>client.getCurrentFinancePeriod(scope,{}),'VALIDATION_ERROR');
 await rejectsWithCode(()=>client.getCurrentFranchiseContract(scope,{}),'VALIDATION_ERROR');
 await rejectsWithCode(()=>client.listContractFeeRules(scope,'bad',{}),'VALIDATION_ERROR');
@@ -102,6 +105,7 @@ assert.equal(typeof globalThis.OTOTRFinance.listPayments, 'function');
 assert.equal(typeof globalThis.OTOTRFinance.getPayment, 'function');
 assert.equal(typeof globalThis.OTOTRFinance.getAccrualDetail, 'function');
 assert.equal(typeof globalThis.OTOTRFinance.getRoyaltyRefundTrace,'function');
+assert.equal(typeof globalThis.OTOTRFinance.listRoyaltyRefunds,'function');
 assert.equal(typeof globalThis.OTOTRFinance.getCurrentFinancePeriod,'function');
 assert.equal(typeof globalThis.OTOTRFinance.getCurrentFranchiseContract,'function');
 assert.equal(typeof globalThis.OTOTRFinance.listContractFeeRules,'function');
