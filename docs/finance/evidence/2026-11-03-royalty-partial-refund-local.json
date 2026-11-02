@@ -38,6 +38,7 @@
     "reversal journal references the original journal",
     "original locked period and current open posting period are both preserved",
     "authorized refund trace projection preserves collection, original accrual, reversal and both period references",
+    "dealer statement reversal accrual id resolves the same refund trace without assuming source event id equals refund id",
     "original and reversal journal entries are balanced",
     "same refund and hashes return REPLAY",
     "idempotent replay creates no duplicate reversal",

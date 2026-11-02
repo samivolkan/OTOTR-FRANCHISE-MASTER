@@ -47,6 +47,7 @@ declare
   v_refund_context jsonb;
   v_refund_result jsonb;
   v_trace jsonb;
+  v_trace_by_accrual jsonb;
   v_replay jsonb;
   v_original_accrual uuid;
   v_original_journal uuid;
@@ -318,6 +319,10 @@ begin
      or v_trace#>>'{periodProvenance,originalPeriodId}'<>v_oct_branch_period::text
      or v_trace#>>'{periodProvenance,postingPeriodId}'<>v_nov_branch_period::text then
     raise exception 'royalty refund trace projection mismatch: %',v_trace;
+  end if;
+  v_trace_by_accrual:=finance_api.get_royalty_refund_trace_by_accrual(v_hq,v_account,v_branch,v_reversal_accrual);
+  if v_trace_by_accrual is distinct from v_trace then
+    raise exception 'refund trace by reversal accrual mismatch: %',v_trace_by_accrual;
   end if;
 
   raise notice 'ROYALTY E2E PASSED: collection=1180.00 royalty=118.00 refund=590.00 reversal=59.00 net=59.00';
