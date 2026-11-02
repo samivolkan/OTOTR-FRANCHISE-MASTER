@@ -39,6 +39,8 @@ assert.match(js, /selectScreen\(screens\[0\]\)/);
 assert.match(js, /renderStatementPage/);
 assert.match(js, /INVALID_FINANCE_STATEMENT_ITEM/);
 assert.match(js, /statement\.hidden = !statementScreenIds\.has\(id\)/);
+assert.match(js, /accrualDetail\.hidden = id !== 'SCR-06'/);
+assert.match(js, /selectScreen\(screens\.find\(screen => screen\[0\] === 'SCR-06'\)\)/);
 assert.match(js, /renderPaymentDetail/);
 assert.match(js, /ototr:finance-payment-requested/);
 assert.match(js, /renderAccrualDetail/);

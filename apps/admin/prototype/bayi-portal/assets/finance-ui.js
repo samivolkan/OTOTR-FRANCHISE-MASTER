@@ -97,6 +97,7 @@
   const periodCheckHash = root.querySelector('[data-finance-period-check-hash]');
   let scopeReady = false;
   let statementRowCount = 0;
+  let activeScreenId = 'SCR-01';
   const statementScreenIds = new Set('SCR-05,SCR-07'.split(','));
 
   const renderList = (target, items) => {
@@ -109,6 +110,7 @@
 
   const selectScreen = screen => {
     const [id, name, screenSections, screenActions] = screen;
+    activeScreenId = id;
     nav.querySelectorAll('.finance-screen-button').forEach(button => {
       const selected = button.dataset.financeScreen === id;
       button.classList.toggle('is-active', selected);
@@ -124,6 +126,8 @@
     statementSubtitle.textContent = id === 'SCR-05'
       ? 'Kaynak olay, bedel kodu, brüt tutar, açık bakiye ve fatura bağlantıları şube kapsamında gösterilir.'
       : 'Yalnız seçili tüzel kişi, bayi hesabı ve şube kapsamındaki doğrulanmış hareketler.';
+    accrualDetail.hidden = id !== 'SCR-06';
+    if (id === 'SCR-06' && !accrualDetail.dataset.state) setAccrualState('EMPTY', 'Tahakkuk listesinden bir kayıt seçin.');
     periodDetail.hidden = id !== 'SCR-12';
   };
 
@@ -245,7 +249,14 @@
     accrualState.textContent = message || ({EMPTY:'Tahakkuk seçilmedi.',LOADING:'Yetkili tahakkuk izi yükleniyor…',READY:'Tahakkuk izi yüklendi.',ERROR:'Tahakkuk izi yüklenemedi.'})[next];
     accrualContent.hidden = next !== 'READY';
   };
-  const resetAccrual = () => { accrualDetail.hidden = true; accrualContent.hidden = true; accrualLines.replaceChildren(); };
+  const resetAccrual = () => {
+    accrualDetail.dataset.state = 'EMPTY';
+    accrualDetail.hidden = activeScreenId !== 'SCR-06';
+    accrualState.hidden = false;
+    accrualState.textContent = 'Tahakkuk listesinden bir kayıt seçin.';
+    accrualContent.hidden = true;
+    accrualLines.replaceChildren();
+  };
   const renderAccrualDetail = payload => {
     const calculation = payload?.calculation;
     const journal = payload?.journalEntry;
@@ -360,7 +371,10 @@
     const button = event.target.closest('[data-finance-payment-id]');
     if (button) window.dispatchEvent(new CustomEvent('ototr:finance-payment-requested',{detail:{paymentId:button.dataset.financePaymentId}}));
     const accrualButton = event.target.closest('[data-finance-accrual-id]');
-    if (accrualButton) window.dispatchEvent(new CustomEvent('ototr:finance-accrual-requested',{detail:{accrualId:accrualButton.dataset.financeAccrualId}}));
+    if (accrualButton) {
+      selectScreen(screens.find(screen => screen[0] === 'SCR-06'));
+      window.dispatchEvent(new CustomEvent('ototr:finance-accrual-requested',{detail:{accrualId:accrualButton.dataset.financeAccrualId}}));
+    }
     const refundButton=event.target.closest('[data-finance-refund-accrual-id]');
     if (refundButton) window.dispatchEvent(new CustomEvent('ototr:finance-refund-requested',{detail:{reversalAccrualId:refundButton.dataset.financeRefundAccrualId}}));
   });

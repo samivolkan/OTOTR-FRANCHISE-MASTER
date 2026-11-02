@@ -148,12 +148,18 @@ try {
   await page.click('[data-finance-payment-close]');
   assert.equal(await page.locator('[data-finance-payment-detail]').isVisible(), false);
   await page.click('[data-finance-accrual-id]');
+  assert.equal(await page.locator('[data-finance-screen-code]').first().innerText(), 'SCR-06');
+  assert.equal(await page.locator('[data-finance-statement]').isVisible(), false);
   assert.equal(await page.locator('[data-finance-accrual-detail]').getAttribute('data-state'), 'LOADING');
   await page.waitForFunction(() => document.querySelector('[data-finance-accrual-detail]')?.dataset.state === 'READY');
   assert.match(await page.locator('[data-finance-accrual-detail]').innerText(), /120,00000000 TRY/);
   assert.match(await page.locator('[data-finance-accrual-lines]').innerText(), /Royalty geliri/);
   assert.equal(requests.at(-1).operationId, 'getAccrualDetail');
   await page.click('[data-finance-accrual-close]');
+  assert.equal(await page.locator('[data-finance-accrual-detail]').isVisible(), true);
+  assert.equal(await page.locator('[data-finance-accrual-detail]').getAttribute('data-state'), 'EMPTY');
+  assert.match(await page.locator('[data-finance-accrual-state]').innerText(), /Tahakkuk listesinden/);
+  await page.click('[data-finance-screen="SCR-07"]');
   assert.equal(await page.locator('[data-finance-accrual-detail]').isVisible(), false);
 
   await page.click('[data-finance-statement-more]');
