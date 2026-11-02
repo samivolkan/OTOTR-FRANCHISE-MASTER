@@ -1,0 +1,56 @@
+{
+  "evidenceId": "FIN-E2E-ROYALTY-PARTIAL-REFUND-LOCAL-20261103",
+  "status": "PASSED",
+  "evidenceType": "LOCAL_POSTGRES_TRANSACTION_TEST",
+  "environment": {
+    "target": "ototr-local",
+    "database": "Supabase PostgreSQL 17",
+    "productionDataUsed": false,
+    "stagingMutation": false,
+    "productionMutation": false
+  },
+  "businessRule": {
+    "royaltyBasis": "VAT_INCLUDED_SETTLED_COLLECTION",
+    "partialCollectionPolicy": "EACH_SETTLEMENT",
+    "refundPolicy": "AUTOMATIC_PROPORTIONAL_REVERSAL",
+    "closedPeriodPolicy": "POST_TO_CURRENT_OPEN_PERIOD_PRESERVE_ORIGINAL_REFERENCES"
+  },
+  "scenario": {
+    "currency": "TRY",
+    "settledPartialCollectionGross": "1180.00000000",
+    "royaltyRate": "0.10000000",
+    "royaltyGross": "118.00000000",
+    "royaltyNet": "98.33333333",
+    "royaltyTax": "19.66666667",
+    "settledRefundGross": "590.00000000",
+    "reversalGross": "59.00000000",
+    "reversalNet": "49.16666667",
+    "reversalTax": "9.83333333",
+    "remainingRoyaltyGross": "59.00000000",
+    "originalPeriodStatusAtRefund": "LOCKED",
+    "refundPostingPeriodStatus": "OPEN"
+  },
+  "assertions": [
+    "original royalty accrual is POSTED",
+    "original DEBIT open item equals royalty gross",
+    "refund accrual is negative and references the original accrual",
+    "refund CREDIT open item equals proportional reversal gross",
+    "reversal journal references the original journal",
+    "original locked period and current open posting period are both preserved",
+    "original and reversal journal entries are balanced",
+    "same refund and hashes return REPLAY",
+    "idempotent replay creates no duplicate reversal",
+    "transaction rollback leaves no synthetic finance row"
+  ],
+  "execution": {
+    "command": "pwsh -NoProfile -File scripts/Test-FinanceRoyaltyE2E.ps1",
+    "sql": "supabase/tests/finance_royalty_partial_collection_refund_e2e.sql",
+    "result": "FINANCE ROYALTY E2E: PASSED",
+    "implementationCommit": "40a42ef"
+  },
+  "limitations": {
+    "uatSignoff": "NOT_RUN",
+    "stagingRun": "NOT_RUN",
+    "preProductionDecision": "NO_GO"
+  }
+}
