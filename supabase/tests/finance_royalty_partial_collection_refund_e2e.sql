@@ -48,6 +48,7 @@ declare
   v_refund_result jsonb;
   v_trace jsonb;
   v_trace_by_accrual jsonb;
+  v_refund_list jsonb;
   v_replay jsonb;
   v_original_accrual uuid;
   v_original_journal uuid;
@@ -223,7 +224,8 @@ begin
     'CUSTOMER_REFUND',v_refund_event::text,1,
     jsonb_build_object(
       'refundId',v_refund_event,'originalCollectionId',v_collection_id,
-      'branchId',v_branch,'currency','TRY','refundedGrossAmount','590.00000000','settlementStatus','SETTLED'
+      'branchId',v_branch,'currency','TRY','refundedGrossAmount','590.00000000',
+      'settlementStatus','SETTLED','refundStatus','SETTLED'
     ),repeat('c',64),'RECEIVED',v_actor,v_refund_corr
   );
 
@@ -313,16 +315,31 @@ begin
   if v_count <> 1 then raise exception 'idempotent replay created duplicate reversal'; end if;
 
   v_trace:=finance_api.get_royalty_refund_trace(v_hq,v_account,v_branch,v_refund_event);
-  if v_trace#>>'{refundEvent,refundedGrossAmount}'<>'590.00000000'
-     or v_trace#>>'{originalRoyaltyAccrual,grossAmount}'<>'118.00000000'
-     or v_trace#>>'{reversalAccrual,grossAmount}'<>'59.00000000'
-     or v_trace#>>'{periodProvenance,originalPeriodId}'<>v_oct_branch_period::text
-     or v_trace#>>'{periodProvenance,postingPeriodId}'<>v_nov_branch_period::text then
+  if v_trace#>>'{refundEvent,refundedGrossAmount}' is distinct from '590.00000000'
+     or v_trace#>>'{originalRoyaltyAccrual,grossAmount}' is distinct from '118.00000000'
+     or v_trace#>>'{reversalAccrual,grossAmount}' is distinct from '-59.00000000'
+     or v_trace#>>'{periodProvenance,originalPeriodId}' is distinct from v_oct_branch_period::text
+     or v_trace#>>'{periodProvenance,postingPeriodId}' is distinct from v_nov_branch_period::text then
     raise exception 'royalty refund trace projection mismatch: %',v_trace;
   end if;
   v_trace_by_accrual:=finance_api.get_royalty_refund_trace_by_accrual(v_hq,v_account,v_branch,v_reversal_accrual);
   if v_trace_by_accrual is distinct from v_trace then
     raise exception 'refund trace by reversal accrual mismatch: %',v_trace_by_accrual;
+  end if;
+
+  v_refund_list:=finance_api.list_royalty_refunds(
+    v_hq,v_account,v_branch,date '2026-11-01',date '2026-11-30',null,50
+  );
+  if pg_catalog.jsonb_array_length(v_refund_list->'items')<>1
+     or v_refund_list#>>'{items,0,reversalAccrualId}'<>v_reversal_accrual::text
+     or v_refund_list#>>'{items,0,refundId}'<>v_refund_event::text
+     or v_refund_list#>>'{items,0,refundedGrossAmount}'<>'590.00000000'
+     or v_refund_list#>>'{items,0,originalRoyaltyAmount}'<>'118.00000000'
+     or v_refund_list#>>'{items,0,royaltyReversalAmount}'<>'59.00000000'
+     or v_refund_list#>>'{items,0,originalPeriodId}'<>v_oct_branch_period::text
+     or v_refund_list#>>'{items,0,postingPeriodId}'<>v_nov_branch_period::text
+     or (v_refund_list->>'hasMore')::boolean then
+    raise exception 'royalty refund list projection mismatch: %',v_refund_list;
   end if;
 
   raise notice 'ROYALTY E2E PASSED: collection=1180.00 royalty=118.00 refund=590.00 reversal=59.00 net=59.00';
