@@ -19,9 +19,11 @@ assert.doesNotMatch(financeAuthBlock, /dealerSupabaseActiveSession|localStorage|
 assert.match(html, /data-finance-state/);
 assert.match(html, /data-finance-connect disabled/);
 assert.match(html, /data-finance-context-status/);
+for (const hook of ['statement','statement-status','statement-refresh','statement-state','statement-table','statement-body','statement-count','statement-more']) assert.match(html, new RegExp(`data-finance-${hook}`));
 for (const kpi of ['accrued', 'invoiced', 'collected', 'open']) assert.match(html, new RegExp(`data-finance-kpi="${kpi}"`));
 assert.match(css, /\.finance-workspace/);
 assert.match(css, /@media\(max-width:720px\)/);
+assert.match(css, /\.finance-statement-table/);
 
 const ids = [...js.matchAll(/\['(SCR-\d{2})','/g)].map(match => match[1]);
 assert.equal(ids.length, 17);
@@ -30,11 +32,15 @@ assert.deepEqual(ids, Array.from({ length: 17 }, (_, index) => `SCR-${String(ind
 assert.doesNotMatch(js, /localStorage|sessionStorage|Math\.random|ROYALTY_RATE|fetch\s*\(/);
 assert.match(js, /demo veya tahmini tutar gösterilmiyor/);
 assert.match(js, /selectScreen\(screens\[0\]\)/);
+assert.match(js, /renderStatementPage/);
+assert.match(js, /INVALID_FINANCE_STATEMENT_ITEM/);
+assert.match(js, /statement\.hidden = id !== 'SCR-07'/);
 assert.doesNotMatch(bridge, /localStorage|sessionStorage|service_role|sb_secret_|DEMO|Math\.random/);
 assert.match(bridge, /sb_publishable_/);
 assert.match(bridge, /execute\(rawScope, READ_OPERATION/);
 assert.match(bridge, /STATEMENT_OPERATION/);
 assert.match(bridge, /getDealerStatement/);
+assert.match(bridge, /loadDealerStatement/);
 assert.match(bridge, /globalThis\.OTOTRFinance/);
 assert.match(bridge, /connectConfiguredScope/);
 assert.match(bridge, /OTOTR_FINANCE_CONTEXT/);

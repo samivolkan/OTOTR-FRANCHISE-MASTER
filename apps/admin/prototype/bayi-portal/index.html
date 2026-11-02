@@ -1325,6 +1325,39 @@ button,input,select,textarea{font:inherit}.app{min-height:100vh;display:grid;gri
               <article><span>Tahsil edilen</span><b data-finance-kpi="collected">—</b><small>Doğrulanmış ödeme verisi yok</small></article>
               <article><span>Açık / geciken</span><b data-finance-kpi="open">—</b><small data-finance-overdue>Açık kalem projectionı yok</small></article>
             </section>
+            <section class="finance-statement" data-finance-statement hidden aria-labelledby="financeStatementTitle">
+              <div class="finance-statement-head">
+                <div>
+                  <span class="finance-screen-code">YETKİLİ PROJECTION</span>
+                  <h3 id="financeStatementTitle">Bayi Ekstresi</h3>
+                  <p>Yalnız seçili tüzel kişi, bayi hesabı ve şube kapsamındaki doğrulanmış hareketler.</p>
+                </div>
+                <div class="finance-statement-controls">
+                  <label>Durum
+                    <select data-finance-statement-status disabled>
+                      <option value="">Tümü</option>
+                      <option value="OPEN">Açık</option>
+                      <option value="PARTIALLY_ALLOCATED">Kısmi tahsis</option>
+                      <option value="CLOSED">Kapalı</option>
+                      <option value="DISPUTED">İtirazlı</option>
+                      <option value="REVERSED">Ters kayıt</option>
+                    </select>
+                  </label>
+                  <button class="btn" type="button" data-finance-statement-refresh disabled>Ekstreyi Getir</button>
+                </div>
+              </div>
+              <div class="finance-statement-state" data-finance-statement-state role="status">Kapsam ve yetkili bağlantı bekleniyor.</div>
+              <div class="finance-statement-table-wrap" data-finance-statement-table hidden>
+                <table class="finance-statement-table">
+                  <thead><tr><th>Tarih</th><th>Bedel / kaynak</th><th>Brüt</th><th>Tahsis</th><th>Açık</th><th>Durum</th></tr></thead>
+                  <tbody data-finance-statement-body></tbody>
+                </table>
+              </div>
+              <div class="finance-statement-footer">
+                <span data-finance-statement-count>0 kayıt</span>
+                <button class="btn" type="button" data-finance-statement-more hidden disabled>Daha Fazla</button>
+              </div>
+            </section>
             <section class="finance-screen-contract">
               <div class="finance-contract-card">
                 <h3>Ekran bölümleri</h3>

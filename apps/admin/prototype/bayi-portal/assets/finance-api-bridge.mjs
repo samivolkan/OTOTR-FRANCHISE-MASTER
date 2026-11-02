@@ -128,8 +128,24 @@ if (auth && ui) {
       if (!scope) throw new FinanceBridgeError('FINANCE_SCOPE_UNAVAILABLE', 'ERP finans kapsamı henüz sağlanmadı.');
       return client.getDealerStatement(scope, options);
     },
+    async loadDealerStatement({append = false} = {}) {
+      const cursor = append ? ui.statementMoreButton?.dataset?.cursor : undefined;
+      const filters = ui.getStatementFilters?.() || {};
+      ui.setStatementState?.('LOADING', append ? 'Ekstre devam sayfası yükleniyor…' : 'Yetkili ekstre yükleniyor…');
+      try {
+        const result = await api.getDealerStatement({...filters, cursor});
+        ui.renderStatementPage?.(result.data, {append});
+        return result;
+      } catch (error) {
+        ui.setStatementState?.('ERROR', error instanceof FinanceBridgeError ? error.message : 'Ekstre servisine ulaşılamadı.');
+        throw error;
+      }
+    },
   };
   globalThis.OTOTRFinance = Object.freeze(api);
   refreshContext();
   ui.connectButton?.addEventListener('click', () => { void api.connectConfiguredScope().catch(() => {}); });
+  ui.statementRefreshButton?.addEventListener('click', () => { void api.loadDealerStatement().catch(() => {}); });
+  ui.statementMoreButton?.addEventListener('click', () => { void api.loadDealerStatement({append:true}).catch(() => {}); });
+  ui.statementStatus?.addEventListener('change', () => { ui.resetStatement?.('Filtre değişti. Güncel ekstreyi getirin.'); });
 }

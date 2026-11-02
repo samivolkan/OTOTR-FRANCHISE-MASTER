@@ -42,6 +42,16 @@
   const overdue = root.querySelector('[data-finance-overdue]');
   const connectButton = root.querySelector('[data-finance-connect]');
   const contextStatus = root.querySelector('[data-finance-context-status]');
+  const statement = root.querySelector('[data-finance-statement]');
+  const statementStatus = root.querySelector('[data-finance-statement-status]');
+  const statementRefreshButton = root.querySelector('[data-finance-statement-refresh]');
+  const statementMoreButton = root.querySelector('[data-finance-statement-more]');
+  const statementState = root.querySelector('[data-finance-statement-state]');
+  const statementTable = root.querySelector('[data-finance-statement-table]');
+  const statementBody = root.querySelector('[data-finance-statement-body]');
+  const statementCount = root.querySelector('[data-finance-statement-count]');
+  let scopeReady = false;
+  let statementRowCount = 0;
 
   const renderList = (target, items) => {
     target.replaceChildren(...items.map(item => {
@@ -63,6 +73,7 @@
     description.textContent = 'Yetkili finans API bağlantısı bekleniyor; demo veya tahmini tutar gösterilmiyor.';
     renderList(sections, screenSections);
     renderList(actions, screenActions);
+    statement.hidden = id !== 'SCR-07';
   };
 
   const canonicalDecimal = value => {
@@ -76,6 +87,60 @@
     if (!breakdown || typeof breakdown !== 'object' || typeof breakdown.grossAmount !== 'string' || !/^[A-Z]{3}$/.test(breakdown.currency || '')) throw new Error('INVALID_FINANCE_MONEY');
     return `${canonicalDecimal(breakdown.grossAmount)} ${breakdown.currency}`;
   };
+
+  const amount = (value, currency) => {
+    if (typeof value !== 'string' || !/^[A-Z]{3}$/.test(currency || '')) throw new Error('INVALID_FINANCE_MONEY');
+    return `${canonicalDecimal(value)} ${currency}`;
+  };
+
+  const statementStatuses = Object.freeze({OPEN:'Açık',PARTIALLY_ALLOCATED:'Kısmi tahsis',CLOSED:'Kapalı',DISPUTED:'İtirazlı',REVERSED:'Ters kayıt'});
+  const cell = text => {
+    const td = document.createElement('td');
+    td.textContent = text;
+    return td;
+  };
+  const setStatementState = (next, message) => {
+    if (!['EMPTY','LOADING','READY','ERROR'].includes(next)) throw new Error('INVALID_FINANCE_STATEMENT_STATE');
+    statement.dataset.state = next;
+    statementState.textContent = message || ({EMPTY:'Kayıt bulunamadı.',LOADING:'Yetkili ekstre yükleniyor…',READY:'Ekstre yüklendi.',ERROR:'Ekstre yüklenemedi.'})[next];
+    statementState.hidden = next === 'READY' && statementRowCount > 0;
+    statementRefreshButton.disabled = !scopeReady || next === 'LOADING';
+    statementStatus.disabled = !scopeReady || next === 'LOADING';
+    if (next === 'LOADING') statementMoreButton.disabled = true;
+  };
+  const resetStatement = message => {
+    statementBody.replaceChildren();
+    statementRowCount = 0;
+    statementTable.hidden = true;
+    statementMoreButton.hidden = true;
+    statementMoreButton.disabled = true;
+    statementCount.textContent = '0 kayıt';
+    setStatementState('EMPTY', message || 'Henüz yetkili ekstre isteği yapılmadı.');
+  };
+  const renderStatementPage = (payload, {append = false} = {}) => {
+    if (!payload || !Array.isArray(payload.items) || typeof payload.hasMore !== 'boolean' || !(payload.nextCursor === null || payload.nextCursor === undefined || typeof payload.nextCursor === 'string')) throw new Error('INVALID_FINANCE_STATEMENT');
+    const rows = payload.items.map(item => {
+      if (!item || typeof item !== 'object' || !statementStatuses[item.status] || !/^\d{4}-\d{2}-\d{2}$/.test(item.businessDate || '') || typeof item.feeCode !== 'string' || !item.feeCode || !item.totals || item.currencyCode !== item.totals.currency) throw new Error('INVALID_FINANCE_STATEMENT_ITEM');
+      const tr = document.createElement('tr');
+      const fee = document.createElement('div'); fee.className = 'finance-statement-fee'; fee.textContent = item.feeCode;
+      const source = document.createElement('small'); source.textContent = item.sourceReference || 'Kaynak referansı yok';
+      const descriptor = document.createElement('td'); descriptor.append(fee, source);
+      const statusCell = document.createElement('td');
+      const badge = document.createElement('span'); badge.className = `finance-statement-status is-${item.status.toLowerCase()}`; badge.textContent = statementStatuses[item.status]; statusCell.appendChild(badge);
+      tr.append(cell(new Intl.DateTimeFormat('tr-TR').format(new Date(`${item.businessDate}T00:00:00Z`))), descriptor, cell(money(item.totals)), cell(amount(item.allocatedAmount, item.currencyCode)), cell(amount(item.openAmount, item.currencyCode)), statusCell);
+      return tr;
+    });
+    if (!append) { statementBody.replaceChildren(); statementRowCount = 0; }
+    statementBody.append(...rows);
+    statementRowCount += rows.length;
+    statementCount.textContent = `${statementRowCount} kayıt`;
+    statementTable.hidden = statementRowCount === 0;
+    statementMoreButton.hidden = !payload.hasMore;
+    statementMoreButton.disabled = !payload.hasMore;
+    statementMoreButton.dataset.cursor = payload.nextCursor || '';
+    setStatementState(statementRowCount ? 'READY' : 'EMPTY', statementRowCount ? 'Ekstre yüklendi.' : 'Seçili filtrelerde kayıt bulunamadı.');
+  };
+  const getStatementFilters = () => Object.freeze({status: statementStatus.value || undefined, limit: 25});
 
   const resetAmounts = () => {
     Object.values(kpis).forEach(node => { node.textContent = '—'; });
@@ -116,9 +181,13 @@
   const setScopeContext = scope => {
     const ready = scope && ['legalEntityId','dealerAccountId','branchId'].every(key => typeof scope[key] === 'string' && scope[key]);
     for (const key of ['legalEntityId','dealerAccountId','branchId']) contextFields[key].textContent = ready ? scope[key] : 'Seçilmedi';
+    scopeReady = Boolean(ready);
     connectButton.disabled = !ready;
+    statementRefreshButton.disabled = !ready;
+    statementStatus.disabled = !ready;
     contextStatus.textContent = ready ? 'KAPSAM HAZIR · SUNUCU ONAYI GEREKİR' : 'KAPSAM BEKLENİYOR';
     contextStatus.classList.toggle('is-ready', Boolean(ready));
+    resetStatement(ready ? 'Henüz yetkili ekstre isteği yapılmadı.' : 'Kapsam ve yetkili bağlantı bekleniyor.');
     if (!ready) setConnectionState('UNCONFIGURED', 'ERP kimlik köprüsünden tüzel kişi, bayi hesabı ve şube kapsamı bekleniyor.');
     return Boolean(ready);
   };
@@ -138,5 +207,5 @@
   });
 
   selectScreen(screens[0]);
-  window.OTOTRFinanceUI = Object.freeze({setConnectionState, setScopeContext, renderSummary, connectButton});
+  window.OTOTRFinanceUI = Object.freeze({setConnectionState, setScopeContext, renderSummary, setStatementState, renderStatementPage, resetStatement, getStatementFilters, connectButton, statementRefreshButton, statementMoreButton, statementStatus});
 })();
