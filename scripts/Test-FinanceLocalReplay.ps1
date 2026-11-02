@@ -26,7 +26,7 @@ select 'migration_count=' || count(*)
   from supabase_migrations.schema_migrations;
 select 'finance_migration_count=' || count(*)
   from supabase_migrations.schema_migrations
- where version between '20261103010000' and '20261103010051';
+ where version between '20261103010000' and '20261103010052';
 select 'finance_tables=' || count(*)
   from information_schema.tables
  where table_schema='finance' and table_type='BASE TABLE';
@@ -65,6 +65,19 @@ select 'scope_hook_browser_execute=' ||
          or pg_catalog.has_function_privilege('public',
            'finance_private.current_actor_can_read_scope(uuid,uuid,uuid,uuid,text)', 'EXECUTE')
        )::text;
+select 'refund_trace_uses_scope_bridge=' ||
+       (position('getRoyaltyRefundTrace' in pg_catalog.pg_get_functiondef(
+          'finance_api.authorize_refund_trace_scope(uuid,uuid,uuid,text)'::regprocedure
+        )) > 0)::text;
+select 'refund_trace_helper_browser_execute=' ||
+       (
+         pg_catalog.has_function_privilege('anon',
+           'finance_api.authorize_refund_trace_scope(uuid,uuid,uuid,text)', 'EXECUTE')
+         or pg_catalog.has_function_privilege('authenticated',
+           'finance_api.authorize_refund_trace_scope(uuid,uuid,uuid,text)', 'EXECUTE')
+         or pg_catalog.has_function_privilege('public',
+           'finance_api.authorize_refund_trace_scope(uuid,uuid,uuid,text)', 'EXECUTE')
+       )::text;
 '@
 
 $lines = @($sql | & $dockerPath exec -i $ContainerName psql -X -At -v ON_ERROR_STOP=1 -U postgres -d postgres)
@@ -81,8 +94,8 @@ foreach ($line in $lines) {
 }
 
 $expected = [ordered]@{
-  migration_count = '80'
-  finance_migration_count = '52'
+  migration_count = '81'
+  finance_migration_count = '53'
   finance_tables = '45'
   finance_private_tables = '2'
   finance_api_functions = '99'
@@ -92,6 +105,8 @@ $expected = [ordered]@{
   scope_hook_uses_erp_identity = 'true'
   scope_hook_fail_closed_stub = 'false'
   scope_hook_browser_execute = 'false'
+  refund_trace_uses_scope_bridge = 'true'
+  refund_trace_helper_browser_execute = 'false'
 }
 
 $failures = [System.Collections.Generic.List[string]]::new()

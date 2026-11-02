@@ -37,6 +37,7 @@
     "refund CREDIT open item equals proportional reversal gross",
     "reversal journal references the original journal",
     "original locked period and current open posting period are both preserved",
+    "authorized refund trace projection preserves collection, original accrual, reversal and both period references",
     "original and reversal journal entries are balanced",
     "same refund and hashes return REPLAY",
     "idempotent replay creates no duplicate reversal",

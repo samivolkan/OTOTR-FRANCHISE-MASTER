@@ -12,6 +12,10 @@ create or replace function finance_private.current_refund_worker_is_trusted()
 returns boolean language sql stable security definer set search_path=''
 as $$ select true $$;
 
+create or replace function finance_api.authorize_scope(p_legal_entity_id uuid,p_dealer_account_id uuid,p_branch_id uuid,p_operation_id text)
+returns boolean language sql stable security definer set search_path=''
+as $$ select true $$;
+
 do $test$
 declare
   v_actor constant uuid := '00000000-0000-4000-8000-000000000001';
@@ -42,6 +46,7 @@ declare
   v_result jsonb;
   v_refund_context jsonb;
   v_refund_result jsonb;
+  v_trace jsonb;
   v_replay jsonb;
   v_original_accrual uuid;
   v_original_journal uuid;
@@ -305,6 +310,15 @@ begin
 
   select count(*) into v_count from finance.accruals a where a.reversal_of_id=v_original_accrual;
   if v_count <> 1 then raise exception 'idempotent replay created duplicate reversal'; end if;
+
+  v_trace:=finance_api.get_royalty_refund_trace(v_hq,v_account,v_branch,v_refund_event);
+  if v_trace#>>'{refundEvent,refundedGrossAmount}'<>'590.00000000'
+     or v_trace#>>'{originalRoyaltyAccrual,grossAmount}'<>'118.00000000'
+     or v_trace#>>'{reversalAccrual,grossAmount}'<>'59.00000000'
+     or v_trace#>>'{periodProvenance,originalPeriodId}'<>v_oct_branch_period::text
+     or v_trace#>>'{periodProvenance,postingPeriodId}'<>v_nov_branch_period::text then
+    raise exception 'royalty refund trace projection mismatch: %',v_trace;
+  end if;
 
   raise notice 'ROYALTY E2E PASSED: collection=1180.00 royalty=118.00 refund=590.00 reversal=59.00 net=59.00';
 end
