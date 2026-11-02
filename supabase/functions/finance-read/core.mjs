@@ -52,7 +52,7 @@ async function body(request, maxBytes) {
   try { parsed = JSON.parse(raw); } catch { throw new FinanceReadError(400, 'INVALID_JSON', 'Geçerli JSON zorunludur.'); }
   if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) throw new FinanceReadError(400, 'INVALID_REQUEST', 'İstek nesne olmalıdır.');
   if (Object.keys(parsed).some(key => !KEYS.has(key))) throw new FinanceReadError(400, 'UNKNOWN_FIELD', 'İstek bilinmeyen alan içeriyor.');
-  if (!['getHeadquartersFinanceSummary','getDealerFinanceSummary','getDealerStatement','listPayments','getPayment','getAccrualDetail','listRoyaltyRefunds','getRoyaltyRefundTrace','getFinancePeriod','getCurrentFranchiseContract','listContractFeeRules'].includes(parsed.operationId)) throw new FinanceReadError(403, 'OPERATION_DENIED', 'Finans okuma operasyonuna izin verilmiyor.');
+  if (!['getHeadquartersFinanceSummary','getDealerFinanceSummary','getDealerStatement','listPayments','getPayment','getAccrualDetail','listRoyaltyRefunds','listServiceUsages','getRoyaltyRefundTrace','getFinancePeriod','getCurrentFranchiseContract','listContractFeeRules'].includes(parsed.operationId)) throw new FinanceReadError(403, 'OPERATION_DENIED', 'Finans okuma operasyonuna izin verilmiyor.');
   const scope = Object.freeze({
     legalEntityId: uuid(parsed.scope?.legalEntityId, 'legalEntityId'),
     dealerAccountId: uuid(parsed.scope?.dealerAccountId, 'dealerAccountId'),
@@ -110,6 +110,15 @@ async function body(request, maxBytes) {
     if (Object.keys(query).length) throw new FinanceReadError(400, 'INVALID_QUERY', 'getRoyaltyRefundTrace query parametresi kabul etmez.');
     return Object.freeze({ operationId:parsed.operationId, scope, dealerAccountId, reversalAccrualId:uuid(parsed.pathParams.reversalAccrualId,'reversalAccrualId') });
   }
+  if(parsed.operationId==='listServiceUsages'){
+    const allowed=new Set(['from','to','family','chargeStatus','cursor','limit']);if(Object.keys(query).some(key=>!allowed.has(key))) throw new FinanceReadError(400,'INVALID_QUERY','Kullanım listesi için geçersiz query parametresi.');
+    const from=calendarDate(query.from,'from'),to=calendarDate(query.to,'to');if(from&&to&&from>to) throw new FinanceReadError(400,'INVALID_QUERY','Kullanım tarih aralığı geçersiz.');
+    if(query.family!==undefined&&!['QUERY','EXTERNAL_SERVICE'].includes(query.family)) throw new FinanceReadError(400,'INVALID_QUERY','Kullanım ailesi geçersiz.');
+    if(query.chargeStatus!==undefined&&!['CHARGED','NOT_CHARGED','FAILED'].includes(query.chargeStatus)) throw new FinanceReadError(400,'INVALID_QUERY','Ücret durumu geçersiz.');
+    if(query.cursor!==undefined&&(typeof query.cursor!=='string'||!query.cursor.length||query.cursor.length>512)) throw new FinanceReadError(400,'INVALID_QUERY','Kullanım cursor değeri geçersiz.');
+    if(query.limit!==undefined&&(!Number.isInteger(query.limit)||query.limit<1||query.limit>200)) throw new FinanceReadError(400,'INVALID_QUERY','Kullanım limit değeri geçersiz.');
+    return Object.freeze({operationId:parsed.operationId,scope,dealerAccountId,from,to,family:query.family,chargeStatus:query.chargeStatus,cursor:query.cursor,limit:query.limit});
+  }
   if (parsed.operationId === 'getDealerFinanceSummary') {
     if (Object.keys(query).some(key => key !== 'asOf')) throw new FinanceReadError(400, 'INVALID_QUERY', 'Operasyon için geçersiz query parametresi.');
     return Object.freeze({ operationId: parsed.operationId, scope, dealerAccountId, asOf: calendarDate(query.asOf) });
@@ -128,13 +137,13 @@ async function body(request, maxBytes) {
   return Object.freeze({ operationId: parsed.operationId, scope, dealerAccountId, from, to, status: query.status, cursor: query.cursor, limit: query.limit });
 }
 
-export function createFinanceReadHandler({ allowedOrigins, authenticate, authorizeScope, authorizeHeadquartersScope, readHeadquartersSummary, readSummary, readStatement, readPayments, readPayment, readAccrualDetail, readRoyaltyRefunds, readRefundTrace, readCurrentPeriod, readCurrentContract, readContractFeeRules, correlationFactory = () => crypto.randomUUID(), maxBodyBytes = 32768 } = {}) {
+export function createFinanceReadHandler({ allowedOrigins, authenticate, authorizeScope, authorizeHeadquartersScope, readHeadquartersSummary, readSummary, readStatement, readPayments, readPayment, readAccrualDetail, readRoyaltyRefunds, readServiceUsages, readRefundTrace, readCurrentPeriod, readCurrentContract, readContractFeeRules, correlationFactory = () => crypto.randomUUID(), maxBodyBytes = 32768 } = {}) {
   const origins = new Set(allowedOrigins || []);
   const invalidOrigin = value => {
     try { const url = new URL(value); return value === '*' || url.origin !== value || (url.protocol !== 'https:' && !(url.protocol === 'http:' && ['localhost', '127.0.0.1'].includes(url.hostname))); } catch { return true; }
   };
   if (!origins.size || [...origins].some(invalidOrigin)) throw new Error('HTTPS veya local HTTP açık origin allowlist zorunludur.');
-  if (![authenticate, authorizeScope, authorizeHeadquartersScope, readHeadquartersSummary, readSummary, readStatement, readPayments, readPayment, readAccrualDetail, readRoyaltyRefunds, readRefundTrace, readCurrentPeriod, readCurrentContract, readContractFeeRules].every(fn => typeof fn === 'function')) throw new Error('Finans sunucu portları zorunludur.');
+  if (![authenticate, authorizeScope, authorizeHeadquartersScope, readHeadquartersSummary, readSummary, readStatement, readPayments, readPayment, readAccrualDetail, readRoyaltyRefunds, readServiceUsages, readRefundTrace, readCurrentPeriod, readCurrentContract, readContractFeeRules].every(fn => typeof fn === 'function')) throw new Error('Finans sunucu portları zorunludur.');
   if (!Number.isInteger(maxBodyBytes) || maxBodyBytes < 1024 || maxBodyBytes > 65536) throw new Error('maxBodyBytes 1024–65536 arasında olmalıdır.');
   return async request => {
     const correlationId = correlation(request.headers.get('correlation-id'), correlationFactory);
@@ -162,6 +171,8 @@ export function createFinanceReadHandler({ allowedOrigins, authenticate, authori
             ? await readPayments({ actor, ...input })
           : input.operationId === 'listRoyaltyRefunds'
             ? await readRoyaltyRefunds({ actor, ...input })
+          : input.operationId === 'listServiceUsages'
+            ? await readServiceUsages({actor,...input})
           : input.operationId === 'getPayment'
             ? await readPayment({ actor, ...input })
             : input.operationId === 'getAccrualDetail'

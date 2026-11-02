@@ -89,6 +89,11 @@ try {
       const data=body.query.cursor?{items:[refund('26262626-2626-4626-8626-262626262626','27272727-2727-4727-8727-272727272727','100.00000000')],nextCursor:null,hasMore:false}:{items:[refund('bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb','12121212-1212-4212-8212-121212121212','590.00000000')],nextCursor:'refund-page-2',hasMore:true};
       await route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({data})});return;
     }
+    if(body.operationId==='listServiceUsages'){
+      const usage=(id,reference,charged)=>({sourceEventId:id,usageId:id,businessDate:'2026-11-03',occurredAtUtc:'2026-11-03T09:00:00Z',sourceSystem:'ERP',eventType:'query.completed',feeFamily:'QUERY',serviceCode:'TRAMER_QUERY',providerCode:'PROVIDER-A',externalReference:reference,chargeStatus:charged?'CHARGED':'NOT_CHARGED',freeEntitlementApplied:!charged,technicalRepeat:false,providerCostAmount:'50.00000000',dealerPriceAmount:charged?'120.00000000':null,marginAmount:charged?'70.00000000':null,currency:'TRY',accrualId:charged?'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa':null,calculationStatus:charged?'POSTED':null});
+      const data=body.query.cursor?{items:[usage('29292929-2929-4929-8929-292929292929','QUERY-FREE-001',false)],nextCursor:null,hasMore:false}:{items:[usage('28282828-2828-4828-8828-282828282828','QUERY-001',true)],nextCursor:'usage-page-2',hasMore:true};
+      await route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({data})});return;
+    }
     if (body.operationId === 'getPayment') {
       const paymentId = body.pathParams.paymentId;
       const data = {
@@ -223,6 +228,15 @@ try {
   await page.click('[data-finance-payments-refresh]');
   await page.waitForFunction(()=>document.querySelector('[data-finance-payments]')?.dataset.state==='EMPTY');
   assert.equal(await page.locator('[data-finance-payments-table]').isVisible(),false);
+  await page.click('[data-finance-screen="SCR-09"]');
+  await page.click('[data-finance-service-usages-refresh]');
+  await page.waitForFunction(()=>document.querySelectorAll('[data-finance-service-usages-body] tr').length===1);
+  assert.match(await page.locator('[data-finance-service-usages-body]').innerText(),/QUERY-001/);
+  assert.match(await page.locator('[data-finance-service-usages-body]').innerText(),/70,00000000 TRY/);
+  await page.click('[data-finance-service-usages-more]');
+  await page.waitForFunction(()=>document.querySelectorAll('[data-finance-service-usages-body] tr').length===2);
+  assert.match(await page.locator('[data-finance-service-usages-body]').innerText(),/Ücretsiz hak/);
+  assert.equal(requests.at(-1).operationId,'listServiceUsages');
   await page.click('[data-finance-screen="SCR-07"]');
   assert.equal(await page.locator('[data-finance-payment-detail]').isVisible(),false);
   await page.click('[data-finance-accrual-id]');

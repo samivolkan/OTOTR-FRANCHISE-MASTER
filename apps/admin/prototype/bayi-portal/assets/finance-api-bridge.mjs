@@ -6,6 +6,7 @@ const PAYMENTS_OPERATION = 'listPayments';
 const PAYMENT_OPERATION = 'getPayment';
 const ACCRUAL_OPERATION = 'getAccrualDetail';
 const REFUNDS_OPERATION = 'listRoyaltyRefunds';
+const SERVICE_USAGES_OPERATION='listServiceUsages';
 const REFUND_TRACE_OPERATION = 'getRoyaltyRefundTrace';
 const PERIOD_OPERATION = 'getFinancePeriod';
 const CURRENT_CONTRACT_OPERATION = 'getCurrentFranchiseContract';
@@ -127,6 +128,9 @@ export function createFinanceSummaryClient({getConfig, getAccessToken, fetchImpl
       if(limit!==undefined&&(!Number.isInteger(limit)||limit<1||limit>200)) throw new FinanceBridgeError('VALIDATION_ERROR','İade limit değeri 1–200 arasında olmalıdır.');
       return execute(rawScope,REFUNDS_OPERATION,{from,to,cursor,limit});
     },
+    async listServiceUsages(rawScope,{from,to,family,chargeStatus,cursor,limit}={}) {
+      for(const [field,value] of [['from',from],['to',to]]) if(value!==undefined&&!/^\d{4}-\d{2}-\d{2}$/.test(value)) throw new FinanceBridgeError('VALIDATION_ERROR',`${field} YYYY-MM-DD biçiminde olmalıdır.`);if(from&&to&&from>to) throw new FinanceBridgeError('VALIDATION_ERROR','Kullanım tarih aralığı geçersiz.');if(family!==undefined&&!['QUERY','EXTERNAL_SERVICE'].includes(family)) throw new FinanceBridgeError('VALIDATION_ERROR','Kullanım ailesi geçersiz.');if(chargeStatus!==undefined&&!['CHARGED','NOT_CHARGED','FAILED'].includes(chargeStatus)) throw new FinanceBridgeError('VALIDATION_ERROR','Ücret durumu geçersiz.');if(cursor!==undefined&&(typeof cursor!=='string'||!cursor.length||cursor.length>512)) throw new FinanceBridgeError('VALIDATION_ERROR','Kullanım cursor değeri geçersiz.');if(limit!==undefined&&(!Number.isInteger(limit)||limit<1||limit>200)) throw new FinanceBridgeError('VALIDATION_ERROR','Kullanım limit değeri geçersiz.');return execute(rawScope,SERVICE_USAGES_OPERATION,{from,to,family,chargeStatus,cursor,limit});
+    },
     async getCurrentFinancePeriod(rawScope,{asOf}={}) {
       if (typeof asOf!=='string' || !/^\d{4}-\d{2}-\d{2}$/.test(asOf)) throw new FinanceBridgeError('VALIDATION_ERROR','asOf YYYY-MM-DD biçiminde zorunludur.');
       return execute(rawScope,PERIOD_OPERATION,{asOf},{},true);
@@ -225,6 +229,7 @@ if (auth && ui) {
       if(!scope) throw new FinanceBridgeError('FINANCE_SCOPE_UNAVAILABLE','ERP finans kapsamı henüz sağlanmadı.');
       return client.listRoyaltyRefunds(scope,options);
     },
+    async listServiceUsages(options={}) {const scope=configuredScope||refreshContext();if(!scope) throw new FinanceBridgeError('FINANCE_SCOPE_UNAVAILABLE','ERP finans kapsamı henüz sağlanmadı.');return client.listServiceUsages(scope,options);},
     async getCurrentFinancePeriod(options={}) {
       const scope=configuredScope||refreshContext();
       if(!scope) throw new FinanceBridgeError('FINANCE_SCOPE_UNAVAILABLE','ERP finans kapsamı henüz sağlanmadı.');
@@ -275,6 +280,7 @@ if (auth && ui) {
       try { const result=await api.listRoyaltyRefunds({...ui.getRefundFilters?.(),cursor}); ui.renderRefundsPage?.(result.data,{append}); return result; }
       catch(error){ ui.setRefundsState?.('ERROR',error instanceof FinanceBridgeError?error.message:'İade listesi alınamadı.'); throw error; }
     },
+    async loadServiceUsages({append=false}={}) {const cursor=append?ui.serviceUsagesMoreButton?.dataset?.cursor:undefined;ui.setServiceUsagesState?.('LOADING',append?'Kullanım devam sayfası yükleniyor…':'Yetkili kullanım listesi yükleniyor…');try{const result=await api.listServiceUsages({...ui.getServiceUsageFilters?.(),cursor});ui.renderServiceUsagesPage?.(result.data,{append});return result;}catch(error){ui.setServiceUsagesState?.('ERROR',error instanceof FinanceBridgeError?error.message:'Kullanım listesi alınamadı.');throw error;}},
     async loadAccrualDetail(accrualId) {
       ui.setAccrualState?.('LOADING', 'Kaynak olay, hesaplama ve çift taraflı fiş yükleniyor…');
       try {
@@ -335,6 +341,10 @@ if (auth && ui) {
   ui.paymentsStatus?.addEventListener('change', () => { ui.resetPayments?.('Filtre değişti. Güncel ödemeleri getirin.'); });
   ui.refundsRefreshButton?.addEventListener('click',()=>{void api.loadRoyaltyRefunds().catch(()=>{});});
   ui.refundsMoreButton?.addEventListener('click',()=>{void api.loadRoyaltyRefunds({append:true}).catch(()=>{});});
+  ui.serviceUsagesRefreshButton?.addEventListener('click',()=>{void api.loadServiceUsages().catch(()=>{});});
+  ui.serviceUsagesMoreButton?.addEventListener('click',()=>{void api.loadServiceUsages({append:true}).catch(()=>{});});
+  ui.serviceUsagesFamily?.addEventListener('change',()=>{ui.resetServiceUsages?.('Filtre değişti. Kullanımları yeniden getirin.');});
+  ui.serviceUsagesChargeStatus?.addEventListener('change',()=>{ui.resetServiceUsages?.('Filtre değişti. Kullanımları yeniden getirin.');});
   ui.contractRefreshButton?.addEventListener('click',()=>{void api.loadContractWorkspace().catch(()=>{});});
   ui.contractMoreButton?.addEventListener('click',()=>{void api.loadContractWorkspace({append:true}).catch(()=>{});});
   ui.contractRuleStatus?.addEventListener('change',()=>{ui.resetContractRules?.('Filtre değişti. Kuralları yeniden getirin.');});

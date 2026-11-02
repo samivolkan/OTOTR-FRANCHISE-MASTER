@@ -1411,6 +1411,12 @@ button,input,select,textarea{font:inherit}.app{min-height:100vh;display:grid;gri
               </section>
               <div class="finance-statement-footer"><span data-finance-refunds-count>0 kayıt</span><button class="btn" type="button" data-finance-refunds-more hidden disabled>Daha Fazla</button></div>
             </section>
+            <section class="finance-statement" data-finance-service-usages hidden aria-labelledby="financeServiceUsagesTitle">
+              <div class="finance-statement-head"><div><span class="finance-screen-code">YETKİLİ KULLANIM PROJECTION</span><h3 id="financeServiceUsagesTitle">Sorgu ve Harici Hizmet Kullanımları</h3><p>Ücretli, ücretsiz hak ve teknik tekrar kullanımları tahakkuktan bağımsız olarak izlenir.</p></div><div class="finance-statement-controls"><label>Aile<select data-finance-service-usages-family disabled><option value="">Tümü</option><option value="QUERY">Sorgu</option><option value="EXTERNAL_SERVICE">Harici hizmet</option></select></label><label>Ücret durumu<select data-finance-service-usages-charge-status disabled><option value="">Tümü</option><option value="CHARGED">Ücretlendirildi</option><option value="NOT_CHARGED">Ücretlendirilmedi</option><option value="FAILED">Hatalı</option></select></label><button class="btn" type="button" data-finance-service-usages-refresh disabled>Kullanımları Getir</button></div></div>
+              <div class="finance-statement-state" data-finance-service-usages-state role="status">Kapsam ve yetkili bağlantı bekleniyor.</div>
+              <div class="finance-statement-table-wrap" data-finance-service-usages-table hidden><table class="finance-statement-table"><thead><tr><th>Tarih / kullanım</th><th>Hizmet / sağlayıcı</th><th>Sağlayıcı maliyeti</th><th>Bayi fiyatı</th><th>Marj</th><th>Durum / tahakkuk</th></tr></thead><tbody data-finance-service-usages-body></tbody></table></div>
+              <div class="finance-statement-footer"><span data-finance-service-usages-count>0 kayıt</span><button class="btn" type="button" data-finance-service-usages-more hidden disabled>Daha Fazla</button></div>
+            </section>
             <section class="finance-statement" data-finance-payments hidden aria-labelledby="financePaymentsTitle">
               <div class="finance-statement-head">
                 <div><span class="finance-screen-code">YETKİLİ ÖDEME PROJECTION</span><h3 id="financePaymentsTitle">Ödeme ve Tahsis</h3><p>Yalnız seçili şubeye ait tahsilatlar, doğrulama durumu ve dağıtılmamış tutarlar.</p></div>

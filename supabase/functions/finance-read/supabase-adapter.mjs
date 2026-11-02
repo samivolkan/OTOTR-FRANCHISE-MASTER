@@ -84,6 +84,9 @@ export function createFinanceSupabaseAdapter({ supabaseUrl, publishableKey, fetc
       p_from:from||null,p_to:to||null,p_cursor:cursor||null,p_limit:limit||50,
     }, 'finance_api');
   }
+  async function readServiceUsages({actor,scope,dealerAccountId,from,to,family,chargeStatus,cursor,limit}) {
+    return post('/rest/v1/rpc/list_service_usages',actor.token,{p_legal_entity_id:scope.legalEntityId,p_dealer_account_id:dealerAccountId,p_branch_id:scope.branchId,p_from:from||null,p_to:to||null,p_family:family||null,p_charge_status:chargeStatus||null,p_cursor:cursor||null,p_limit:limit||50},'finance_api');
+  }
   async function readRefundTrace({ actor, scope, dealerAccountId, reversalAccrualId }) {
     return post('/rest/v1/rpc/get_royalty_refund_trace_by_accrual', actor.token, {
       p_legal_entity_id:scope.legalEntityId,
@@ -103,5 +106,5 @@ export function createFinanceSupabaseAdapter({ supabaseUrl, publishableKey, fetc
   async function readContractFeeRules({actor,scope,dealerAccountId,contractVersionId,status,cursor,limit}) {
     return post('/rest/v1/rpc/list_contract_fee_rules',actor.token,{p_legal_entity_id:scope.legalEntityId,p_dealer_account_id:dealerAccountId,p_branch_id:scope.branchId,p_contract_version_id:contractVersionId,p_status:status||null,p_cursor:cursor||null,p_limit:limit||50},'finance_api');
   }
-  return Object.freeze({ authenticate, authorizeScope, authorizeHeadquartersScope, readHeadquartersSummary, readSummary, readStatement, readPayments, readPayment, readAccrualDetail, readRoyaltyRefunds, readRefundTrace, readCurrentPeriod, readCurrentContract, readContractFeeRules });
+  return Object.freeze({ authenticate, authorizeScope, authorizeHeadquartersScope, readHeadquartersSummary, readSummary, readStatement, readPayments, readPayment, readAccrualDetail, readRoyaltyRefunds,readServiceUsages, readRefundTrace, readCurrentPeriod, readCurrentContract, readContractFeeRules });
 }

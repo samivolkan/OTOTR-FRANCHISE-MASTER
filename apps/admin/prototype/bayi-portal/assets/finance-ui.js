@@ -79,6 +79,15 @@
   const refundsTable = root.querySelector('[data-finance-refunds-table]');
   const refundsBody = root.querySelector('[data-finance-refunds-body]');
   const refundsCount = root.querySelector('[data-finance-refunds-count]');
+  const serviceUsages=root.querySelector('[data-finance-service-usages]');
+  const serviceUsagesFamily=root.querySelector('[data-finance-service-usages-family]');
+  const serviceUsagesChargeStatus=root.querySelector('[data-finance-service-usages-charge-status]');
+  const serviceUsagesRefreshButton=root.querySelector('[data-finance-service-usages-refresh]');
+  const serviceUsagesMoreButton=root.querySelector('[data-finance-service-usages-more]');
+  const serviceUsagesState=root.querySelector('[data-finance-service-usages-state]');
+  const serviceUsagesTable=root.querySelector('[data-finance-service-usages-table]');
+  const serviceUsagesBody=root.querySelector('[data-finance-service-usages-body]');
+  const serviceUsagesCount=root.querySelector('[data-finance-service-usages-count]');
   const paymentDetail = root.querySelector('[data-finance-payment-detail]');
   const paymentCloseButton = root.querySelector('[data-finance-payment-close]');
   const paymentState = root.querySelector('[data-finance-payment-state]');
@@ -145,6 +154,7 @@
   let statementRowCount = 0;
   let paymentRowCount = 0;
   let refundRowCount = 0;
+  let serviceUsageRowCount=0;
   let contractRuleRowCount = 0;
   let contractRulesVersionId = null;
   let activeScreenId = 'SCR-01';
@@ -182,6 +192,7 @@
     payments.hidden = id !== 'SCR-08';
     headquarters.hidden = id !== 'SCR-01';
     refunds.hidden = id !== 'SCR-17';
+    serviceUsages.hidden=id!=='SCR-09';
     contractWorkspace.hidden = !contractScreenIds.has(id);
     contractTitle.textContent = id === 'SCR-04' ? 'Bedel Kataloğu ve Kural Yapısı' : 'Sözleşme ve Kural Sürümleri';
     contractSubtitle.textContent = id === 'SCR-04' ? 'Geçerli sürümdeki bedel aileleri, tetikleyiciler ve hesaplama yapıları.' : 'Seçili şubenin aktif sözleşmesi, geçerli sürümü ve bekleyen sürümü.';
@@ -367,6 +378,11 @@
     if(!append){refundsBody.replaceChildren();refundRowCount=0;resetRefund();}refundsBody.append(...rows);refundRowCount+=rows.length;refundsCount.textContent=`${refundRowCount} kayıt`;refundsTable.hidden=refundRowCount===0;refundsMoreButton.hidden=!payload.hasMore;refundsMoreButton.disabled=!payload.hasMore;refundsMoreButton.dataset.cursor=payload.nextCursor||'';setRefundsState(refundRowCount?'READY':'EMPTY',refundRowCount?'İadeler yüklendi.':'Seçili kapsamda kesinleşmiş iade bulunamadı.');
   };
   const getRefundFilters=()=>Object.freeze({limit:25});
+  const usageStatuses=Object.freeze({CHARGED:'Ücretlendirildi',NOT_CHARGED:'Ücretlendirilmedi',FAILED:'Hatalı'});
+  const setServiceUsagesState=(next,message)=>{if(!['EMPTY','LOADING','READY','ERROR'].includes(next)) throw new Error('INVALID_SERVICE_USAGES_STATE');serviceUsages.dataset.state=next;serviceUsagesState.textContent=message||({EMPTY:'Kullanım bulunamadı.',LOADING:'Yetkili kullanımlar yükleniyor…',READY:'Kullanımlar yüklendi.',ERROR:'Kullanım listesi yüklenemedi.'})[next];serviceUsagesState.hidden=next==='READY'&&serviceUsageRowCount>0;serviceUsagesRefreshButton.disabled=!scopeReady||next==='LOADING';serviceUsagesFamily.disabled=!scopeReady||next==='LOADING';serviceUsagesChargeStatus.disabled=!scopeReady||next==='LOADING';if(next==='LOADING')serviceUsagesMoreButton.disabled=true;};
+  const resetServiceUsages=message=>{serviceUsagesBody.replaceChildren();serviceUsageRowCount=0;serviceUsagesTable.hidden=true;serviceUsagesMoreButton.hidden=true;serviceUsagesMoreButton.disabled=true;serviceUsagesCount.textContent='0 kayıt';setServiceUsagesState('EMPTY',message||'Henüz yetkili kullanım isteği yapılmadı.');};
+  const renderServiceUsagesPage=(payload,{append=false}={})=>{if(!payload||!Array.isArray(payload.items)||typeof payload.hasMore!=='boolean'||!(payload.nextCursor==null||typeof payload.nextCursor==='string')) throw new Error('INVALID_SERVICE_USAGES');const rows=payload.items.map(item=>{if(!item||!uuidPattern.test(item.sourceEventId||'')||!uuidPattern.test(item.usageId||'')||!['QUERY','EXTERNAL_SERVICE'].includes(item.feeFamily)||!usageStatuses[item.chargeStatus]||!/^\d{4}-\d{2}-\d{2}$/.test(item.businessDate||'')||typeof item.freeEntitlementApplied!=='boolean'||typeof item.technicalRepeat!=='boolean') throw new Error('INVALID_SERVICE_USAGE_ITEM');const descriptor=document.createElement('td');const date=document.createElement('div');date.className='finance-statement-fee';date.textContent=new Intl.DateTimeFormat('tr-TR').format(new Date(`${item.businessDate}T00:00:00Z`));const ref=document.createElement('small');ref.textContent=item.externalReference||item.usageId;descriptor.append(date,ref);const service=document.createElement('td');const serviceName=document.createElement('div');serviceName.className='finance-statement-fee';serviceName.textContent=item.serviceCode||item.feeFamily;const provider=document.createElement('small');provider.textContent=item.providerCode||item.sourceSystem;service.append(serviceName,provider);const status=document.createElement('td');const badge=document.createElement('span');badge.className=`finance-statement-status is-${item.chargeStatus.toLowerCase()}`;badge.textContent=usageStatuses[item.chargeStatus];status.append(badge);if(item.freeEntitlementApplied)status.append(document.createElement('br'),document.createTextNode('Ücretsiz hak'));if(item.technicalRepeat)status.append(document.createElement('br'),document.createTextNode('Teknik tekrar'));if(item.accrualId){const button=document.createElement('button');button.type='button';button.className='finance-inline-action';button.dataset.financeAccrualId=item.accrualId;button.textContent='Tahakkuku aç';status.append(button);}const show=value=>value==null||!item.currency?'—':amount(value,item.currency);const tr=document.createElement('tr');tr.append(descriptor,service,cell(show(item.providerCostAmount)),cell(show(item.dealerPriceAmount)),cell(show(item.marginAmount)),status);return tr;});if(!append){serviceUsagesBody.replaceChildren();serviceUsageRowCount=0;}serviceUsagesBody.append(...rows);serviceUsageRowCount+=rows.length;serviceUsagesCount.textContent=`${serviceUsageRowCount} kayıt`;serviceUsagesTable.hidden=serviceUsageRowCount===0;serviceUsagesMoreButton.hidden=!payload.hasMore;serviceUsagesMoreButton.disabled=!payload.hasMore;serviceUsagesMoreButton.dataset.cursor=payload.nextCursor||'';setServiceUsagesState(serviceUsageRowCount?'READY':'EMPTY',serviceUsageRowCount?'Kullanımlar yüklendi.':'Seçili filtrelerde kullanım bulunamadı.');};
+  const getServiceUsageFilters=()=>Object.freeze({family:serviceUsagesFamily.value||undefined,chargeStatus:serviceUsagesChargeStatus.value||undefined,limit:25});
 
   const setPaymentState = (next, message) => {
     if (!['EMPTY','LOADING','READY','ERROR'].includes(next)) throw new Error('INVALID_FINANCE_PAYMENT_STATE');
@@ -520,6 +536,7 @@
     paymentsRefreshButton.disabled = !ready;
     paymentsStatus.disabled = !ready;
     refundsRefreshButton.disabled = !ready;
+    serviceUsagesRefreshButton.disabled=!ready;serviceUsagesFamily.disabled=!ready;serviceUsagesChargeStatus.disabled=!ready;
     contractRefreshButton.disabled = !ready;
     contractRuleStatus.disabled = !ready;
     contextStatus.textContent = ready ? 'KAPSAM HAZIR · SUNUCU ONAYI GEREKİR' : 'KAPSAM BEKLENİYOR';
@@ -527,6 +544,7 @@
     resetStatement(ready ? 'Henüz yetkili ekstre isteği yapılmadı.' : 'Kapsam ve yetkili bağlantı bekleniyor.');
     resetPayments(ready ? 'Henüz yetkili ödeme isteği yapılmadı.' : 'Kapsam ve yetkili bağlantı bekleniyor.');
     resetRefunds(ready ? 'Henüz yetkili iade isteği yapılmadı.' : 'Kapsam ve yetkili bağlantı bekleniyor.');
+    resetServiceUsages(ready?'Henüz yetkili kullanım isteği yapılmadı.':'Kapsam ve yetkili bağlantı bekleniyor.');
     resetContract(ready ? 'Henüz yetkili sözleşme isteği yapılmadı.' : 'Kapsam ve yetkili bağlantı bekleniyor.');
     resetCurrentPeriod(ready ? 'Yetkili veri getirildiğinde şube dönemi burada gösterilir.' : 'Kapsam ve yetkili dönem verisi bekleniyor.');
     resetHeadquartersSummary(ready?'Yetkili veri getirildiğinde genel merkez özeti burada gösterilir.':'Genel merkez finans kapsamı bekleniyor.');
@@ -566,10 +584,11 @@
     if(button) window.dispatchEvent(new CustomEvent('ototr:finance-payment-requested',{detail:{paymentId:button.dataset.financePaymentId}}));
   });
   refundsBody.addEventListener('click',event=>{const button=event.target.closest('[data-finance-refund-accrual-id]');if(button) window.dispatchEvent(new CustomEvent('ototr:finance-refund-requested',{detail:{reversalAccrualId:button.dataset.financeRefundAccrualId}}));});
+  serviceUsagesBody.addEventListener('click',event=>{const button=event.target.closest('[data-finance-accrual-id]');if(button){selectScreen(screens.find(screen=>screen[0]==='SCR-06'));window.dispatchEvent(new CustomEvent('ototr:finance-accrual-requested',{detail:{accrualId:button.dataset.financeAccrualId}}));}});
   paymentCloseButton.addEventListener('click', resetPayment);
   accrualCloseButton.addEventListener('click', resetAccrual);
   refundCloseButton.addEventListener('click',resetRefund);
 
   selectScreen(screens[0]);
-  window.OTOTRFinanceUI = Object.freeze({setConnectionState, setScopeContext, renderSummary,renderHeadquartersSummary,resetHeadquartersSummary, setStatementState, renderStatementPage, resetStatement, getStatementFilters, setContractState, renderCurrentContract, resetContract, setContractRulesState, renderContractRulesPage, resetContractRules, setContractRulesVersion, getContractRulesVersion, getContractRuleFilters, setPaymentsState, renderPaymentsPage, resetPayments, getPaymentFilters, setRefundsState,renderRefundsPage,resetRefunds,getRefundFilters,setPaymentState, renderPaymentDetail, resetPayment, setAccrualState, renderAccrualDetail, resetAccrual, setRefundState, renderRefundTrace, resetRefund, renderCurrentPeriod, resetCurrentPeriod, connectButton, statementRefreshButton, statementMoreButton, statementStatus, contractRefreshButton, contractMoreButton, contractRuleStatus, paymentsRefreshButton, paymentsMoreButton, paymentsStatus,refundsRefreshButton,refundsMoreButton});
+  window.OTOTRFinanceUI = Object.freeze({setConnectionState, setScopeContext, renderSummary,renderHeadquartersSummary,resetHeadquartersSummary,setServiceUsagesState,renderServiceUsagesPage,resetServiceUsages,getServiceUsageFilters, setStatementState, renderStatementPage, resetStatement, getStatementFilters, setContractState, renderCurrentContract, resetContract, setContractRulesState, renderContractRulesPage, resetContractRules, setContractRulesVersion, getContractRulesVersion, getContractRuleFilters, setPaymentsState, renderPaymentsPage, resetPayments, getPaymentFilters, setRefundsState,renderRefundsPage,resetRefunds,getRefundFilters,setPaymentState, renderPaymentDetail, resetPayment, setAccrualState, renderAccrualDetail, resetAccrual, setRefundState, renderRefundTrace, resetRefund, renderCurrentPeriod, resetCurrentPeriod, connectButton, statementRefreshButton, statementMoreButton, statementStatus, contractRefreshButton, contractMoreButton, contractRuleStatus, paymentsRefreshButton, paymentsMoreButton, paymentsStatus,refundsRefreshButton,refundsMoreButton,serviceUsagesRefreshButton,serviceUsagesMoreButton,serviceUsagesFamily,serviceUsagesChargeStatus});
 })();
