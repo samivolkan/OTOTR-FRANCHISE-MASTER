@@ -29,6 +29,17 @@
   const description = root.querySelector('[data-finance-screen-description]');
   const sections = root.querySelector('[data-finance-sections]');
   const actions = root.querySelector('[data-finance-actions]');
+  const state = root.querySelector('[data-finance-state]');
+  const environment = root.querySelector('[data-finance-environment]');
+  const contextFields = {
+    legalEntityId: root.querySelector('[data-finance-legal-entity]'),
+    dealerAccountId: root.querySelector('[data-finance-dealer]'),
+    branchId: root.querySelector('[data-finance-branch]'),
+  };
+  const freshness = root.querySelector('[data-finance-freshness]');
+  const period = root.querySelector('[data-finance-period]');
+  const kpis = Object.fromEntries([...root.querySelectorAll('[data-finance-kpi]')].map(node => [node.dataset.financeKpi, node]));
+  const overdue = root.querySelector('[data-finance-overdue]');
 
   const renderList = (target, items) => {
     target.replaceChildren(...items.map(item => {
@@ -52,6 +63,54 @@
     renderList(actions, screenActions);
   };
 
+  const canonicalDecimal = value => {
+    const text = String(value ?? '');
+    if (!/^(0|[1-9]\d*)(\.\d+)?$/.test(text)) throw new Error('INVALID_FINANCE_DECIMAL');
+    const [whole, fraction = ''] = text.split('.');
+    return `${whole.replace(/\B(?=(\d{3})+(?!\d))/g, '.')}${fraction ? `,${fraction}` : ''}`;
+  };
+
+  const money = breakdown => {
+    if (!breakdown || typeof breakdown !== 'object' || typeof breakdown.grossAmount !== 'string' || !/^[A-Z]{3}$/.test(breakdown.currency || '')) throw new Error('INVALID_FINANCE_MONEY');
+    return `${canonicalDecimal(breakdown.grossAmount)} ${breakdown.currency}`;
+  };
+
+  const resetAmounts = () => {
+    Object.values(kpis).forEach(node => { node.textContent = '—'; });
+    overdue.textContent = 'Açık kalem projectionı yok';
+  };
+
+  const setConnectionState = (next, message) => {
+    const states = {
+      UNCONFIGURED: ['ADAY UI · LIVE BAĞLANTI KAPALI', 'EMPTY · SOURCE UNCONFIGURED'],
+      LOADING: ['LIVE · YETKİLİ İSTEK', 'LOADING · FINANCE API'],
+      READY: ['LIVE · YETKİLİ VERİ', 'READY · LEDGER PROJECTION'],
+      ERROR: ['LIVE · BAĞLANTI HATASI', 'ERROR · FAIL CLOSED'],
+    };
+    if (!states[next]) throw new Error('INVALID_FINANCE_UI_STATE');
+    [environment.textContent, state.textContent] = states[next];
+    description.textContent = message || (next === 'READY' ? 'Yetkili finans projectionı yüklendi.' : 'Yetkili finans API bağlantısı bekleniyor; demo veya tahmini tutar gösterilmiyor.');
+    if (next !== 'READY') resetAmounts();
+  };
+
+  const renderSummary = (summary, scope) => {
+    if (!summary || typeof summary !== 'object') throw new Error('INVALID_FINANCE_SUMMARY');
+    for (const key of ['legalEntityId','dealerAccountId','branchId']) {
+      if (summary[key] !== scope[key]) throw new Error('FINANCE_SCOPE_MISMATCH');
+      contextFields[key].textContent = summary[key];
+    }
+    kpis.accrued.textContent = money(summary.accrued);
+    kpis.invoiced.textContent = money(summary.invoiced);
+    kpis.collected.textContent = money(summary.collected);
+    kpis.open.textContent = money(summary.open);
+    overdue.textContent = `Geciken: ${money(summary.overdue)}`;
+    const calculatedAt = summary.calculatedAtUtc ? new Date(summary.calculatedAtUtc) : null;
+    if (calculatedAt && Number.isNaN(calculatedAt.getTime())) throw new Error('INVALID_FINANCE_TIMESTAMP');
+    freshness.textContent = calculatedAt ? calculatedAt.toLocaleString('tr-TR') : 'Bilinmiyor';
+    period.textContent = summary.asOf || 'Seçilmedi';
+    setConnectionState('READY');
+  };
+
   screens.forEach(screen => {
     const button = document.createElement('button');
     button.type = 'button';
@@ -67,4 +126,5 @@
   });
 
   selectScreen(screens[0]);
+  window.OTOTRFinanceUI = Object.freeze({setConnectionState, renderSummary});
 })();

@@ -1,0 +1,56 @@
+import assert from 'node:assert/strict';
+import { createFinanceSummaryClient, FinanceBridgeError, validateFinanceScope } from '../bayi-portal/assets/finance-api-bridge.mjs';
+
+const scope = Object.freeze({
+  legalEntityId: '11111111-1111-4111-8111-111111111111',
+  dealerAccountId: '22222222-2222-4222-8222-222222222222',
+  branchId: '33333333-3333-4333-8333-333333333333',
+});
+const correlationId = '44444444-4444-4444-8444-444444444444';
+const publishableKey = `sb_publishable_${'a'.repeat(32)}`;
+const token = `user-token-${'x'.repeat(32)}`;
+let captured;
+const client = createFinanceSummaryClient({
+  getConfig: () => ({ url: 'https://example.supabase.co/path', publishableKey }),
+  getAccessToken: () => token,
+  correlationFactory: () => correlationId,
+  fetchImpl: async (url, options) => {
+    captured = { url, options };
+    return { ok: true, status: 200, headers: { get: name => name.toLowerCase() === 'content-type' ? 'application/json' : null }, json: async () => ({ data: { ...scope } }) };
+  },
+});
+const result = await client.getDealerFinanceSummary(scope, { asOf: '2026-11-03' });
+assert.deepEqual(result.scope, scope);
+assert.equal(captured.url, 'https://example.supabase.co/functions/v1/finance-read');
+assert.equal(captured.options.method, 'POST');
+assert.equal(captured.options.headers.apikey, publishableKey);
+assert.equal(captured.options.headers.Authorization, `Bearer ${token}`);
+assert.equal(captured.options.headers['Correlation-Id'], correlationId);
+assert.deepEqual(JSON.parse(captured.options.body), { operationId: 'getDealerFinanceSummary', scope, pathParams: { dealerAccountId: scope.dealerAccountId }, query: { asOf: '2026-11-03' } });
+
+const rejectsWithCode = async (factory, code) => assert.rejects(factory, error => error instanceof FinanceBridgeError && error.code === code);
+assert.throws(() => validateFinanceScope({ ...scope, branchId: 'not-a-uuid' }), error => error.code === 'FINANCE_SCOPE_INVALID');
+for (const invalidConfig of [
+  { url: 'http://example.com', publishableKey },
+  { url: 'https://example.com', publishableKey: `ey${'a'.repeat(40)}` },
+  { url: 'https://example.com', publishableKey: `sb_secret_${'a'.repeat(32)}` },
+]) {
+  const invalidClient = createFinanceSummaryClient({ getConfig: () => invalidConfig, getAccessToken: () => token, fetchImpl: async () => { throw new Error('must not run'); } });
+  await rejectsWithCode(() => invalidClient.getDealerFinanceSummary(scope), 'CONFIGURATION_ERROR');
+}
+const unauthenticated = createFinanceSummaryClient({ getConfig: () => ({ url: 'https://example.com', publishableKey }), getAccessToken: () => '', fetchImpl: async () => { throw new Error('must not run'); } });
+await rejectsWithCode(() => unauthenticated.getDealerFinanceSummary(scope), 'AUTH_REQUIRED');
+
+const denied = createFinanceSummaryClient({
+  getConfig: () => ({ url: 'https://example.com', publishableKey }), getAccessToken: () => token,
+  fetchImpl: async () => ({ ok: false, status: 403, headers: { get: () => 'application/json' }, json: async () => ({}) }),
+});
+await rejectsWithCode(() => denied.getDealerFinanceSummary(scope), 'SCOPE_DENIED');
+
+const transport = createFinanceSummaryClient({
+  getConfig: () => ({ url: 'https://example.com', publishableKey }), getAccessToken: () => token,
+  fetchImpl: async () => { throw new Error('raw secret backend detail'); },
+});
+await assert.rejects(() => transport.getDealerFinanceSummary(scope), error => error.code === 'TRANSPORT_ERROR' && !error.message.includes('secret'));
+
+console.log('PASS finance-api-bridge: scoped POST, publishable key, auth, safe failures');

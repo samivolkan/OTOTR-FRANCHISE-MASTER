@@ -1315,13 +1315,13 @@ button,input,select,textarea{font:inherit}.app{min-height:100vh;display:grid;gri
                 <h2 data-finance-screen-title>Genel Merkez Finans Özeti</h2>
                 <p data-finance-screen-description>Yetkili finans API bağlantısı bekleniyor.</p>
               </div>
-              <span class="finance-state-chip">EMPTY · SOURCE UNCONFIGURED</span>
+              <span class="finance-state-chip" data-finance-state>EMPTY · SOURCE UNCONFIGURED</span>
             </div>
             <section class="finance-kpi-empty-grid" aria-label="Finans özet göstergeleri">
-              <article><span>Tahakkuk</span><b>—</b><small>Defter bağlantısı bekleniyor</small></article>
-              <article><span>Faturalanan</span><b>—</b><small>Harici fatura geri bildirimi yok</small></article>
-              <article><span>Tahsil edilen</span><b>—</b><small>Doğrulanmış ödeme verisi yok</small></article>
-              <article><span>Açık / geciken</span><b>—</b><small>Açık kalem projectionı yok</small></article>
+              <article><span>Tahakkuk</span><b data-finance-kpi="accrued">—</b><small>Defter bağlantısı bekleniyor</small></article>
+              <article><span>Faturalanan</span><b data-finance-kpi="invoiced">—</b><small>Harici fatura geri bildirimi yok</small></article>
+              <article><span>Tahsil edilen</span><b data-finance-kpi="collected">—</b><small>Doğrulanmış ödeme verisi yok</small></article>
+              <article><span>Açık / geciken</span><b data-finance-kpi="open">—</b><small data-finance-overdue>Açık kalem projectionı yok</small></article>
             </section>
             <section class="finance-screen-contract">
               <div class="finance-contract-card">
@@ -3488,6 +3488,13 @@ async function dealerSupabaseRequest(path,options={}){
   }
   return body;
 }
+window.OTOTRDealerFinanceAuth=Object.freeze({
+  getConfig(){
+    const config=dealerSupabaseRuntimeConfig();
+    return Object.freeze({url:config.url,publishableKey:config.key});
+  },
+  getAccessToken(){return dealerSupabaseActiveSession()?.access_token||null;}
+});
 function dealerMileageNumber(value){
   const numeric=String(value||'').replace(/[^\d]/g,'');
   return numeric?Number(numeric):0;
@@ -6984,5 +6991,6 @@ setWorkOrderFilter('open',false);
 })();
 </script>
 <script src="assets/finance-ui.js"></script>
+<script type="module" src="assets/finance-api-bridge.mjs"></script>
 </body>
 </html>

@@ -4,6 +4,7 @@ import { readFile } from 'node:fs/promises';
 const html = await readFile(new URL('../bayi-portal/index.html', import.meta.url), 'utf8');
 const css = await readFile(new URL('../bayi-portal/assets/finance-ui.css', import.meta.url), 'utf8');
 const js = await readFile(new URL('../bayi-portal/assets/finance-ui.js', import.meta.url), 'utf8');
+const bridge = await readFile(new URL('../bayi-portal/assets/finance-api-bridge.mjs', import.meta.url), 'utf8');
 
 assert.match(html, /id="financePage"/);
 assert.match(html, /ADAY UI · LIVE BAĞLANTI KAPALI/);
@@ -11,6 +12,9 @@ assert.match(html, /Bu ekran demo rakam üretmez/);
 assert.match(html, /data-finance-screen-nav/);
 assert.match(html, /assets\/finance-ui\.css/);
 assert.match(html, /assets\/finance-ui\.js/);
+assert.match(html, /type="module" src="assets\/finance-api-bridge\.mjs"/);
+assert.match(html, /data-finance-state/);
+for (const kpi of ['accrued', 'invoiced', 'collected', 'open']) assert.match(html, new RegExp(`data-finance-kpi="${kpi}"`));
 assert.match(css, /\.finance-workspace/);
 assert.match(css, /@media\(max-width:720px\)/);
 
@@ -21,5 +25,9 @@ assert.deepEqual(ids, Array.from({ length: 17 }, (_, index) => `SCR-${String(ind
 assert.doesNotMatch(js, /localStorage|sessionStorage|Math\.random|ROYALTY_RATE|fetch\s*\(/);
 assert.match(js, /demo veya tahmini tutar gösterilmiyor/);
 assert.match(js, /selectScreen\(screens\[0\]\)/);
+assert.doesNotMatch(bridge, /localStorage|sessionStorage|service_role|sb_secret_|DEMO|Math\.random/);
+assert.match(bridge, /sb_publishable_/);
+assert.match(bridge, /operationId: READ_OPERATION/);
+assert.match(bridge, /globalThis\.OTOTRFinance/);
 
 console.log('PASS finance-ui-foundation: 17 ekran, explicit no-data state, no demo fallback');
