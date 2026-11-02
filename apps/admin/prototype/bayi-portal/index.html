@@ -3492,10 +3492,13 @@ async function dealerSupabaseRequest(path,options={}){
 }
 window.OTOTRDealerFinanceAuth=Object.freeze({
   getConfig(){
-    const config=dealerSupabaseRuntimeConfig();
-    return Object.freeze({url:config.url,publishableKey:config.key});
+    const config=window.OTOTR_SUPABASE_CONFIG||{};
+    return Object.freeze({url:String(config.url||'').replace(/\/+$/,''),publishableKey:String(config.publishableKey||config.key||'')});
   },
-  getAccessToken(){return dealerSupabaseActiveSession()?.access_token||null;}
+  getAccessToken(){
+    const provider=window.OTOTR_FINANCE_AUTH;
+    return provider&&typeof provider.getAccessToken==='function'?provider.getAccessToken():null;
+  }
 });
 function dealerMileageNumber(value){
   const numeric=String(value||'').replace(/[^\d]/g,'');
