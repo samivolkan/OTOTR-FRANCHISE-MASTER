@@ -26,6 +26,7 @@
     "reopen approval uses a different actor from the request preparer",
     "reopen preserves the original source and reconciliation snapshot hashes",
     "identical reopen approval retry returns REPLAY",
+    "business-date lookup returns the scoped branch period with status and immutable snapshot hashes",
     "transaction rollback leaves no synthetic finance row"
   ],
   "execution": {

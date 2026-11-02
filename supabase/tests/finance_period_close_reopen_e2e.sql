@@ -8,6 +8,8 @@ create or replace function finance_private.period_has_unresolved_blocking_except
 returns boolean language sql stable security definer set search_path='' as $$select false$$;
 create or replace function finance_private.current_period_reopen_worker_is_trusted()
 returns boolean language sql stable security definer set search_path='' as $$select true$$;
+create or replace function finance_api.authorize_scope(p_legal_entity_id uuid,p_dealer_account_id uuid,p_branch_id uuid,p_operation_id text)
+returns boolean language sql stable security definer set search_path='' as $$select true$$;
 
 do $test$
 declare
@@ -129,6 +131,12 @@ begin
     'period-reopen-approve-demo',repeat('3',64),corr
   );
   if replay->>'outcome'<>'REPLAY' then raise exception 'reopen approval replay failed: %',replay; end if;
+
+  result:=finance_api.get_current_finance_period(hq,account,branch,date '2026-11-15');
+  if result->>'periodId'<>branch_period::text or result->>'status'<>'REOPENED'
+     or result->>'sourceSnapshotHash'<>repeat('a',64) or result->>'checkSnapshotHash'<>check_hash then
+    raise exception 'current finance period projection mismatch: %',result;
+  end if;
 
   raise notice 'PERIOD GOVERNANCE E2E PASSED: APPROVED -> LOCKED -> REOPEN_PENDING -> REOPENED';
 end
