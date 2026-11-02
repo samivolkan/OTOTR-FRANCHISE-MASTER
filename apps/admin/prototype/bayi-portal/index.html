@@ -1363,23 +1363,6 @@ button,input,select,textarea{font:inherit}.app{min-height:100vh;display:grid;gri
                   <tbody data-finance-statement-body></tbody>
                 </table>
               </div>
-              <section class="finance-payment-detail" data-finance-payment-detail hidden aria-labelledby="financePaymentTitle">
-                <div class="finance-payment-detail-head">
-                  <div><span class="finance-screen-code">ÖDEME PROJECTION</span><h4 id="financePaymentTitle">Ödeme ve Tahsis Detayı</h4></div>
-                  <button class="btn" type="button" data-finance-payment-close>Kapat</button>
-                </div>
-                <div class="finance-payment-detail-state" data-finance-payment-state role="status">Ödeme seçilmedi.</div>
-                <div data-finance-payment-content hidden>
-                  <div class="finance-payment-kpis">
-                    <article><span>Ödeme</span><b data-finance-payment-amount>—</b><small data-finance-payment-reference>—</small></article>
-                    <article><span>Dağıtılmamış</span><b data-finance-payment-unallocated>—</b><small data-finance-payment-status>—</small></article>
-                    <article><span>Yöntem / tarih</span><b data-finance-payment-method>—</b><small data-finance-payment-date>—</small></article>
-                  </div>
-                  <div class="finance-statement-table-wrap">
-                    <table class="finance-statement-table"><thead><tr><th>Tahsis</th><th>Açık kalem</th><th>Tutar</th><th>Durum</th></tr></thead><tbody data-finance-payment-allocations></tbody></table>
-                  </div>
-                </div>
-              </section>
               <section class="finance-payment-detail finance-refund-detail" data-finance-refund-detail hidden aria-labelledby="financeRefundTitle">
                 <div class="finance-payment-detail-head">
                   <div><span class="finance-screen-code">ROYALTY TERS KAYIT İZİ</span><h4 id="financeRefundTitle">Müşteri İadesi ve Royalty Azaltımı</h4></div>
@@ -1399,6 +1382,32 @@ button,input,select,textarea{font:inherit}.app{min-height:100vh;display:grid;gri
                 <span data-finance-statement-count>0 kayıt</span>
                 <button class="btn" type="button" data-finance-statement-more hidden disabled>Daha Fazla</button>
               </div>
+            </section>
+            <section class="finance-statement" data-finance-payments hidden aria-labelledby="financePaymentsTitle">
+              <div class="finance-statement-head">
+                <div><span class="finance-screen-code">YETKİLİ ÖDEME PROJECTION</span><h3 id="financePaymentsTitle">Ödeme ve Tahsis</h3><p>Yalnız seçili şubeye ait tahsilatlar, doğrulama durumu ve dağıtılmamış tutarlar.</p></div>
+                <div class="finance-statement-controls">
+                  <label>Durum<select data-finance-payments-status disabled><option value="">Tümü</option><option value="PENDING_VERIFICATION">Doğrulama bekliyor</option><option value="VERIFIED">Doğrulandı</option><option value="PARTIALLY_ALLOCATED">Kısmi tahsis</option><option value="ALLOCATED">Tahsis edildi</option><option value="REVERSED">Ters kayıt</option><option value="REJECTED">Reddedildi</option></select></label>
+                  <button class="btn" type="button" data-finance-payments-refresh disabled>Ödemeleri Getir</button>
+                </div>
+              </div>
+              <div class="finance-statement-state" data-finance-payments-state role="status">Kapsam ve yetkili bağlantı bekleniyor.</div>
+              <div class="finance-statement-table-wrap" data-finance-payments-table hidden>
+                <table class="finance-statement-table"><thead><tr><th>Tarih</th><th>Referans / yöntem</th><th>Tahsilat</th><th>Doğrulanan</th><th>Tahsis / kalan</th><th>Durum / işlem</th></tr></thead><tbody data-finance-payments-body></tbody></table>
+              </div>
+              <section class="finance-payment-detail" data-finance-payment-detail hidden aria-labelledby="financePaymentTitle">
+                <div class="finance-payment-detail-head"><div><span class="finance-screen-code">ÖDEME PROJECTION</span><h4 id="financePaymentTitle">Ödeme ve Tahsis Detayı</h4></div><button class="btn" type="button" data-finance-payment-close>Seçimi Temizle</button></div>
+                <div class="finance-payment-detail-state" data-finance-payment-state role="status">Ödeme listesinden bir kayıt seçin.</div>
+                <div data-finance-payment-content hidden>
+                  <div class="finance-payment-kpis">
+                    <article><span>Ödeme</span><b data-finance-payment-amount>—</b><small data-finance-payment-reference>—</small></article>
+                    <article><span>Dağıtılmamış</span><b data-finance-payment-unallocated>—</b><small data-finance-payment-status>—</small></article>
+                    <article><span>Yöntem / tarih</span><b data-finance-payment-method>—</b><small data-finance-payment-date>—</small></article>
+                  </div>
+                  <div class="finance-statement-table-wrap"><table class="finance-statement-table"><thead><tr><th>Tahsis</th><th>Açık kalem</th><th>Tutar</th><th>Durum</th></tr></thead><tbody data-finance-payment-allocations></tbody></table></div>
+                </div>
+              </section>
+              <div class="finance-statement-footer"><span data-finance-payments-count>0 kayıt</span><button class="btn" type="button" data-finance-payments-more hidden disabled>Daha Fazla</button></div>
             </section>
             <section class="finance-payment-detail finance-accrual-detail" data-finance-accrual-detail hidden aria-labelledby="financeAccrualTitle">
               <div class="finance-payment-detail-head">

@@ -51,6 +51,18 @@ export function createFinanceSupabaseAdapter({ supabaseUrl, publishableKey, fetc
       p_payment_id: paymentId,
     }, 'finance_api');
   }
+  async function readPayments({ actor, scope, dealerAccountId, from, to, status, cursor, limit }) {
+    return post('/rest/v1/rpc/list_payments', actor.token, {
+      p_legal_entity_id: scope.legalEntityId,
+      p_dealer_account_id: dealerAccountId,
+      p_branch_id: scope.branchId,
+      p_from: from || null,
+      p_to: to || null,
+      p_status: status || null,
+      p_cursor: cursor || null,
+      p_limit: limit || 50,
+    }, 'finance_api');
+  }
   async function readAccrualDetail({ actor, scope, dealerAccountId, accrualId }) {
     return post('/rest/v1/rpc/get_accrual_detail', actor.token, {
       p_legal_entity_id: scope.legalEntityId,
@@ -72,5 +84,5 @@ export function createFinanceSupabaseAdapter({ supabaseUrl, publishableKey, fetc
       p_legal_entity_id:scope.legalEntityId,p_dealer_account_id:dealerAccountId,p_branch_id:scope.branchId,p_as_of:asOf,
     },'finance_api');
   }
-  return Object.freeze({ authenticate, authorizeScope, readSummary, readStatement, readPayment, readAccrualDetail, readRefundTrace, readCurrentPeriod });
+  return Object.freeze({ authenticate, authorizeScope, readSummary, readStatement, readPayments, readPayment, readAccrualDetail, readRefundTrace, readCurrentPeriod });
 }

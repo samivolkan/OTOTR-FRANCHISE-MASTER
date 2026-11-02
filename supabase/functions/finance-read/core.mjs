@@ -52,7 +52,7 @@ async function body(request, maxBytes) {
   try { parsed = JSON.parse(raw); } catch { throw new FinanceReadError(400, 'INVALID_JSON', 'Geçerli JSON zorunludur.'); }
   if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) throw new FinanceReadError(400, 'INVALID_REQUEST', 'İstek nesne olmalıdır.');
   if (Object.keys(parsed).some(key => !KEYS.has(key))) throw new FinanceReadError(400, 'UNKNOWN_FIELD', 'İstek bilinmeyen alan içeriyor.');
-  if (!['getDealerFinanceSummary','getDealerStatement','getPayment','getAccrualDetail','getRoyaltyRefundTrace','getFinancePeriod'].includes(parsed.operationId)) throw new FinanceReadError(403, 'OPERATION_DENIED', 'Finans okuma operasyonuna izin verilmiyor.');
+  if (!['getDealerFinanceSummary','getDealerStatement','listPayments','getPayment','getAccrualDetail','getRoyaltyRefundTrace','getFinancePeriod'].includes(parsed.operationId)) throw new FinanceReadError(403, 'OPERATION_DENIED', 'Finans okuma operasyonuna izin verilmiyor.');
   const scope = Object.freeze({
     legalEntityId: uuid(parsed.scope?.legalEntityId, 'legalEntityId'),
     dealerAccountId: uuid(parsed.scope?.dealerAccountId, 'dealerAccountId'),
@@ -96,20 +96,23 @@ async function body(request, maxBytes) {
   if (Object.keys(query).some(key => !allowed.has(key))) throw new FinanceReadError(400, 'INVALID_QUERY', 'Operasyon için geçersiz query parametresi.');
   const from = calendarDate(query.from, 'from');
   const to = calendarDate(query.to, 'to');
-  if (from && to && from > to) throw new FinanceReadError(400, 'INVALID_QUERY', 'Ekstre tarih aralığı geçersiz.');
-  if (query.status !== undefined && !['OPEN','PARTIALLY_ALLOCATED','CLOSED','DISPUTED','REVERSED'].includes(query.status)) throw new FinanceReadError(400, 'INVALID_QUERY', 'Ekstre durum filtresi geçersiz.');
+  if (from && to && from > to) throw new FinanceReadError(400, 'INVALID_QUERY', 'Finans tarih aralığı geçersiz.');
+  const statuses = parsed.operationId === 'listPayments'
+    ? ['PENDING_VERIFICATION','VERIFIED','PARTIALLY_ALLOCATED','ALLOCATED','REVERSED','REJECTED']
+    : ['OPEN','PARTIALLY_ALLOCATED','CLOSED','DISPUTED','REVERSED'];
+  if (query.status !== undefined && !statuses.includes(query.status)) throw new FinanceReadError(400, 'INVALID_QUERY', 'Finans durum filtresi geçersiz.');
   if (query.cursor !== undefined && (typeof query.cursor !== 'string' || !query.cursor.length || query.cursor.length > 512)) throw new FinanceReadError(400, 'INVALID_QUERY', 'Ekstre cursor değeri geçersiz.');
   if (query.limit !== undefined && (!Number.isInteger(query.limit) || query.limit < 1 || query.limit > 200)) throw new FinanceReadError(400, 'INVALID_QUERY', 'Ekstre limit değeri 1–200 arasında olmalıdır.');
   return Object.freeze({ operationId: parsed.operationId, scope, dealerAccountId, from, to, status: query.status, cursor: query.cursor, limit: query.limit });
 }
 
-export function createFinanceReadHandler({ allowedOrigins, authenticate, authorizeScope, readSummary, readStatement, readPayment, readAccrualDetail, readRefundTrace, readCurrentPeriod, correlationFactory = () => crypto.randomUUID(), maxBodyBytes = 32768 } = {}) {
+export function createFinanceReadHandler({ allowedOrigins, authenticate, authorizeScope, readSummary, readStatement, readPayments, readPayment, readAccrualDetail, readRefundTrace, readCurrentPeriod, correlationFactory = () => crypto.randomUUID(), maxBodyBytes = 32768 } = {}) {
   const origins = new Set(allowedOrigins || []);
   const invalidOrigin = value => {
     try { const url = new URL(value); return value === '*' || url.origin !== value || (url.protocol !== 'https:' && !(url.protocol === 'http:' && ['localhost', '127.0.0.1'].includes(url.hostname))); } catch { return true; }
   };
   if (!origins.size || [...origins].some(invalidOrigin)) throw new Error('HTTPS veya local HTTP açık origin allowlist zorunludur.');
-  if (![authenticate, authorizeScope, readSummary, readStatement, readPayment, readAccrualDetail, readRefundTrace, readCurrentPeriod].every(fn => typeof fn === 'function')) throw new Error('Finans sunucu portları zorunludur.');
+  if (![authenticate, authorizeScope, readSummary, readStatement, readPayments, readPayment, readAccrualDetail, readRefundTrace, readCurrentPeriod].every(fn => typeof fn === 'function')) throw new Error('Finans sunucu portları zorunludur.');
   if (!Number.isInteger(maxBodyBytes) || maxBodyBytes < 1024 || maxBodyBytes > 65536) throw new Error('maxBodyBytes 1024–65536 arasında olmalıdır.');
   return async request => {
     const correlationId = correlation(request.headers.get('correlation-id'), correlationFactory);
@@ -128,6 +131,8 @@ export function createFinanceReadHandler({ allowedOrigins, authenticate, authori
         ? await readSummary({ actor, ...input })
         : input.operationId === 'getDealerStatement'
           ? await readStatement({ actor, ...input })
+          : input.operationId === 'listPayments'
+            ? await readPayments({ actor, ...input })
           : input.operationId === 'getPayment'
             ? await readPayment({ actor, ...input })
             : input.operationId === 'getAccrualDetail'

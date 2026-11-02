@@ -29,6 +29,8 @@ assert.equal(captured.options.headers['Correlation-Id'], correlationId);
 assert.deepEqual(JSON.parse(captured.options.body), { operationId: 'getDealerFinanceSummary', scope, pathParams: { dealerAccountId: scope.dealerAccountId }, query: { asOf: '2026-11-03' } });
 await client.getDealerStatement(scope, { from: '2026-11-01', to: '2026-11-30', status: 'OPEN', cursor: 'cursor', limit: 25 });
 assert.deepEqual(JSON.parse(captured.options.body), { operationId: 'getDealerStatement', scope, pathParams: { dealerAccountId: scope.dealerAccountId }, query: { from: '2026-11-01', to: '2026-11-30', status: 'OPEN', cursor: 'cursor', limit: 25 } });
+await client.listPayments(scope,{from:'2026-11-01',to:'2026-11-30',status:'VERIFIED',cursor:'payment-cursor',limit:25});
+assert.deepEqual(JSON.parse(captured.options.body),{operationId:'listPayments',scope,pathParams:{dealerAccountId:scope.dealerAccountId},query:{from:'2026-11-01',to:'2026-11-30',status:'VERIFIED',cursor:'payment-cursor',limit:25}});
 const paymentId = '55555555-5555-4555-8555-555555555555';
 await client.getPayment(scope, paymentId);
 assert.deepEqual(JSON.parse(captured.options.body), { operationId:'getPayment', scope, pathParams:{dealerAccountId:scope.dealerAccountId,paymentId}, query:{} });
@@ -56,6 +58,8 @@ await rejectsWithCode(() => unauthenticated.getDealerFinanceSummary(scope), 'AUT
 await rejectsWithCode(() => client.getDealerStatement(scope, { from: '2026-11-30', to: '2026-11-01' }), 'VALIDATION_ERROR');
 await rejectsWithCode(() => client.getDealerStatement(scope, { status: 'INVALID' }), 'VALIDATION_ERROR');
 await rejectsWithCode(() => client.getDealerStatement(scope, { limit: 201 }), 'VALIDATION_ERROR');
+await rejectsWithCode(() => client.listPayments(scope,{status:'OPEN'}),'VALIDATION_ERROR');
+await rejectsWithCode(() => client.listPayments(scope,{from:'2026-11-30',to:'2026-11-01'}),'VALIDATION_ERROR');
 await rejectsWithCode(() => client.getPayment(scope, 'invalid'), 'VALIDATION_ERROR');
 await rejectsWithCode(() => client.getAccrualDetail(scope, 'invalid'), 'VALIDATION_ERROR');
 await rejectsWithCode(() => client.getRoyaltyRefundTrace(scope,'invalid'),'VALIDATION_ERROR');
@@ -87,6 +91,7 @@ await import(`../bayi-portal/assets/finance-api-bridge.mjs?configured-context=${
 assert.deepEqual(contextRendered, scope);
 assert.equal(typeof globalThis.OTOTRFinance.connectConfiguredScope, 'function');
 assert.equal(typeof globalThis.OTOTRFinance.getDealerStatement, 'function');
+assert.equal(typeof globalThis.OTOTRFinance.listPayments, 'function');
 assert.equal(typeof globalThis.OTOTRFinance.getPayment, 'function');
 assert.equal(typeof globalThis.OTOTRFinance.getAccrualDetail, 'function');
 assert.equal(typeof globalThis.OTOTRFinance.getRoyaltyRefundTrace,'function');
@@ -100,4 +105,4 @@ delete globalThis.OTOTRFinanceUI;
 delete globalThis.OTOTR_FINANCE_CONTEXT;
 delete globalThis.OTOTRFinance;
 
-console.log('PASS finance-api-bridge: scoped summary, statement, payment, accrual, refund and period POST; safe failures');
+console.log('PASS finance-api-bridge: scoped summary, statement, payment list/detail, accrual, refund and period POST; safe failures');

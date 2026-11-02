@@ -1,6 +1,7 @@
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const READ_OPERATION = 'getDealerFinanceSummary';
 const STATEMENT_OPERATION = 'getDealerStatement';
+const PAYMENTS_OPERATION = 'listPayments';
 const PAYMENT_OPERATION = 'getPayment';
 const ACCRUAL_OPERATION = 'getAccrualDetail';
 const REFUND_TRACE_OPERATION = 'getRoyaltyRefundTrace';
@@ -94,6 +95,14 @@ export function createFinanceSummaryClient({getConfig, getAccessToken, fetchImpl
       const normalizedPaymentId = requiredUuid(paymentId, 'paymentId', 'VALIDATION_ERROR');
       return execute(rawScope, PAYMENT_OPERATION, {}, {paymentId:normalizedPaymentId});
     },
+    async listPayments(rawScope, {from,to,status,cursor,limit} = {}) {
+      for (const [field,value] of [['from',from],['to',to]]) if (value !== undefined && !/^\d{4}-\d{2}-\d{2}$/.test(value)) throw new FinanceBridgeError('VALIDATION_ERROR', `${field} YYYY-MM-DD biçiminde olmalıdır.`);
+      if (from && to && from > to) throw new FinanceBridgeError('VALIDATION_ERROR', 'Ödeme tarih aralığı geçersiz.');
+      if (status !== undefined && !['PENDING_VERIFICATION','VERIFIED','PARTIALLY_ALLOCATED','ALLOCATED','REVERSED','REJECTED'].includes(status)) throw new FinanceBridgeError('VALIDATION_ERROR', 'Ödeme durum filtresi geçersiz.');
+      if (cursor !== undefined && (typeof cursor !== 'string' || !cursor.length || cursor.length > 512)) throw new FinanceBridgeError('VALIDATION_ERROR', 'Ödeme cursor değeri geçersiz.');
+      if (limit !== undefined && (!Number.isInteger(limit) || limit < 1 || limit > 200)) throw new FinanceBridgeError('VALIDATION_ERROR', 'Ödeme limit değeri 1–200 arasında olmalıdır.');
+      return execute(rawScope, PAYMENTS_OPERATION, {from,to,status,cursor,limit});
+    },
     async getAccrualDetail(rawScope, accrualId) {
       const normalizedAccrualId = requiredUuid(accrualId, 'accrualId', 'VALIDATION_ERROR');
       return execute(rawScope, ACCRUAL_OPERATION, {}, {accrualId:normalizedAccrualId});
@@ -155,6 +164,11 @@ if (auth && ui) {
       if (!scope) throw new FinanceBridgeError('FINANCE_SCOPE_UNAVAILABLE', 'ERP finans kapsamı henüz sağlanmadı.');
       return client.getPayment(scope, paymentId);
     },
+    async listPayments(options = {}) {
+      const scope = configuredScope || refreshContext();
+      if (!scope) throw new FinanceBridgeError('FINANCE_SCOPE_UNAVAILABLE', 'ERP finans kapsamı henüz sağlanmadı.');
+      return client.listPayments(scope, options);
+    },
     async getAccrualDetail(accrualId) {
       const scope = configuredScope || refreshContext();
       if (!scope) throw new FinanceBridgeError('FINANCE_SCOPE_UNAVAILABLE', 'ERP finans kapsamı henüz sağlanmadı.');
@@ -197,6 +211,19 @@ if (auth && ui) {
         throw error;
       }
     },
+    async loadPayments({append = false} = {}) {
+      const cursor = append ? ui.paymentsMoreButton?.dataset?.cursor : undefined;
+      const filters = ui.getPaymentFilters?.() || {};
+      ui.setPaymentsState?.('LOADING', append ? 'Ödeme devam sayfası yükleniyor…' : 'Yetkili ödeme listesi yükleniyor…');
+      try {
+        const result = await api.listPayments({...filters, cursor});
+        ui.renderPaymentsPage?.(result.data, {append});
+        return result;
+      } catch (error) {
+        ui.setPaymentsState?.('ERROR', error instanceof FinanceBridgeError ? error.message : 'Ödeme listesi alınamadı.');
+        throw error;
+      }
+    },
     async loadDealerStatement({append = false} = {}) {
       const cursor = append ? ui.statementMoreButton?.dataset?.cursor : undefined;
       const filters = ui.getStatementFilters?.() || {};
@@ -217,6 +244,9 @@ if (auth && ui) {
   ui.statementRefreshButton?.addEventListener('click', () => { void api.loadDealerStatement().catch(() => {}); });
   ui.statementMoreButton?.addEventListener('click', () => { void api.loadDealerStatement({append:true}).catch(() => {}); });
   ui.statementStatus?.addEventListener('change', () => { ui.resetStatement?.('Filtre değişti. Güncel ekstreyi getirin.'); });
+  ui.paymentsRefreshButton?.addEventListener('click', () => { void api.loadPayments().catch(() => {}); });
+  ui.paymentsMoreButton?.addEventListener('click', () => { void api.loadPayments({append:true}).catch(() => {}); });
+  ui.paymentsStatus?.addEventListener('change', () => { ui.resetPayments?.('Filtre değişti. Güncel ödemeleri getirin.'); });
   globalThis.addEventListener?.('ototr:finance-payment-requested', event => { void api.loadPayment(event.detail?.paymentId).catch(() => {}); });
   globalThis.addEventListener?.('ototr:finance-accrual-requested', event => { void api.loadAccrualDetail(event.detail?.accrualId).catch(() => {}); });
   globalThis.addEventListener?.('ototr:finance-refund-requested',event=>{void api.loadRoyaltyRefundTrace(event.detail?.reversalAccrualId).catch(()=>{});});

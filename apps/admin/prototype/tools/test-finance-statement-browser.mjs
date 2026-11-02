@@ -35,6 +35,7 @@ const item = (id, feeCode, gross, allocated, open, status = 'OPEN', recordType =
   allocatedAmount:allocated, openAmount:open, currencyCode:'TRY', status,
   paymentIds:['55555555-5555-4555-8555-555555555555'],
 });
+const paymentItem=(id,status='PARTIALLY_ALLOCATED',received='200.00000000',verified='200.00000000',allocated='80.00000000',unallocated='120.00000000')=>({paymentId:id,paymentDate:'2026-11-03',valueDate:'2026-11-03',status,paymentMethodCode:'BANK_TRANSFER',externalReference:`BANK-${id.slice(0,4)}`,amount:{amount:received,currency:'TRY'},verifiedAmount:{amount:verified,currency:'TRY'},allocatedAmount:{amount:allocated,currency:'TRY'},unallocatedAmount:{amount:unallocated,currency:'TRY'},allocationCount:allocated==='0'?0:1,version:1,createdAtUtc:'2026-11-03T09:00:00Z'});
 
 let browser;
 const requests = [];
@@ -57,6 +58,14 @@ try {
     }
     if(body.operationId==='getFinancePeriod'){
       const data={periodId:'18181818-1818-4818-8818-181818181818',parentPeriodId:'19191919-1919-4919-8919-191919191919',dealerAccountId:scope.dealerAccountId,branchId:scope.branchId,periodStart:'2026-11-01',periodEnd:'2026-11-30',currencyCode:'TRY',status:'LOCKED',sourceSnapshotHash:'a'.repeat(64),checkSnapshotHash:'b'.repeat(64),lockedAtUtc:'2026-11-30T20:00:00Z',version:3};
+      await route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({data})});return;
+    }
+    if(body.operationId==='listPayments'){
+      const data=body.query.cursor==='payment-page-2'
+        ? {items:[paymentItem('56565656-5656-4656-8656-565656565656','VERIFIED','50.00000000','50.00000000','0','50.00000000')],nextCursor:null,hasMore:false}
+        : body.query.status==='REJECTED'
+          ? {items:[],nextCursor:null,hasMore:false}
+          : {items:[paymentItem('55555555-5555-4555-8555-555555555555')],nextCursor:'payment-page-2',hasMore:true};
       await route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({data})});return;
     }
     if (body.operationId === 'getPayment') {
@@ -139,14 +148,36 @@ try {
   assert.match(await page.locator('[data-finance-statement-body]').innerText(), /ENTRY_FRANCHISE/);
   assert.equal(await page.locator('[data-finance-statement-more]').isVisible(), true);
   await page.click('[data-finance-payment-id]');
-  assert.equal(await page.locator('[data-finance-payment-detail]').getAttribute('data-state'), 'LOADING');
+  assert.equal(await page.locator('[data-finance-screen-code]').first().innerText(),'SCR-08');
+  assert.equal(await page.locator('[data-finance-payments]').isVisible(),true);
   await page.waitForFunction(() => document.querySelector('[data-finance-payment-detail]')?.dataset.state === 'READY');
   assert.match(await page.locator('[data-finance-payment-detail]').innerText(), /200,00000000 TRY/);
   assert.match(await page.locator('[data-finance-payment-detail]').innerText(), /120,00000000 TRY/);
   assert.match(await page.locator('[data-finance-payment-allocations]').innerText(), /80,00000000 TRY/);
   assert.equal(requests.at(-1).operationId, 'getPayment');
   await page.click('[data-finance-payment-close]');
-  assert.equal(await page.locator('[data-finance-payment-detail]').isVisible(), false);
+  assert.equal(await page.locator('[data-finance-payment-detail]').isVisible(),true);
+  assert.equal(await page.locator('[data-finance-payment-detail]').getAttribute('data-state'),'EMPTY');
+  await page.click('[data-finance-payments-refresh]');
+  assert.equal(await page.locator('[data-finance-payments]').getAttribute('data-state'),'LOADING');
+  await page.waitForFunction(()=>document.querySelectorAll('[data-finance-payments-body] tr').length===1);
+  assert.match(await page.locator('[data-finance-payments-body]').innerText(),/BANK-5555/);
+  assert.match(await page.locator('[data-finance-payments-body]').innerText(),/120,00000000 TRY/);
+  assert.equal(requests.at(-1).operationId,'listPayments');
+  await page.click('[data-finance-payments-more]');
+  await page.waitForFunction(()=>document.querySelectorAll('[data-finance-payments-body] tr').length===2);
+  assert.equal(await page.locator('[data-finance-payments-more]').isVisible(),false);
+  await page.click('[data-finance-payments-body] [data-finance-payment-id]');
+  await page.waitForFunction(()=>document.querySelector('[data-finance-payment-detail]')?.dataset.state==='READY');
+  assert.equal(requests.at(-1).operationId,'getPayment');
+  await page.click('[data-finance-payment-close]');
+  await page.selectOption('[data-finance-payments-status]','REJECTED');
+  assert.equal(await page.locator('[data-finance-payments-body] tr').count(),0);
+  await page.click('[data-finance-payments-refresh]');
+  await page.waitForFunction(()=>document.querySelector('[data-finance-payments]')?.dataset.state==='EMPTY');
+  assert.equal(await page.locator('[data-finance-payments-table]').isVisible(),false);
+  await page.click('[data-finance-screen="SCR-07"]');
+  assert.equal(await page.locator('[data-finance-payment-detail]').isVisible(),false);
   await page.click('[data-finance-accrual-id]');
   assert.equal(await page.locator('[data-finance-screen-code]').first().innerText(), 'SCR-06');
   assert.equal(await page.locator('[data-finance-statement]').isVisible(), false);
@@ -198,7 +229,7 @@ try {
   assert.match(await page.locator('[data-finance-statement-state]').innerText(), /geçici olarak kullanılamıyor/i);
   assert.equal(await page.locator('[data-finance-statement-refresh]').isEnabled(), true);
 
-  console.log('PASS finance-statement-browser: scoped period, statement, payment, accrual and royalty refund trace flows');
+  console.log('PASS finance-statement-browser: scoped period, statement, payment list/detail, accrual and royalty refund trace flows');
 } finally {
   await browser?.close();
   await new Promise(resolve => server.close(resolve));

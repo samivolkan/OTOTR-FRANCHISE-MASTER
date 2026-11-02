@@ -52,6 +52,14 @@
   const statementCount = root.querySelector('[data-finance-statement-count]');
   const statementTitle = root.querySelector('[data-finance-statement-title]');
   const statementSubtitle = root.querySelector('[data-finance-statement-subtitle]');
+  const payments = root.querySelector('[data-finance-payments]');
+  const paymentsStatus = root.querySelector('[data-finance-payments-status]');
+  const paymentsRefreshButton = root.querySelector('[data-finance-payments-refresh]');
+  const paymentsMoreButton = root.querySelector('[data-finance-payments-more]');
+  const paymentsState = root.querySelector('[data-finance-payments-state]');
+  const paymentsTable = root.querySelector('[data-finance-payments-table]');
+  const paymentsBody = root.querySelector('[data-finance-payments-body]');
+  const paymentsCount = root.querySelector('[data-finance-payments-count]');
   const paymentDetail = root.querySelector('[data-finance-payment-detail]');
   const paymentCloseButton = root.querySelector('[data-finance-payment-close]');
   const paymentState = root.querySelector('[data-finance-payment-state]');
@@ -97,6 +105,7 @@
   const periodCheckHash = root.querySelector('[data-finance-period-check-hash]');
   let scopeReady = false;
   let statementRowCount = 0;
+  let paymentRowCount = 0;
   let activeScreenId = 'SCR-01';
   const statementScreenIds = new Set('SCR-05,SCR-07'.split(','));
 
@@ -126,6 +135,7 @@
     statementSubtitle.textContent = id === 'SCR-05'
       ? 'Kaynak olay, bedel kodu, brüt tutar, açık bakiye ve fatura bağlantıları şube kapsamında gösterilir.'
       : 'Yalnız seçili tüzel kişi, bayi hesabı ve şube kapsamındaki doğrulanmış hareketler.';
+    payments.hidden = id !== 'SCR-08';
     accrualDetail.hidden = id !== 'SCR-06';
     if (id === 'SCR-06' && !accrualDetail.dataset.state) setAccrualState('EMPTY', 'Tahakkuk listesinden bir kayıt seçin.');
     periodDetail.hidden = id !== 'SCR-12';
@@ -209,6 +219,44 @@
   };
   const getStatementFilters = () => Object.freeze({status: statementStatus.value || undefined, limit: 25});
 
+  const setPaymentsState = (next, message) => {
+    if (!['EMPTY','LOADING','READY','ERROR'].includes(next)) throw new Error('INVALID_FINANCE_PAYMENTS_STATE');
+    payments.dataset.state = next;
+    paymentsState.textContent = message || ({EMPTY:'Ödeme bulunamadı.',LOADING:'Yetkili ödemeler yükleniyor…',READY:'Ödemeler yüklendi.',ERROR:'Ödeme listesi yüklenemedi.'})[next];
+    paymentsState.hidden = next === 'READY' && paymentRowCount > 0;
+    paymentsRefreshButton.disabled = !scopeReady || next === 'LOADING';
+    paymentsStatus.disabled = !scopeReady || next === 'LOADING';
+    if (next === 'LOADING') paymentsMoreButton.disabled = true;
+  };
+  const resetPayments = message => {
+    paymentsBody.replaceChildren();
+    paymentRowCount = 0;
+    paymentsTable.hidden = true;
+    paymentsMoreButton.hidden = true;
+    paymentsMoreButton.disabled = true;
+    paymentsCount.textContent = '0 kayıt';
+    resetPayment();
+    setPaymentsState('EMPTY', message || 'Henüz yetkili ödeme isteği yapılmadı.');
+  };
+  const renderPaymentsPage = (payload, {append = false} = {}) => {
+    if (!payload || !Array.isArray(payload.items) || typeof payload.hasMore !== 'boolean' || !(payload.nextCursor == null || typeof payload.nextCursor === 'string')) throw new Error('INVALID_FINANCE_PAYMENTS');
+    const rows = payload.items.map(item => {
+      const currency=item?.amount?.currency;
+      if (!item || !uuidPattern.test(item.paymentId || '') || !paymentStatuses[item.status] || !/^\d{4}-\d{2}-\d{2}$/.test(item.paymentDate || '') || !item.amount || !item.verifiedAmount || !item.allocatedAmount || !item.unallocatedAmount || ![item.verifiedAmount,item.allocatedAmount,item.unallocatedAmount].every(value=>value.currency===currency) || !Number.isInteger(item.allocationCount)) throw new Error('INVALID_FINANCE_PAYMENT_ITEM');
+      const tr=document.createElement('tr');
+      const reference=document.createElement('td'); const strong=document.createElement('div'); strong.className='finance-statement-fee'; strong.textContent=item.externalReference || item.paymentId; const method=document.createElement('small'); method.textContent=item.paymentMethodCode || 'Belirtilmedi'; reference.append(strong,method);
+      const allocation=document.createElement('td'); allocation.append(document.createTextNode(amount(item.allocatedAmount.amount,currency))); const remaining=document.createElement('small'); remaining.textContent=`Kalan: ${amount(item.unallocatedAmount.amount,currency)} · ${item.allocationCount} tahsis`; allocation.append(document.createElement('br'),remaining);
+      const action=document.createElement('td'); const badge=document.createElement('span'); badge.className=`finance-statement-status is-${item.status.toLowerCase()}`; badge.textContent=paymentStatuses[item.status]; const button=document.createElement('button'); button.type='button'; button.className='finance-inline-action'; button.dataset.financePaymentId=item.paymentId; button.textContent='Detayı aç'; action.append(badge,button);
+      tr.append(cell(new Intl.DateTimeFormat('tr-TR').format(new Date(`${item.paymentDate}T00:00:00Z`))),reference,cell(amount(item.amount.amount,currency)),cell(amount(item.verifiedAmount.amount,currency)),allocation,action);
+      return tr;
+    });
+    if (!append) { paymentsBody.replaceChildren(); paymentRowCount=0; resetPayment(); }
+    paymentsBody.append(...rows); paymentRowCount+=rows.length; paymentsCount.textContent=`${paymentRowCount} kayıt`; paymentsTable.hidden=paymentRowCount===0;
+    paymentsMoreButton.hidden=!payload.hasMore; paymentsMoreButton.disabled=!payload.hasMore; paymentsMoreButton.dataset.cursor=payload.nextCursor || '';
+    setPaymentsState(paymentRowCount?'READY':'EMPTY',paymentRowCount?'Ödemeler yüklendi.':'Seçili filtrelerde ödeme bulunamadı.');
+  };
+  const getPaymentFilters = () => Object.freeze({status:paymentsStatus.value || undefined,limit:25});
+
   const setPaymentState = (next, message) => {
     if (!['EMPTY','LOADING','READY','ERROR'].includes(next)) throw new Error('INVALID_FINANCE_PAYMENT_STATE');
     paymentDetail.hidden = false;
@@ -218,7 +266,10 @@
     paymentContent.hidden = next !== 'READY';
   };
   const resetPayment = () => {
-    paymentDetail.hidden = true;
+    paymentDetail.dataset.state = 'EMPTY';
+    paymentDetail.hidden = activeScreenId !== 'SCR-08';
+    paymentState.hidden = false;
+    paymentState.textContent = 'Ödeme listesinden bir kayıt seçin.';
     paymentContent.hidden = true;
     paymentAllocations.replaceChildren();
   };
@@ -346,9 +397,12 @@
     connectButton.disabled = !ready;
     statementRefreshButton.disabled = !ready;
     statementStatus.disabled = !ready;
+    paymentsRefreshButton.disabled = !ready;
+    paymentsStatus.disabled = !ready;
     contextStatus.textContent = ready ? 'KAPSAM HAZIR · SUNUCU ONAYI GEREKİR' : 'KAPSAM BEKLENİYOR';
     contextStatus.classList.toggle('is-ready', Boolean(ready));
     resetStatement(ready ? 'Henüz yetkili ekstre isteği yapılmadı.' : 'Kapsam ve yetkili bağlantı bekleniyor.');
+    resetPayments(ready ? 'Henüz yetkili ödeme isteği yapılmadı.' : 'Kapsam ve yetkili bağlantı bekleniyor.');
     resetCurrentPeriod(ready ? 'Yetkili veri getirildiğinde şube dönemi burada gösterilir.' : 'Kapsam ve yetkili dönem verisi bekleniyor.');
     if (!ready) setConnectionState('UNCONFIGURED', 'ERP kimlik köprüsünden tüzel kişi, bayi hesabı ve şube kapsamı bekleniyor.');
     return Boolean(ready);
@@ -369,7 +423,10 @@
   });
   statementBody.addEventListener('click', event => {
     const button = event.target.closest('[data-finance-payment-id]');
-    if (button) window.dispatchEvent(new CustomEvent('ototr:finance-payment-requested',{detail:{paymentId:button.dataset.financePaymentId}}));
+    if (button) {
+      selectScreen(screens.find(screen => screen[0] === 'SCR-08'));
+      window.dispatchEvent(new CustomEvent('ototr:finance-payment-requested',{detail:{paymentId:button.dataset.financePaymentId}}));
+    }
     const accrualButton = event.target.closest('[data-finance-accrual-id]');
     if (accrualButton) {
       selectScreen(screens.find(screen => screen[0] === 'SCR-06'));
@@ -378,10 +435,14 @@
     const refundButton=event.target.closest('[data-finance-refund-accrual-id]');
     if (refundButton) window.dispatchEvent(new CustomEvent('ototr:finance-refund-requested',{detail:{reversalAccrualId:refundButton.dataset.financeRefundAccrualId}}));
   });
+  paymentsBody.addEventListener('click', event => {
+    const button=event.target.closest('[data-finance-payment-id]');
+    if(button) window.dispatchEvent(new CustomEvent('ototr:finance-payment-requested',{detail:{paymentId:button.dataset.financePaymentId}}));
+  });
   paymentCloseButton.addEventListener('click', resetPayment);
   accrualCloseButton.addEventListener('click', resetAccrual);
   refundCloseButton.addEventListener('click',resetRefund);
 
   selectScreen(screens[0]);
-  window.OTOTRFinanceUI = Object.freeze({setConnectionState, setScopeContext, renderSummary, setStatementState, renderStatementPage, resetStatement, getStatementFilters, setPaymentState, renderPaymentDetail, resetPayment, setAccrualState, renderAccrualDetail, resetAccrual, setRefundState, renderRefundTrace, resetRefund, renderCurrentPeriod, resetCurrentPeriod, connectButton, statementRefreshButton, statementMoreButton, statementStatus});
+  window.OTOTRFinanceUI = Object.freeze({setConnectionState, setScopeContext, renderSummary, setStatementState, renderStatementPage, resetStatement, getStatementFilters, setPaymentsState, renderPaymentsPage, resetPayments, getPaymentFilters, setPaymentState, renderPaymentDetail, resetPayment, setAccrualState, renderAccrualDetail, resetAccrual, setRefundState, renderRefundTrace, resetRefund, renderCurrentPeriod, resetCurrentPeriod, connectButton, statementRefreshButton, statementMoreButton, statementStatus, paymentsRefreshButton, paymentsMoreButton, paymentsStatus});
 })();
