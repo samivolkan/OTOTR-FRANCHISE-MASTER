@@ -94,6 +94,15 @@ try {
       const data=body.query.cursor?{items:[usage('29292929-2929-4929-8929-292929292929','QUERY-FREE-001',false)],nextCursor:null,hasMore:false}:{items:[usage('28282828-2828-4828-8828-282828282828','QUERY-001',true)],nextCursor:'usage-page-2',hasMore:true};
       await route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({data})});return;
     }
+    if(body.operationId==='listPassThroughExpenses'){
+      const expense=(id,reference,status='POSTED')=>({expenseId:id,expenseDate:'2026-11-03',supplierReference:reference,contractualBasisReference:'OTOTR-MASRAF-2026',feeCode:'PASS_THROUGH',feeName:'Ortak hizmet masrafı',status,sourceAmount:'1200.00000000',distributableAmount:'1200.00000000',currency:'TRY',allocationMethod:'EQUAL',shareCount:2,documentCount:1,journalEntryId:'34343434-3434-4434-8434-343434343434',reversalJournalEntryId:null,version:1});
+      const data=body.query.cursor?{items:[expense('32323232-3232-4232-8232-323232323232','SUPPLIER-002','APPROVED')],nextCursor:null,hasMore:false}:{items:[expense('30303030-3030-4030-8030-303030303030','SUPPLIER-001')],nextCursor:'expense-page-2',hasMore:true};
+      await route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({data})});return;
+    }
+    if(body.operationId==='getPassThroughExpense'){
+      const data={expenseId:body.pathParams.expenseId,expenseDate:'2026-11-03',supplierReference:'SUPPLIER-001',contractualBasisReference:'OTOTR-MASRAF-2026',feeCode:'PASS_THROUGH',feeName:'Ortak hizmet masrafı',status:'POSTED',currency:'TRY',source:{netAmount:'1000.00000000',taxAmount:'200.00000000',grossAmount:'1200.00000000'},distributable:{netAmount:'1000.00000000',taxAmount:'200.00000000',grossAmount:'1200.00000000'},allocationPolicy:{method:'EQUAL'},approval:{status:'APPROVED'},documents:[{documentId:'33333333-3333-4333-8333-333333333334'}],shares:[{shareId:'35353535-3535-4535-8535-353535353535',dealerAccountId:scope.dealerAccountId,branchId:scope.branchId,dealerCode:'BAYI-A',dealerName:'Bayi A',branchCode:'NILUFER',allocationMethod:'EQUAL',allocationRate:'0.50000000',netAmount:'500.00000000',taxAmount:'100.00000000',shareAmount:'600.00000000',currency:'TRY',accrualId:'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa'},{shareId:'36363636-3636-4636-8636-363636363636',dealerAccountId:'37373737-3737-4737-8737-373737373737',branchId:'38383838-3838-4838-8838-383838383838',dealerCode:'BAYI-B',dealerName:'Bayi B',branchCode:'KADIKOY',allocationMethod:'EQUAL',allocationRate:'0.50000000',netAmount:'500.00000000',taxAmount:'100.00000000',shareAmount:'600.00000000',currency:'TRY',accrualId:null}],journalEntryId:'34343434-3434-4434-8434-343434343434',reversalJournalEntryId:null,evidenceHash:'e'.repeat(64),version:1};
+      await route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({data})});return;
+    }
     if (body.operationId === 'getPayment') {
       const paymentId = body.pathParams.paymentId;
       const data = {
@@ -237,6 +246,23 @@ try {
   await page.waitForFunction(()=>document.querySelectorAll('[data-finance-service-usages-body] tr').length===2);
   assert.match(await page.locator('[data-finance-service-usages-body]').innerText(),/Ücretsiz hak/);
   assert.equal(requests.at(-1).operationId,'listServiceUsages');
+  await page.click('[data-finance-screen="SCR-10"]');
+  await page.click('[data-finance-expenses-refresh]');
+  await page.waitForFunction(()=>document.querySelectorAll('[data-finance-expenses-body] tr').length===1);
+  assert.match(await page.locator('[data-finance-expenses-body]').innerText(),/SUPPLIER-001/);
+  assert.match(await page.locator('[data-finance-expenses-body]').innerText(),/1\.200,00000000 TRY/);
+  assert.equal(requests.at(-1).operationId,'listPassThroughExpenses');
+  await page.click('[data-finance-expenses-more]');
+  await page.waitForFunction(()=>document.querySelectorAll('[data-finance-expenses-body] tr').length===2);
+  assert.equal(await page.locator('[data-finance-expenses-more]').isVisible(),false);
+  await page.click('[data-finance-expenses-body] [data-finance-expense-id]');
+  await page.waitForFunction(()=>document.querySelector('[data-finance-expense-detail]')?.dataset.state==='READY');
+  assert.equal(requests.at(-1).operationId,'getPassThroughExpense');
+  assert.match(await page.locator('[data-finance-expense-detail]').innerText(),/1\.200,00000000 TRY/);
+  assert.match(await page.locator('[data-finance-expense-shares]').innerText(),/600,00000000 TRY/);
+  assert.equal(await page.locator('[data-finance-expense-shares] tr').count(),2);
+  assert.match(await page.locator('[data-finance-expense-provenance]').innerText(),/34343434-3434-4434-8434-343434343434/);
+  await page.click('[data-finance-expense-close]');
   await page.click('[data-finance-screen="SCR-07"]');
   assert.equal(await page.locator('[data-finance-payment-detail]').isVisible(),false);
   await page.click('[data-finance-accrual-id]');
@@ -299,7 +325,7 @@ try {
   assert.match(await page.locator('[data-finance-statement-state]').innerText(), /geçici olarak kullanılamıyor/i);
   assert.equal(await page.locator('[data-finance-statement-refresh]').isEnabled(), true);
 
-  console.log('PASS finance-statement-browser: scoped contract/rules, period, statement, payment, accrual and refund flows');
+console.log('PASS finance-statement-browser: HQ expense allocation, scoped contract/rules, period, statement, payment, accrual and refund flows');
 } finally {
   await browser?.close();
   await new Promise(resolve => server.close(resolve));

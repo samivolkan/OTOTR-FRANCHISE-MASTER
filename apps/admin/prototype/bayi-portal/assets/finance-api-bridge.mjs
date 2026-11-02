@@ -1,6 +1,8 @@
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const READ_OPERATION = 'getDealerFinanceSummary';
 const HEADQUARTERS_OPERATION = 'getHeadquartersFinanceSummary';
+const EXPENSES_OPERATION='listPassThroughExpenses';
+const EXPENSE_OPERATION='getPassThroughExpense';
 const STATEMENT_OPERATION = 'getDealerStatement';
 const PAYMENTS_OPERATION = 'listPayments';
 const PAYMENT_OPERATION = 'getPayment';
@@ -89,6 +91,8 @@ export function createFinanceSummaryClient({getConfig, getAccessToken, fetchImpl
       if(typeof currency!=='string'||!/^[A-Z]{3}$/.test(currency)) throw new FinanceBridgeError('VALIDATION_ERROR','Para birimi üç harfli kod olmalıdır.');
       return execute(rawScope,HEADQUARTERS_OPERATION,{asOf,currency},{},true,true);
     },
+    async listPassThroughExpenses(rawScope,{from,to,status,cursor,limit}={}) {for(const [field,value] of [['from',from],['to',to]])if(value!==undefined&&!/^\d{4}-\d{2}-\d{2}$/.test(value))throw new FinanceBridgeError('VALIDATION_ERROR',`${field} YYYY-MM-DD biçiminde olmalıdır.`);if(from&&to&&from>to)throw new FinanceBridgeError('VALIDATION_ERROR','Masraf tarih aralığı geçersiz.');if(status!==undefined&&!['DRAFT','CALCULATED','PENDING_APPROVAL','APPROVED','POSTED','REVERSED'].includes(status))throw new FinanceBridgeError('VALIDATION_ERROR','Masraf durumu geçersiz.');if(cursor!==undefined&&(typeof cursor!=='string'||!cursor.length||cursor.length>512))throw new FinanceBridgeError('VALIDATION_ERROR','Masraf cursor değeri geçersiz.');if(limit!==undefined&&(!Number.isInteger(limit)||limit<1||limit>200))throw new FinanceBridgeError('VALIDATION_ERROR','Masraf limit değeri geçersiz.');return execute(rawScope,EXPENSES_OPERATION,{from,to,status,cursor,limit},{},false,true);},
+    async getPassThroughExpense(rawScope,expenseId){const id=requiredUuid(expenseId,'expenseId','VALIDATION_ERROR');return execute(rawScope,EXPENSE_OPERATION,{}, {expenseId:id},true,true);},
     async getDealerFinanceSummary(rawScope, {asOf} = {}) {
       if (asOf !== undefined && !/^\d{4}-\d{2}-\d{2}$/.test(asOf)) throw new FinanceBridgeError('VALIDATION_ERROR', 'asOf YYYY-MM-DD biçiminde olmalıdır.');
       return execute(rawScope, READ_OPERATION, {asOf});
@@ -204,6 +208,8 @@ if (auth && ui) {
       if(!scope) throw new FinanceBridgeError('FINANCE_SCOPE_UNAVAILABLE','ERP finans kapsamı henüz sağlanmadı.');
       return client.getHeadquartersFinanceSummary(scope,{asOf:options.asOf||connectedAsOf,currency:options.currency||'TRY'});
     },
+    async listPassThroughExpenses(options={}){const scope=configuredScope||refreshContext();if(!scope)throw new FinanceBridgeError('FINANCE_SCOPE_UNAVAILABLE','ERP finans kapsamı henüz sağlanmadı.');return client.listPassThroughExpenses(scope,options);},
+    async getPassThroughExpense(expenseId){const scope=configuredScope||refreshContext();if(!scope)throw new FinanceBridgeError('FINANCE_SCOPE_UNAVAILABLE','ERP finans kapsamı henüz sağlanmadı.');return client.getPassThroughExpense(scope,expenseId);},
     async getPayment(paymentId) {
       const scope = configuredScope || refreshContext();
       if (!scope) throw new FinanceBridgeError('FINANCE_SCOPE_UNAVAILABLE', 'ERP finans kapsamı henüz sağlanmadı.');
@@ -281,6 +287,8 @@ if (auth && ui) {
       catch(error){ ui.setRefundsState?.('ERROR',error instanceof FinanceBridgeError?error.message:'İade listesi alınamadı.'); throw error; }
     },
     async loadServiceUsages({append=false}={}) {const cursor=append?ui.serviceUsagesMoreButton?.dataset?.cursor:undefined;ui.setServiceUsagesState?.('LOADING',append?'Kullanım devam sayfası yükleniyor…':'Yetkili kullanım listesi yükleniyor…');try{const result=await api.listServiceUsages({...ui.getServiceUsageFilters?.(),cursor});ui.renderServiceUsagesPage?.(result.data,{append});return result;}catch(error){ui.setServiceUsagesState?.('ERROR',error instanceof FinanceBridgeError?error.message:'Kullanım listesi alınamadı.');throw error;}},
+    async loadExpenses({append=false}={}){const cursor=append?ui.expensesMoreButton?.dataset?.cursor:undefined;ui.setExpensesState?.('LOADING',append?'Masraf devam sayfası yükleniyor…':'Genel merkez masraf listesi yükleniyor…');try{const result=await api.listPassThroughExpenses({...ui.getExpenseFilters?.(),cursor});ui.renderExpensesPage?.(result.data,{append});return result;}catch(error){ui.setExpensesState?.('ERROR',error instanceof FinanceBridgeError?error.message:'Masraf listesi alınamadı.');throw error;}},
+    async loadExpenseDetail(expenseId){ui.setExpenseState?.('LOADING','Paylar, belgeler ve onay izi yükleniyor…');try{const result=await api.getPassThroughExpense(expenseId);ui.renderExpenseDetail?.(result.data);return result;}catch(error){ui.setExpenseState?.('ERROR',error instanceof FinanceBridgeError?error.message:'Masraf detayı alınamadı.');throw error;}},
     async loadAccrualDetail(accrualId) {
       ui.setAccrualState?.('LOADING', 'Kaynak olay, hesaplama ve çift taraflı fiş yükleniyor…');
       try {
@@ -345,10 +353,14 @@ if (auth && ui) {
   ui.serviceUsagesMoreButton?.addEventListener('click',()=>{void api.loadServiceUsages({append:true}).catch(()=>{});});
   ui.serviceUsagesFamily?.addEventListener('change',()=>{ui.resetServiceUsages?.('Filtre değişti. Kullanımları yeniden getirin.');});
   ui.serviceUsagesChargeStatus?.addEventListener('change',()=>{ui.resetServiceUsages?.('Filtre değişti. Kullanımları yeniden getirin.');});
+  ui.expensesRefreshButton?.addEventListener('click',()=>{void api.loadExpenses().catch(()=>{});});
+  ui.expensesMoreButton?.addEventListener('click',()=>{void api.loadExpenses({append:true}).catch(()=>{});});
+  ui.expensesStatus?.addEventListener('change',()=>{ui.resetExpenses?.('Filtre değişti. Masrafları yeniden getirin.');});
   ui.contractRefreshButton?.addEventListener('click',()=>{void api.loadContractWorkspace().catch(()=>{});});
   ui.contractMoreButton?.addEventListener('click',()=>{void api.loadContractWorkspace({append:true}).catch(()=>{});});
   ui.contractRuleStatus?.addEventListener('change',()=>{ui.resetContractRules?.('Filtre değişti. Kuralları yeniden getirin.');});
   globalThis.addEventListener?.('ototr:finance-payment-requested', event => { void api.loadPayment(event.detail?.paymentId).catch(() => {}); });
   globalThis.addEventListener?.('ototr:finance-accrual-requested', event => { void api.loadAccrualDetail(event.detail?.accrualId).catch(() => {}); });
   globalThis.addEventListener?.('ototr:finance-refund-requested',event=>{void api.loadRoyaltyRefundTrace(event.detail?.reversalAccrualId).catch(()=>{});});
+  globalThis.addEventListener?.('ototr:finance-expense-requested',event=>{void api.loadExpenseDetail(event.detail?.expenseId).catch(()=>{});});
 }
