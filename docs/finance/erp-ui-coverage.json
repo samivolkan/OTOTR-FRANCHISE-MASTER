@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 1,
+  "module": "OTOTR_FRANCHISE_FINANCE",
+  "observedCommit": "8aaac6a",
+  "observedAtUtc": "2026-11-03T00:00:00Z",
+  "policy": {
+    "shellIsNotComplete": true,
+    "verifiedRequiresBrowserEvidence": true,
+    "demoFallbackAllowed": false,
+    "productionDataUsed": false
+  },
+  "screens": [
+    {"id":"SCR-01","name":"Genel Merkez Finans Özeti","status":"SHELL_ONLY","operations":[],"evidence":[],"remaining":["Genel merkez çoklu bayi aggregation read model","Bayi sıralaması","Bedel ailesi kırılımı","İstisna kuyruğu","Yetkili export"]},
+    {"id":"SCR-02","name":"Bayi Finans Özeti","status":"PARTIAL_LIVE_READ","operations":["getDealerFinanceSummary"],"evidence":["apps/admin/prototype/tools/test-finance-statement-browser.mjs","apps/admin/prototype/tools/test-finance-read-edge.mjs"],"remaining":["Bedel ailesi kırılımı","Operasyonel katkı","Şube kırılımı","İtiraz ve export aksiyonları"]},
+    {"id":"SCR-03","name":"Sözleşme ve Kural Sürümleri","status":"SHELL_ONLY","operations":[],"evidence":[],"remaining":["Aktif sözleşme keşfi","Sürüm listesi","Maker-checker yazma akışları","Etki önizleme"]},
+    {"id":"SCR-04","name":"Bedel Kataloğu ve Kural Simülasyonu","status":"SHELL_ONLY","operations":[],"evidence":[],"remaining":["Bedel kataloğu","Kural düzenleme","Sentetik simülasyon","Yayınlama onayı"]},
+    {"id":"SCR-05","name":"Tahakkuklar","status":"SHELL_ONLY","operations":[],"evidence":[],"remaining":["Tahakkuk liste projectionı","Filtreleme","Fatura/dönem durumu","Yetkili export"]},
+    {"id":"SCR-06","name":"Tahakkuk ve Hesaplama İzi","status":"SHELL_ONLY","operations":[],"evidence":[],"remaining":["Bağımsız ekran rotası","Kaynak/kural derin bağlantıları","Açıklama indirme","İtiraz aksiyonu"]},
+    {"id":"SCR-07","name":"Bayi Ekstresi ve Açık Kalemler","status":"LIVE_READ_VERIFIED","operations":["getDealerStatement","getPayment","getAccrualDetail","getRoyaltyRefundTrace"],"evidence":["apps/admin/prototype/tools/test-finance-statement-browser.mjs","apps/admin/prototype/tools/test-finance-api-bridge.mjs","apps/admin/prototype/tools/test-finance-read-edge.mjs"],"remaining":["Açılış/kapanış bakiyesi","Yaşlandırma","CSV/PDF export","İtiraz başlatma"]},
+    {"id":"SCR-08","name":"Ödeme ve Tahsis","status":"SHELL_ONLY","operations":[],"evidence":[],"remaining":["Ödeme listesi","Bağımsız detay rotası","Ödeme oluşturma/doğrulama","Tahsis ve geri alma UI"]},
+    {"id":"SCR-09","name":"Sorgu ve Harici Hizmet Kullanımları","status":"SHELL_ONLY","operations":[],"evidence":[],"remaining":["Kullanım projectionı","Maliyet/fiyat/marj","Ücretsiz hak ve retry ayrımı","İstisna akışı"]},
+    {"id":"SCR-10","name":"Masraf Yansıtma ve Paylaştırma","status":"SHELL_ONLY","operations":[],"evidence":[],"remaining":["Masraf listesi/detayı","Belge yükleme","Paylaştırma önizleme","Onay/posting/ters kayıt UI"]},
+    {"id":"SCR-11","name":"İtiraz Yönetimi","status":"SHELL_ONLY","operations":[],"evidence":[],"remaining":["İtiraz listesi/detayı","SLA ve sahiplik","Kanıt erişimi","Karar ve kredi düzeltme UI"]},
+    {"id":"SCR-12","name":"Dönem, Mutabakat ve Kilit","status":"PARTIAL_LIVE_READ","operations":["getFinancePeriod"],"evidence":["apps/admin/prototype/tools/test-finance-statement-browser.mjs","apps/admin/prototype/tools/test-finance-read-edge.mjs"],"remaining":["Kapanış ön kontrolleri","Mutabakat listesi","Kilitleme maker-checker UI","Yeniden açma talebi UI"]},
+    {"id":"SCR-13","name":"Faturalama ve Muhasebe Export Paketleri","status":"SHELL_ONLY","operations":[],"evidence":[],"remaining":["Paket liste/detay projectionı","Kontrol toplamları","Export aksiyonu","Fatura callback durumu"]},
+    {"id":"SCR-14","name":"Entegrasyon İzleme ve Hata Kuyruğu","status":"SHELL_ONLY","operations":[],"evidence":[],"remaining":["Hata kuyruğu listesi","Maskeli detay","Retry/çöz/ata UI","Gecikme alarmları"]},
+    {"id":"SCR-15","name":"Onay İş Listesi","status":"SHELL_ONLY","operations":[],"evidence":[],"remaining":["Birleşik onay projectionı","Risk/tutar sıralaması","Kanıt erişimi","Maker-checker karar UI"]},
+    {"id":"SCR-16","name":"Audit ve Değişiklik İzi","status":"SHELL_ONLY","operations":[],"evidence":[],"remaining":["Audit listesi","Correlation zinciri","Bütünlük doğrulama","Yetkili export"]},
+    {"id":"SCR-17","name":"Müşteri İadeleri ve Royalty Ters Kayıtları","status":"SHELL_ONLY","operations":[],"evidence":[],"remaining":["İade listesi","Bağımsız detay rotası","Tahsilat/tahakkuk derin bağlantıları","İtiraz aksiyonu"]}
+  ],
+  "crossScreenCapabilities": [
+    {"id":"CAP-01","name":"Ekstre satırından ödeme ve tahsis detayı","hostScreen":"SCR-07","status":"LIVE_READ_VERIFIED","operation":"getPayment"},
+    {"id":"CAP-02","name":"Ekstre satırından tahakkuk ve fiş izi","hostScreen":"SCR-07","status":"LIVE_READ_VERIFIED","operation":"getAccrualDetail"},
+    {"id":"CAP-03","name":"Ekstre satırından royalty iade izi","hostScreen":"SCR-07","status":"LIVE_READ_VERIFIED","operation":"getRoyaltyRefundTrace"}
+  ],
+  "releaseDecision": "NO_GO"
+}
