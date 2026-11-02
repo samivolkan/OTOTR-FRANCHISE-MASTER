@@ -15,6 +15,8 @@ returns boolean language sql stable security definer set search_path='' as $$sel
 create or replace function finance_private.accounting_export_mapping_is_valid(
   p_legal_entity_id uuid,p_mapping_version text,p_journal_entry_id uuid
 ) returns boolean language sql stable security definer set search_path='' as $$select p_mapping_version='SYNTHETIC-ERP-MAP-V1'$$;
+create or replace function finance_private.current_actor_can_read_headquarters(p_actor_id uuid,p_legal_entity_id uuid,p_operation_id text)
+returns boolean language sql stable security definer set search_path=pg_catalog as $$select p_operation_id in('listFinanceExportPackages','getFinanceExportPackage')$$;
 
 do $test$
 declare
@@ -33,7 +35,7 @@ declare
   accounting_journal constant uuid := '85000000-0000-4000-8000-000000000003';
   corr constant uuid := '95000000-0000-4000-8000-000000000001';
   result jsonb; replay jsonb; batch_id uuid; batch_item_id uuid; external_invoice_row_id uuid;
-  export_accounting_batch_id uuid; invoice jsonb; callback jsonb; transition jsonb;
+  export_accounting_batch_id uuid; invoice jsonb; callback jsonb; transition jsonb; package_list jsonb; package_detail jsonb;
 begin
   insert into finance.legal_entities(id,entity_code,legal_name,status,created_by,correlation_id)
   values(hq,'OTOTR-HQ-EXPORT-DEMO','OTOTR Sentetik Aktarım Merkezi','ACTIVE',maker,corr);
@@ -163,7 +165,27 @@ begin
   );
   if replay->>'outcome'<>'REPLAY' then raise exception 'accounting batch replay failed: %',replay; end if;
 
-  raise notice 'BILLING + ACCOUNTING E2E PASSED: 140 TRY billed -> invoice issued -> 140 TRY accounting package ready';
+  package_list:=finance_api.list_finance_export_packages(hq,null,null,null,25);
+  if pg_catalog.jsonb_array_length(package_list->'items')<>2
+     or not exists(select 1 from pg_catalog.jsonb_array_elements(package_list->'items') x where x->>'packageType'='BILLING' and x->>'status'='INVOICED' and x->>'grossTotal'='140.00000000')
+     or not exists(select 1 from pg_catalog.jsonb_array_elements(package_list->'items') x where x->>'packageType'='ACCOUNTING' and x->>'status'='READY' and x->>'grossTotal'='140.00000000') then
+    raise exception 'finance export package list mismatch: %',package_list;
+  end if;
+  package_detail:=finance_api.get_finance_export_package(hq,'BILLING',batch_id);
+  if package_detail#>>'{externalInvoice,status}'<>'ISSUED'
+     or package_detail#>>'{externalInvoice,invoiceNumber}'<>'OTOTR-2026-000001'
+     or pg_catalog.jsonb_array_length(package_detail->'items')<>1 then
+    raise exception 'billing export package detail mismatch: %',package_detail;
+  end if;
+  package_detail:=finance_api.get_finance_export_package(hq,'ACCOUNTING',export_accounting_batch_id);
+  if package_detail#>>'{totals,debitAmount}'<>'140.00000000'
+     or package_detail#>>'{totals,creditAmount}'<>'140.00000000'
+     or pg_catalog.jsonb_array_length(package_detail->'packages')<>1
+     or package_detail#>>'{packages,0,entryCount}'<>'1' then
+    raise exception 'accounting export package detail mismatch: %',package_detail;
+  end if;
+
+  raise notice 'BILLING + ACCOUNTING E2E PASSED: list/detail projections; 140 TRY billed -> invoice issued -> 140 TRY accounting package ready';
 end
 $test$;
 
