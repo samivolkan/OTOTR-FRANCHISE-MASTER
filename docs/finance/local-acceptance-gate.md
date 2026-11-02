@@ -14,6 +14,7 @@ Kapsam:
 - kilitli dönem faturalama paketi, harici fatura callback mutabakatı ve muhasebe aktarım paketi.
 - kaynak snapshot dondurma, eksik işte bekleme ve dönem hesaplama finalizasyonu;
 - maker-checker dönem kapanışı, mutabakat kilidi ve belgeye dayalı kontrollü yeniden açma.
+- bayi finans özeti, cursor tabanlı hesap ekstresi ve çapraz bayi kapsam izolasyonu.
 
 Çalıştırma:
 

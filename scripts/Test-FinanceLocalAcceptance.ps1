@@ -13,7 +13,8 @@ $checks = @(
   'Test-FinancePaymentLifecycleE2E.ps1',
   'Test-FinanceBillingAccountingE2E.ps1',
   'Test-FinancePeriodCalculationE2E.ps1',
-  'Test-FinancePeriodGovernanceE2E.ps1'
+  'Test-FinancePeriodGovernanceE2E.ps1',
+  'Test-FinanceDealerReadModelsE2E.ps1'
 )
 
 $results = foreach ($check in $checks) {
