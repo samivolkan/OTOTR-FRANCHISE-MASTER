@@ -27,6 +27,8 @@ assert.equal(captured.options.headers.apikey, publishableKey);
 assert.equal(captured.options.headers.Authorization, `Bearer ${token}`);
 assert.equal(captured.options.headers['Correlation-Id'], correlationId);
 assert.deepEqual(JSON.parse(captured.options.body), { operationId: 'getDealerFinanceSummary', scope, pathParams: { dealerAccountId: scope.dealerAccountId }, query: { asOf: '2026-11-03' } });
+await client.getHeadquartersFinanceSummary(scope,{asOf:'2026-11-03',currency:'TRY'});
+assert.deepEqual(JSON.parse(captured.options.body),{operationId:'getHeadquartersFinanceSummary',scope,pathParams:{},query:{asOf:'2026-11-03',currency:'TRY'}});
 await client.getDealerStatement(scope, { from: '2026-11-01', to: '2026-11-30', status: 'OPEN', cursor: 'cursor', limit: 25 });
 assert.deepEqual(JSON.parse(captured.options.body), { operationId: 'getDealerStatement', scope, pathParams: { dealerAccountId: scope.dealerAccountId }, query: { from: '2026-11-01', to: '2026-11-30', status: 'OPEN', cursor: 'cursor', limit: 25 } });
 await client.listPayments(scope,{from:'2026-11-01',to:'2026-11-30',status:'VERIFIED',cursor:'payment-cursor',limit:25});
@@ -63,6 +65,7 @@ for (const invalidConfig of [
 const unauthenticated = createFinanceSummaryClient({ getConfig: () => ({ url: 'https://example.com', publishableKey }), getAccessToken: () => '', fetchImpl: async () => { throw new Error('must not run'); } });
 await rejectsWithCode(() => unauthenticated.getDealerFinanceSummary(scope), 'AUTH_REQUIRED');
 await rejectsWithCode(() => client.getDealerStatement(scope, { from: '2026-11-30', to: '2026-11-01' }), 'VALIDATION_ERROR');
+await rejectsWithCode(()=>client.getHeadquartersFinanceSummary(scope,{currency:'TRY'}),'VALIDATION_ERROR');
 await rejectsWithCode(() => client.getDealerStatement(scope, { status: 'INVALID' }), 'VALIDATION_ERROR');
 await rejectsWithCode(() => client.getDealerStatement(scope, { limit: 201 }), 'VALIDATION_ERROR');
 await rejectsWithCode(() => client.listPayments(scope,{status:'OPEN'}),'VALIDATION_ERROR');
@@ -101,6 +104,7 @@ await import(`../bayi-portal/assets/finance-api-bridge.mjs?configured-context=${
 assert.deepEqual(contextRendered, scope);
 assert.equal(typeof globalThis.OTOTRFinance.connectConfiguredScope, 'function');
 assert.equal(typeof globalThis.OTOTRFinance.getDealerStatement, 'function');
+assert.equal(typeof globalThis.OTOTRFinance.getHeadquartersFinanceSummary,'function');
 assert.equal(typeof globalThis.OTOTRFinance.listPayments, 'function');
 assert.equal(typeof globalThis.OTOTRFinance.getPayment, 'function');
 assert.equal(typeof globalThis.OTOTRFinance.getAccrualDetail, 'function');

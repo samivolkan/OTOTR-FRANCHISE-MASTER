@@ -1,5 +1,6 @@
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const READ_OPERATION = 'getDealerFinanceSummary';
+const HEADQUARTERS_OPERATION = 'getHeadquartersFinanceSummary';
 const STATEMENT_OPERATION = 'getDealerStatement';
 const PAYMENTS_OPERATION = 'listPayments';
 const PAYMENT_OPERATION = 'getPayment';
@@ -56,7 +57,7 @@ async function jsonOrNull(response) {
 export function createFinanceSummaryClient({getConfig, getAccessToken, fetchImpl = globalThis.fetch, correlationFactory = () => crypto.randomUUID(), timeoutMs = 10000} = {}) {
   if (typeof getConfig !== 'function' || typeof getAccessToken !== 'function' || typeof fetchImpl !== 'function') throw new FinanceBridgeError('CONFIGURATION_ERROR', 'Finans istemci bağımlılıkları eksik.');
   if (!Number.isInteger(timeoutMs) || timeoutMs < 1000 || timeoutMs > 30000) throw new FinanceBridgeError('CONFIGURATION_ERROR', 'Finans timeout değeri geçersiz.');
-  async function execute(rawScope, operationId, query, extraPathParams = {}, allowNull = false) {
+  async function execute(rawScope, operationId, query, extraPathParams = {}, allowNull = false, headquarters = false) {
       const scope = validateFinanceScope(rawScope);
       const config = validatedConfig(await getConfig());
       const accessToken = validatedToken(await getAccessToken());
@@ -68,7 +69,7 @@ export function createFinanceSummaryClient({getConfig, getAccessToken, fetchImpl
         const response = await fetchImpl(`${config.url}/functions/v1/finance-read`, {
           method: 'POST', signal: controller.signal,
           headers: {apikey: config.publishableKey, Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json; charset=utf-8', 'X-Client-Info': 'ototr-finance-web/0.1', 'Correlation-Id': correlationId},
-          body: JSON.stringify({operationId, scope, pathParams: {dealerAccountId: scope.dealerAccountId, ...extraPathParams}, query}),
+          body: JSON.stringify({operationId, scope, pathParams: headquarters ? {...extraPathParams} : {dealerAccountId: scope.dealerAccountId, ...extraPathParams}, query}),
         });
         const payload = await jsonOrNull(response);
         if (!response.ok) throw new FinanceBridgeError(payload?.error?.code || (response.status === 403 ? 'SCOPE_DENIED' : 'FINANCE_READ_FAILED'), payload?.error?.message || 'Finans özeti alınamadı.', response.status);
@@ -82,6 +83,11 @@ export function createFinanceSummaryClient({getConfig, getAccessToken, fetchImpl
       } finally { clearTimeout(timer); }
   }
   return Object.freeze({
+    async getHeadquartersFinanceSummary(rawScope,{asOf,currency='TRY'}={}) {
+      if(typeof asOf!=='string'||!/^\d{4}-\d{2}-\d{2}$/.test(asOf)) throw new FinanceBridgeError('VALIDATION_ERROR','asOf YYYY-MM-DD biçiminde zorunludur.');
+      if(typeof currency!=='string'||!/^[A-Z]{3}$/.test(currency)) throw new FinanceBridgeError('VALIDATION_ERROR','Para birimi üç harfli kod olmalıdır.');
+      return execute(rawScope,HEADQUARTERS_OPERATION,{asOf,currency},{},true,true);
+    },
     async getDealerFinanceSummary(rawScope, {asOf} = {}) {
       if (asOf !== undefined && !/^\d{4}-\d{2}-\d{2}$/.test(asOf)) throw new FinanceBridgeError('VALIDATION_ERROR', 'asOf YYYY-MM-DD biçiminde olmalıdır.');
       return execute(rawScope, READ_OPERATION, {asOf});
@@ -166,6 +172,13 @@ if (auth && ui) {
         ui.renderSummary(result.data, result.scope);
         const periodResult=await client.getCurrentFinancePeriod(scope,{asOf:result.data.asOf});
         ui.renderCurrentPeriod?.(periodResult.data);
+        try {
+          const headquartersResult=await client.getHeadquartersFinanceSummary(scope,{asOf:result.data.asOf,currency:result.data.currencyCode||'TRY'});
+          ui.renderHeadquartersSummary?.(headquartersResult.data);
+        } catch(error) {
+          if(error instanceof FinanceBridgeError&&error.code==='SCOPE_DENIED') ui.resetHeadquartersSummary?.('Bu kullanıcı için genel merkez finans kapsamı tanımlı değil.');
+          else throw error;
+        }
         return result;
       } catch (error) {
         ui.setConnectionState('ERROR', error instanceof FinanceBridgeError ? error.message : 'Finans servisine ulaşılamadı.');
@@ -181,6 +194,11 @@ if (auth && ui) {
       const scope = configuredScope || refreshContext();
       if (!scope) throw new FinanceBridgeError('FINANCE_SCOPE_UNAVAILABLE', 'ERP finans kapsamı henüz sağlanmadı.');
       return client.getDealerStatement(scope, options);
+    },
+    async getHeadquartersFinanceSummary(options={}) {
+      const scope=configuredScope||refreshContext();
+      if(!scope) throw new FinanceBridgeError('FINANCE_SCOPE_UNAVAILABLE','ERP finans kapsamı henüz sağlanmadı.');
+      return client.getHeadquartersFinanceSummary(scope,{asOf:options.asOf||connectedAsOf,currency:options.currency||'TRY'});
     },
     async getPayment(paymentId) {
       const scope = configuredScope || refreshContext();

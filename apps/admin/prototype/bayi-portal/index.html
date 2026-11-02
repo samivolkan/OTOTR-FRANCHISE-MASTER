@@ -1325,6 +1325,15 @@ button,input,select,textarea{font:inherit}.app{min-height:100vh;display:grid;gri
               <article><span>Tahsil edilen</span><b data-finance-kpi="collected">—</b><small>Doğrulanmış ödeme verisi yok</small></article>
               <article><span>Açık / geciken</span><b data-finance-kpi="open">—</b><small data-finance-overdue>Açık kalem projectionı yok</small></article>
             </section>
+            <section class="finance-statement" data-finance-headquarters hidden aria-labelledby="financeHeadquartersTitle">
+              <div class="finance-statement-head"><div><span class="finance-screen-code">GENEL MERKEZ PROJECTION</span><h3 id="financeHeadquartersTitle">Tüm Bayiler Finans Görünümü</h3><p data-finance-headquarters-subtitle>Yetkili tüzel kişi kapsamındaki bayi ve şubelerin aynı gün ve para birimindeki snapshot toplamları.</p></div><span class="finance-state-chip" data-finance-headquarters-state>EMPTY · YETKİLİ VERİ BEKLENİYOR</span></div>
+              <div class="finance-period-grid" data-finance-headquarters-counts hidden><article><span>Bayi sayısı</span><b data-finance-headquarters-dealers>—</b><small>Aktif bayi tüzel kişileri</small></article><article><span>Şube sayısı</span><b data-finance-headquarters-branches>—</b><small>Snapshot kapsamındaki şubeler</small></article><article><span>İade edilen</span><b data-finance-headquarters-refunded>—</b><small>Royalty ve diğer ters kayıtlar</small></article><article><span>İtirazlı</span><b data-finance-headquarters-disputed>—</b><small>Karar bekleyen finansal tutar</small></article></div>
+              <div class="finance-statement-head"><div><span class="finance-screen-code">BEDEL AİLESİ</span><h4>Gelir ve Kesinti Kırılımı</h4></div></div>
+              <div class="finance-statement-table-wrap" data-finance-headquarters-families-table hidden><table class="finance-statement-table"><thead><tr><th>Bedel ailesi</th><th>Net</th><th>KDV</th><th>Brüt</th></tr></thead><tbody data-finance-headquarters-families></tbody></table></div>
+              <div class="finance-statement-head"><div><span class="finance-screen-code">BAYİ SIRALAMASI</span><h4>Açık Bakiye Önceliği</h4></div></div>
+              <div class="finance-statement-table-wrap" data-finance-headquarters-ranking-table hidden><table class="finance-statement-table"><thead><tr><th>Bayi / şube</th><th>Tahakkuk</th><th>Tahsilat</th><th>Açık</th><th>Geciken</th></tr></thead><tbody data-finance-headquarters-ranking></tbody></table></div>
+              <div class="finance-statement-state" data-finance-headquarters-empty>Yetkili genel merkez özeti bekleniyor.</div>
+            </section>
             <section class="finance-period-detail" data-finance-period-detail hidden aria-labelledby="financePeriodTitle">
               <div class="finance-period-detail-head"><div><span class="finance-screen-code">ŞUBE DÖNEM PROJECTION</span><h3 id="financePeriodTitle">Dönem, Mutabakat ve Kilit</h3></div><span class="finance-state-chip" data-finance-period-state>EMPTY · YETKİLİ VERİ BEKLENİYOR</span></div>
               <div class="finance-period-grid" data-finance-period-content hidden>

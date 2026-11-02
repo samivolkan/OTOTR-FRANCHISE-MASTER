@@ -60,6 +60,18 @@
   const paymentsTable = root.querySelector('[data-finance-payments-table]');
   const paymentsBody = root.querySelector('[data-finance-payments-body]');
   const paymentsCount = root.querySelector('[data-finance-payments-count]');
+  const headquarters = root.querySelector('[data-finance-headquarters]');
+  const headquartersState = root.querySelector('[data-finance-headquarters-state]');
+  const headquartersCounts = root.querySelector('[data-finance-headquarters-counts]');
+  const headquartersDealers = root.querySelector('[data-finance-headquarters-dealers]');
+  const headquartersBranches = root.querySelector('[data-finance-headquarters-branches]');
+  const headquartersRefunded = root.querySelector('[data-finance-headquarters-refunded]');
+  const headquartersDisputed = root.querySelector('[data-finance-headquarters-disputed]');
+  const headquartersFamiliesTable = root.querySelector('[data-finance-headquarters-families-table]');
+  const headquartersFamilies = root.querySelector('[data-finance-headquarters-families]');
+  const headquartersRankingTable = root.querySelector('[data-finance-headquarters-ranking-table]');
+  const headquartersRanking = root.querySelector('[data-finance-headquarters-ranking]');
+  const headquartersEmpty = root.querySelector('[data-finance-headquarters-empty]');
   const refunds = root.querySelector('[data-finance-refunds]');
   const refundsRefreshButton = root.querySelector('[data-finance-refunds-refresh]');
   const refundsMoreButton = root.querySelector('[data-finance-refunds-more]');
@@ -136,6 +148,8 @@
   let contractRuleRowCount = 0;
   let contractRulesVersionId = null;
   let activeScreenId = 'SCR-01';
+  let cachedDealerSummary = null;
+  let cachedHeadquartersSummary = null;
   const statementScreenIds = new Set('SCR-05,SCR-07'.split(','));
   const contractScreenIds = new Set('SCR-03,SCR-04'.split(','));
 
@@ -166,6 +180,7 @@
       ? 'Kaynak olay, bedel kodu, brüt tutar, açık bakiye ve fatura bağlantıları şube kapsamında gösterilir.'
       : 'Yalnız seçili tüzel kişi, bayi hesabı ve şube kapsamındaki doğrulanmış hareketler.';
     payments.hidden = id !== 'SCR-08';
+    headquarters.hidden = id !== 'SCR-01';
     refunds.hidden = id !== 'SCR-17';
     contractWorkspace.hidden = !contractScreenIds.has(id);
     contractTitle.textContent = id === 'SCR-04' ? 'Bedel Kataloğu ve Kural Yapısı' : 'Sözleşme ve Kural Sürümleri';
@@ -173,6 +188,7 @@
     accrualDetail.hidden = id !== 'SCR-06';
     if (id === 'SCR-06' && !accrualDetail.dataset.state) setAccrualState('EMPTY', 'Tahakkuk listesinden bir kayıt seçin.');
     periodDetail.hidden = id !== 'SCR-12';
+    displayCachedSummary();
   };
 
   const canonicalDecimal = value => {
@@ -467,22 +483,31 @@
     if (next !== 'READY') resetAmounts();
   };
 
+  const applySummaryKpis = summary => {
+    kpis.accrued.textContent=money(summary.accrued);kpis.invoiced.textContent=money(summary.invoiced);kpis.collected.textContent=money(summary.collected);kpis.open.textContent=money(summary.open);overdue.textContent=`Geciken: ${money(summary.overdue)}`;period.textContent=summary.asOf||'Seçilmedi';
+  };
+  const displayCachedSummary=()=>{const summary=activeScreenId==='SCR-01'?cachedHeadquartersSummary:cachedDealerSummary;if(summary) applySummaryKpis(summary);};
   const renderSummary = (summary, scope) => {
     if (!summary || typeof summary !== 'object') throw new Error('INVALID_FINANCE_SUMMARY');
     for (const key of ['legalEntityId','dealerAccountId','branchId']) {
       if (summary[key] !== scope[key]) throw new Error('FINANCE_SCOPE_MISMATCH');
       contextFields[key].textContent = summary[key];
     }
-    kpis.accrued.textContent = money(summary.accrued);
-    kpis.invoiced.textContent = money(summary.invoiced);
-    kpis.collected.textContent = money(summary.collected);
-    kpis.open.textContent = money(summary.open);
-    overdue.textContent = `Geciken: ${money(summary.overdue)}`;
+    cachedDealerSummary=summary;
     const calculatedAt = summary.calculatedAtUtc ? new Date(summary.calculatedAtUtc) : null;
     if (calculatedAt && Number.isNaN(calculatedAt.getTime())) throw new Error('INVALID_FINANCE_TIMESTAMP');
     freshness.textContent = calculatedAt ? calculatedAt.toLocaleString('tr-TR') : 'Bilinmiyor';
-    period.textContent = summary.asOf || 'Seçilmedi';
+    if(activeScreenId!=='SCR-01') applySummaryKpis(summary);
     setConnectionState('READY');
+  };
+  const resetHeadquartersSummary=message=>{cachedHeadquartersSummary=null;headquarters.dataset.state='EMPTY';headquartersState.textContent='EMPTY · YETKİLİ VERİ BEKLENİYOR';headquartersCounts.hidden=true;headquartersFamiliesTable.hidden=true;headquartersRankingTable.hidden=true;headquartersFamilies.replaceChildren();headquartersRanking.replaceChildren();headquartersEmpty.hidden=false;headquartersEmpty.textContent=message||'Yetkili genel merkez özeti bekleniyor.';};
+  const renderHeadquartersSummary=summary=>{
+    if(summary===null){resetHeadquartersSummary('Seçili tarih ve para biriminde genel merkez snapshotı bulunamadı.');return;}
+    if(!summary||!uuidPattern.test(summary.legalEntityId||'')||!/^\d{4}-\d{2}-\d{2}$/.test(summary.asOf||'')||!/^[A-Z]{3}$/.test(summary.currency||'')||!Number.isInteger(summary.dealerCount)||!Number.isInteger(summary.branchCount)||!Array.isArray(summary.feeFamilies)||!Array.isArray(summary.dealerRanking)) throw new Error('INVALID_HEADQUARTERS_SUMMARY');
+    for(const key of ['accrued','invoiced','collected','open','overdue','refunded','disputed']) money(summary[key]);
+    const familyRows=summary.feeFamilies.map(item=>{if(!item||typeof item.feeFamily!=='string'||item.currency!==summary.currency) throw new Error('INVALID_HEADQUARTERS_FAMILY');const tr=document.createElement('tr');tr.append(cell(item.feeFamily),cell(amount(item.netAmount,item.currency)),cell(amount(item.taxAmount,item.currency)),cell(amount(item.grossAmount,item.currency)));return tr;});
+    const rankingRows=summary.dealerRanking.map(item=>{if(!item||!uuidPattern.test(item.dealerAccountId||'')||!uuidPattern.test(item.branchId||'')||item.currency!==summary.currency) throw new Error('INVALID_HEADQUARTERS_RANKING');const descriptor=document.createElement('td');const dealer=document.createElement('div');dealer.className='finance-statement-fee';dealer.textContent=`${item.dealerCode} · ${item.dealerName}`;const branch=document.createElement('small');branch.textContent=item.branchCode;descriptor.append(dealer,branch);const tr=document.createElement('tr');tr.append(descriptor,cell(amount(item.accruedGrossAmount,item.currency)),cell(amount(item.collectedGrossAmount,item.currency)),cell(amount(item.openGrossAmount,item.currency)),cell(amount(item.overdueGrossAmount,item.currency)));return tr;});
+    cachedHeadquartersSummary=summary;headquartersDealers.textContent=String(summary.dealerCount);headquartersBranches.textContent=String(summary.branchCount);headquartersRefunded.textContent=money(summary.refunded);headquartersDisputed.textContent=money(summary.disputed);headquartersFamilies.replaceChildren(...familyRows);headquartersRanking.replaceChildren(...rankingRows);headquartersCounts.hidden=false;headquartersFamiliesTable.hidden=!familyRows.length;headquartersRankingTable.hidden=!rankingRows.length;headquartersEmpty.hidden=true;headquarters.dataset.state='READY';headquartersState.textContent='READY · HEADQUARTERS AGGREGATION';if(activeScreenId==='SCR-01') applySummaryKpis(summary);
   };
 
   const setScopeContext = scope => {
@@ -504,6 +529,7 @@
     resetRefunds(ready ? 'Henüz yetkili iade isteği yapılmadı.' : 'Kapsam ve yetkili bağlantı bekleniyor.');
     resetContract(ready ? 'Henüz yetkili sözleşme isteği yapılmadı.' : 'Kapsam ve yetkili bağlantı bekleniyor.');
     resetCurrentPeriod(ready ? 'Yetkili veri getirildiğinde şube dönemi burada gösterilir.' : 'Kapsam ve yetkili dönem verisi bekleniyor.');
+    resetHeadquartersSummary(ready?'Yetkili veri getirildiğinde genel merkez özeti burada gösterilir.':'Genel merkez finans kapsamı bekleniyor.');
     if (!ready) setConnectionState('UNCONFIGURED', 'ERP kimlik köprüsünden tüzel kişi, bayi hesabı ve şube kapsamı bekleniyor.');
     return Boolean(ready);
   };
@@ -545,5 +571,5 @@
   refundCloseButton.addEventListener('click',resetRefund);
 
   selectScreen(screens[0]);
-  window.OTOTRFinanceUI = Object.freeze({setConnectionState, setScopeContext, renderSummary, setStatementState, renderStatementPage, resetStatement, getStatementFilters, setContractState, renderCurrentContract, resetContract, setContractRulesState, renderContractRulesPage, resetContractRules, setContractRulesVersion, getContractRulesVersion, getContractRuleFilters, setPaymentsState, renderPaymentsPage, resetPayments, getPaymentFilters, setRefundsState,renderRefundsPage,resetRefunds,getRefundFilters,setPaymentState, renderPaymentDetail, resetPayment, setAccrualState, renderAccrualDetail, resetAccrual, setRefundState, renderRefundTrace, resetRefund, renderCurrentPeriod, resetCurrentPeriod, connectButton, statementRefreshButton, statementMoreButton, statementStatus, contractRefreshButton, contractMoreButton, contractRuleStatus, paymentsRefreshButton, paymentsMoreButton, paymentsStatus,refundsRefreshButton,refundsMoreButton});
+  window.OTOTRFinanceUI = Object.freeze({setConnectionState, setScopeContext, renderSummary,renderHeadquartersSummary,resetHeadquartersSummary, setStatementState, renderStatementPage, resetStatement, getStatementFilters, setContractState, renderCurrentContract, resetContract, setContractRulesState, renderContractRulesPage, resetContractRules, setContractRulesVersion, getContractRulesVersion, getContractRuleFilters, setPaymentsState, renderPaymentsPage, resetPayments, getPaymentFilters, setRefundsState,renderRefundsPage,resetRefunds,getRefundFilters,setPaymentState, renderPaymentDetail, resetPayment, setAccrualState, renderAccrualDetail, resetAccrual, setRefundState, renderRefundTrace, resetRefund, renderCurrentPeriod, resetCurrentPeriod, connectButton, statementRefreshButton, statementMoreButton, statementStatus, contractRefreshButton, contractMoreButton, contractRuleStatus, paymentsRefreshButton, paymentsMoreButton, paymentsStatus,refundsRefreshButton,refundsMoreButton});
 })();
