@@ -1,0 +1,43 @@
+{
+  "evidenceId": "FIN-E2E-DISPUTE-CREDIT-ADJUSTMENT-LOCAL-20261103",
+  "status": "PASSED",
+  "evidenceType": "LOCAL_POSTGRES_TRANSACTION_TEST",
+  "environment": {
+    "target": "ototr-local",
+    "database": "Supabase PostgreSQL 17",
+    "productionDataUsed": false,
+    "stagingMutation": false,
+    "productionMutation": false
+  },
+  "scenario": {
+    "currency": "TRY",
+    "originalDebitOpenItem": "140.00000000",
+    "disputedAmount": "100.00000000",
+    "decision": "PARTIALLY_ACCEPTED",
+    "acceptedAmount": "70.00000000",
+    "creditNet": "50.00000000",
+    "creditTax": "20.00000000",
+    "creditGross": "70.00000000"
+  },
+  "assertions": [
+    "dispute is linked to an eligible branch open item and active evidence document",
+    "draft dispute is submitted before decision",
+    "approved maker-checker evidence uses different actors",
+    "partial acceptance creates one CREDIT open item",
+    "negative correction accrual references the original accrual",
+    "correction journal is balanced",
+    "identical decision retry returns REPLAY and creates no duplicate correction",
+    "transaction rollback leaves no synthetic finance row"
+  ],
+  "execution": {
+    "command": "pwsh -NoProfile -File scripts/Test-FinanceDisputeAdjustmentE2E.ps1",
+    "sql": "supabase/tests/finance_dispute_credit_adjustment_e2e.sql",
+    "result": "FINANCE DISPUTE ADJUSTMENT E2E: PASSED"
+  },
+  "limitations": {
+    "commercialPolicy": "SYNTHETIC_TEST_VECTOR_NOT_AN_APPROVED_DEDUCTION_POLICY",
+    "uatSignoff": "NOT_RUN",
+    "stagingRun": "NOT_RUN",
+    "preProductionDecision": "NO_GO"
+  }
+}
