@@ -38,7 +38,7 @@ assert.match(js, /demo veya tahmini tutar gösterilmiyor/);
 assert.match(js, /selectScreen\(screens\[0\]\)/);
 assert.match(js, /renderStatementPage/);
 assert.match(js, /INVALID_FINANCE_STATEMENT_ITEM/);
-assert.match(js, /statement\.hidden = id !== 'SCR-07'/);
+assert.match(js, /statement\.hidden = !statementScreenIds\.has\(id\)/);
 assert.match(js, /renderPaymentDetail/);
 assert.match(js, /ototr:finance-payment-requested/);
 assert.match(js, /renderAccrualDetail/);

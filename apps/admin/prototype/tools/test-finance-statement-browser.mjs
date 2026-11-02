@@ -115,15 +115,23 @@ try {
   await page.click('#navFinance');
   await page.click('[data-finance-connect]');
   await page.waitForFunction(()=>document.querySelector('[data-finance-state]')?.textContent.includes('READY'));
+  await page.waitForFunction(()=>document.querySelector('[data-finance-period-state]')?.textContent.includes('READY'));
   await page.click('[data-finance-screen="SCR-12"]');
   assert.equal(await page.locator('[data-finance-period-detail]').isVisible(),true);
   assert.match(await page.locator('[data-finance-period-detail]').innerText(),/LOCKED/);
   assert.match(await page.locator('[data-finance-period-detail]').innerText(),/v3/);
   assert.match(await page.locator('[data-finance-period-detail]').innerText(),/aaaaaaaaaaaa/);
+  await page.click('[data-finance-screen="SCR-05"]');
+  assert.equal(await page.locator('[data-finance-statement]').isVisible(),true);
+  assert.equal(await page.locator('[data-finance-statement-title]').innerText(),'Tahakkuklar');
+  await page.click('[data-finance-statement-refresh]');
+  await page.waitForFunction(()=>document.querySelectorAll('[data-finance-statement-body] tr').length===1);
+  assert.match(await page.locator('[data-finance-statement-body]').innerText(),/ENTRY_FRANCHISE/);
   await page.click('[data-finance-screen="SCR-07"]');
+  assert.equal(await page.locator('[data-finance-statement-title]').innerText(),'Bayi Ekstresi');
   await assert.doesNotReject(() => page.waitForSelector('[data-finance-statement]:not([hidden])'));
   assert.equal(await page.locator('[data-finance-statement-refresh]').isEnabled(), true);
-  assert.equal(await page.locator('[data-finance-statement-body] tr').count(), 0);
+  assert.equal(await page.locator('[data-finance-statement-body] tr').count(), 1);
 
   await page.click('[data-finance-statement-refresh]');
   assert.equal(await page.locator('[data-finance-statement]').getAttribute('data-state'), 'LOADING');

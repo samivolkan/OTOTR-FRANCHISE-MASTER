@@ -50,6 +50,8 @@
   const statementTable = root.querySelector('[data-finance-statement-table]');
   const statementBody = root.querySelector('[data-finance-statement-body]');
   const statementCount = root.querySelector('[data-finance-statement-count]');
+  const statementTitle = root.querySelector('[data-finance-statement-title]');
+  const statementSubtitle = root.querySelector('[data-finance-statement-subtitle]');
   const paymentDetail = root.querySelector('[data-finance-payment-detail]');
   const paymentCloseButton = root.querySelector('[data-finance-payment-close]');
   const paymentState = root.querySelector('[data-finance-payment-state]');
@@ -95,6 +97,7 @@
   const periodCheckHash = root.querySelector('[data-finance-period-check-hash]');
   let scopeReady = false;
   let statementRowCount = 0;
+  const statementScreenIds = new Set('SCR-05,SCR-07'.split(','));
 
   const renderList = (target, items) => {
     target.replaceChildren(...items.map(item => {
@@ -116,7 +119,11 @@
     description.textContent = 'Yetkili finans API bağlantısı bekleniyor; demo veya tahmini tutar gösterilmiyor.';
     renderList(sections, screenSections);
     renderList(actions, screenActions);
-    statement.hidden = id !== 'SCR-07';
+    statement.hidden = !statementScreenIds.has(id);
+    statementTitle.textContent = id === 'SCR-05' ? 'Tahakkuklar' : 'Bayi Ekstresi';
+    statementSubtitle.textContent = id === 'SCR-05'
+      ? 'Kaynak olay, bedel kodu, brüt tutar, açık bakiye ve fatura bağlantıları şube kapsamında gösterilir.'
+      : 'Yalnız seçili tüzel kişi, bayi hesabı ve şube kapsamındaki doğrulanmış hareketler.';
     periodDetail.hidden = id !== 'SCR-12';
   };
 
@@ -170,6 +177,7 @@
       const tr = document.createElement('tr');
       const fee = document.createElement('div'); fee.className = 'finance-statement-fee'; fee.textContent = item.feeCode;
       const source = document.createElement('small'); source.textContent = item.sourceReference || 'Kaynak referansı yok';
+      if (item.externalInvoiceNumber) source.textContent += ` · Fatura: ${item.externalInvoiceNumber}`;
       const descriptor = document.createElement('td'); descriptor.append(fee, source);
       const statusCell = document.createElement('td');
       const badge = document.createElement('span'); badge.className = `finance-statement-status is-${item.status.toLowerCase()}`; badge.textContent = statementStatuses[item.status]; statusCell.appendChild(badge);

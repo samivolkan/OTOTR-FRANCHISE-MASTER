@@ -1339,8 +1339,8 @@ button,input,select,textarea{font:inherit}.app{min-height:100vh;display:grid;gri
               <div class="finance-statement-head">
                 <div>
                   <span class="finance-screen-code">YETKİLİ PROJECTION</span>
-                  <h3 id="financeStatementTitle">Bayi Ekstresi</h3>
-                  <p>Yalnız seçili tüzel kişi, bayi hesabı ve şube kapsamındaki doğrulanmış hareketler.</p>
+                  <h3 id="financeStatementTitle" data-finance-statement-title>Bayi Ekstresi</h3>
+                  <p data-finance-statement-subtitle>Yalnız seçili tüzel kişi, bayi hesabı ve şube kapsamındaki doğrulanmış hareketler.</p>
                 </div>
                 <div class="finance-statement-controls">
                   <label>Durum
@@ -1353,7 +1353,7 @@ button,input,select,textarea{font:inherit}.app{min-height:100vh;display:grid;gri
                       <option value="REVERSED">Ters kayıt</option>
                     </select>
                   </label>
-                  <button class="btn" type="button" data-finance-statement-refresh disabled>Ekstreyi Getir</button>
+                  <button class="btn" type="button" data-finance-statement-refresh disabled>Kayıtları Getir</button>
                 </div>
               </div>
               <div class="finance-statement-state" data-finance-statement-state role="status">Kapsam ve yetkili bağlantı bekleniyor.</div>
