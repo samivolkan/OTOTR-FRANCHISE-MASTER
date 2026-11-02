@@ -37,6 +37,8 @@ export function createFinanceSupabaseAdapter({ supabaseUrl, publishableKey, fetc
   }
   async function readExpenses({actor,scope,from,to,status,cursor,limit}) {return post('/rest/v1/rpc/list_pass_through_expenses',actor.token,{p_legal_entity_id:scope.legalEntityId,p_from:from||null,p_to:to||null,p_status:status||null,p_cursor:cursor||null,p_limit:limit||50},'finance_api');}
   async function readExpense({actor,scope,expenseId}) {return post('/rest/v1/rpc/get_pass_through_expense',actor.token,{p_legal_entity_id:scope.legalEntityId,p_expense_id:expenseId},'finance_api');}
+  async function readDisputes({actor,scope,dealerAccountId,status,cursor,limit}) {return post('/rest/v1/rpc/list_disputes',actor.token,{p_legal_entity_id:scope.legalEntityId,p_dealer_account_id:dealerAccountId,p_branch_id:scope.branchId,p_status:status||null,p_cursor:cursor||null,p_limit:limit||50},'finance_api');}
+  async function readDispute({actor,scope,dealerAccountId,disputeId}) {return post('/rest/v1/rpc/get_dispute',actor.token,{p_legal_entity_id:scope.legalEntityId,p_dealer_account_id:dealerAccountId,p_branch_id:scope.branchId,p_dispute_id:disputeId},'finance_api');}
   async function readSummary({ actor, scope, dealerAccountId, asOf }) {
     return post('/rest/v1/rpc/get_dealer_finance_summary', actor.token, { p_legal_entity_id: scope.legalEntityId, p_dealer_account_id: dealerAccountId, p_branch_id: scope.branchId, p_as_of: asOf || null }, 'finance_api');
   }
@@ -108,5 +110,5 @@ export function createFinanceSupabaseAdapter({ supabaseUrl, publishableKey, fetc
   async function readContractFeeRules({actor,scope,dealerAccountId,contractVersionId,status,cursor,limit}) {
     return post('/rest/v1/rpc/list_contract_fee_rules',actor.token,{p_legal_entity_id:scope.legalEntityId,p_dealer_account_id:dealerAccountId,p_branch_id:scope.branchId,p_contract_version_id:contractVersionId,p_status:status||null,p_cursor:cursor||null,p_limit:limit||50},'finance_api');
   }
-  return Object.freeze({ authenticate, authorizeScope, authorizeHeadquartersScope, readHeadquartersSummary,readExpenses,readExpense, readSummary, readStatement, readPayments, readPayment, readAccrualDetail, readRoyaltyRefunds,readServiceUsages, readRefundTrace, readCurrentPeriod, readCurrentContract, readContractFeeRules });
+  return Object.freeze({ authenticate, authorizeScope, authorizeHeadquartersScope, readHeadquartersSummary,readExpenses,readExpense,readDisputes,readDispute, readSummary, readStatement, readPayments, readPayment, readAccrualDetail, readRoyaltyRefunds,readServiceUsages, readRefundTrace, readCurrentPeriod, readCurrentContract, readContractFeeRules });
 }

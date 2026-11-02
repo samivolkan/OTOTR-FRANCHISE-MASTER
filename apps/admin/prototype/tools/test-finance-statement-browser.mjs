@@ -103,6 +103,15 @@ try {
       const data={expenseId:body.pathParams.expenseId,expenseDate:'2026-11-03',supplierReference:'SUPPLIER-001',contractualBasisReference:'OTOTR-MASRAF-2026',feeCode:'PASS_THROUGH',feeName:'Ortak hizmet masrafı',status:'POSTED',currency:'TRY',source:{netAmount:'1000.00000000',taxAmount:'200.00000000',grossAmount:'1200.00000000'},distributable:{netAmount:'1000.00000000',taxAmount:'200.00000000',grossAmount:'1200.00000000'},allocationPolicy:{method:'EQUAL'},approval:{status:'APPROVED'},documents:[{documentId:'33333333-3333-4333-8333-333333333334'}],shares:[{shareId:'35353535-3535-4535-8535-353535353535',dealerAccountId:scope.dealerAccountId,branchId:scope.branchId,dealerCode:'BAYI-A',dealerName:'Bayi A',branchCode:'NILUFER',allocationMethod:'EQUAL',allocationRate:'0.50000000',netAmount:'500.00000000',taxAmount:'100.00000000',shareAmount:'600.00000000',currency:'TRY',accrualId:'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa'},{shareId:'36363636-3636-4636-8636-363636363636',dealerAccountId:'37373737-3737-4737-8737-373737373737',branchId:'38383838-3838-4838-8838-383838383838',dealerCode:'BAYI-B',dealerName:'Bayi B',branchCode:'KADIKOY',allocationMethod:'EQUAL',allocationRate:'0.50000000',netAmount:'500.00000000',taxAmount:'100.00000000',shareAmount:'600.00000000',currency:'TRY',accrualId:null}],journalEntryId:'34343434-3434-4434-8434-343434343434',reversalJournalEntryId:null,evidenceHash:'e'.repeat(64),version:1};
       await route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({data})});return;
     }
+    if(body.operationId==='listDisputes'){
+      const dispute=(id,caseNo,status='PARTIALLY_ACCEPTED')=>({disputeId:id,caseNo,openItemId:'40404040-4040-4040-8040-404040404040',accrualId:'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',feeCode:'ROYALTY',feeName:'Royalty',reasonCode:'AMOUNT_MISMATCH',disputedAmount:'100.00000000',acceptedAmount:status==='UNDER_REVIEW'?null:'70.00000000',currency:'TRY',status,documentCount:1,createdAtUtc:'2026-11-03T09:00:00Z',decidedAtUtc:status==='UNDER_REVIEW'?null:'2026-11-06T12:00:00Z',version:3});
+      const data=body.query.cursor?{items:[dispute('41414141-4141-4141-8141-414141414141','DSP-002','UNDER_REVIEW')],nextCursor:null,hasMore:false}:{items:[dispute('39393939-3939-4939-8939-393939393939','DSP-001')],nextCursor:'dispute-page-2',hasMore:true};
+      await route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({data})});return;
+    }
+    if(body.operationId==='getDispute'){
+      const data={disputeId:body.pathParams.disputeId,caseNo:'DSP-001',status:'PARTIALLY_ACCEPTED',reasonCode:'AMOUNT_MISMATCH',amounts:{disputedAmount:'100.00000000',acceptedAmount:'70.00000000',currency:'TRY'},target:{openItemId:'40404040-4040-4040-8040-404040404040',accrualId:'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',feeDefinitionId:'42424242-4242-4242-8242-424242424242',originalAmount:'140.00000000',openAmount:'140.00000000'},evidence:{targetRecordType:'OPEN_ITEM'},documents:[{documentId:'43434343-4343-4343-8343-434343434343',externalDocumentId:'44444444-4444-4444-8444-444444444445',documentType:'DISPUTE_EVIDENCE',objectKey:'masked',contentHash:'f'.repeat(64)}],approval:{requestId:'45454545-4545-4545-8545-454545454545',status:'APPROVED',policyVersion:'MAKER-CHECKER-V1',steps:[]},decision:{reasonCode:'PARTIAL_SUPPORT',noteHash:'a'.repeat(64),decidedBy:'46464646-4646-4646-8646-464646464646',decidedAtUtc:'2026-11-06T12:00:00Z'},correctionJournal:{journalEntryId:'47474747-4747-4747-8747-474747474747',entryType:'DISPUTE_ADJUSTMENT',postingDate:'2026-11-06',financePeriodId:'48484848-4848-4848-8848-484848484848',status:'POSTED'},createdAtUtc:'2026-11-03T09:00:00Z',createdBy:'49494949-4949-4949-8949-494949494949',correlationId:'50505050-5050-4050-8050-505050505050',version:3};
+      await route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({data})});return;
+    }
     if (body.operationId === 'getPayment') {
       const paymentId = body.pathParams.paymentId;
       const data = {
@@ -263,6 +272,23 @@ try {
   assert.equal(await page.locator('[data-finance-expense-shares] tr').count(),2);
   assert.match(await page.locator('[data-finance-expense-provenance]').innerText(),/34343434-3434-4434-8434-343434343434/);
   await page.click('[data-finance-expense-close]');
+  await page.click('[data-finance-screen="SCR-11"]');
+  await page.click('[data-finance-disputes-refresh]');
+  await page.waitForFunction(()=>document.querySelectorAll('[data-finance-disputes-body] tr').length===1);
+  assert.match(await page.locator('[data-finance-disputes-body]').innerText(),/DSP-001/);
+  assert.match(await page.locator('[data-finance-disputes-body]').innerText(),/100,00000000 TRY/);
+  assert.equal(requests.at(-1).operationId,'listDisputes');
+  await page.click('[data-finance-disputes-more]');
+  await page.waitForFunction(()=>document.querySelectorAll('[data-finance-disputes-body] tr').length===2);
+  assert.equal(await page.locator('[data-finance-disputes-more]').isVisible(),false);
+  await page.click('[data-finance-disputes-body] [data-finance-dispute-id]');
+  await page.waitForFunction(()=>document.querySelector('[data-finance-dispute-detail]')?.dataset.state==='READY');
+  assert.equal(requests.at(-1).operationId,'getDispute');
+  assert.match(await page.locator('[data-finance-dispute-detail]').innerText(),/70,00000000 TRY/);
+  assert.match(await page.locator('[data-finance-dispute-detail]').innerText(),/APPROVED/);
+  assert.match(await page.locator('[data-finance-dispute-provenance]').innerText(),/47474747-4747-4747-8747-474747474747/);
+  assert.match(await page.locator('[data-finance-dispute-sla]').innerText(),/tahmini süre üretilmez/);
+  await page.click('[data-finance-dispute-close]');
   await page.click('[data-finance-screen="SCR-07"]');
   assert.equal(await page.locator('[data-finance-payment-detail]').isVisible(),false);
   await page.click('[data-finance-accrual-id]');
@@ -325,7 +351,7 @@ try {
   assert.match(await page.locator('[data-finance-statement-state]').innerText(), /geçici olarak kullanılamıyor/i);
   assert.equal(await page.locator('[data-finance-statement-refresh]').isEnabled(), true);
 
-console.log('PASS finance-statement-browser: HQ expense allocation, scoped contract/rules, period, statement, payment, accrual and refund flows');
+console.log('PASS finance-statement-browser: scoped disputes, HQ expense allocation, contract/rules, period, statement, payment, accrual and refund flows');
 } finally {
   await browser?.close();
   await new Promise(resolve => server.close(resolve));
