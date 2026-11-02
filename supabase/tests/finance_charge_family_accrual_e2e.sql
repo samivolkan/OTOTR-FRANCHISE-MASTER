@@ -34,7 +34,7 @@ declare
   events text[] := array['franchise.entry.activated','query.completed','external-service.delivered','optional-service.activated'];
   nets numeric[] := array[1000.00,100.00,250.00,300.00];
   fee_id uuid; rule_id uuid; mapping_id uuid; source_id uuid; event_id uuid;
-  context jsonb; rule jsonb; command jsonb; calculation jsonb; result jsonb; replay jsonb; contract_projection jsonb; rule_page jsonb;
+  context jsonb; rule jsonb; command jsonb; calculation jsonb; result jsonb; replay jsonb; contract_projection jsonb; rule_page jsonb; usage_page jsonb;
   rule_cursor uuid;
   i integer; journal_count integer; accrual_count integer; open_count integer; test_accrual uuid;
   gross numeric(24,8); expected_total numeric(24,8):=1980.00000000;
@@ -107,7 +107,7 @@ begin
       payload_hash,status,created_by,correlation_id
     ) values(
       source_id,hq,dealer,branch,'SYNTHETIC_ERP',event_id,events[i],1,date '2026-11-03',now(),now(),
-      'charge-family','family-'||i,1,jsonb_build_object('amount',nets[i]::text),repeat(i::text,64),
+      'charge-family','family-'||i,1,jsonb_build_object('amount',nets[i]::text)||case when i=2 then jsonb_build_object('serviceCode','TRAMER_QUERY','providerCode','PROVIDER-A','externalReference','QUERY-001','providerCostAmount','50.00000000','currency','TRY','freeEntitlementApplied',false,'technicalRepeat',false) when i=3 then jsonb_build_object('serviceCode','VALUATION_SERVICE','providerCode','PROVIDER-B','externalReference','SERVICE-001','providerCostAmount','200.00000000','currency','TRY','freeEntitlementApplied',false,'technicalRepeat',false) else '{}'::jsonb end,repeat(i::text,64),
       'RECEIVED',maker,corr
     );
 
@@ -153,6 +153,28 @@ begin
   ) then raise exception 'a charge-family journal is not balanced'; end if;
   if (select count(*) from finance.calculation_runs where legal_entity_id=hq)<>4 then
     raise exception 'replay created duplicate calculation runs';
+  end if;
+  insert into finance.source_events(
+    legal_entity_id,dealer_legal_entity_id,branch_id,source_system,event_id,event_type,schema_version,business_date,
+    occurred_at_utc,received_at_utc,aggregate_type,aggregate_id,aggregate_version,payload,payload_hash,status,created_by,correlation_id
+  ) values(hq,dealer,branch,'SYNTHETIC_ERP',gen_random_uuid(),'query.completed',1,date '2026-11-04',now(),now(),
+    'service-usage','free-query-1',1,jsonb_build_object('serviceCode','TRAMER_QUERY','providerCode','PROVIDER-A','externalReference','QUERY-FREE-001','providerCostAmount','50.00000000','currency','TRY','freeEntitlementApplied',true,'technicalRepeat',false),repeat('5',64),'PROCESSED',maker,corr);
+  usage_page:=finance_api.list_service_usages(hq,account,branch,date '2026-11-01',date '2026-11-30','QUERY','NOT_CHARGED',null,50);
+  if jsonb_array_length(usage_page->'items')<>1
+     or usage_page#>>'{items,0,externalReference}'<>'QUERY-FREE-001'
+     or (usage_page#>>'{items,0,freeEntitlementApplied}')::boolean is distinct from true
+     or usage_page#>>'{items,0,dealerPriceAmount}' is not null
+     or usage_page#>>'{items,0,accrualId}' is not null then
+    raise exception 'free service usage projection mismatch: %',usage_page;
+  end if;
+  usage_page:=finance_api.list_service_usages(hq,account,branch,null,null,'QUERY','CHARGED',null,50);
+  if jsonb_array_length(usage_page->'items')<>1
+     or usage_page#>>'{items,0,externalReference}'<>'QUERY-001'
+     or usage_page#>>'{items,0,providerCostAmount}'<>'50.00000000'
+     or usage_page#>>'{items,0,dealerPriceAmount}'<>'120.00000000'
+     or usage_page#>>'{items,0,marginAmount}'<>'70.00000000'
+     or usage_page#>>'{items,0,accrualId}' is null then
+    raise exception 'charged service usage projection mismatch: %',usage_page;
   end if;
   contract_projection:=finance_api.get_current_franchise_contract(hq,account,branch,date '2026-11-03');
   if contract_projection->>'contractId'<>contract_id::text
