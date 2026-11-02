@@ -12,6 +12,7 @@ Kapsam:
 - itiraz üzerinden maker-checker kredi düzeltmesi;
 - ödeme oluşturma, doğrulama, kısmi mahsup ve mahsup iptali.
 - kilitli dönem faturalama paketi, harici fatura callback mutabakatı ve muhasebe aktarım paketi.
+- kaynak snapshot dondurma, eksik işte bekleme ve dönem hesaplama finalizasyonu;
 - maker-checker dönem kapanışı, mutabakat kilidi ve belgeye dayalı kontrollü yeniden açma.
 
 Çalıştırma:

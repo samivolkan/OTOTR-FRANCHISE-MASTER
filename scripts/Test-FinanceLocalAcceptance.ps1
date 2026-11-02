@@ -12,6 +12,7 @@ $checks = @(
   'Test-FinanceDisputeAdjustmentE2E.ps1',
   'Test-FinancePaymentLifecycleE2E.ps1',
   'Test-FinanceBillingAccountingE2E.ps1',
+  'Test-FinancePeriodCalculationE2E.ps1',
   'Test-FinancePeriodGovernanceE2E.ps1'
 )
 
