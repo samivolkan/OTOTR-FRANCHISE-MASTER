@@ -2,7 +2,7 @@
   "manifestId": "OTOTR-FINANCE-LOCAL-MIGRATION-PROMOTION-V1",
   "generatedAtUtc": "2026-11-02T22:15:28.3710686+00:00",
   "sourceRoot": "ototr-finans-modulu/database/supabase",
-  "migrationCount": 67,
+  "migrationCount": 69,
   "applyTarget": "LOCAL_ONLY",
   "stagingApplied": false,
   "productionApplied": false,
@@ -542,6 +542,22 @@
       "sourceSha256": "78780F377C7E475B5300C0146DEADB0BBEDB8C9E706C6FA5A4C34D758503600C",
       "migration": "20261103010066_finance_expense_read_models.sql",
       "migrationSha256": "78780F377C7E475B5300C0146DEADB0BBEDB8C9E706C6FA5A4C34D758503600C"
+    },
+    {
+      "version": "20261103010067",
+      "kind": "SECURITY",
+      "source": "internal-review-dispute-read-identity",
+      "sourceSha256": "7F1A85AFBCDFD3D0A19AF1C588A3ECF585222DF921202C781C7B4BA5A17B0ECC",
+      "migration": "20261103010067_finance_dispute_read_identity.sql",
+      "migrationSha256": "7F1A85AFBCDFD3D0A19AF1C588A3ECF585222DF921202C781C7B4BA5A17B0ECC"
+    },
+    {
+      "version": "20261103010068",
+      "kind": "RPC",
+      "source": "internal-review-dispute-read-models",
+      "sourceSha256": "B57E14F0D0E2B6C7583A56C1AA096412A7DAAC77D5A636CF65ACD4233783A501",
+      "migration": "20261103010068_finance_dispute_read_models.sql",
+      "migrationSha256": "B57E14F0D0E2B6C7583A56C1AA096412A7DAAC77D5A636CF65ACD4233783A501"
     }
   ]
 }

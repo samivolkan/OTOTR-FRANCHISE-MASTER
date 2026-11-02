@@ -1,6 +1,7 @@
 \set ON_ERROR_STOP on
 
 begin;
+set local request.jwt.claim.sub = '00000000-0000-4000-8000-000000000031';
 
 create or replace function finance_private.current_dispute_create_committer_is_trusted()
 returns boolean language sql stable security definer set search_path='' as $$select true$$;
@@ -10,6 +11,8 @@ create or replace function finance_private.current_dispute_decision_worker_is_tr
 returns boolean language sql stable security definer set search_path=pg_catalog as $$select true$$;
 create or replace function finance_private.current_actor_can_decide_dispute(p_actor_id uuid,p_dispute_id uuid)
 returns boolean language sql stable security definer set search_path=pg_catalog as $$select true$$;
+create or replace function finance_private.current_actor_can_read_scope(p_actor_id uuid,p_legal_entity_id uuid,p_dealer_account_id uuid,p_branch_id uuid,p_operation_id text)
+returns boolean language sql stable security definer set search_path=pg_catalog as $$select p_operation_id in('listDisputes','getDispute')$$;
 create or replace function finance_private.resolve_dispute_decision_context(
   p_dispute_id uuid,p_decision_date date,p_accepted_amount numeric
 ) returns jsonb language sql stable security definer set search_path=pg_catalog,finance as $$
@@ -46,7 +49,7 @@ declare
   document_id constant uuid := '83000000-0000-4000-8000-000000000004';
   external_document_id constant uuid := '83000000-0000-4000-8000-000000000005';
   corr constant uuid := '93000000-0000-4000-8000-000000000001';
-  result jsonb; replay jsonb; dispute_id uuid; version_no bigint; correction_journal uuid;
+  result jsonb; replay jsonb; dispute_id uuid; version_no bigint; correction_journal uuid; dispute_list jsonb; dispute_detail jsonb;
   credit_count integer; credit_total numeric(24,8); correction_accrual uuid;
 begin
   insert into finance.legal_entities(id,entity_code,legal_name,status,created_by,correlation_id)
@@ -155,7 +158,24 @@ begin
     raise exception 'replay created duplicate correction';
   end if;
 
-  raise notice 'DISPUTE CREDIT ADJUSTMENT E2E PASSED: 100 TRY disputed -> 70 TRY partially accepted -> 70 TRY credit';
+  dispute_list:=finance_api.list_disputes(hq,account,branch,'PARTIALLY_ACCEPTED',null,25);
+  if pg_catalog.jsonb_array_length(dispute_list->'items')<>1
+     or dispute_list#>>'{items,0,disputeId}'<>dispute_id::text
+     or dispute_list#>>'{items,0,acceptedAmount}'<>'70.00000000'
+     or dispute_list#>>'{items,0,documentCount}'<>'1' then
+    raise exception 'dispute list projection mismatch: %',dispute_list;
+  end if;
+  dispute_detail:=finance_api.get_dispute(hq,account,branch,dispute_id);
+  if dispute_detail->>'caseNo' not like 'DSP-%'
+     or dispute_detail#>>'{amounts,disputedAmount}'<>'100.00000000'
+     or dispute_detail#>>'{amounts,acceptedAmount}'<>'70.00000000'
+     or pg_catalog.jsonb_array_length(dispute_detail->'documents')<>1
+     or dispute_detail#>>'{approval,status}'<>'APPROVED'
+     or dispute_detail#>>'{correctionJournal,journalEntryId}'<>correction_journal::text then
+    raise exception 'dispute detail projection mismatch: %',dispute_detail;
+  end if;
+
+  raise notice 'DISPUTE CREDIT ADJUSTMENT E2E PASSED: scoped list/detail; 100 TRY disputed -> 70 TRY partially accepted -> 70 TRY credit';
 end
 $test$;
 
