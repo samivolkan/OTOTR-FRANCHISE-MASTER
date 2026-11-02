@@ -2,6 +2,7 @@ const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-
 const READ_OPERATION = 'getDealerFinanceSummary';
 const STATEMENT_OPERATION = 'getDealerStatement';
 const PAYMENT_OPERATION = 'getPayment';
+const ACCRUAL_OPERATION = 'getAccrualDetail';
 
 export class FinanceBridgeError extends Error {
   constructor(code, message, status = 0) {
@@ -90,6 +91,10 @@ export function createFinanceSummaryClient({getConfig, getAccessToken, fetchImpl
     async getPayment(rawScope, paymentId) {
       const normalizedPaymentId = requiredUuid(paymentId, 'paymentId', 'VALIDATION_ERROR');
       return execute(rawScope, PAYMENT_OPERATION, {}, {paymentId:normalizedPaymentId});
+    },
+    async getAccrualDetail(rawScope, accrualId) {
+      const normalizedAccrualId = requiredUuid(accrualId, 'accrualId', 'VALIDATION_ERROR');
+      return execute(rawScope, ACCRUAL_OPERATION, {}, {accrualId:normalizedAccrualId});
     }
   });
 }
@@ -138,6 +143,22 @@ if (auth && ui) {
       if (!scope) throw new FinanceBridgeError('FINANCE_SCOPE_UNAVAILABLE', 'ERP finans kapsamı henüz sağlanmadı.');
       return client.getPayment(scope, paymentId);
     },
+    async getAccrualDetail(accrualId) {
+      const scope = configuredScope || refreshContext();
+      if (!scope) throw new FinanceBridgeError('FINANCE_SCOPE_UNAVAILABLE', 'ERP finans kapsamı henüz sağlanmadı.');
+      return client.getAccrualDetail(scope, accrualId);
+    },
+    async loadAccrualDetail(accrualId) {
+      ui.setAccrualState?.('LOADING', 'Kaynak olay, hesaplama ve çift taraflı fiş yükleniyor…');
+      try {
+        const result = await api.getAccrualDetail(accrualId);
+        ui.renderAccrualDetail?.(result.data);
+        return result;
+      } catch (error) {
+        ui.setAccrualState?.('ERROR', error instanceof FinanceBridgeError ? error.message : 'Tahakkuk servisine ulaşılamadı.');
+        throw error;
+      }
+    },
     async loadPayment(paymentId) {
       ui.setPaymentState?.('LOADING', 'Yetkili ödeme ve tahsis detayı yükleniyor…');
       try {
@@ -170,4 +191,5 @@ if (auth && ui) {
   ui.statementMoreButton?.addEventListener('click', () => { void api.loadDealerStatement({append:true}).catch(() => {}); });
   ui.statementStatus?.addEventListener('change', () => { ui.resetStatement?.('Filtre değişti. Güncel ekstreyi getirin.'); });
   globalThis.addEventListener?.('ototr:finance-payment-requested', event => { void api.loadPayment(event.detail?.paymentId).catch(() => {}); });
+  globalThis.addEventListener?.('ototr:finance-accrual-requested', event => { void api.loadAccrualDetail(event.detail?.accrualId).catch(() => {}); });
 }

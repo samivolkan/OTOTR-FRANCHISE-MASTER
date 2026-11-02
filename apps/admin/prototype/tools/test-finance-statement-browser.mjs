@@ -60,6 +60,20 @@ try {
       await route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({data})});
       return;
     }
+    if (body.operationId === 'getAccrualDetail') {
+      const accrualId = body.pathParams.accrualId;
+      const data = {
+        accrualId,sourceEventId:'88888888-8888-4888-8888-888888888888',feeRuleId:'99999999-9999-4999-8999-999999999999',status:'POSTED',
+        calculation:{status:'CALCULATED',amounts:{netAmount:'100.00000000',taxAmount:'20.00000000',grossAmount:'120.00000000',currency:'TRY'}},
+        journalEntry:{journalEntryId:'aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee',entryNumber:'JE-TEST-001',postingDate:'2026-11-03',currency:'TRY',source:{sourceType:'customer-payment.settled'},lines:[
+          {accountCode:'120.01',direction:'DEBIT',amount:'120.00000000',description:'Bayi alacağı'},
+          {accountCode:'600.01',direction:'CREDIT',amount:'100.00000000',description:'Royalty geliri'},
+          {accountCode:'391.01',direction:'CREDIT',amount:'20.00000000',description:'Hesaplanan KDV'}
+        ]}
+      };
+      await route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({data})});
+      return;
+    }
     if (body.query.status === 'DISPUTED') {
       await route.fulfill({status:503,contentType:'application/json',body:JSON.stringify({error:{code:'READ_MODEL_UNAVAILABLE',message:'Ekstre projectionı geçici olarak kullanılamıyor.'}})});
       return;
@@ -97,6 +111,14 @@ try {
   assert.equal(requests.at(-1).operationId, 'getPayment');
   await page.click('[data-finance-payment-close]');
   assert.equal(await page.locator('[data-finance-payment-detail]').isVisible(), false);
+  await page.click('[data-finance-accrual-id]');
+  assert.equal(await page.locator('[data-finance-accrual-detail]').getAttribute('data-state'), 'LOADING');
+  await page.waitForFunction(() => document.querySelector('[data-finance-accrual-detail]')?.dataset.state === 'READY');
+  assert.match(await page.locator('[data-finance-accrual-detail]').innerText(), /120,00000000 TRY/);
+  assert.match(await page.locator('[data-finance-accrual-lines]').innerText(), /Royalty geliri/);
+  assert.equal(requests.at(-1).operationId, 'getAccrualDetail');
+  await page.click('[data-finance-accrual-close]');
+  assert.equal(await page.locator('[data-finance-accrual-detail]').isVisible(), false);
 
   await page.click('[data-finance-statement-more]');
   await page.waitForFunction(() => document.querySelectorAll('[data-finance-statement-body] tr').length === 2);
@@ -125,7 +147,7 @@ try {
   assert.match(await page.locator('[data-finance-statement-state]').innerText(), /geçici olarak kullanılamıyor/i);
   assert.equal(await page.locator('[data-finance-statement-refresh]').isEnabled(), true);
 
-  console.log('PASS finance-statement-browser: scoped statement and payment detail, loading/ready/empty/error, filter, cursor pagination');
+  console.log('PASS finance-statement-browser: scoped statement, payment and accrual trace; loading/ready/empty/error; cursor pagination');
 } finally {
   await browser?.close();
   await new Promise(resolve => server.close(resolve));

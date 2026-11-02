@@ -1370,6 +1370,23 @@ button,input,select,textarea{font:inherit}.app{min-height:100vh;display:grid;gri
                   </div>
                 </div>
               </section>
+              <section class="finance-payment-detail finance-accrual-detail" data-finance-accrual-detail hidden aria-labelledby="financeAccrualTitle">
+                <div class="finance-payment-detail-head">
+                  <div><span class="finance-screen-code">TAHAKKUK İZİ</span><h4 id="financeAccrualTitle">Tahakkuk ve Hesaplama Detayı</h4></div>
+                  <button class="btn" type="button" data-finance-accrual-close>Kapat</button>
+                </div>
+                <div class="finance-payment-detail-state" data-finance-accrual-state role="status">Tahakkuk seçilmedi.</div>
+                <div data-finance-accrual-content hidden>
+                  <div class="finance-payment-kpis">
+                    <article><span>Hesaplanan brüt</span><b data-finance-accrual-amount>—</b><small data-finance-accrual-status>—</small></article>
+                    <article><span>Fiş / tarih</span><b data-finance-accrual-journal>—</b><small data-finance-accrual-date>—</small></article>
+                    <article><span>Kaynak / kural</span><b data-finance-accrual-source>—</b><small data-finance-accrual-rule>—</small></article>
+                  </div>
+                  <div class="finance-statement-table-wrap">
+                    <table class="finance-statement-table"><thead><tr><th>Hesap</th><th>Yön</th><th>Tutar</th><th>Açıklama</th></tr></thead><tbody data-finance-accrual-lines></tbody></table>
+                  </div>
+                </div>
+              </section>
               <div class="finance-statement-footer">
                 <span data-finance-statement-count>0 kayıt</span>
                 <button class="btn" type="button" data-finance-statement-more hidden disabled>Daha Fazla</button>

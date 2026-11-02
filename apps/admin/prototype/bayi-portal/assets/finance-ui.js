@@ -61,6 +61,17 @@
   const paymentMethod = root.querySelector('[data-finance-payment-method]');
   const paymentDate = root.querySelector('[data-finance-payment-date]');
   const paymentAllocations = root.querySelector('[data-finance-payment-allocations]');
+  const accrualDetail = root.querySelector('[data-finance-accrual-detail]');
+  const accrualCloseButton = root.querySelector('[data-finance-accrual-close]');
+  const accrualState = root.querySelector('[data-finance-accrual-state]');
+  const accrualContent = root.querySelector('[data-finance-accrual-content]');
+  const accrualAmount = root.querySelector('[data-finance-accrual-amount]');
+  const accrualStatus = root.querySelector('[data-finance-accrual-status]');
+  const accrualJournal = root.querySelector('[data-finance-accrual-journal]');
+  const accrualDate = root.querySelector('[data-finance-accrual-date]');
+  const accrualSource = root.querySelector('[data-finance-accrual-source]');
+  const accrualRule = root.querySelector('[data-finance-accrual-rule]');
+  const accrualLines = root.querySelector('[data-finance-accrual-lines]');
   let scopeReady = false;
   let statementRowCount = 0;
 
@@ -133,7 +144,7 @@
   const renderStatementPage = (payload, {append = false} = {}) => {
     if (!payload || !Array.isArray(payload.items) || typeof payload.hasMore !== 'boolean' || !(payload.nextCursor === null || payload.nextCursor === undefined || typeof payload.nextCursor === 'string')) throw new Error('INVALID_FINANCE_STATEMENT');
     const rows = payload.items.map(item => {
-      if (!item || typeof item !== 'object' || !statementStatuses[item.status] || !/^\d{4}-\d{2}-\d{2}$/.test(item.businessDate || '') || typeof item.feeCode !== 'string' || !item.feeCode || !item.totals || item.currencyCode !== item.totals.currency || (item.paymentIds !== undefined && (!Array.isArray(item.paymentIds) || item.paymentIds.some(id => !uuidPattern.test(id))))) throw new Error('INVALID_FINANCE_STATEMENT_ITEM');
+      if (!item || typeof item !== 'object' || !uuidPattern.test(item.recordId || '') || typeof item.recordType !== 'string' || !statementStatuses[item.status] || !/^\d{4}-\d{2}-\d{2}$/.test(item.businessDate || '') || typeof item.feeCode !== 'string' || !item.feeCode || !item.totals || item.currencyCode !== item.totals.currency || (item.paymentIds !== undefined && (!Array.isArray(item.paymentIds) || item.paymentIds.some(id => !uuidPattern.test(id))))) throw new Error('INVALID_FINANCE_STATEMENT_ITEM');
       const tr = document.createElement('tr');
       const fee = document.createElement('div'); fee.className = 'finance-statement-fee'; fee.textContent = item.feeCode;
       const source = document.createElement('small'); source.textContent = item.sourceReference || 'Kaynak referansı yok';
@@ -142,6 +153,9 @@
       const badge = document.createElement('span'); badge.className = `finance-statement-status is-${item.status.toLowerCase()}`; badge.textContent = statementStatuses[item.status]; statusCell.appendChild(badge);
       if (item.paymentIds?.length) {
         const paymentButton = document.createElement('button'); paymentButton.type = 'button'; paymentButton.className = 'finance-inline-action'; paymentButton.dataset.financePaymentId = item.paymentIds[0]; paymentButton.textContent = item.paymentIds.length > 1 ? `Ödemeyi aç (+${item.paymentIds.length - 1})` : 'Ödemeyi aç'; statusCell.appendChild(paymentButton);
+      }
+      if (item.recordType === 'ACCRUAL') {
+        const accrualButton = document.createElement('button'); accrualButton.type = 'button'; accrualButton.className = 'finance-inline-action'; accrualButton.dataset.financeAccrualId = item.recordId; accrualButton.textContent = 'Tahakkuk izini aç'; statusCell.appendChild(accrualButton);
       }
       tr.append(cell(new Intl.DateTimeFormat('tr-TR').format(new Date(`${item.businessDate}T00:00:00Z`))), descriptor, cell(money(item.totals)), cell(amount(item.allocatedAmount, item.currencyCode)), cell(amount(item.openAmount, item.currencyCode)), statusCell);
       return tr;
@@ -189,6 +203,34 @@
     paymentAllocations.replaceChildren(...rows);
     if (!rows.length) { const tr=document.createElement('tr'); const td=cell('Henüz tahsis yok'); td.colSpan=4; tr.appendChild(td); paymentAllocations.appendChild(tr); }
     setPaymentState('READY');
+  };
+  const setAccrualState = (next, message) => {
+    if (!['EMPTY','LOADING','READY','ERROR'].includes(next)) throw new Error('INVALID_FINANCE_ACCRUAL_STATE');
+    accrualDetail.hidden = false;
+    accrualDetail.dataset.state = next;
+    accrualState.hidden = next === 'READY';
+    accrualState.textContent = message || ({EMPTY:'Tahakkuk seçilmedi.',LOADING:'Yetkili tahakkuk izi yükleniyor…',READY:'Tahakkuk izi yüklendi.',ERROR:'Tahakkuk izi yüklenemedi.'})[next];
+    accrualContent.hidden = next !== 'READY';
+  };
+  const resetAccrual = () => { accrualDetail.hidden = true; accrualContent.hidden = true; accrualLines.replaceChildren(); };
+  const renderAccrualDetail = payload => {
+    const calculation = payload?.calculation;
+    const journal = payload?.journalEntry;
+    const amounts = calculation?.amounts;
+    const lines = journal?.lines;
+    if (!uuidPattern.test(payload?.accrualId || '') || typeof payload.status !== 'string' || !amounts || typeof amounts.grossAmount !== 'string' || !/^[A-Z]{3}$/.test(amounts.currency || '') || !journal || !uuidPattern.test(journal.journalEntryId || '') || journal.currency !== amounts.currency || !Array.isArray(lines) || lines.length < 2) throw new Error('INVALID_FINANCE_ACCRUAL');
+    const rows = lines.map(line => {
+      if (!line || typeof line.accountCode !== 'string' || !['DEBIT','CREDIT'].includes(line.direction) || typeof line.amount !== 'string') throw new Error('INVALID_FINANCE_JOURNAL_LINE');
+      const tr=document.createElement('tr'); tr.append(cell(line.accountCode),cell(line.direction === 'DEBIT' ? 'Borç' : 'Alacak'),cell(amount(line.amount,journal.currency)),cell(line.description || line.accountCode)); return tr;
+    });
+    accrualAmount.textContent = amount(amounts.grossAmount,amounts.currency);
+    accrualStatus.textContent = `${payload.status} · ${calculation.status || 'Hesaplandı'}`;
+    accrualJournal.textContent = journal.entryNumber || journal.journalEntryId;
+    accrualDate.textContent = journal.postingDate || 'Belirtilmedi';
+    accrualSource.textContent = journal.source?.sourceType || payload.sourceEventId || 'Belirtilmedi';
+    accrualRule.textContent = payload.feeRuleId || 'Kural referansı yok';
+    accrualLines.replaceChildren(...rows);
+    setAccrualState('READY');
   };
 
   const resetAmounts = () => {
@@ -256,11 +298,13 @@
   });
   statementBody.addEventListener('click', event => {
     const button = event.target.closest('[data-finance-payment-id]');
-    if (!button) return;
-    window.dispatchEvent(new CustomEvent('ototr:finance-payment-requested',{detail:{paymentId:button.dataset.financePaymentId}}));
+    if (button) window.dispatchEvent(new CustomEvent('ototr:finance-payment-requested',{detail:{paymentId:button.dataset.financePaymentId}}));
+    const accrualButton = event.target.closest('[data-finance-accrual-id]');
+    if (accrualButton) window.dispatchEvent(new CustomEvent('ototr:finance-accrual-requested',{detail:{accrualId:accrualButton.dataset.financeAccrualId}}));
   });
   paymentCloseButton.addEventListener('click', resetPayment);
+  accrualCloseButton.addEventListener('click', resetAccrual);
 
   selectScreen(screens[0]);
-  window.OTOTRFinanceUI = Object.freeze({setConnectionState, setScopeContext, renderSummary, setStatementState, renderStatementPage, resetStatement, getStatementFilters, setPaymentState, renderPaymentDetail, resetPayment, connectButton, statementRefreshButton, statementMoreButton, statementStatus});
+  window.OTOTRFinanceUI = Object.freeze({setConnectionState, setScopeContext, renderSummary, setStatementState, renderStatementPage, resetStatement, getStatementFilters, setPaymentState, renderPaymentDetail, resetPayment, setAccrualState, renderAccrualDetail, resetAccrual, connectButton, statementRefreshButton, statementMoreButton, statementStatus});
 })();
