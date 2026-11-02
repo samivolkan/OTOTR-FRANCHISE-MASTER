@@ -143,4 +143,3 @@ begin
 end $$;
 
 revoke all on function finance_api.get_payment(uuid,uuid,uuid,uuid) from public, anon;
-

@@ -138,4 +138,3 @@ begin
 end $$;
 
 revoke all on function finance_api.get_dealer_statement(uuid,uuid,uuid,date,date,text,text,integer) from public, anon;
-

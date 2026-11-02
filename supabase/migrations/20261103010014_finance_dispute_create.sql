@@ -155,4 +155,3 @@ revoke all on function finance_private.current_dispute_create_committer_is_trust
 revoke all on function finance_api.authorize_dispute_create(uuid,text,uuid,text) from public,anon;
 grant execute on function finance_api.authorize_dispute_create(uuid,text,uuid,text) to authenticated;
 revoke all on function finance_api.commit_dispute_create(uuid,uuid,uuid,uuid,text,uuid,numeric,text,text,text,uuid[],text,text,uuid) from public,anon,authenticated;
-

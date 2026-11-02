@@ -79,7 +79,7 @@ $manifest = foreach ($target in $targets) {
   $body = $body -replace '(?m)^-- explicit role-owner approval[^\r\n]*\r?\n', ''
   $destinationName = "{0}_{1}.sql" -f $target.Version, $target.Name
   $destinationPath = Join-Path $migrationRootPath $destinationName
-  [System.IO.File]::WriteAllText($destinationPath, $header + $body.TrimStart(), [System.Text.UTF8Encoding]::new($false))
+  [System.IO.File]::WriteAllText($destinationPath, $header + $body.Trim() + "`n", [System.Text.UTF8Encoding]::new($false))
   [pscustomobject]@{
     version = [string]$target.Version
     kind = $target.Kind

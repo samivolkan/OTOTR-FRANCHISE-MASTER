@@ -152,4 +152,3 @@ revoke all on function finance_private.current_integration_retry_committer_is_tr
 revoke all on function finance_api.authorize_integration_error_retry_scope(uuid,text) from public,anon;
 grant execute on function finance_api.authorize_integration_error_retry_scope(uuid,text) to authenticated;
 revoke all on function finance_api.commit_integration_error_retry(uuid,uuid,uuid,uuid,uuid,text,text,bigint,text,text,uuid) from public,anon,authenticated;
-
