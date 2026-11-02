@@ -20,6 +20,8 @@ const handler = createFinanceReadHandler({
   readHeadquartersSummary:async value=>{calls.push(['headquarters',value]);return {...ids,dealerCount:2,branchCount:2};},
   readExpenses:async value=>{calls.push(['expenses',value]);return {items:[],nextCursor:null,hasMore:false};},
   readExpense:async value=>{calls.push(['expense',value]);return {expense:{expenseId:value.expenseId},shares:[]};},
+  readExportPackages:async value=>{calls.push(['export-packages',value]);return {items:[],nextCursor:null,hasMore:false};},
+  readExportPackage:async value=>{calls.push(['export-package',value]);return {packageId:value.packageId,packageType:value.packageType};},
   readDisputes:async value=>{calls.push(['disputes',value]);return {items:[],nextCursor:null,hasMore:false};},
   readDispute:async value=>{calls.push(['dispute',value]);return {disputeId:value.disputeId};},
   readSummary: async value => { calls.push(['read', value]); return { ...ids, calculatedAtUtc: '2026-11-03T10:00:00Z' }; },
@@ -61,6 +63,11 @@ assert.equal(expensesResponse.status,200);assert.deepEqual((await expensesRespon
 const expenseRequest={operationId:'getPassThroughExpense',scope:ids,pathParams:{expenseId},query:{}};
 const expenseResponse=await handler(makeRequest(expenseRequest));
 assert.equal(expenseResponse.status,200);assert.equal((await expenseResponse.json()).data.expense.expenseId,expenseId);assert.equal(calls.at(-1)[0],'expense');assert.equal(calls.at(-2)[0],'authorize-hq');
+const packageId='acacacac-acac-4cac-8cac-acacacacacac';
+const exportPackagesRequest={operationId:'listFinanceExportPackages',scope:ids,pathParams:{},query:{packageType:'BILLING',status:'INVOICED',limit:25}};
+const exportPackagesResponse=await handler(makeRequest(exportPackagesRequest));assert.equal(exportPackagesResponse.status,200);assert.equal(calls.at(-1)[0],'export-packages');assert.equal(calls.at(-2)[0],'authorize-hq');
+const exportPackageRequest={operationId:'getFinanceExportPackage',scope:ids,pathParams:{packageId},query:{packageType:'BILLING'}};
+const exportPackageResponse=await handler(makeRequest(exportPackageRequest));assert.equal(exportPackageResponse.status,200);assert.equal((await exportPackageResponse.json()).data.packageId,packageId);assert.equal(calls.at(-1)[0],'export-package');
 const disputeId='abababab-abab-4bab-8bab-abababababab';
 const disputesRequest={operationId:'listDisputes',scope:ids,pathParams:{dealerAccountId:ids.dealerAccountId},query:{status:'UNDER_REVIEW',limit:25}};
 const disputesResponse=await handler(makeRequest(disputesRequest));assert.equal(disputesResponse.status,200);assert.equal(calls.at(-1)[0],'disputes');assert.equal(calls.at(-2)[0],'authorize');
@@ -133,14 +140,16 @@ assert.equal((await handler(makeRequest({...contractRequest,query:{}}))).status,
 assert.equal((await handler(makeRequest({...rulesRequest,query:{status:'OPEN'}}))).status,400);
 assert.equal((await handler(makeRequest({...expensesRequest,query:{status:'INVALID'}}))).status,400);
 assert.equal((await handler(makeRequest({...expenseRequest,pathParams:{expenseId:'bad'}}))).status,400);
+assert.equal((await handler(makeRequest({...exportPackagesRequest,query:{packageType:'INVALID'}}))).status,400);
+assert.equal((await handler(makeRequest({...exportPackageRequest,query:{}}))).status,400);
 assert.equal((await handler(makeRequest({...disputesRequest,query:{status:'INVALID'}}))).status,400);
 assert.equal((await handler(makeRequest({...disputeRequest,pathParams:{dealerAccountId:ids.dealerAccountId,disputeId:'bad'}}))).status,400);
-const requiredPorts={authenticate(){},authorizeScope(){},authorizeHeadquartersScope(){},readHeadquartersSummary(){},readExpenses(){},readExpense(){},readDisputes(){},readDispute(){},readSummary(){},readStatement(){},readPayments(){},readPayment(){},readAccrualDetail(){},readRoyaltyRefunds(){},readServiceUsages(){},readRefundTrace(){},readCurrentPeriod(){},readCurrentContract(){},readContractFeeRules(){}};
+const requiredPorts={authenticate(){},authorizeScope(){},authorizeHeadquartersScope(){},readHeadquartersSummary(){},readExpenses(){},readExpense(){},readExportPackages(){},readExportPackage(){},readDisputes(){},readDispute(){},readSummary(){},readStatement(){},readPayments(){},readPayment(){},readAccrualDetail(){},readRoyaltyRefunds(){},readServiceUsages(){},readRefundTrace(){},readCurrentPeriod(){},readCurrentContract(){},readContractFeeRules(){}};
 assert.throws(() => createFinanceReadHandler({ allowedOrigins: ['*'],...requiredPorts }), /allowlist/);
 assert.throws(() => createFinanceReadHandler({ allowedOrigins: ['http://erp.ototr.test'],...requiredPorts }), /allowlist/);
 assert.throws(() => createFinanceReadHandler({ allowedOrigins: [origin],...requiredPorts,maxBodyBytes:100 }), /maxBodyBytes/);
 
-const safeHandler = createFinanceReadHandler({ allowedOrigins: [origin], correlationFactory: () => correlationId, authenticate: async () => { throw new Error('database password leaked'); }, authorizeScope: async () => true,authorizeHeadquartersScope:async()=>true,readHeadquartersSummary:async()=>({}),readExpenses:async()=>({}),readExpense:async()=>({}),readDisputes:async()=>({}),readDispute:async()=>({}), readSummary: async () => ({}), readStatement: async () => ({}), readPayments:async()=>({}), readPayment: async () => ({}), readAccrualDetail: async () => ({}),readRoyaltyRefunds:async()=>({}),readServiceUsages:async()=>({}), readRefundTrace:async()=>({}),readCurrentPeriod:async()=>({}),readCurrentContract:async()=>({}),readContractFeeRules:async()=>({}) });
+const safeHandler = createFinanceReadHandler({ allowedOrigins: [origin], correlationFactory: () => correlationId, authenticate: async () => { throw new Error('database password leaked'); }, authorizeScope: async () => true,authorizeHeadquartersScope:async()=>true,readHeadquartersSummary:async()=>({}),readExpenses:async()=>({}),readExpense:async()=>({}),readExportPackages:async()=>({}),readExportPackage:async()=>({}),readDisputes:async()=>({}),readDispute:async()=>({}), readSummary: async () => ({}), readStatement: async () => ({}), readPayments:async()=>({}), readPayment: async () => ({}), readAccrualDetail: async () => ({}),readRoyaltyRefunds:async()=>({}),readServiceUsages:async()=>({}), readRefundTrace:async()=>({}),readCurrentPeriod:async()=>({}),readCurrentContract:async()=>({}),readContractFeeRules:async()=>({}) });
 const safeResponse = await safeHandler(makeRequest());
 assert.equal(safeResponse.status, 500);
 assert.doesNotMatch(JSON.stringify(await safeResponse.json()), /password|leaked/);
@@ -171,7 +180,9 @@ await adapter.readExpenses({actor,scope:ids,from:'2026-11-01',to:'2026-11-30',st
 await adapter.readExpense({actor,scope:ids,expenseId});
 await adapter.readDisputes({actor,scope:ids,dealerAccountId:ids.dealerAccountId,status:'UNDER_REVIEW',cursor:'dispute-cursor',limit:25});
 await adapter.readDispute({actor,scope:ids,dealerAccountId:ids.dealerAccountId,disputeId});
-assert.equal(fetchCalls.length, 19);
+await adapter.readExportPackages({actor,scope:ids,packageType:'BILLING',status:'INVOICED',cursor:'package-cursor',limit:25});
+await adapter.readExportPackage({actor,scope:ids,packageType:'BILLING',packageId});
+assert.equal(fetchCalls.length, 21);
 assert.equal(fetchCalls[0].options.headers.Authorization, `Bearer ${token}`);
 assert.equal(fetchCalls[1].options.headers['Accept-Profile'], 'finance_api');
 assert.deepEqual(JSON.parse(fetchCalls[2].options.body), { p_legal_entity_id: ids.legalEntityId, p_dealer_account_id: ids.dealerAccountId, p_branch_id: ids.branchId, p_as_of: '2026-11-03' });
@@ -191,6 +202,8 @@ assert.deepEqual(JSON.parse(fetchCalls[15].options.body),{p_legal_entity_id:ids.
 assert.deepEqual(JSON.parse(fetchCalls[16].options.body),{p_legal_entity_id:ids.legalEntityId,p_expense_id:expenseId});
 assert.deepEqual(JSON.parse(fetchCalls[17].options.body),{p_legal_entity_id:ids.legalEntityId,p_dealer_account_id:ids.dealerAccountId,p_branch_id:ids.branchId,p_status:'UNDER_REVIEW',p_cursor:'dispute-cursor',p_limit:25});
 assert.deepEqual(JSON.parse(fetchCalls[18].options.body),{p_legal_entity_id:ids.legalEntityId,p_dealer_account_id:ids.dealerAccountId,p_branch_id:ids.branchId,p_dispute_id:disputeId});
+assert.deepEqual(JSON.parse(fetchCalls[19].options.body),{p_legal_entity_id:ids.legalEntityId,p_package_type:'BILLING',p_status:'INVOICED',p_cursor:'package-cursor',p_limit:25});
+assert.deepEqual(JSON.parse(fetchCalls[20].options.body),{p_legal_entity_id:ids.legalEntityId,p_package_type:'BILLING',p_package_id:packageId});
 for (const invalidKey of [`ey${'a'.repeat(40)}`, `sb_secret_${'a'.repeat(32)}`]) assert.throws(() => createFinanceSupabaseAdapter({ supabaseUrl: 'https://project.supabase.co', publishableKey: invalidKey }), /publishable/i);
 
 console.log('PASS finance-read-edge: HQ expenses, summary, contract/rules, statement, payment, accrual, refund and period; JWT scope and safe errors');

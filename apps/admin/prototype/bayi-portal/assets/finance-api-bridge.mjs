@@ -3,6 +3,8 @@ const READ_OPERATION = 'getDealerFinanceSummary';
 const HEADQUARTERS_OPERATION = 'getHeadquartersFinanceSummary';
 const EXPENSES_OPERATION='listPassThroughExpenses';
 const EXPENSE_OPERATION='getPassThroughExpense';
+const EXPORT_PACKAGES_OPERATION='listFinanceExportPackages';
+const EXPORT_PACKAGE_OPERATION='getFinanceExportPackage';
 const DISPUTES_OPERATION='listDisputes';
 const DISPUTE_OPERATION='getDispute';
 const STATEMENT_OPERATION = 'getDealerStatement';
@@ -95,6 +97,8 @@ export function createFinanceSummaryClient({getConfig, getAccessToken, fetchImpl
     },
     async listPassThroughExpenses(rawScope,{from,to,status,cursor,limit}={}) {for(const [field,value] of [['from',from],['to',to]])if(value!==undefined&&!/^\d{4}-\d{2}-\d{2}$/.test(value))throw new FinanceBridgeError('VALIDATION_ERROR',`${field} YYYY-MM-DD biçiminde olmalıdır.`);if(from&&to&&from>to)throw new FinanceBridgeError('VALIDATION_ERROR','Masraf tarih aralığı geçersiz.');if(status!==undefined&&!['DRAFT','CALCULATED','PENDING_APPROVAL','APPROVED','POSTED','REVERSED'].includes(status))throw new FinanceBridgeError('VALIDATION_ERROR','Masraf durumu geçersiz.');if(cursor!==undefined&&(typeof cursor!=='string'||!cursor.length||cursor.length>512))throw new FinanceBridgeError('VALIDATION_ERROR','Masraf cursor değeri geçersiz.');if(limit!==undefined&&(!Number.isInteger(limit)||limit<1||limit>200))throw new FinanceBridgeError('VALIDATION_ERROR','Masraf limit değeri geçersiz.');return execute(rawScope,EXPENSES_OPERATION,{from,to,status,cursor,limit},{},false,true);},
     async getPassThroughExpense(rawScope,expenseId){const id=requiredUuid(expenseId,'expenseId','VALIDATION_ERROR');return execute(rawScope,EXPENSE_OPERATION,{}, {expenseId:id},true,true);},
+    async listFinanceExportPackages(rawScope,{packageType,status,cursor,limit}={}){if(packageType!==undefined&&!['BILLING','ACCOUNTING'].includes(packageType))throw new FinanceBridgeError('VALIDATION_ERROR','Export paketi türü geçersiz.');if(status!==undefined&&!['DRAFT','READY','EXPORT_QUEUED','EXPORTED','INVOICED','PARTIALLY_ACCEPTED','ACCEPTED','REJECTED'].includes(status))throw new FinanceBridgeError('VALIDATION_ERROR','Export paketi durumu geçersiz.');if(cursor!==undefined&&(typeof cursor!=='string'||!cursor.length||cursor.length>512))throw new FinanceBridgeError('VALIDATION_ERROR','Export paketi cursor değeri geçersiz.');if(limit!==undefined&&(!Number.isInteger(limit)||limit<1||limit>200))throw new FinanceBridgeError('VALIDATION_ERROR','Export paketi limit değeri geçersiz.');return execute(rawScope,EXPORT_PACKAGES_OPERATION,{packageType,status,cursor,limit},{},false,true);},
+    async getFinanceExportPackage(rawScope,packageType,packageId){if(!['BILLING','ACCOUNTING'].includes(packageType))throw new FinanceBridgeError('VALIDATION_ERROR','Export paketi türü geçersiz.');const id=requiredUuid(packageId,'packageId','VALIDATION_ERROR');return execute(rawScope,EXPORT_PACKAGE_OPERATION,{packageType},{packageId:id},true,true);},
     async listDisputes(rawScope,{status,cursor,limit}={}) {if(status!==undefined&&!['DRAFT','SUBMITTED','UNDER_REVIEW','ACCEPTED','PARTIALLY_ACCEPTED','REJECTED','CLOSED'].includes(status))throw new FinanceBridgeError('VALIDATION_ERROR','İtiraz durumu geçersiz.');if(cursor!==undefined&&(typeof cursor!=='string'||!cursor.length||cursor.length>512))throw new FinanceBridgeError('VALIDATION_ERROR','İtiraz cursor değeri geçersiz.');if(limit!==undefined&&(!Number.isInteger(limit)||limit<1||limit>200))throw new FinanceBridgeError('VALIDATION_ERROR','İtiraz limit değeri geçersiz.');return execute(rawScope,DISPUTES_OPERATION,{status,cursor,limit});},
     async getDispute(rawScope,disputeId){const id=requiredUuid(disputeId,'disputeId','VALIDATION_ERROR');return execute(rawScope,DISPUTE_OPERATION,{}, {disputeId:id},true);},
     async getDealerFinanceSummary(rawScope, {asOf} = {}) {
@@ -214,6 +218,8 @@ if (auth && ui) {
     },
     async listPassThroughExpenses(options={}){const scope=configuredScope||refreshContext();if(!scope)throw new FinanceBridgeError('FINANCE_SCOPE_UNAVAILABLE','ERP finans kapsamı henüz sağlanmadı.');return client.listPassThroughExpenses(scope,options);},
     async getPassThroughExpense(expenseId){const scope=configuredScope||refreshContext();if(!scope)throw new FinanceBridgeError('FINANCE_SCOPE_UNAVAILABLE','ERP finans kapsamı henüz sağlanmadı.');return client.getPassThroughExpense(scope,expenseId);},
+    async listFinanceExportPackages(options={}){const scope=configuredScope||refreshContext();if(!scope)throw new FinanceBridgeError('FINANCE_SCOPE_UNAVAILABLE','ERP finans kapsamı henüz sağlanmadı.');return client.listFinanceExportPackages(scope,options);},
+    async getFinanceExportPackage(packageType,packageId){const scope=configuredScope||refreshContext();if(!scope)throw new FinanceBridgeError('FINANCE_SCOPE_UNAVAILABLE','ERP finans kapsamı henüz sağlanmadı.');return client.getFinanceExportPackage(scope,packageType,packageId);},
     async listDisputes(options={}){const scope=configuredScope||refreshContext();if(!scope)throw new FinanceBridgeError('FINANCE_SCOPE_UNAVAILABLE','ERP finans kapsamı henüz sağlanmadı.');return client.listDisputes(scope,options);},
     async getDispute(disputeId){const scope=configuredScope||refreshContext();if(!scope)throw new FinanceBridgeError('FINANCE_SCOPE_UNAVAILABLE','ERP finans kapsamı henüz sağlanmadı.');return client.getDispute(scope,disputeId);},
     async getPayment(paymentId) {
@@ -297,6 +303,8 @@ if (auth && ui) {
     async loadExpenseDetail(expenseId){ui.setExpenseState?.('LOADING','Paylar, belgeler ve onay izi yükleniyor…');try{const result=await api.getPassThroughExpense(expenseId);ui.renderExpenseDetail?.(result.data);return result;}catch(error){ui.setExpenseState?.('ERROR',error instanceof FinanceBridgeError?error.message:'Masraf detayı alınamadı.');throw error;}},
     async loadDisputes({append=false}={}){const cursor=append?ui.disputesMoreButton?.dataset?.cursor:undefined;ui.setDisputesState?.('LOADING',append?'İtiraz devam sayfası yükleniyor…':'Yetkili itiraz kuyruğu yükleniyor…');try{const result=await api.listDisputes({...ui.getDisputeFilters?.(),cursor});ui.renderDisputesPage?.(result.data,{append});return result;}catch(error){ui.setDisputesState?.('ERROR',error instanceof FinanceBridgeError?error.message:'İtiraz listesi alınamadı.');throw error;}},
     async loadDisputeDetail(disputeId){ui.setDisputeState?.('LOADING','Kanıt, onay ve düzeltme izi yükleniyor…');try{const result=await api.getDispute(disputeId);ui.renderDisputeDetail?.(result.data);return result;}catch(error){ui.setDisputeState?.('ERROR',error instanceof FinanceBridgeError?error.message:'İtiraz detayı alınamadı.');throw error;}},
+    async loadExportPackages({append=false}={}){const cursor=append?ui.exportPackagesMoreButton?.dataset?.cursor:undefined;ui.setExportPackagesState?.('LOADING',append?'Paket devam sayfası yükleniyor…':'Fatura ve muhasebe paketleri yükleniyor…');try{const result=await api.listFinanceExportPackages({...ui.getExportPackageFilters?.(),cursor});ui.renderExportPackagesPage?.(result.data,{append});return result;}catch(error){ui.setExportPackagesState?.('ERROR',error instanceof FinanceBridgeError?error.message:'Export paketleri alınamadı.');throw error;}},
+    async loadExportPackageDetail(packageType,packageId){ui.setExportPackageState?.('LOADING','Kontrol toplamları ve harici durum yükleniyor…');try{const result=await api.getFinanceExportPackage(packageType,packageId);ui.renderExportPackageDetail?.(result.data);return result;}catch(error){ui.setExportPackageState?.('ERROR',error instanceof FinanceBridgeError?error.message:'Export paketi detayı alınamadı.');throw error;}},
     async loadAccrualDetail(accrualId) {
       ui.setAccrualState?.('LOADING', 'Kaynak olay, hesaplama ve çift taraflı fiş yükleniyor…');
       try {
@@ -367,6 +375,10 @@ if (auth && ui) {
   ui.disputesRefreshButton?.addEventListener('click',()=>{void api.loadDisputes().catch(()=>{});});
   ui.disputesMoreButton?.addEventListener('click',()=>{void api.loadDisputes({append:true}).catch(()=>{});});
   ui.disputesStatus?.addEventListener('change',()=>{ui.resetDisputes?.('Filtre değişti. İtirazları yeniden getirin.');});
+  ui.exportPackagesRefreshButton?.addEventListener('click',()=>{void api.loadExportPackages().catch(()=>{});});
+  ui.exportPackagesMoreButton?.addEventListener('click',()=>{void api.loadExportPackages({append:true}).catch(()=>{});});
+  ui.exportPackagesType?.addEventListener('change',()=>{ui.resetExportPackages?.('Filtre değişti. Paketleri yeniden getirin.');});
+  ui.exportPackagesStatus?.addEventListener('change',()=>{ui.resetExportPackages?.('Filtre değişti. Paketleri yeniden getirin.');});
   ui.contractRefreshButton?.addEventListener('click',()=>{void api.loadContractWorkspace().catch(()=>{});});
   ui.contractMoreButton?.addEventListener('click',()=>{void api.loadContractWorkspace({append:true}).catch(()=>{});});
   ui.contractRuleStatus?.addEventListener('change',()=>{ui.resetContractRules?.('Filtre değişti. Kuralları yeniden getirin.');});
@@ -375,4 +387,5 @@ if (auth && ui) {
   globalThis.addEventListener?.('ototr:finance-refund-requested',event=>{void api.loadRoyaltyRefundTrace(event.detail?.reversalAccrualId).catch(()=>{});});
   globalThis.addEventListener?.('ototr:finance-expense-requested',event=>{void api.loadExpenseDetail(event.detail?.expenseId).catch(()=>{});});
   globalThis.addEventListener?.('ototr:finance-dispute-requested',event=>{void api.loadDisputeDetail(event.detail?.disputeId).catch(()=>{});});
+  globalThis.addEventListener?.('ototr:finance-export-package-requested',event=>{void api.loadExportPackageDetail(event.detail?.packageType,event.detail?.packageId).catch(()=>{});});
 }

@@ -112,6 +112,15 @@ try {
       const data={disputeId:body.pathParams.disputeId,caseNo:'DSP-001',status:'PARTIALLY_ACCEPTED',reasonCode:'AMOUNT_MISMATCH',amounts:{disputedAmount:'100.00000000',acceptedAmount:'70.00000000',currency:'TRY'},target:{openItemId:'40404040-4040-4040-8040-404040404040',accrualId:'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',feeDefinitionId:'42424242-4242-4242-8242-424242424242',originalAmount:'140.00000000',openAmount:'140.00000000'},evidence:{targetRecordType:'OPEN_ITEM'},documents:[{documentId:'43434343-4343-4343-8343-434343434343',externalDocumentId:'44444444-4444-4444-8444-444444444445',documentType:'DISPUTE_EVIDENCE',objectKey:'masked',contentHash:'f'.repeat(64)}],approval:{requestId:'45454545-4545-4545-8545-454545454545',status:'APPROVED',policyVersion:'MAKER-CHECKER-V1',steps:[]},decision:{reasonCode:'PARTIAL_SUPPORT',noteHash:'a'.repeat(64),decidedBy:'46464646-4646-4646-8646-464646464646',decidedAtUtc:'2026-11-06T12:00:00Z'},correctionJournal:{journalEntryId:'47474747-4747-4747-8747-474747474747',entryType:'DISPUTE_ADJUSTMENT',postingDate:'2026-11-06',financePeriodId:'48484848-4848-4848-8848-484848484848',status:'POSTED'},createdAtUtc:'2026-11-03T09:00:00Z',createdBy:'49494949-4949-4949-8949-494949494949',correlationId:'50505050-5050-4050-8050-505050505050',version:3};
       await route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({data})});return;
     }
+    if(body.operationId==='listFinanceExportPackages'){
+      const billing={packageId:'51515151-5151-4151-8151-515151515151',packageType:'BILLING',batchNo:'BILL-202611-001',status:'INVOICED',financePeriodId:'52525252-5252-4252-8252-525252525252',dealerAccountId:scope.dealerAccountId,branchId:scope.branchId,netTotal:'120.00000000',taxTotal:'20.00000000',grossTotal:'140.00000000',currency:'TRY',contentHash:'a'.repeat(64),mappingVersion:'EINVOICE-V1',targetAdapterCode:'SYNTHETIC_EINVOICE',itemCount:1,externalStatus:'ISSUED',createdAtUtc:'2026-11-05T09:00:00Z'};
+      const accounting={packageId:'53535353-5353-4353-8353-535353535353',packageType:'ACCOUNTING',batchNo:'ACC-202611-001',status:'READY',financePeriodId:'52525252-5252-4252-8252-525252525252',dealerAccountId:null,branchId:null,netTotal:'140.00000000',taxTotal:'0.00000000',grossTotal:'140.00000000',currency:'TRY',contentHash:'b'.repeat(64),mappingVersion:'ERP-V1',targetAdapterCode:null,itemCount:1,externalStatus:null,createdAtUtc:'2026-11-04T09:00:00Z'};
+      const data=body.query.cursor?{items:[accounting],nextCursor:null,hasMore:false}:{items:[billing],nextCursor:'export-page-2',hasMore:true};await route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({data})});return;
+    }
+    if(body.operationId==='getFinanceExportPackage'){
+      const data={packageId:body.pathParams.packageId,packageType:'BILLING',batchNo:'BILL-202611-001',status:'INVOICED',financePeriodId:'52525252-5252-4252-8252-525252525252',dealerAccountId:scope.dealerAccountId,branchId:scope.branchId,groupingProfileCode:'BRANCH-MONTHLY',currency:'TRY',totals:{netAmount:'120.00000000',taxAmount:'20.00000000',grossAmount:'140.00000000'},contentHash:'a'.repeat(64),mappingVersion:'EINVOICE-V1',targetAdapterCode:'SYNTHETIC_EINVOICE',exportJobId:'54545454-5454-4454-8454-545454545454',exportQueuedAtUtc:'2026-11-04T10:00:00Z',items:[{itemId:'55555555-5555-4555-8555-555555555556',accrualId:'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',netAmount:'120.00000000',taxAmount:'20.00000000',grossAmount:'140.00000000',status:'ACTIVE'}],externalInvoice:{invoiceId:'56565656-5656-4656-8656-565656565656',externalSystem:'SYNTHETIC_EINVOICE',externalInvoiceId:'EXT-001',invoiceNumber:'OTOTR-2026-000001',invoiceDate:'2026-11-05',status:'ISSUED',netAmount:'120.00000000',taxAmount:'20.00000000',grossAmount:'140.00000000',currency:'TRY'},version:2,createdAtUtc:'2026-11-04T09:00:00Z',correlationId:'57575757-5757-4757-8757-575757575757'};
+      await route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({data})});return;
+    }
     if (body.operationId === 'getPayment') {
       const paymentId = body.pathParams.paymentId;
       const data = {
@@ -289,6 +298,22 @@ try {
   assert.match(await page.locator('[data-finance-dispute-provenance]').innerText(),/47474747-4747-4747-8747-474747474747/);
   assert.match(await page.locator('[data-finance-dispute-sla]').innerText(),/tahmini süre üretilmez/);
   await page.click('[data-finance-dispute-close]');
+  await page.click('[data-finance-screen="SCR-13"]');
+  await page.click('[data-finance-export-packages-refresh]');
+  await page.waitForFunction(()=>document.querySelectorAll('[data-finance-export-packages-body] tr').length===1);
+  assert.match(await page.locator('[data-finance-export-packages-body]').innerText(),/BILL-202611-001/);
+  assert.match(await page.locator('[data-finance-export-packages-body]').innerText(),/140,00000000 TRY/);
+  assert.equal(requests.at(-1).operationId,'listFinanceExportPackages');
+  await page.click('[data-finance-export-packages-more]');
+  await page.waitForFunction(()=>document.querySelectorAll('[data-finance-export-packages-body] tr').length===2);
+  assert.match(await page.locator('[data-finance-export-packages-body]').innerText(),/ACC-202611-001/);
+  await page.click('[data-finance-export-packages-body] [data-finance-export-package-id]');
+  await page.waitForFunction(()=>document.querySelector('[data-finance-export-package-detail]')?.dataset.state==='READY');
+  assert.equal(requests.at(-1).operationId,'getFinanceExportPackage');
+  assert.match(await page.locator('[data-finance-export-package-detail]').innerText(),/ISSUED/);
+  assert.match(await page.locator('[data-finance-export-package-detail]').innerText(),/EINVOICE-V1/);
+  assert.match(await page.locator('[data-finance-export-package-provenance]').innerText(),/54545454-5454-4454-8454-545454545454/);
+  await page.click('[data-finance-export-package-close]');
   await page.click('[data-finance-screen="SCR-07"]');
   assert.equal(await page.locator('[data-finance-payment-detail]').isVisible(),false);
   await page.click('[data-finance-accrual-id]');
@@ -351,7 +376,7 @@ try {
   assert.match(await page.locator('[data-finance-statement-state]').innerText(), /geçici olarak kullanılamıyor/i);
   assert.equal(await page.locator('[data-finance-statement-refresh]').isEnabled(), true);
 
-console.log('PASS finance-statement-browser: scoped disputes, HQ expense allocation, contract/rules, period, statement, payment, accrual and refund flows');
+console.log('PASS finance-statement-browser: export packages, scoped disputes, HQ expense allocation, contract/rules, period, statement, payment, accrual and refund flows');
 } finally {
   await browser?.close();
   await new Promise(resolve => server.close(resolve));
