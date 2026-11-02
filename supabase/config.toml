@@ -38,6 +38,9 @@ enable_signup = true
 [functions.public-api]
 verify_jwt = false
 
+[functions.finance-read]
+verify_jwt = true
+
 [analytics]
 enabled = true
 port = 55327
