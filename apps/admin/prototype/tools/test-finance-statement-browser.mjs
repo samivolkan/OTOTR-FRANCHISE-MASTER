@@ -60,6 +60,17 @@ try {
       const data={periodId:'18181818-1818-4818-8818-181818181818',parentPeriodId:'19191919-1919-4919-8919-191919191919',dealerAccountId:scope.dealerAccountId,branchId:scope.branchId,periodStart:'2026-11-01',periodEnd:'2026-11-30',currencyCode:'TRY',status:'LOCKED',sourceSnapshotHash:'a'.repeat(64),checkSnapshotHash:'b'.repeat(64),lockedAtUtc:'2026-11-30T20:00:00Z',version:3};
       await route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({data})});return;
     }
+    if(body.operationId==='getCurrentFranchiseContract'){
+      const data={contractId:'20202020-2020-4020-8020-202020202020',contractCode:'OTOTR-FR-2026-001',status:'ACTIVE',version:2,activeVersion:{versionId:'21212121-2121-4121-8121-212121212121',versionNo:3,status:'ACTIVE',validFrom:'2026-11-01',validTo:null,currencyCode:'TRY',contentHash:'c'.repeat(64),version:1},pendingVersion:{versionId:'22222222-2222-4222-8222-222222222223',versionNo:4,status:'PENDING_APPROVAL',validFrom:'2027-01-01',validTo:null,currencyCode:'TRY',contentHash:'d'.repeat(64),version:1}};
+      await route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({data})});return;
+    }
+    if(body.operationId==='listContractFeeRules'){
+      const rule=(id,feeCode,category,method,parameter,includesTax)=>({feeRuleId:id,feeDefinitionId:id.replace(/^./,'3'),feeCode,name:`${feeCode} Bedeli`,category,ruleCode:`RULE-${feeCode}`,priority:100,status:'ACTIVE',configurationStatus:'CONFIGURED',triggerEventType:'payment.settled',basis:{kind:'COLLECTED_GROSS'},calculation:{method,currency:'TRY',priceIncludesTax:includesTax,rate:parameter,decimalScale:2,roundingMode:'HALF_UP'},version:1});
+      const data=body.query.cursor
+        ? {items:[rule('25252525-2525-4525-8525-252525252525','QUERY','QUERY','FIXED','25.00',false)],nextCursor:null,hasMore:false}
+        : {items:[rule('23232323-2323-4323-8323-232323232323','ROYALTY','ROYALTY','PERCENTAGE','0.10',true),rule('24242424-2424-4424-8424-242424242424','ENTRY_FRANCHISE','ENTRY_FRANCHISE','FIXED','1000.00',false)],nextCursor:'24242424-2424-4424-8424-242424242424',hasMore:true};
+      await route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({data})});return;
+    }
     if(body.operationId==='listPayments'){
       const data=body.query.cursor==='payment-page-2'
         ? {items:[paymentItem('56565656-5656-4656-8656-565656565656','VERIFIED','50.00000000','50.00000000','0','50.00000000')],nextCursor:null,hasMore:false}
@@ -130,6 +141,23 @@ try {
   assert.match(await page.locator('[data-finance-period-detail]').innerText(),/LOCKED/);
   assert.match(await page.locator('[data-finance-period-detail]').innerText(),/v3/);
   assert.match(await page.locator('[data-finance-period-detail]').innerText(),/aaaaaaaaaaaa/);
+  await page.click('[data-finance-screen="SCR-03"]');
+  assert.equal(await page.locator('[data-finance-contract-workspace]').isVisible(),true);
+  await page.click('[data-finance-contract-refresh]');
+  await page.waitForFunction(()=>document.querySelector('[data-finance-contract-workspace]')?.dataset.state==='READY');
+  await page.waitForFunction(()=>document.querySelectorAll('[data-finance-contract-rules-body] tr').length===2);
+  assert.match(await page.locator('[data-finance-contract-content]').innerText(),/OTOTR-FR-2026-001/);
+  assert.match(await page.locator('[data-finance-contract-content]').innerText(),/v3/);
+  assert.match(await page.locator('[data-finance-contract-rules-body]').innerText(),/ROYALTY/);
+  assert.match(await page.locator('[data-finance-contract-rules-body]').innerText(),/PERCENTAGE/);
+  assert.match(await page.locator('[data-finance-contract-rules-body]').innerText(),/Evet/);
+  assert.equal(requests.at(-1).operationId,'listContractFeeRules');
+  await page.click('[data-finance-contract-more]');
+  await page.waitForFunction(()=>document.querySelectorAll('[data-finance-contract-rules-body] tr').length===3);
+  assert.match(await page.locator('[data-finance-contract-rules-body]').innerText(),/QUERY/);
+  await page.click('[data-finance-screen="SCR-04"]');
+  assert.equal(await page.locator('[data-finance-contract-workspace]').isVisible(),true);
+  assert.match(await page.locator('[data-finance-contract-title]').innerText(),/Bedel Kataloğu/);
   await page.click('[data-finance-screen="SCR-05"]');
   assert.equal(await page.locator('[data-finance-statement]').isVisible(),true);
   assert.equal(await page.locator('[data-finance-statement-title]').innerText(),'Tahakkuklar');
@@ -229,7 +257,7 @@ try {
   assert.match(await page.locator('[data-finance-statement-state]').innerText(), /geçici olarak kullanılamıyor/i);
   assert.equal(await page.locator('[data-finance-statement-refresh]').isEnabled(), true);
 
-  console.log('PASS finance-statement-browser: scoped period, statement, payment list/detail, accrual and royalty refund trace flows');
+  console.log('PASS finance-statement-browser: scoped contract/rules, period, statement, payment, accrual and refund flows');
 } finally {
   await browser?.close();
   await new Promise(resolve => server.close(resolve));

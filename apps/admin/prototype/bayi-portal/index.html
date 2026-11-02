@@ -1335,6 +1335,26 @@ button,input,select,textarea{font:inherit}.app{min-height:100vh;display:grid;gri
               </div>
               <div class="finance-statement-state" data-finance-period-empty>Kapsam ve yetkili dönem verisi bekleniyor.</div>
             </section>
+            <section class="finance-statement" data-finance-contract-workspace hidden aria-labelledby="financeContractTitle">
+              <div class="finance-statement-head">
+                <div><span class="finance-screen-code">YETKİLİ SÖZLEŞME PROJECTION</span><h3 id="financeContractTitle" data-finance-contract-title>Sözleşme ve Kural Sürümleri</h3><p data-finance-contract-subtitle>Seçili şubenin aktif sözleşmesi, geçerli sürümü ve bekleyen sürümü.</p></div>
+                <div class="finance-statement-controls"><button class="btn" type="button" data-finance-contract-refresh disabled>Sözleşme ve Kuralları Getir</button></div>
+              </div>
+              <div class="finance-statement-state" data-finance-contract-state role="status">Kapsam ve yetkili bağlantı bekleniyor.</div>
+              <div class="finance-period-grid" data-finance-contract-content hidden>
+                <article><span>Sözleşme</span><b data-finance-contract-code>—</b><small data-finance-contract-status>—</small></article>
+                <article><span>Aktif sürüm</span><b data-finance-contract-active>—</b><small data-finance-contract-validity>—</small></article>
+                <article><span>Bekleyen sürüm</span><b data-finance-contract-pending>—</b><small data-finance-contract-pending-status>—</small></article>
+                <article><span>Kanıt izi</span><b data-finance-contract-hash>—</b><small>İçerik hash özeti</small></article>
+              </div>
+              <div class="finance-statement-head">
+                <div><span class="finance-screen-code">BEDEL KURALLARI</span><h4>Sürümdeki Kurallar</h4></div>
+                <div class="finance-statement-controls"><label>Durum<select data-finance-contract-rule-status disabled><option value="">Tümü</option><option value="ACTIVE">Aktif</option><option value="DRAFT">Taslak</option><option value="PENDING_APPROVAL">Onay bekliyor</option><option value="APPROVED">Onaylandı</option><option value="SUPERSEDED">Geçmiş</option><option value="DISABLED">Devre dışı</option></select></label></div>
+              </div>
+              <div class="finance-statement-state" data-finance-contract-rules-state role="status">Sözleşme sürümü bekleniyor.</div>
+              <div class="finance-statement-table-wrap" data-finance-contract-rules-table hidden><table class="finance-statement-table"><thead><tr><th>Bedel / kural</th><th>Aile</th><th>Tetikleyici</th><th>Hesaplama</th><th>Vergi dahil</th><th>Durum</th></tr></thead><tbody data-finance-contract-rules-body></tbody></table></div>
+              <div class="finance-statement-footer"><span data-finance-contract-rules-count>0 kural</span><button class="btn" type="button" data-finance-contract-more hidden disabled>Daha Fazla</button></div>
+            </section>
             <section class="finance-statement" data-finance-statement hidden aria-labelledby="financeStatementTitle">
               <div class="finance-statement-head">
                 <div>

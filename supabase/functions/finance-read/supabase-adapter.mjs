@@ -84,5 +84,11 @@ export function createFinanceSupabaseAdapter({ supabaseUrl, publishableKey, fetc
       p_legal_entity_id:scope.legalEntityId,p_dealer_account_id:dealerAccountId,p_branch_id:scope.branchId,p_as_of:asOf,
     },'finance_api');
   }
-  return Object.freeze({ authenticate, authorizeScope, readSummary, readStatement, readPayments, readPayment, readAccrualDetail, readRefundTrace, readCurrentPeriod });
+  async function readCurrentContract({actor,scope,dealerAccountId,asOf}) {
+    return post('/rest/v1/rpc/get_current_franchise_contract',actor.token,{p_legal_entity_id:scope.legalEntityId,p_dealer_account_id:dealerAccountId,p_branch_id:scope.branchId,p_as_of:asOf},'finance_api');
+  }
+  async function readContractFeeRules({actor,scope,dealerAccountId,contractVersionId,status,cursor,limit}) {
+    return post('/rest/v1/rpc/list_contract_fee_rules',actor.token,{p_legal_entity_id:scope.legalEntityId,p_dealer_account_id:dealerAccountId,p_branch_id:scope.branchId,p_contract_version_id:contractVersionId,p_status:status||null,p_cursor:cursor||null,p_limit:limit||50},'finance_api');
+  }
+  return Object.freeze({ authenticate, authorizeScope, readSummary, readStatement, readPayments, readPayment, readAccrualDetail, readRefundTrace, readCurrentPeriod, readCurrentContract, readContractFeeRules });
 }

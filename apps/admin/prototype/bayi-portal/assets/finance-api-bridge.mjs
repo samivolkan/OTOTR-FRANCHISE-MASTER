@@ -6,6 +6,8 @@ const PAYMENT_OPERATION = 'getPayment';
 const ACCRUAL_OPERATION = 'getAccrualDetail';
 const REFUND_TRACE_OPERATION = 'getRoyaltyRefundTrace';
 const PERIOD_OPERATION = 'getFinancePeriod';
+const CURRENT_CONTRACT_OPERATION = 'getCurrentFranchiseContract';
+const CONTRACT_RULES_OPERATION = 'listContractFeeRules';
 
 export class FinanceBridgeError extends Error {
   constructor(code, message, status = 0) {
@@ -114,6 +116,17 @@ export function createFinanceSummaryClient({getConfig, getAccessToken, fetchImpl
     async getCurrentFinancePeriod(rawScope,{asOf}={}) {
       if (typeof asOf!=='string' || !/^\d{4}-\d{2}-\d{2}$/.test(asOf)) throw new FinanceBridgeError('VALIDATION_ERROR','asOf YYYY-MM-DD biçiminde zorunludur.');
       return execute(rawScope,PERIOD_OPERATION,{asOf},{},true);
+    },
+    async getCurrentFranchiseContract(rawScope,{asOf}={}) {
+      if(typeof asOf!=='string'||!/^\d{4}-\d{2}-\d{2}$/.test(asOf)) throw new FinanceBridgeError('VALIDATION_ERROR','asOf YYYY-MM-DD biçiminde zorunludur.');
+      return execute(rawScope,CURRENT_CONTRACT_OPERATION,{asOf},{},true);
+    },
+    async listContractFeeRules(rawScope,contractVersionId,{status,cursor,limit}={}) {
+      const normalizedVersionId=requiredUuid(contractVersionId,'contractVersionId','VALIDATION_ERROR');
+      if(status!==undefined&&!['DRAFT','PENDING_APPROVAL','APPROVED','ACTIVE','SUPERSEDED','DISABLED'].includes(status)) throw new FinanceBridgeError('VALIDATION_ERROR','Kural durum filtresi geçersiz.');
+      if(cursor!==undefined) requiredUuid(cursor,'cursor','VALIDATION_ERROR');
+      if(limit!==undefined&&(!Number.isInteger(limit)||limit<1||limit>200)) throw new FinanceBridgeError('VALIDATION_ERROR','Kural limit değeri 1–200 arasında olmalıdır.');
+      return execute(rawScope,CONTRACT_RULES_OPERATION,{status,cursor,limit},{contractVersionId:normalizedVersionId},true);
     }
   });
 }
@@ -123,6 +136,7 @@ const ui = globalThis.OTOTRFinanceUI;
 if (auth && ui) {
   const client = createFinanceSummaryClient({getConfig: () => auth.getConfig(), getAccessToken: () => auth.getAccessToken()});
   let configuredScope = null;
+  let connectedAsOf = null;
   const refreshContext = () => {
     try {
       configuredScope = validateFinanceScope(globalThis.OTOTR_FINANCE_CONTEXT);
@@ -140,6 +154,7 @@ if (auth && ui) {
       ui.setConnectionState('LOADING', 'Yetkili finans projectionı yükleniyor.');
       try {
         const result = await client.getDealerFinanceSummary(scope, options);
+        connectedAsOf=result.data.asOf;
         ui.renderSummary(result.data, result.scope);
         const periodResult=await client.getCurrentFinancePeriod(scope,{asOf:result.data.asOf});
         ui.renderCurrentPeriod?.(periodResult.data);
@@ -183,6 +198,40 @@ if (auth && ui) {
       const scope=configuredScope||refreshContext();
       if(!scope) throw new FinanceBridgeError('FINANCE_SCOPE_UNAVAILABLE','ERP finans kapsamı henüz sağlanmadı.');
       return client.getCurrentFinancePeriod(scope,options);
+    },
+    async getCurrentFranchiseContract(options={}) {
+      const scope=configuredScope||refreshContext();
+      if(!scope) throw new FinanceBridgeError('FINANCE_SCOPE_UNAVAILABLE','ERP finans kapsamı henüz sağlanmadı.');
+      return client.getCurrentFranchiseContract(scope,{asOf:options.asOf||connectedAsOf});
+    },
+    async listContractFeeRules(contractVersionId,options={}) {
+      const scope=configuredScope||refreshContext();
+      if(!scope) throw new FinanceBridgeError('FINANCE_SCOPE_UNAVAILABLE','ERP finans kapsamı henüz sağlanmadı.');
+      return client.listContractFeeRules(scope,contractVersionId,options);
+    },
+    async loadContractWorkspace({append=false}={}) {
+      try {
+        if(!append){
+          ui.setContractState?.('LOADING','Aktif sözleşme ve sürüm bilgisi yükleniyor…');
+          const contractResult=await api.getCurrentFranchiseContract();
+          ui.renderCurrentContract?.(contractResult.data);
+          const versionId=contractResult.data?.activeVersion?.versionId || contractResult.data?.pendingVersion?.versionId;
+          if(!versionId) return contractResult;
+          ui.setContractRulesVersion?.(versionId);
+        }
+        const versionId=ui.getContractRulesVersion?.();
+        if(!versionId) return null;
+        const cursor=append?ui.contractMoreButton?.dataset?.cursor:undefined;
+        const filters=ui.getContractRuleFilters?.()||{};
+        ui.setContractRulesState?.('LOADING',append?'Kural devam sayfası yükleniyor…':'Sözleşme kuralları yükleniyor…');
+        const rulesResult=await api.listContractFeeRules(versionId,{...filters,cursor});
+        ui.renderContractRulesPage?.(rulesResult.data,{append});
+        return rulesResult;
+      } catch(error){
+        if(!append) ui.setContractState?.('ERROR',error instanceof FinanceBridgeError?error.message:'Sözleşme bilgisi alınamadı.');
+        ui.setContractRulesState?.('ERROR',error instanceof FinanceBridgeError?error.message:'Kural listesi alınamadı.');
+        throw error;
+      }
     },
     async loadRoyaltyRefundTrace(reversalAccrualId) {
       ui.setRefundState?.('LOADING','Orijinal tahsilat, royalty ve dönem provenance yükleniyor…');
@@ -247,6 +296,9 @@ if (auth && ui) {
   ui.paymentsRefreshButton?.addEventListener('click', () => { void api.loadPayments().catch(() => {}); });
   ui.paymentsMoreButton?.addEventListener('click', () => { void api.loadPayments({append:true}).catch(() => {}); });
   ui.paymentsStatus?.addEventListener('change', () => { ui.resetPayments?.('Filtre değişti. Güncel ödemeleri getirin.'); });
+  ui.contractRefreshButton?.addEventListener('click',()=>{void api.loadContractWorkspace().catch(()=>{});});
+  ui.contractMoreButton?.addEventListener('click',()=>{void api.loadContractWorkspace({append:true}).catch(()=>{});});
+  ui.contractRuleStatus?.addEventListener('change',()=>{ui.resetContractRules?.('Filtre değişti. Kuralları yeniden getirin.');});
   globalThis.addEventListener?.('ototr:finance-payment-requested', event => { void api.loadPayment(event.detail?.paymentId).catch(() => {}); });
   globalThis.addEventListener?.('ototr:finance-accrual-requested', event => { void api.loadAccrualDetail(event.detail?.accrualId).catch(() => {}); });
   globalThis.addEventListener?.('ototr:finance-refund-requested',event=>{void api.loadRoyaltyRefundTrace(event.detail?.reversalAccrualId).catch(()=>{});});

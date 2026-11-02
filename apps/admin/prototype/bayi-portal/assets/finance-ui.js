@@ -103,11 +103,33 @@
   const periodLocked = root.querySelector('[data-finance-period-locked]');
   const periodSourceHash = root.querySelector('[data-finance-period-source-hash]');
   const periodCheckHash = root.querySelector('[data-finance-period-check-hash]');
+  const contractWorkspace = root.querySelector('[data-finance-contract-workspace]');
+  const contractTitle = root.querySelector('[data-finance-contract-title]');
+  const contractSubtitle = root.querySelector('[data-finance-contract-subtitle]');
+  const contractRefreshButton = root.querySelector('[data-finance-contract-refresh]');
+  const contractState = root.querySelector('[data-finance-contract-state]');
+  const contractContent = root.querySelector('[data-finance-contract-content]');
+  const contractCode = root.querySelector('[data-finance-contract-code]');
+  const contractStatus = root.querySelector('[data-finance-contract-status]');
+  const contractActive = root.querySelector('[data-finance-contract-active]');
+  const contractValidity = root.querySelector('[data-finance-contract-validity]');
+  const contractPending = root.querySelector('[data-finance-contract-pending]');
+  const contractPendingStatus = root.querySelector('[data-finance-contract-pending-status]');
+  const contractHash = root.querySelector('[data-finance-contract-hash]');
+  const contractRuleStatus = root.querySelector('[data-finance-contract-rule-status]');
+  const contractRulesState = root.querySelector('[data-finance-contract-rules-state]');
+  const contractRulesTable = root.querySelector('[data-finance-contract-rules-table]');
+  const contractRulesBody = root.querySelector('[data-finance-contract-rules-body]');
+  const contractRulesCount = root.querySelector('[data-finance-contract-rules-count]');
+  const contractMoreButton = root.querySelector('[data-finance-contract-more]');
   let scopeReady = false;
   let statementRowCount = 0;
   let paymentRowCount = 0;
+  let contractRuleRowCount = 0;
+  let contractRulesVersionId = null;
   let activeScreenId = 'SCR-01';
   const statementScreenIds = new Set('SCR-05,SCR-07'.split(','));
+  const contractScreenIds = new Set('SCR-03,SCR-04'.split(','));
 
   const renderList = (target, items) => {
     target.replaceChildren(...items.map(item => {
@@ -136,6 +158,9 @@
       ? 'Kaynak olay, bedel kodu, brüt tutar, açık bakiye ve fatura bağlantıları şube kapsamında gösterilir.'
       : 'Yalnız seçili tüzel kişi, bayi hesabı ve şube kapsamındaki doğrulanmış hareketler.';
     payments.hidden = id !== 'SCR-08';
+    contractWorkspace.hidden = !contractScreenIds.has(id);
+    contractTitle.textContent = id === 'SCR-04' ? 'Bedel Kataloğu ve Kural Yapısı' : 'Sözleşme ve Kural Sürümleri';
+    contractSubtitle.textContent = id === 'SCR-04' ? 'Geçerli sürümdeki bedel aileleri, tetikleyiciler ve hesaplama yapıları.' : 'Seçili şubenin aktif sözleşmesi, geçerli sürümü ve bekleyen sürümü.';
     accrualDetail.hidden = id !== 'SCR-06';
     if (id === 'SCR-06' && !accrualDetail.dataset.state) setAccrualState('EMPTY', 'Tahakkuk listesinden bir kayıt seçin.');
     periodDetail.hidden = id !== 'SCR-12';
@@ -218,6 +243,50 @@
     setStatementState(statementRowCount ? 'READY' : 'EMPTY', statementRowCount ? 'Ekstre yüklendi.' : 'Seçili filtrelerde kayıt bulunamadı.');
   };
   const getStatementFilters = () => Object.freeze({status: statementStatus.value || undefined, limit: 25});
+
+  const setContractState=(next,message)=>{
+    if(!['EMPTY','LOADING','READY','ERROR'].includes(next)) throw new Error('INVALID_FINANCE_CONTRACT_STATE');
+    contractWorkspace.dataset.state=next; contractState.hidden=next==='READY'; contractContent.hidden=next!=='READY';
+    contractState.textContent=message||({EMPTY:'Aktif sözleşme bulunamadı.',LOADING:'Yetkili sözleşme yükleniyor…',READY:'Sözleşme yüklendi.',ERROR:'Sözleşme yüklenemedi.'})[next];
+    contractRefreshButton.disabled=!scopeReady||next==='LOADING';
+  };
+  const setContractRulesState=(next,message)=>{
+    if(!['EMPTY','LOADING','READY','ERROR'].includes(next)) throw new Error('INVALID_FINANCE_CONTRACT_RULES_STATE');
+    contractRulesState.hidden=next==='READY'&&contractRuleRowCount>0; contractRulesState.textContent=message||({EMPTY:'Kural bulunamadı.',LOADING:'Yetkili kurallar yükleniyor…',READY:'Kurallar yüklendi.',ERROR:'Kurallar yüklenemedi.'})[next];
+    contractRuleStatus.disabled=!scopeReady||next==='LOADING'; if(next==='LOADING') contractMoreButton.disabled=true;
+  };
+  const resetContractRules=message=>{
+    contractRulesBody.replaceChildren();contractRuleRowCount=0;contractRulesTable.hidden=true;contractMoreButton.hidden=true;contractMoreButton.disabled=true;contractRulesCount.textContent='0 kural';setContractRulesState('EMPTY',message||'Sözleşme sürümü bekleniyor.');
+  };
+  const resetContract=message=>{
+    contractRulesVersionId=null;contractContent.hidden=true;resetContractRules();setContractState('EMPTY',message||'Henüz yetkili sözleşme isteği yapılmadı.');
+  };
+  const renderCurrentContract=payload=>{
+    if(payload===null){resetContract('Seçili şube için aktif veya hazırlanan sözleşme bulunamadı.');return;}
+    if(!payload||!uuidPattern.test(payload.contractId||'')||typeof payload.contractCode!=='string'||typeof payload.status!=='string') throw new Error('INVALID_FINANCE_CONTRACT');
+    const active=payload.activeVersion,pending=payload.pendingVersion;
+    if(active&&(!uuidPattern.test(active.versionId||'')||!Number.isInteger(active.versionNo)||!/^[A-Z]{3}$/.test(active.currencyCode||''))) throw new Error('INVALID_FINANCE_CONTRACT_VERSION');
+    if(pending&&(!uuidPattern.test(pending.versionId||'')||!Number.isInteger(pending.versionNo))) throw new Error('INVALID_FINANCE_CONTRACT_VERSION');
+    contractCode.textContent=payload.contractCode;contractStatus.textContent=payload.status;
+    contractActive.textContent=active?`v${active.versionNo} · ${active.currencyCode}`:'Aktif sürüm yok';contractValidity.textContent=active?`${active.validFrom} – ${active.validTo||'süresiz'}`:'Geçerlilik bulunamadı';
+    contractPending.textContent=pending?`v${pending.versionNo}`:'Bekleyen sürüm yok';contractPendingStatus.textContent=pending?.status||'—';
+    contractHash.textContent=active?.contentHash&&/^[0-9a-f]{64}$/i.test(active.contentHash)?`${active.contentHash.slice(0,12)}…${active.contentHash.slice(-8)}`:'Kanıt hash yok';setContractState('READY');
+  };
+  const setContractRulesVersion=value=>{contractRulesVersionId=uuidPattern.test(value||'')?value:null;};
+  const getContractRulesVersion=()=>contractRulesVersionId;
+  const renderContractRulesPage=(payload,{append=false}={})=>{
+    if(payload===null){resetContractRules('Seçili sürüm bu şube kapsamında bulunamadı.');return;}
+    if(!payload||!Array.isArray(payload.items)||typeof payload.hasMore!=='boolean'||!(payload.nextCursor==null||uuidPattern.test(payload.nextCursor))) throw new Error('INVALID_FINANCE_CONTRACT_RULES');
+    const rows=payload.items.map(item=>{
+      if(!item||!uuidPattern.test(item.feeRuleId||'')||typeof item.feeCode!=='string'||typeof item.category!=='string'||typeof item.status!=='string'||typeof item.configurationStatus!=='string') throw new Error('INVALID_FINANCE_CONTRACT_RULE');
+      const descriptor=document.createElement('td');const fee=document.createElement('div');fee.className='finance-statement-fee';fee.textContent=item.feeCode;const rule=document.createElement('small');rule.textContent=`${item.ruleCode} · ${item.name}`;descriptor.append(fee,rule);
+      const calculation=item.calculation;let calculationText='Yapılandırılmadı';if(calculation){const parameter=calculation.rate??calculation.percentage??calculation.amount??calculation.value;calculationText=`${calculation.method}${parameter!==undefined?` · ${parameter}`:''}`;}
+      const badge=document.createElement('span');badge.className=`finance-statement-status is-${item.status.toLowerCase()}`;badge.textContent=item.status;
+      const tr=document.createElement('tr');tr.append(descriptor,cell(item.category),cell(item.triggerEventType||'—'),cell(calculationText),cell(calculation?.priceIncludesTax===true?'Evet':calculation?.priceIncludesTax===false?'Hayır':'—'),(()=>{const td=document.createElement('td');td.append(badge);return td;})());return tr;
+    });
+    if(!append){contractRulesBody.replaceChildren();contractRuleRowCount=0;}contractRulesBody.append(...rows);contractRuleRowCount+=rows.length;contractRulesCount.textContent=`${contractRuleRowCount} kural`;contractRulesTable.hidden=contractRuleRowCount===0;contractMoreButton.hidden=!payload.hasMore;contractMoreButton.disabled=!payload.hasMore;contractMoreButton.dataset.cursor=payload.nextCursor||'';setContractRulesState(contractRuleRowCount?'READY':'EMPTY',contractRuleRowCount?'Kurallar yüklendi.':'Seçili filtrelerde kural bulunamadı.');
+  };
+  const getContractRuleFilters=()=>Object.freeze({status:contractRuleStatus.value||undefined,limit:25});
 
   const setPaymentsState = (next, message) => {
     if (!['EMPTY','LOADING','READY','ERROR'].includes(next)) throw new Error('INVALID_FINANCE_PAYMENTS_STATE');
@@ -399,10 +468,13 @@
     statementStatus.disabled = !ready;
     paymentsRefreshButton.disabled = !ready;
     paymentsStatus.disabled = !ready;
+    contractRefreshButton.disabled = !ready;
+    contractRuleStatus.disabled = !ready;
     contextStatus.textContent = ready ? 'KAPSAM HAZIR · SUNUCU ONAYI GEREKİR' : 'KAPSAM BEKLENİYOR';
     contextStatus.classList.toggle('is-ready', Boolean(ready));
     resetStatement(ready ? 'Henüz yetkili ekstre isteği yapılmadı.' : 'Kapsam ve yetkili bağlantı bekleniyor.');
     resetPayments(ready ? 'Henüz yetkili ödeme isteği yapılmadı.' : 'Kapsam ve yetkili bağlantı bekleniyor.');
+    resetContract(ready ? 'Henüz yetkili sözleşme isteği yapılmadı.' : 'Kapsam ve yetkili bağlantı bekleniyor.');
     resetCurrentPeriod(ready ? 'Yetkili veri getirildiğinde şube dönemi burada gösterilir.' : 'Kapsam ve yetkili dönem verisi bekleniyor.');
     if (!ready) setConnectionState('UNCONFIGURED', 'ERP kimlik köprüsünden tüzel kişi, bayi hesabı ve şube kapsamı bekleniyor.');
     return Boolean(ready);
@@ -444,5 +516,5 @@
   refundCloseButton.addEventListener('click',resetRefund);
 
   selectScreen(screens[0]);
-  window.OTOTRFinanceUI = Object.freeze({setConnectionState, setScopeContext, renderSummary, setStatementState, renderStatementPage, resetStatement, getStatementFilters, setPaymentsState, renderPaymentsPage, resetPayments, getPaymentFilters, setPaymentState, renderPaymentDetail, resetPayment, setAccrualState, renderAccrualDetail, resetAccrual, setRefundState, renderRefundTrace, resetRefund, renderCurrentPeriod, resetCurrentPeriod, connectButton, statementRefreshButton, statementMoreButton, statementStatus, paymentsRefreshButton, paymentsMoreButton, paymentsStatus});
+  window.OTOTRFinanceUI = Object.freeze({setConnectionState, setScopeContext, renderSummary, setStatementState, renderStatementPage, resetStatement, getStatementFilters, setContractState, renderCurrentContract, resetContract, setContractRulesState, renderContractRulesPage, resetContractRules, setContractRulesVersion, getContractRulesVersion, getContractRuleFilters, setPaymentsState, renderPaymentsPage, resetPayments, getPaymentFilters, setPaymentState, renderPaymentDetail, resetPayment, setAccrualState, renderAccrualDetail, resetAccrual, setRefundState, renderRefundTrace, resetRefund, renderCurrentPeriod, resetCurrentPeriod, connectButton, statementRefreshButton, statementMoreButton, statementStatus, contractRefreshButton, contractMoreButton, contractRuleStatus, paymentsRefreshButton, paymentsMoreButton, paymentsStatus});
 })();
