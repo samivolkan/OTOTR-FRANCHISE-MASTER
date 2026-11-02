@@ -34,7 +34,8 @@ declare
   events text[] := array['franchise.entry.activated','query.completed','external-service.delivered','optional-service.activated'];
   nets numeric[] := array[1000.00,100.00,250.00,300.00];
   fee_id uuid; rule_id uuid; mapping_id uuid; source_id uuid; event_id uuid;
-  context jsonb; rule jsonb; command jsonb; calculation jsonb; result jsonb; replay jsonb;
+  context jsonb; rule jsonb; command jsonb; calculation jsonb; result jsonb; replay jsonb; contract_projection jsonb; rule_page jsonb;
+  rule_cursor uuid;
   i integer; journal_count integer; accrual_count integer; open_count integer; test_accrual uuid;
   gross numeric(24,8); expected_total numeric(24,8):=1980.00000000;
 begin
@@ -153,6 +154,23 @@ begin
   if (select count(*) from finance.calculation_runs where legal_entity_id=hq)<>4 then
     raise exception 'replay created duplicate calculation runs';
   end if;
+  contract_projection:=finance_api.get_current_franchise_contract(hq,account,branch,date '2026-11-03');
+  if contract_projection->>'contractId'<>contract_id::text
+     or contract_projection#>>'{activeVersion,versionId}'<>contract_version::text
+     or contract_projection#>>'{activeVersion,currencyCode}'<>'TRY' then
+    raise exception 'current contract projection mismatch: %',contract_projection;
+  end if;
+  rule_page:=finance_api.list_contract_fee_rules(hq,account,branch,contract_version,'ACTIVE',null,2);
+  if (rule_page->>'hasMore')::boolean is distinct from true or jsonb_array_length(rule_page->'items')<>2
+     or rule_page#>>'{items,0,configurationStatus}'<>'CONFIGURED'
+     or rule_page#>>'{items,0,calculation,method}'<>'FIXED' then
+    raise exception 'fee rule first page mismatch: %',rule_page;
+  end if;
+  rule_cursor:=(rule_page->>'nextCursor')::uuid;
+  rule_page:=finance_api.list_contract_fee_rules(hq,account,branch,contract_version,'ACTIVE',rule_cursor,2);
+  if (rule_page->>'hasMore')::boolean is distinct from false or jsonb_array_length(rule_page->'items')<>2 then
+    raise exception 'fee rule second page mismatch: %',rule_page;
+  end if;
   select id into test_accrual from finance.accruals where legal_entity_id=hq order by id limit 1;
   result:=finance_api.get_accrual_detail(hq,account,branch,test_accrual);
   if result->>'accrualId'<>test_accrual::text
@@ -162,7 +180,7 @@ begin
     raise exception 'accrual read projection mismatch: %',result;
   end if;
 
-  raise notice 'CHARGE FAMILY ACCRUAL E2E PASSED: ENTRY_FRANCHISE + QUERY + EXTERNAL_SERVICE + OPTIONAL_PRODUCT_SERVICE = 1980 TRY';
+  raise notice 'CHARGE FAMILY ACCRUAL E2E PASSED: four fee families plus current-contract and fee-rule pagination verified';
 end
 $test$;
 
