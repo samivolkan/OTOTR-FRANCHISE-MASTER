@@ -20,6 +20,7 @@ const handler = createFinanceReadHandler({
   readStatement: async value => { calls.push(['statement', value]); return { items: [], nextCursor: null, hasMore: false }; },
   readPayment: async value => { calls.push(['payment', value]); return { payment: { paymentId: value.paymentId }, allocations: [] }; },
   readAccrualDetail: async value => { calls.push(['accrual', value]); return { accrualId:value.accrualId, journalEntry:{lines:[]} }; },
+  readRefundTrace: async value => { calls.push(['refund',value]); return { reversalAccrual:{accrualId:value.reversalAccrualId} }; },
 });
 const makeRequest = (body = requestBody, extras = {}) => new Request('https://project.supabase.co/functions/v1/finance-read', {
   method: extras.method || 'POST',
@@ -58,6 +59,13 @@ assert.equal(accrualResponse.status, 200);
 assert.equal((await accrualResponse.json()).data.accrualId, accrualId);
 assert.equal(calls.at(-1)[0], 'accrual');
 
+const reversalAccrualId = '77777777-7777-4777-8777-777777777777';
+const refundRequest = {operationId:'getRoyaltyRefundTrace',scope:ids,pathParams:{dealerAccountId:ids.dealerAccountId,reversalAccrualId},query:{}};
+const refundResponse = await handler(makeRequest(refundRequest));
+assert.equal(refundResponse.status,200);
+assert.equal((await refundResponse.json()).data.reversalAccrual.accrualId,reversalAccrualId);
+assert.equal(calls.at(-1)[0],'refund');
+
 assert.equal((await handler(makeRequest(requestBody, { origin: 'https://evil.test' }))).status, 403);
 assert.equal((await handler(makeRequest(requestBody, { authorization: 'Bearer short' }))).status, 401);
 assert.equal((await handler(makeRequest({ ...requestBody, operationId: 'deleteEverything' }))).status, 403);
@@ -70,11 +78,12 @@ assert.equal((await handler(makeRequest({ ...statementRequest, query: { limit: 2
 assert.equal((await handler(makeRequest({...paymentRequest,pathParams:{dealerAccountId:ids.dealerAccountId,paymentId:'bad'}}))).status, 400);
 assert.equal((await handler(makeRequest({...paymentRequest,query:{unexpected:true}}))).status, 400);
 assert.equal((await handler(makeRequest({...accrualRequest,pathParams:{dealerAccountId:ids.dealerAccountId,accrualId:'bad'}}))).status, 400);
-assert.throws(() => createFinanceReadHandler({ allowedOrigins: ['*'], authenticate() {}, authorizeScope() {}, readSummary() {}, readStatement() {}, readPayment() {}, readAccrualDetail() {} }), /allowlist/);
-assert.throws(() => createFinanceReadHandler({ allowedOrigins: ['http://erp.ototr.test'], authenticate() {}, authorizeScope() {}, readSummary() {}, readStatement() {}, readPayment() {}, readAccrualDetail() {} }), /allowlist/);
-assert.throws(() => createFinanceReadHandler({ allowedOrigins: [origin], authenticate() {}, authorizeScope() {}, readSummary() {}, readStatement() {}, readPayment() {}, readAccrualDetail() {}, maxBodyBytes: 100 }), /maxBodyBytes/);
+assert.equal((await handler(makeRequest({...refundRequest,pathParams:{dealerAccountId:ids.dealerAccountId,reversalAccrualId:'bad'}}))).status,400);
+assert.throws(() => createFinanceReadHandler({ allowedOrigins: ['*'], authenticate() {}, authorizeScope() {}, readSummary() {}, readStatement() {}, readPayment() {}, readAccrualDetail() {}, readRefundTrace() {} }), /allowlist/);
+assert.throws(() => createFinanceReadHandler({ allowedOrigins: ['http://erp.ototr.test'], authenticate() {}, authorizeScope() {}, readSummary() {}, readStatement() {}, readPayment() {}, readAccrualDetail() {}, readRefundTrace() {} }), /allowlist/);
+assert.throws(() => createFinanceReadHandler({ allowedOrigins: [origin], authenticate() {}, authorizeScope() {}, readSummary() {}, readStatement() {}, readPayment() {}, readAccrualDetail() {}, readRefundTrace() {}, maxBodyBytes: 100 }), /maxBodyBytes/);
 
-const safeHandler = createFinanceReadHandler({ allowedOrigins: [origin], correlationFactory: () => correlationId, authenticate: async () => { throw new Error('database password leaked'); }, authorizeScope: async () => true, readSummary: async () => ({}), readStatement: async () => ({}), readPayment: async () => ({}), readAccrualDetail: async () => ({}) });
+const safeHandler = createFinanceReadHandler({ allowedOrigins: [origin], correlationFactory: () => correlationId, authenticate: async () => { throw new Error('database password leaked'); }, authorizeScope: async () => true, readSummary: async () => ({}), readStatement: async () => ({}), readPayment: async () => ({}), readAccrualDetail: async () => ({}), readRefundTrace:async()=>({}) });
 const safeResponse = await safeHandler(makeRequest());
 assert.equal(safeResponse.status, 500);
 assert.doesNotMatch(JSON.stringify(await safeResponse.json()), /password|leaked/);
@@ -92,13 +101,15 @@ await adapter.readSummary({ actor, scope: ids, dealerAccountId: ids.dealerAccoun
 await adapter.readStatement({ actor, scope: ids, dealerAccountId: ids.dealerAccountId, from: '2026-11-01', to: '2026-11-30', status: 'OPEN', cursor: 'cursor', limit: 25 });
 await adapter.readPayment({ actor, scope:ids, dealerAccountId:ids.dealerAccountId, paymentId });
 await adapter.readAccrualDetail({ actor, scope:ids, dealerAccountId:ids.dealerAccountId, accrualId });
-assert.equal(fetchCalls.length, 6);
+await adapter.readRefundTrace({actor,scope:ids,dealerAccountId:ids.dealerAccountId,reversalAccrualId});
+assert.equal(fetchCalls.length, 7);
 assert.equal(fetchCalls[0].options.headers.Authorization, `Bearer ${token}`);
 assert.equal(fetchCalls[1].options.headers['Accept-Profile'], 'finance_api');
 assert.deepEqual(JSON.parse(fetchCalls[2].options.body), { p_legal_entity_id: ids.legalEntityId, p_dealer_account_id: ids.dealerAccountId, p_branch_id: ids.branchId, p_as_of: '2026-11-03' });
 assert.deepEqual(JSON.parse(fetchCalls[3].options.body), { p_legal_entity_id: ids.legalEntityId, p_dealer_account_id: ids.dealerAccountId, p_branch_id: ids.branchId, p_from: '2026-11-01', p_to: '2026-11-30', p_status: 'OPEN', p_cursor: 'cursor', p_limit: 25 });
 assert.deepEqual(JSON.parse(fetchCalls[4].options.body), { p_legal_entity_id:ids.legalEntityId, p_dealer_account_id:ids.dealerAccountId, p_branch_id:ids.branchId, p_payment_id:paymentId });
 assert.deepEqual(JSON.parse(fetchCalls[5].options.body), { p_legal_entity_id:ids.legalEntityId, p_dealer_account_id:ids.dealerAccountId, p_branch_id:ids.branchId, p_accrual_id:accrualId });
+assert.deepEqual(JSON.parse(fetchCalls[6].options.body), { p_legal_entity_id:ids.legalEntityId, p_dealer_account_id:ids.dealerAccountId, p_branch_id:ids.branchId, p_reversal_accrual_id:reversalAccrualId });
 for (const invalidKey of [`ey${'a'.repeat(40)}`, `sb_secret_${'a'.repeat(32)}`]) assert.throws(() => createFinanceSupabaseAdapter({ supabaseUrl: 'https://project.supabase.co', publishableKey: invalidKey }), /publishable/i);
 
-console.log('PASS finance-read-edge: summary + statement + payment + accrual detail, user JWT, explicit origin, branch scope, finance_api RPC, safe errors');
+console.log('PASS finance-read-edge: summary + statement + payment + accrual + refund trace, user JWT, branch scope, safe errors');

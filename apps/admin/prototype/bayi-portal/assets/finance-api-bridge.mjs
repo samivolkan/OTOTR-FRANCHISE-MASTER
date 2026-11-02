@@ -3,6 +3,7 @@ const READ_OPERATION = 'getDealerFinanceSummary';
 const STATEMENT_OPERATION = 'getDealerStatement';
 const PAYMENT_OPERATION = 'getPayment';
 const ACCRUAL_OPERATION = 'getAccrualDetail';
+const REFUND_TRACE_OPERATION = 'getRoyaltyRefundTrace';
 
 export class FinanceBridgeError extends Error {
   constructor(code, message, status = 0) {
@@ -95,6 +96,10 @@ export function createFinanceSummaryClient({getConfig, getAccessToken, fetchImpl
     async getAccrualDetail(rawScope, accrualId) {
       const normalizedAccrualId = requiredUuid(accrualId, 'accrualId', 'VALIDATION_ERROR');
       return execute(rawScope, ACCRUAL_OPERATION, {}, {accrualId:normalizedAccrualId});
+    },
+    async getRoyaltyRefundTrace(rawScope, reversalAccrualId) {
+      const normalizedId = requiredUuid(reversalAccrualId, 'reversalAccrualId', 'VALIDATION_ERROR');
+      return execute(rawScope, REFUND_TRACE_OPERATION, {}, {reversalAccrualId:normalizedId});
     }
   });
 }
@@ -148,6 +153,16 @@ if (auth && ui) {
       if (!scope) throw new FinanceBridgeError('FINANCE_SCOPE_UNAVAILABLE', 'ERP finans kapsamı henüz sağlanmadı.');
       return client.getAccrualDetail(scope, accrualId);
     },
+    async getRoyaltyRefundTrace(reversalAccrualId) {
+      const scope = configuredScope || refreshContext();
+      if (!scope) throw new FinanceBridgeError('FINANCE_SCOPE_UNAVAILABLE', 'ERP finans kapsamı henüz sağlanmadı.');
+      return client.getRoyaltyRefundTrace(scope, reversalAccrualId);
+    },
+    async loadRoyaltyRefundTrace(reversalAccrualId) {
+      ui.setRefundState?.('LOADING','Orijinal tahsilat, royalty ve dönem provenance yükleniyor…');
+      try { const result=await api.getRoyaltyRefundTrace(reversalAccrualId); ui.renderRefundTrace?.(result.data); return result; }
+      catch(error){ ui.setRefundState?.('ERROR',error instanceof FinanceBridgeError?error.message:'Royalty iade izi alınamadı.'); throw error; }
+    },
     async loadAccrualDetail(accrualId) {
       ui.setAccrualState?.('LOADING', 'Kaynak olay, hesaplama ve çift taraflı fiş yükleniyor…');
       try {
@@ -192,4 +207,5 @@ if (auth && ui) {
   ui.statementStatus?.addEventListener('change', () => { ui.resetStatement?.('Filtre değişti. Güncel ekstreyi getirin.'); });
   globalThis.addEventListener?.('ototr:finance-payment-requested', event => { void api.loadPayment(event.detail?.paymentId).catch(() => {}); });
   globalThis.addEventListener?.('ototr:finance-accrual-requested', event => { void api.loadAccrualDetail(event.detail?.accrualId).catch(() => {}); });
+  globalThis.addEventListener?.('ototr:finance-refund-requested',event=>{void api.loadRoyaltyRefundTrace(event.detail?.reversalAccrualId).catch(()=>{});});
 }

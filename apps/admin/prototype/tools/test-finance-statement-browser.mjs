@@ -28,8 +28,8 @@ const scope = Object.freeze({
   dealerAccountId:'22222222-2222-4222-8222-222222222222',
   branchId:'33333333-3333-4333-8333-333333333333',
 });
-const item = (id, feeCode, gross, allocated, open, status = 'OPEN') => ({
-  recordId:id, recordType:'ACCRUAL', businessDate:'2026-11-03', feeCode,
+const item = (id, feeCode, gross, allocated, open, status = 'OPEN', recordType = 'ACCRUAL') => ({
+  recordId:id, recordType, businessDate:'2026-11-03', feeCode,
   sourceReference:`SRC-${id.slice(0, 4)}`,
   totals:{netAmount:gross,taxAmount:'0',grossAmount:gross,currency:'TRY'},
   allocatedAmount:allocated, openAmount:open, currencyCode:'TRY', status,
@@ -74,6 +74,18 @@ try {
       await route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({data})});
       return;
     }
+    if (body.operationId === 'getRoyaltyRefundTrace') {
+      const reversalAccrualId=body.pathParams.reversalAccrualId;
+      const data={
+        refundEvent:{refundId:'12121212-1212-4212-8212-121212121212',refundedGrossAmount:'590.00000000',currency:'TRY'},
+        originalCollection:{collectionId:'13131313-1313-4313-8313-131313131313',collectedGrossAmount:'1180.00000000',currency:'TRY'},
+        originalRoyaltyAccrual:{accrualId:'14141414-1414-4414-8414-141414141414',grossAmount:'118.00000000',currency:'TRY'},
+        reversalAccrual:{accrualId:reversalAccrualId,grossAmount:'59.00000000',currency:'TRY',status:'POSTED'},
+        creditOpenItem:{openItemId:'15151515-1515-4515-8515-151515151515',itemType:'CREDIT',originalAmount:'59.00000000',openAmount:'59.00000000',currency:'TRY'},
+        periodProvenance:{originalPeriodId:'16161616-1616-4616-8616-161616161616',postingPeriodId:'17171717-1717-4717-8717-171717171717',refundBusinessDate:'2026-11-03'}
+      };
+      await route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({data})}); return;
+    }
     if (body.query.status === 'DISPUTED') {
       await route.fulfill({status:503,contentType:'application/json',body:JSON.stringify({error:{code:'READ_MODEL_UNAVAILABLE',message:'Ekstre projectionı geçici olarak kullanılamıyor.'}})});
       return;
@@ -81,7 +93,7 @@ try {
     const secondPage = body.query.cursor === 'page-2';
     const filtered = body.query.status === 'OPEN';
     const data = secondPage
-      ? {items:[item('bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb','QUERY','40.00000000','40.00000000','0','CLOSED')],nextCursor:null,hasMore:false}
+      ? {items:[item('bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb','ROYALTY','59.00000000','0','59.00000000','OPEN','REVERSAL')],nextCursor:null,hasMore:false}
       : body.query.status === 'REVERSED'
         ? {items:[],nextCursor:null,hasMore:false}
       : filtered
@@ -122,8 +134,17 @@ try {
 
   await page.click('[data-finance-statement-more]');
   await page.waitForFunction(() => document.querySelectorAll('[data-finance-statement-body] tr').length === 2);
-  assert.match(await page.locator('[data-finance-statement-body]').innerText(), /QUERY/);
+  assert.match(await page.locator('[data-finance-statement-body]').innerText(), /Royalty iade izini aç/);
   assert.equal(await page.locator('[data-finance-statement-more]').isVisible(), false);
+  await page.click('[data-finance-refund-accrual-id]');
+  assert.equal(await page.locator('[data-finance-refund-detail]').getAttribute('data-state'),'LOADING');
+  await page.waitForFunction(()=>document.querySelector('[data-finance-refund-detail]')?.dataset.state==='READY');
+  assert.match(await page.locator('[data-finance-refund-detail]').innerText(),/590,00000000 TRY/);
+  assert.match(await page.locator('[data-finance-refund-detail]').innerText(),/118,00000000 TRY/);
+  assert.match(await page.locator('[data-finance-refund-detail]').innerText(),/59,00000000 TRY/);
+  assert.equal(requests.at(-1).operationId,'getRoyaltyRefundTrace');
+  await page.click('[data-finance-refund-close]');
+  assert.equal(await page.locator('[data-finance-refund-detail]').isVisible(),false);
 
   await page.selectOption('[data-finance-statement-status]', 'OPEN');
   assert.equal(await page.locator('[data-finance-statement-body] tr').count(), 0);
@@ -147,7 +168,7 @@ try {
   assert.match(await page.locator('[data-finance-statement-state]').innerText(), /geçici olarak kullanılamıyor/i);
   assert.equal(await page.locator('[data-finance-statement-refresh]').isEnabled(), true);
 
-  console.log('PASS finance-statement-browser: scoped statement, payment and accrual trace; loading/ready/empty/error; cursor pagination');
+  console.log('PASS finance-statement-browser: scoped statement, payment, accrual and royalty refund trace; state and cursor flows');
 } finally {
   await browser?.close();
   await new Promise(resolve => server.close(resolve));

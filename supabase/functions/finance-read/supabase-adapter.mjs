@@ -59,5 +59,13 @@ export function createFinanceSupabaseAdapter({ supabaseUrl, publishableKey, fetc
       p_accrual_id: accrualId,
     }, 'finance_api');
   }
-  return Object.freeze({ authenticate, authorizeScope, readSummary, readStatement, readPayment, readAccrualDetail });
+  async function readRefundTrace({ actor, scope, dealerAccountId, reversalAccrualId }) {
+    return post('/rest/v1/rpc/get_royalty_refund_trace_by_accrual', actor.token, {
+      p_legal_entity_id:scope.legalEntityId,
+      p_dealer_account_id:dealerAccountId,
+      p_branch_id:scope.branchId,
+      p_reversal_accrual_id:reversalAccrualId,
+    }, 'finance_api');
+  }
+  return Object.freeze({ authenticate, authorizeScope, readSummary, readStatement, readPayment, readAccrualDetail, readRefundTrace });
 }

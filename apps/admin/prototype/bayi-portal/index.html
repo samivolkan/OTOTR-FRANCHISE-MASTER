@@ -1387,6 +1387,21 @@ button,input,select,textarea{font:inherit}.app{min-height:100vh;display:grid;gri
                   </div>
                 </div>
               </section>
+              <section class="finance-payment-detail finance-refund-detail" data-finance-refund-detail hidden aria-labelledby="financeRefundTitle">
+                <div class="finance-payment-detail-head">
+                  <div><span class="finance-screen-code">ROYALTY TERS KAYIT İZİ</span><h4 id="financeRefundTitle">Müşteri İadesi ve Royalty Azaltımı</h4></div>
+                  <button class="btn" type="button" data-finance-refund-close>Kapat</button>
+                </div>
+                <div class="finance-payment-detail-state" data-finance-refund-state role="status">İade seçilmedi.</div>
+                <div data-finance-refund-content hidden>
+                  <div class="finance-payment-kpis">
+                    <article><span>Müşteri iadesi</span><b data-finance-refund-gross>—</b><small data-finance-refund-id>—</small></article>
+                    <article><span>Orijinal royalty</span><b data-finance-refund-original>—</b><small data-finance-refund-original-period>—</small></article>
+                    <article><span>Royalty ters kayıt</span><b data-finance-refund-reversal>—</b><small data-finance-refund-posting-period>—</small></article>
+                  </div>
+                  <div class="finance-refund-provenance" data-finance-refund-provenance></div>
+                </div>
+              </section>
               <div class="finance-statement-footer">
                 <span data-finance-statement-count>0 kayıt</span>
                 <button class="btn" type="button" data-finance-statement-more hidden disabled>Daha Fazla</button>

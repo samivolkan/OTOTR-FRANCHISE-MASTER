@@ -72,6 +72,17 @@
   const accrualSource = root.querySelector('[data-finance-accrual-source]');
   const accrualRule = root.querySelector('[data-finance-accrual-rule]');
   const accrualLines = root.querySelector('[data-finance-accrual-lines]');
+  const refundDetail = root.querySelector('[data-finance-refund-detail]');
+  const refundCloseButton = root.querySelector('[data-finance-refund-close]');
+  const refundState = root.querySelector('[data-finance-refund-state]');
+  const refundContent = root.querySelector('[data-finance-refund-content]');
+  const refundGross = root.querySelector('[data-finance-refund-gross]');
+  const refundId = root.querySelector('[data-finance-refund-id]');
+  const refundOriginal = root.querySelector('[data-finance-refund-original]');
+  const refundOriginalPeriod = root.querySelector('[data-finance-refund-original-period]');
+  const refundReversal = root.querySelector('[data-finance-refund-reversal]');
+  const refundPostingPeriod = root.querySelector('[data-finance-refund-posting-period]');
+  const refundProvenance = root.querySelector('[data-finance-refund-provenance]');
   let scopeReady = false;
   let statementRowCount = 0;
 
@@ -157,6 +168,9 @@
       if (item.recordType === 'ACCRUAL') {
         const accrualButton = document.createElement('button'); accrualButton.type = 'button'; accrualButton.className = 'finance-inline-action'; accrualButton.dataset.financeAccrualId = item.recordId; accrualButton.textContent = 'Tahakkuk izini aç'; statusCell.appendChild(accrualButton);
       }
+      if (item.recordType === 'REVERSAL' && item.feeCode === 'ROYALTY') {
+        const refundButton=document.createElement('button'); refundButton.type='button'; refundButton.className='finance-inline-action'; refundButton.dataset.financeRefundAccrualId=item.recordId; refundButton.textContent='Royalty iade izini aç'; statusCell.appendChild(refundButton);
+      }
       tr.append(cell(new Intl.DateTimeFormat('tr-TR').format(new Date(`${item.businessDate}T00:00:00Z`))), descriptor, cell(money(item.totals)), cell(amount(item.allocatedAmount, item.currencyCode)), cell(amount(item.openAmount, item.currencyCode)), statusCell);
       return tr;
     });
@@ -232,6 +246,22 @@
     accrualLines.replaceChildren(...rows);
     setAccrualState('READY');
   };
+  const setRefundState = (next,message) => {
+    if (!['EMPTY','LOADING','READY','ERROR'].includes(next)) throw new Error('INVALID_FINANCE_REFUND_STATE');
+    refundDetail.hidden=false; refundDetail.dataset.state=next; refundState.hidden=next==='READY'; refundContent.hidden=next!=='READY';
+    refundState.textContent=message || ({EMPTY:'İade seçilmedi.',LOADING:'Royalty iade izi yükleniyor…',READY:'Royalty iade izi yüklendi.',ERROR:'Royalty iade izi yüklenemedi.'})[next];
+  };
+  const resetRefund = () => { refundDetail.hidden=true; refundContent.hidden=true; refundProvenance.replaceChildren(); };
+  const renderRefundTrace = payload => {
+    const refund=payload?.refundEvent, original=payload?.originalRoyaltyAccrual, reversal=payload?.reversalAccrual, periods=payload?.periodProvenance, collection=payload?.originalCollection, credit=payload?.creditOpenItem;
+    if (!refund || !uuidPattern.test(refund.refundId || '') || !original || !uuidPattern.test(original.accrualId || '') || !reversal || !uuidPattern.test(reversal.accrualId || '') || !periods || !uuidPattern.test(periods.originalPeriodId || '') || !uuidPattern.test(periods.postingPeriodId || '') || refund.currency!==original.currency || refund.currency!==reversal.currency || !collection || collection.currency!==refund.currency || !credit || credit.currency!==refund.currency) throw new Error('INVALID_FINANCE_REFUND_TRACE');
+    refundGross.textContent=amount(refund.refundedGrossAmount,refund.currency); refundId.textContent=refund.refundId;
+    refundOriginal.textContent=amount(original.grossAmount,original.currency); refundOriginalPeriod.textContent=`Orijinal dönem: ${periods.originalPeriodId}`;
+    refundReversal.textContent=amount(reversal.grossAmount,reversal.currency); refundPostingPeriod.textContent=`Kayıt dönemi: ${periods.postingPeriodId}`;
+    const items=[`Tahsilat: ${amount(collection.collectedGrossAmount,collection.currency)}`,`Orijinal tahakkuk: ${original.accrualId}`,`Ters tahakkuk: ${reversal.accrualId}`,`Alacak açık kalemi: ${credit.openItemId}`];
+    refundProvenance.replaceChildren(...items.map(value=>{const span=document.createElement('span');span.textContent=value;return span;}));
+    setRefundState('READY');
+  };
 
   const resetAmounts = () => {
     Object.values(kpis).forEach(node => { node.textContent = '—'; });
@@ -301,10 +331,13 @@
     if (button) window.dispatchEvent(new CustomEvent('ototr:finance-payment-requested',{detail:{paymentId:button.dataset.financePaymentId}}));
     const accrualButton = event.target.closest('[data-finance-accrual-id]');
     if (accrualButton) window.dispatchEvent(new CustomEvent('ototr:finance-accrual-requested',{detail:{accrualId:accrualButton.dataset.financeAccrualId}}));
+    const refundButton=event.target.closest('[data-finance-refund-accrual-id]');
+    if (refundButton) window.dispatchEvent(new CustomEvent('ototr:finance-refund-requested',{detail:{reversalAccrualId:refundButton.dataset.financeRefundAccrualId}}));
   });
   paymentCloseButton.addEventListener('click', resetPayment);
   accrualCloseButton.addEventListener('click', resetAccrual);
+  refundCloseButton.addEventListener('click',resetRefund);
 
   selectScreen(screens[0]);
-  window.OTOTRFinanceUI = Object.freeze({setConnectionState, setScopeContext, renderSummary, setStatementState, renderStatementPage, resetStatement, getStatementFilters, setPaymentState, renderPaymentDetail, resetPayment, setAccrualState, renderAccrualDetail, resetAccrual, connectButton, statementRefreshButton, statementMoreButton, statementStatus});
+  window.OTOTRFinanceUI = Object.freeze({setConnectionState, setScopeContext, renderSummary, setStatementState, renderStatementPage, resetStatement, getStatementFilters, setPaymentState, renderPaymentDetail, resetPayment, setAccrualState, renderAccrualDetail, resetAccrual, setRefundState, renderRefundTrace, resetRefund, connectButton, statementRefreshButton, statementMoreButton, statementStatus});
 })();
