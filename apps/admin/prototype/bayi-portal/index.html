@@ -6,6 +6,7 @@
 <meta name="ototr-bayi-portal-version" content="v5.2026.07.01-1328" />
 <title>OTOTR Bayii ERP - Operasyon Merkezi V2</title>
 <link rel="icon" href="data:," />
+<link rel="stylesheet" href="assets/finance-ui.css" />
 <style>
 :root{
   --bg:#f5f6fa; --surface:#fff; --surface-2:#f8fafc; --nav:#050505; --nav-2:#111;
@@ -1283,7 +1284,66 @@ button,input,select,textarea{font:inherit}.app{min-height:100vh;display:grid;gri
         </div>
       </section>
       <section class="module-page" id="financePage">
-        <div class="module-head"><div><h1>Finans & Kasa</h1><p>Tahsilat, açık bakiye ve nakit akışı özeti.</p></div><button class="btn" data-open-module="dashboardPage" data-open-module-nav="navDashboard">Kokpite Dön</button></div>
+        <div class="module-head finance-module-head">
+          <div>
+            <div class="finance-eyebrow">OTOTR Franchise Finans</div>
+            <h1>Merkez–Bayi Finans Yönetimi</h1>
+            <p>Royalty, franchise, sorgu/hizmet, masraf yansıtma, ödeme, mutabakat ve muhasebe aktarım süreçleri.</p>
+          </div>
+          <div class="finance-head-actions">
+            <span class="finance-environment-badge" data-finance-environment>ADAY UI · LIVE BAĞLANTI KAPALI</span>
+            <button class="btn" data-open-module="dashboardPage" data-open-module-nav="navDashboard">Kokpite Dön</button>
+          </div>
+        </div>
+        <div class="finance-safety-banner" role="status">
+          <strong>Finansal veri kaynağı bağlı değil.</strong>
+          <span>Bu ekran demo rakam üretmez. Tutarlar yalnız yetkili finans API’si, doğrulanmış kullanıcı oturumu ve şube kapsamı sağlandığında gösterilir.</span>
+        </div>
+        <div class="finance-context-bar" aria-label="Finans kapsamı">
+          <div><span>Tüzel kişi</span><b data-finance-legal-entity>Seçilmedi</b></div>
+          <div><span>Bayi hesabı</span><b data-finance-dealer>Seçilmedi</b></div>
+          <div><span>Şube</span><b data-finance-branch>Seçilmedi</b></div>
+          <div><span>Dönem</span><b data-finance-period>Seçilmedi</b></div>
+          <div><span>Veri tazeliği</span><b data-finance-freshness>Bağlantı yok</b></div>
+        </div>
+        <div class="finance-workspace">
+          <nav class="finance-screen-nav" aria-label="Finans ekranları" data-finance-screen-nav></nav>
+          <main class="finance-screen-stage" aria-live="polite">
+            <div class="finance-screen-heading">
+              <div>
+                <span class="finance-screen-code" data-finance-screen-code>SCR-01</span>
+                <h2 data-finance-screen-title>Genel Merkez Finans Özeti</h2>
+                <p data-finance-screen-description>Yetkili finans API bağlantısı bekleniyor.</p>
+              </div>
+              <span class="finance-state-chip">EMPTY · SOURCE UNCONFIGURED</span>
+            </div>
+            <section class="finance-kpi-empty-grid" aria-label="Finans özet göstergeleri">
+              <article><span>Tahakkuk</span><b>—</b><small>Defter bağlantısı bekleniyor</small></article>
+              <article><span>Faturalanan</span><b>—</b><small>Harici fatura geri bildirimi yok</small></article>
+              <article><span>Tahsil edilen</span><b>—</b><small>Doğrulanmış ödeme verisi yok</small></article>
+              <article><span>Açık / geciken</span><b>—</b><small>Açık kalem projectionı yok</small></article>
+            </section>
+            <section class="finance-screen-contract">
+              <div class="finance-contract-card">
+                <h3>Ekran bölümleri</h3>
+                <ul data-finance-sections></ul>
+              </div>
+              <div class="finance-contract-card">
+                <h3>Yetkili aksiyonlar</h3>
+                <ul data-finance-actions></ul>
+              </div>
+              <div class="finance-contract-card">
+                <h3>Güvenlik sınırı</h3>
+                <ul>
+                  <li>Sunucu tarafı rol ve şube kapsamı</li>
+                  <li>Ham finans tablosuna tarayıcı erişimi yok</li>
+                  <li>LIVE → DEMO sessiz fallback yok</li>
+                  <li>Export işlemleri audit kaydı gerektirir</li>
+                </ul>
+              </div>
+            </section>
+          </main>
+        </div>
       </section>
       <section class="module-page" id="warrantyRiskPage">
         <div class="module-head"><div><h1>Garanti & Risk</h1><p>Garanti kapsamı, riskli araçlar ve uyarı listesi.</p></div><button class="btn" data-open-module="dashboardPage" data-open-module-nav="navDashboard">Kokpite Dön</button></div>
@@ -6923,5 +6983,6 @@ setWorkOrderFilter('open',false);
   document.getElementById('navDashboard')?.classList.add('active');
 })();
 </script>
+<script src="assets/finance-ui.js"></script>
 </body>
 </html>
