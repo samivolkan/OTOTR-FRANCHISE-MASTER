@@ -11,6 +11,7 @@ Kapsam:
 - masraf yansıtma, dağıtım, onay, muhasebeleştirme ve ters kayıt;
 - itiraz üzerinden maker-checker kredi düzeltmesi;
 - ödeme oluşturma, doğrulama, kısmi mahsup ve mahsup iptali.
+- kilitli dönem faturalama paketi, harici fatura callback mutabakatı ve muhasebe aktarım paketi.
 
 Çalıştırma:
 

@@ -1,0 +1,46 @@
+{
+  "evidenceId": "FIN-E2E-BILLING-ACCOUNTING-EXPORT-LOCAL-20261103",
+  "status": "PASSED",
+  "evidenceType": "LOCAL_POSTGRES_TRANSACTION_TEST",
+  "environment": {
+    "target": "ototr-local",
+    "database": "Supabase PostgreSQL 17",
+    "productionDataUsed": false,
+    "stagingMutation": false,
+    "productionMutation": false
+  },
+  "scenario": {
+    "currency": "TRY",
+    "billingNet": "120.00000000",
+    "billingTax": "20.00000000",
+    "billingGross": "140.00000000",
+    "billingTerminalStatus": "INVOICED",
+    "externalInvoiceStatus": "ISSUED",
+    "accountingEntryCount": 1,
+    "accountingDebitTotal": "140.00000000",
+    "accountingCreditTotal": "140.00000000"
+  },
+  "assertions": [
+    "only eligible unbilled accruals in a locked branch period enter the billing batch",
+    "billing control totals equal the source accrual totals",
+    "external invoice line coverage and money totals match the billing batch",
+    "issued callback records invoice number and date and moves the batch to INVOICED",
+    "duplicate callback event returns DUPLICATE",
+    "only a balanced single-branch journal in a locked headquarters period enters accounting export",
+    "accounting package and entry coverage are complete",
+    "identical accounting batch retry returns REPLAY",
+    "transaction rollback leaves no synthetic finance row"
+  ],
+  "execution": {
+    "command": "pwsh -NoProfile -File scripts/Test-FinanceBillingAccountingE2E.ps1",
+    "sql": "supabase/tests/finance_billing_accounting_export_e2e.sql",
+    "result": "FINANCE BILLING + ACCOUNTING E2E: PASSED"
+  },
+  "limitations": {
+    "invoiceProvider": "SYNTHETIC_ADAPTER_NOT_A_REAL_EINVOICE_SANDBOX",
+    "accountingAdapter": "SYNTHETIC_MAPPING_NOT_A_REAL_DEALER_ACCOUNTING_PROGRAM",
+    "uatSignoff": "NOT_RUN",
+    "stagingRun": "NOT_RUN",
+    "preProductionDecision": "NO_GO"
+  }
+}
