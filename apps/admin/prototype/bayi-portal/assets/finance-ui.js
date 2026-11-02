@@ -40,6 +40,8 @@
   const period = root.querySelector('[data-finance-period]');
   const kpis = Object.fromEntries([...root.querySelectorAll('[data-finance-kpi]')].map(node => [node.dataset.financeKpi, node]));
   const overdue = root.querySelector('[data-finance-overdue]');
+  const connectButton = root.querySelector('[data-finance-connect]');
+  const contextStatus = root.querySelector('[data-finance-context-status]');
 
   const renderList = (target, items) => {
     target.replaceChildren(...items.map(item => {
@@ -111,6 +113,16 @@
     setConnectionState('READY');
   };
 
+  const setScopeContext = scope => {
+    const ready = scope && ['legalEntityId','dealerAccountId','branchId'].every(key => typeof scope[key] === 'string' && scope[key]);
+    for (const key of ['legalEntityId','dealerAccountId','branchId']) contextFields[key].textContent = ready ? scope[key] : 'Seçilmedi';
+    connectButton.disabled = !ready;
+    contextStatus.textContent = ready ? 'KAPSAM HAZIR · SUNUCU ONAYI GEREKİR' : 'KAPSAM BEKLENİYOR';
+    contextStatus.classList.toggle('is-ready', Boolean(ready));
+    if (!ready) setConnectionState('UNCONFIGURED', 'ERP kimlik köprüsünden tüzel kişi, bayi hesabı ve şube kapsamı bekleniyor.');
+    return Boolean(ready);
+  };
+
   screens.forEach(screen => {
     const button = document.createElement('button');
     button.type = 'button';
@@ -126,5 +138,5 @@
   });
 
   selectScreen(screens[0]);
-  window.OTOTRFinanceUI = Object.freeze({setConnectionState, renderSummary});
+  window.OTOTRFinanceUI = Object.freeze({setConnectionState, setScopeContext, renderSummary, connectButton});
 })();

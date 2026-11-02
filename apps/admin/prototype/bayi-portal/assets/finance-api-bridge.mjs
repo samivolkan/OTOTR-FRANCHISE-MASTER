@@ -81,7 +81,20 @@ const auth = globalThis.OTOTRDealerFinanceAuth;
 const ui = globalThis.OTOTRFinanceUI;
 if (auth && ui) {
   const client = createFinanceSummaryClient({getConfig: () => auth.getConfig(), getAccessToken: () => auth.getAccessToken()});
-  globalThis.OTOTRFinance = Object.freeze({
+  let configuredScope = null;
+  const refreshContext = () => {
+    try {
+      configuredScope = validateFinanceScope(globalThis.OTOTR_FINANCE_CONTEXT);
+      ui.setScopeContext(configuredScope);
+      return configuredScope;
+    } catch {
+      configuredScope = null;
+      ui.setScopeContext(null);
+      return null;
+    }
+  };
+  const api = {
+    refreshContext,
     async connect(scope, options = {}) {
       ui.setConnectionState('LOADING', 'Yetkili finans projectionı yükleniyor.');
       try {
@@ -92,6 +105,14 @@ if (auth && ui) {
         ui.setConnectionState('ERROR', error instanceof FinanceBridgeError ? error.message : 'Finans servisine ulaşılamadı.');
         throw error;
       }
-    }
-  });
+    },
+    async connectConfiguredScope(options = {}) {
+      const scope = configuredScope || refreshContext();
+      if (!scope) throw new FinanceBridgeError('FINANCE_SCOPE_UNAVAILABLE', 'ERP finans kapsamı henüz sağlanmadı.');
+      return api.connect(scope, options);
+    },
+  };
+  globalThis.OTOTRFinance = Object.freeze(api);
+  refreshContext();
+  ui.connectButton?.addEventListener('click', () => { void api.connectConfiguredScope().catch(() => {}); });
 }

@@ -53,4 +53,24 @@ const transport = createFinanceSummaryClient({
 });
 await assert.rejects(() => transport.getDealerFinanceSummary(scope), error => error.code === 'TRANSPORT_ERROR' && !error.message.includes('secret'));
 
+let contextRendered = null;
+let clickListener = null;
+globalThis.OTOTRDealerFinanceAuth = { getConfig: () => ({ url: 'https://example.com', publishableKey }), getAccessToken: () => token };
+globalThis.OTOTRFinanceUI = {
+  setScopeContext: value => { contextRendered = value; }, setConnectionState() {}, renderSummary() {},
+  connectButton: { addEventListener: (name, listener) => { assert.equal(name, 'click'); clickListener = listener; } },
+};
+globalThis.OTOTR_FINANCE_CONTEXT = scope;
+await import(`../bayi-portal/assets/finance-api-bridge.mjs?configured-context=${Date.now()}`);
+assert.deepEqual(contextRendered, scope);
+assert.equal(typeof globalThis.OTOTRFinance.connectConfiguredScope, 'function');
+assert.equal(typeof clickListener, 'function');
+globalThis.OTOTR_FINANCE_CONTEXT = { ...scope, branchId: 'invalid' };
+assert.equal(globalThis.OTOTRFinance.refreshContext(), null);
+assert.equal(contextRendered, null);
+delete globalThis.OTOTRDealerFinanceAuth;
+delete globalThis.OTOTRFinanceUI;
+delete globalThis.OTOTR_FINANCE_CONTEXT;
+delete globalThis.OTOTRFinance;
+
 console.log('PASS finance-api-bridge: scoped POST, publishable key, auth, safe failures');
