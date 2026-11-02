@@ -33,6 +33,7 @@ const item = (id, feeCode, gross, allocated, open, status = 'OPEN') => ({
   sourceReference:`SRC-${id.slice(0, 4)}`,
   totals:{netAmount:gross,taxAmount:'0',grossAmount:gross,currency:'TRY'},
   allocatedAmount:allocated, openAmount:open, currencyCode:'TRY', status,
+  paymentIds:['55555555-5555-4555-8555-555555555555'],
 });
 
 let browser;
@@ -49,6 +50,16 @@ try {
     const body = route.request().postDataJSON();
     requests.push(body);
     await new Promise(resolve => setTimeout(resolve, 75));
+    if (body.operationId === 'getPayment') {
+      const paymentId = body.pathParams.paymentId;
+      const data = {
+        payment:{paymentId,status:'PARTIALLY_ALLOCATED',paymentDate:'2026-11-03',amount:{amount:'200.00000000',currency:'TRY'},paymentMethodCode:'BANK_TRANSFER',externalReference:'BANK-2026-001'},
+        allocations:[{allocationId:'66666666-6666-4666-8666-666666666666',openItemId:'77777777-7777-4777-8777-777777777777',amount:{amount:'80.00000000',currency:'TRY'},status:'ACTIVE'}],
+        unallocatedAmount:{amount:'120.00000000',currency:'TRY'},version:1,
+      };
+      await route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({data})});
+      return;
+    }
     if (body.query.status === 'DISPUTED') {
       await route.fulfill({status:503,contentType:'application/json',body:JSON.stringify({error:{code:'READ_MODEL_UNAVAILABLE',message:'Ekstre projectionı geçici olarak kullanılamıyor.'}})});
       return;
@@ -77,6 +88,15 @@ try {
   await page.waitForFunction(() => document.querySelectorAll('[data-finance-statement-body] tr').length === 1);
   assert.match(await page.locator('[data-finance-statement-body]').innerText(), /ENTRY_FRANCHISE/);
   assert.equal(await page.locator('[data-finance-statement-more]').isVisible(), true);
+  await page.click('[data-finance-payment-id]');
+  assert.equal(await page.locator('[data-finance-payment-detail]').getAttribute('data-state'), 'LOADING');
+  await page.waitForFunction(() => document.querySelector('[data-finance-payment-detail]')?.dataset.state === 'READY');
+  assert.match(await page.locator('[data-finance-payment-detail]').innerText(), /200,00000000 TRY/);
+  assert.match(await page.locator('[data-finance-payment-detail]').innerText(), /120,00000000 TRY/);
+  assert.match(await page.locator('[data-finance-payment-allocations]').innerText(), /80,00000000 TRY/);
+  assert.equal(requests.at(-1).operationId, 'getPayment');
+  await page.click('[data-finance-payment-close]');
+  assert.equal(await page.locator('[data-finance-payment-detail]').isVisible(), false);
 
   await page.click('[data-finance-statement-more]');
   await page.waitForFunction(() => document.querySelectorAll('[data-finance-statement-body] tr').length === 2);
@@ -105,7 +125,7 @@ try {
   assert.match(await page.locator('[data-finance-statement-state]').innerText(), /geçici olarak kullanılamıyor/i);
   assert.equal(await page.locator('[data-finance-statement-refresh]').isEnabled(), true);
 
-  console.log('PASS finance-statement-browser: scoped loading/ready/empty/error render, filter, cursor pagination, no demo fallback');
+  console.log('PASS finance-statement-browser: scoped statement and payment detail, loading/ready/empty/error, filter, cursor pagination');
 } finally {
   await browser?.close();
   await new Promise(resolve => server.close(resolve));

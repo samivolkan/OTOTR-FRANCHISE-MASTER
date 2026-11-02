@@ -43,5 +43,13 @@ export function createFinanceSupabaseAdapter({ supabaseUrl, publishableKey, fetc
       p_limit: limit || 50,
     }, 'finance_api');
   }
-  return Object.freeze({ authenticate, authorizeScope, readSummary, readStatement });
+  async function readPayment({ actor, scope, dealerAccountId, paymentId }) {
+    return post('/rest/v1/rpc/get_payment', actor.token, {
+      p_legal_entity_id: scope.legalEntityId,
+      p_dealer_account_id: dealerAccountId,
+      p_branch_id: scope.branchId,
+      p_payment_id: paymentId,
+    }, 'finance_api');
+  }
+  return Object.freeze({ authenticate, authorizeScope, readSummary, readStatement, readPayment });
 }

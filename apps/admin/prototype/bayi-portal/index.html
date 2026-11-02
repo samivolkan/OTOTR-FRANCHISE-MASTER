@@ -1349,10 +1349,27 @@ button,input,select,textarea{font:inherit}.app{min-height:100vh;display:grid;gri
               <div class="finance-statement-state" data-finance-statement-state role="status">Kapsam ve yetkili bağlantı bekleniyor.</div>
               <div class="finance-statement-table-wrap" data-finance-statement-table hidden>
                 <table class="finance-statement-table">
-                  <thead><tr><th>Tarih</th><th>Bedel / kaynak</th><th>Brüt</th><th>Tahsis</th><th>Açık</th><th>Durum</th></tr></thead>
+                  <thead><tr><th>Tarih</th><th>Bedel / kaynak</th><th>Brüt</th><th>Tahsis</th><th>Açık</th><th>Durum / işlem</th></tr></thead>
                   <tbody data-finance-statement-body></tbody>
                 </table>
               </div>
+              <section class="finance-payment-detail" data-finance-payment-detail hidden aria-labelledby="financePaymentTitle">
+                <div class="finance-payment-detail-head">
+                  <div><span class="finance-screen-code">ÖDEME PROJECTION</span><h4 id="financePaymentTitle">Ödeme ve Tahsis Detayı</h4></div>
+                  <button class="btn" type="button" data-finance-payment-close>Kapat</button>
+                </div>
+                <div class="finance-payment-detail-state" data-finance-payment-state role="status">Ödeme seçilmedi.</div>
+                <div data-finance-payment-content hidden>
+                  <div class="finance-payment-kpis">
+                    <article><span>Ödeme</span><b data-finance-payment-amount>—</b><small data-finance-payment-reference>—</small></article>
+                    <article><span>Dağıtılmamış</span><b data-finance-payment-unallocated>—</b><small data-finance-payment-status>—</small></article>
+                    <article><span>Yöntem / tarih</span><b data-finance-payment-method>—</b><small data-finance-payment-date>—</small></article>
+                  </div>
+                  <div class="finance-statement-table-wrap">
+                    <table class="finance-statement-table"><thead><tr><th>Tahsis</th><th>Açık kalem</th><th>Tutar</th><th>Durum</th></tr></thead><tbody data-finance-payment-allocations></tbody></table>
+                  </div>
+                </div>
+              </section>
               <div class="finance-statement-footer">
                 <span data-finance-statement-count>0 kayıt</span>
                 <button class="btn" type="button" data-finance-statement-more hidden disabled>Daha Fazla</button>

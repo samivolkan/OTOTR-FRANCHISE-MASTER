@@ -1,6 +1,7 @@
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const READ_OPERATION = 'getDealerFinanceSummary';
 const STATEMENT_OPERATION = 'getDealerStatement';
+const PAYMENT_OPERATION = 'getPayment';
 
 export class FinanceBridgeError extends Error {
   constructor(code, message, status = 0) {
@@ -11,8 +12,8 @@ export class FinanceBridgeError extends Error {
   }
 }
 
-function requiredUuid(value, field) {
-  if (typeof value !== 'string' || !UUID.test(value)) throw new FinanceBridgeError('FINANCE_SCOPE_INVALID', `${field} geçerli UUID olmalıdır.`);
+function requiredUuid(value, field, code = 'FINANCE_SCOPE_INVALID') {
+  if (typeof value !== 'string' || !UUID.test(value)) throw new FinanceBridgeError(code, `${field} geçerli UUID olmalıdır.`);
   return value.toLowerCase();
 }
 
@@ -48,7 +49,7 @@ async function jsonOrNull(response) {
 export function createFinanceSummaryClient({getConfig, getAccessToken, fetchImpl = globalThis.fetch, correlationFactory = () => crypto.randomUUID(), timeoutMs = 10000} = {}) {
   if (typeof getConfig !== 'function' || typeof getAccessToken !== 'function' || typeof fetchImpl !== 'function') throw new FinanceBridgeError('CONFIGURATION_ERROR', 'Finans istemci bağımlılıkları eksik.');
   if (!Number.isInteger(timeoutMs) || timeoutMs < 1000 || timeoutMs > 30000) throw new FinanceBridgeError('CONFIGURATION_ERROR', 'Finans timeout değeri geçersiz.');
-  async function execute(rawScope, operationId, query) {
+  async function execute(rawScope, operationId, query, extraPathParams = {}) {
       const scope = validateFinanceScope(rawScope);
       const config = validatedConfig(await getConfig());
       const accessToken = validatedToken(await getAccessToken());
@@ -60,7 +61,7 @@ export function createFinanceSummaryClient({getConfig, getAccessToken, fetchImpl
         const response = await fetchImpl(`${config.url}/functions/v1/finance-read`, {
           method: 'POST', signal: controller.signal,
           headers: {apikey: config.publishableKey, Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json; charset=utf-8', 'X-Client-Info': 'ototr-finance-web/0.1', 'Correlation-Id': correlationId},
-          body: JSON.stringify({operationId, scope, pathParams: {dealerAccountId: scope.dealerAccountId}, query}),
+          body: JSON.stringify({operationId, scope, pathParams: {dealerAccountId: scope.dealerAccountId, ...extraPathParams}, query}),
         });
         const payload = await jsonOrNull(response);
         if (!response.ok) throw new FinanceBridgeError(payload?.error?.code || (response.status === 403 ? 'SCOPE_DENIED' : 'FINANCE_READ_FAILED'), payload?.error?.message || 'Finans özeti alınamadı.', response.status);
@@ -85,6 +86,10 @@ export function createFinanceSummaryClient({getConfig, getAccessToken, fetchImpl
       if (cursor !== undefined && (typeof cursor !== 'string' || !cursor.length || cursor.length > 512)) throw new FinanceBridgeError('VALIDATION_ERROR', 'Ekstre cursor değeri geçersiz.');
       if (limit !== undefined && (!Number.isInteger(limit) || limit < 1 || limit > 200)) throw new FinanceBridgeError('VALIDATION_ERROR', 'Ekstre limit değeri 1–200 arasında olmalıdır.');
       return execute(rawScope, STATEMENT_OPERATION, {from,to,status,cursor,limit});
+    },
+    async getPayment(rawScope, paymentId) {
+      const normalizedPaymentId = requiredUuid(paymentId, 'paymentId', 'VALIDATION_ERROR');
+      return execute(rawScope, PAYMENT_OPERATION, {}, {paymentId:normalizedPaymentId});
     }
   });
 }
@@ -128,6 +133,22 @@ if (auth && ui) {
       if (!scope) throw new FinanceBridgeError('FINANCE_SCOPE_UNAVAILABLE', 'ERP finans kapsamı henüz sağlanmadı.');
       return client.getDealerStatement(scope, options);
     },
+    async getPayment(paymentId) {
+      const scope = configuredScope || refreshContext();
+      if (!scope) throw new FinanceBridgeError('FINANCE_SCOPE_UNAVAILABLE', 'ERP finans kapsamı henüz sağlanmadı.');
+      return client.getPayment(scope, paymentId);
+    },
+    async loadPayment(paymentId) {
+      ui.setPaymentState?.('LOADING', 'Yetkili ödeme ve tahsis detayı yükleniyor…');
+      try {
+        const result = await api.getPayment(paymentId);
+        ui.renderPaymentDetail?.(result.data);
+        return result;
+      } catch (error) {
+        ui.setPaymentState?.('ERROR', error instanceof FinanceBridgeError ? error.message : 'Ödeme servisine ulaşılamadı.');
+        throw error;
+      }
+    },
     async loadDealerStatement({append = false} = {}) {
       const cursor = append ? ui.statementMoreButton?.dataset?.cursor : undefined;
       const filters = ui.getStatementFilters?.() || {};
@@ -148,4 +169,5 @@ if (auth && ui) {
   ui.statementRefreshButton?.addEventListener('click', () => { void api.loadDealerStatement().catch(() => {}); });
   ui.statementMoreButton?.addEventListener('click', () => { void api.loadDealerStatement({append:true}).catch(() => {}); });
   ui.statementStatus?.addEventListener('change', () => { ui.resetStatement?.('Filtre değişti. Güncel ekstreyi getirin.'); });
+  globalThis.addEventListener?.('ototr:finance-payment-requested', event => { void api.loadPayment(event.detail?.paymentId).catch(() => {}); });
 }

@@ -50,6 +50,17 @@
   const statementTable = root.querySelector('[data-finance-statement-table]');
   const statementBody = root.querySelector('[data-finance-statement-body]');
   const statementCount = root.querySelector('[data-finance-statement-count]');
+  const paymentDetail = root.querySelector('[data-finance-payment-detail]');
+  const paymentCloseButton = root.querySelector('[data-finance-payment-close]');
+  const paymentState = root.querySelector('[data-finance-payment-state]');
+  const paymentContent = root.querySelector('[data-finance-payment-content]');
+  const paymentAmount = root.querySelector('[data-finance-payment-amount]');
+  const paymentUnallocated = root.querySelector('[data-finance-payment-unallocated]');
+  const paymentStatus = root.querySelector('[data-finance-payment-status]');
+  const paymentReference = root.querySelector('[data-finance-payment-reference]');
+  const paymentMethod = root.querySelector('[data-finance-payment-method]');
+  const paymentDate = root.querySelector('[data-finance-payment-date]');
+  const paymentAllocations = root.querySelector('[data-finance-payment-allocations]');
   let scopeReady = false;
   let statementRowCount = 0;
 
@@ -94,6 +105,8 @@
   };
 
   const statementStatuses = Object.freeze({OPEN:'Açık',PARTIALLY_ALLOCATED:'Kısmi tahsis',CLOSED:'Kapalı',DISPUTED:'İtirazlı',REVERSED:'Ters kayıt'});
+  const paymentStatuses = Object.freeze({PENDING_VERIFICATION:'Doğrulama bekliyor',VERIFIED:'Doğrulandı',PARTIALLY_ALLOCATED:'Kısmi tahsis',ALLOCATED:'Tam tahsis',REVERSED:'Ters kayıt',REJECTED:'Reddedildi'});
+  const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
   const cell = text => {
     const td = document.createElement('td');
     td.textContent = text;
@@ -120,13 +133,16 @@
   const renderStatementPage = (payload, {append = false} = {}) => {
     if (!payload || !Array.isArray(payload.items) || typeof payload.hasMore !== 'boolean' || !(payload.nextCursor === null || payload.nextCursor === undefined || typeof payload.nextCursor === 'string')) throw new Error('INVALID_FINANCE_STATEMENT');
     const rows = payload.items.map(item => {
-      if (!item || typeof item !== 'object' || !statementStatuses[item.status] || !/^\d{4}-\d{2}-\d{2}$/.test(item.businessDate || '') || typeof item.feeCode !== 'string' || !item.feeCode || !item.totals || item.currencyCode !== item.totals.currency) throw new Error('INVALID_FINANCE_STATEMENT_ITEM');
+      if (!item || typeof item !== 'object' || !statementStatuses[item.status] || !/^\d{4}-\d{2}-\d{2}$/.test(item.businessDate || '') || typeof item.feeCode !== 'string' || !item.feeCode || !item.totals || item.currencyCode !== item.totals.currency || (item.paymentIds !== undefined && (!Array.isArray(item.paymentIds) || item.paymentIds.some(id => !uuidPattern.test(id))))) throw new Error('INVALID_FINANCE_STATEMENT_ITEM');
       const tr = document.createElement('tr');
       const fee = document.createElement('div'); fee.className = 'finance-statement-fee'; fee.textContent = item.feeCode;
       const source = document.createElement('small'); source.textContent = item.sourceReference || 'Kaynak referansı yok';
       const descriptor = document.createElement('td'); descriptor.append(fee, source);
       const statusCell = document.createElement('td');
       const badge = document.createElement('span'); badge.className = `finance-statement-status is-${item.status.toLowerCase()}`; badge.textContent = statementStatuses[item.status]; statusCell.appendChild(badge);
+      if (item.paymentIds?.length) {
+        const paymentButton = document.createElement('button'); paymentButton.type = 'button'; paymentButton.className = 'finance-inline-action'; paymentButton.dataset.financePaymentId = item.paymentIds[0]; paymentButton.textContent = item.paymentIds.length > 1 ? `Ödemeyi aç (+${item.paymentIds.length - 1})` : 'Ödemeyi aç'; statusCell.appendChild(paymentButton);
+      }
       tr.append(cell(new Intl.DateTimeFormat('tr-TR').format(new Date(`${item.businessDate}T00:00:00Z`))), descriptor, cell(money(item.totals)), cell(amount(item.allocatedAmount, item.currencyCode)), cell(amount(item.openAmount, item.currencyCode)), statusCell);
       return tr;
     });
@@ -141,6 +157,39 @@
     setStatementState(statementRowCount ? 'READY' : 'EMPTY', statementRowCount ? 'Ekstre yüklendi.' : 'Seçili filtrelerde kayıt bulunamadı.');
   };
   const getStatementFilters = () => Object.freeze({status: statementStatus.value || undefined, limit: 25});
+
+  const setPaymentState = (next, message) => {
+    if (!['EMPTY','LOADING','READY','ERROR'].includes(next)) throw new Error('INVALID_FINANCE_PAYMENT_STATE');
+    paymentDetail.hidden = false;
+    paymentDetail.dataset.state = next;
+    paymentState.hidden = next === 'READY';
+    paymentState.textContent = message || ({EMPTY:'Ödeme seçilmedi.',LOADING:'Yetkili ödeme detayı yükleniyor…',READY:'Ödeme detayı yüklendi.',ERROR:'Ödeme detayı yüklenemedi.'})[next];
+    paymentContent.hidden = next !== 'READY';
+  };
+  const resetPayment = () => {
+    paymentDetail.hidden = true;
+    paymentContent.hidden = true;
+    paymentAllocations.replaceChildren();
+  };
+  const renderPaymentDetail = payload => {
+    const payment = payload?.payment;
+    const unallocated = payload?.unallocatedAmount;
+    const allocations = payload?.allocations;
+    if (!payment || !uuidPattern.test(payment.paymentId || '') || !paymentStatuses[payment.status] || !payment.amount || !unallocated || payment.amount.currency !== unallocated.currency || !Array.isArray(allocations)) throw new Error('INVALID_FINANCE_PAYMENT');
+    const rows = allocations.map(allocation => {
+      if (!allocation || !uuidPattern.test(allocation.allocationId || '') || !uuidPattern.test(allocation.openItemId || '') || !allocation.amount || allocation.amount.currency !== payment.amount.currency || typeof allocation.status !== 'string') throw new Error('INVALID_FINANCE_PAYMENT_ALLOCATION');
+      const tr = document.createElement('tr'); tr.append(cell(allocation.allocationId),cell(allocation.openItemId),cell(amount(allocation.amount.amount,allocation.amount.currency)),cell(allocation.status)); return tr;
+    });
+    paymentAmount.textContent = amount(payment.amount.amount,payment.amount.currency);
+    paymentUnallocated.textContent = amount(unallocated.amount,unallocated.currency);
+    paymentStatus.textContent = paymentStatuses[payment.status];
+    paymentReference.textContent = payment.externalReference || payment.paymentId;
+    paymentMethod.textContent = payment.paymentMethodCode || 'Belirtilmedi';
+    paymentDate.textContent = payment.paymentDate || 'Belirtilmedi';
+    paymentAllocations.replaceChildren(...rows);
+    if (!rows.length) { const tr=document.createElement('tr'); const td=cell('Henüz tahsis yok'); td.colSpan=4; tr.appendChild(td); paymentAllocations.appendChild(tr); }
+    setPaymentState('READY');
+  };
 
   const resetAmounts = () => {
     Object.values(kpis).forEach(node => { node.textContent = '—'; });
@@ -205,7 +254,13 @@
     button.addEventListener('click', () => selectScreen(screen));
     nav.appendChild(button);
   });
+  statementBody.addEventListener('click', event => {
+    const button = event.target.closest('[data-finance-payment-id]');
+    if (!button) return;
+    window.dispatchEvent(new CustomEvent('ototr:finance-payment-requested',{detail:{paymentId:button.dataset.financePaymentId}}));
+  });
+  paymentCloseButton.addEventListener('click', resetPayment);
 
   selectScreen(screens[0]);
-  window.OTOTRFinanceUI = Object.freeze({setConnectionState, setScopeContext, renderSummary, setStatementState, renderStatementPage, resetStatement, getStatementFilters, connectButton, statementRefreshButton, statementMoreButton, statementStatus});
+  window.OTOTRFinanceUI = Object.freeze({setConnectionState, setScopeContext, renderSummary, setStatementState, renderStatementPage, resetStatement, getStatementFilters, setPaymentState, renderPaymentDetail, resetPayment, connectButton, statementRefreshButton, statementMoreButton, statementStatus});
 })();
