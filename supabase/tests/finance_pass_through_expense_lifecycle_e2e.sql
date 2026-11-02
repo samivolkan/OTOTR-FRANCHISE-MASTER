@@ -1,6 +1,7 @@
 \set ON_ERROR_STOP on
 
 begin;
+set local request.jwt.claim.sub = '00000000-0000-4000-8000-000000000012';
 
 -- Test-only ports. Every override and row is rolled back at the end.
 create or replace function finance_private.current_pass_through_expense_create_committer_is_trusted()
@@ -15,6 +16,8 @@ create or replace function finance_private.current_expense_reversal_worker_is_tr
 returns boolean language sql stable security definer set search_path=pg_catalog as $$select true$$;
 create or replace function finance_private.current_actor_can_reverse_expense(p_actor_id uuid,p_expense_id uuid)
 returns boolean language sql stable security definer set search_path=pg_catalog as $$select true$$;
+create or replace function finance_private.current_actor_can_read_headquarters(p_actor_id uuid,p_legal_entity_id uuid,p_operation_id text)
+returns boolean language sql stable security definer set search_path=pg_catalog as $$select p_operation_id in('listPassThroughExpenses','getPassThroughExpense')$$;
 
 create or replace function finance_private.resolve_approved_expense_allocation_context(
   p_expense_id uuid,p_distribution_method text,p_distribution_rule_reference text
@@ -93,7 +96,7 @@ declare
   document_id constant uuid := '81000000-0000-4000-8000-000000000011';
   external_document_id constant uuid := '82000000-0000-4000-8000-000000000011';
   corr constant uuid := '91000000-0000-4000-8000-000000000011';
-  result jsonb; expense_id uuid; version_no bigint; original_journal uuid; reversal_journal uuid;
+  result jsonb; expense_id uuid; version_no bigint; original_journal uuid; reversal_journal uuid; expense_page jsonb; expense_detail jsonb;
   amount numeric(24,8); item_count integer;
 begin
   insert into finance.legal_entities(id,entity_code,legal_name,status,created_by,correlation_id)
@@ -175,6 +178,19 @@ begin
     raise exception 'expense journal is not balanced';
   end if;
   if (select status from finance.pass_through_expenses where id=expense_id)<>'REVERSED' then raise exception 'expense terminal status mismatch';end if;
+  expense_page:=finance_api.list_pass_through_expenses(hq,date '2026-11-01',date '2026-11-30','REVERSED',null,50);
+  if jsonb_array_length(expense_page->'items')<>1
+     or expense_page#>>'{items,0,expenseId}'<>expense_id::text
+     or expense_page#>>'{items,0,distributableAmount}'<>'1200.00000000'
+     or expense_page#>>'{items,0,shareCount}'<>'2'
+     or expense_page#>>'{items,0,documentCount}'<>'1' then raise exception 'expense list projection mismatch: %',expense_page;end if;
+  expense_detail:=finance_api.get_pass_through_expense(hq,expense_id);
+  if expense_detail->>'status'<>'REVERSED'
+     or jsonb_array_length(expense_detail->'shares')<>2
+     or expense_detail#>>'{shares,0,shareAmount}'<>'600.00000000'
+     or expense_detail#>>'{approval,status}'<>'APPROVED'
+     or expense_detail->>'journalEntryId'<>original_journal::text
+     or expense_detail->>'reversalJournalEntryId'<>reversal_journal::text then raise exception 'expense detail projection mismatch: %',expense_detail;end if;
   raise notice 'PASS-THROUGH EXPENSE E2E PASSED: 1200 TRY -> 2 x 600 TRY -> approved -> posted -> reversed';
 end
 $test$;
