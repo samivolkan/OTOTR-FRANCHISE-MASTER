@@ -1,0 +1,44 @@
+{
+  "evidenceId": "FIN-E2E-PAYMENT-ALLOCATION-REVERSAL-LOCAL-20261103",
+  "status": "PASSED",
+  "evidenceType": "LOCAL_POSTGRES_TRANSACTION_TEST",
+  "environment": {
+    "target": "ototr-local",
+    "database": "Supabase PostgreSQL 17",
+    "productionDataUsed": false,
+    "stagingMutation": false,
+    "productionMutation": false
+  },
+  "scenario": {
+    "currency": "TRY",
+    "paymentReceived": "100.00000000",
+    "paymentVerified": "100.00000000",
+    "originalDebitOpenItem": "140.00000000",
+    "allocatedAmount": "80.00000000",
+    "paymentRemainderAfterAllocation": "20.00000000",
+    "debitRemainderAfterAllocation": "60.00000000",
+    "paymentRemainderAfterReversal": "100.00000000",
+    "debitRemainderAfterReversal": "140.00000000"
+  },
+  "assertions": [
+    "payment creation requires active branch and dealer account scope",
+    "same actor cannot both prepare and verify the payment",
+    "payment verification creates a balanced journal using approved account mapping",
+    "partial allocation preserves payment and open-item amount equations",
+    "allocation reversal restores both payment and open-item balances",
+    "reversal allocation references the original allocation",
+    "identical reversal retry returns REPLAY and creates no duplicate reversal",
+    "transaction rollback leaves no synthetic finance row"
+  ],
+  "execution": {
+    "command": "pwsh -NoProfile -File scripts/Test-FinancePaymentLifecycleE2E.ps1",
+    "sql": "supabase/tests/finance_payment_allocation_reversal_e2e.sql",
+    "result": "FINANCE PAYMENT LIFECYCLE E2E: PASSED"
+  },
+  "limitations": {
+    "bankData": "SYNTHETIC_TEST_VECTOR_NOT_A_REAL_BANK_TRANSACTION",
+    "uatSignoff": "NOT_RUN",
+    "stagingRun": "NOT_RUN",
+    "preProductionDecision": "NO_GO"
+  }
+}
