@@ -10,6 +10,11 @@ create or replace function finance_private.current_actor_can_read_scope(
 ) returns boolean language sql stable security definer set search_path=pg_catalog as $$
   select p_operation_id in ('getDealerFinanceSummary','getDealerStatement','listPayments')
 $$;
+create or replace function finance_private.current_actor_can_read_headquarters(
+  p_actor_id uuid,p_legal_entity_id uuid,p_operation_id text
+) returns boolean language sql stable security definer set search_path=pg_catalog as $$
+  select p_operation_id='getHeadquartersFinanceSummary'
+$$;
 
 do $test$
 declare
@@ -36,7 +41,7 @@ declare
   allocation_id constant uuid := '88000000-0000-4000-8000-000000000008';
   payment_id_2 constant uuid := '88000000-0000-4000-8000-000000000009';
   corr constant uuid := '98000000-0000-4000-8000-000000000001';
-  totals jsonb; result jsonb; replay jsonb; page_1 jsonb; page_2 jsonb; filtered jsonb;
+  totals jsonb; result jsonb; replay jsonb; page_1 jsonb; page_2 jsonb; filtered jsonb; hq_result jsonb;
   cursor_value text; denied boolean:=false;
 begin
   insert into finance.legal_entities(id,entity_code,legal_name,status,created_by,correlation_id)
@@ -136,6 +141,32 @@ begin
     raise exception 'dealer finance summary totals mismatch: %',result;
   end if;
 
+  totals:=jsonb_build_object(
+    'accrued',jsonb_build_object('netAmount','150.00000000','taxAmount','30.00000000','grossAmount','180.00000000'),
+    'invoiced',jsonb_build_object('netAmount','0','taxAmount','0','grossAmount','0'),
+    'collected',jsonb_build_object('netAmount','0','taxAmount','0','grossAmount','0'),
+    'open',jsonb_build_object('netAmount','150.00000000','taxAmount','30.00000000','grossAmount','180.00000000'),
+    'overdue',jsonb_build_object('netAmount','50.00000000','taxAmount','10.00000000','grossAmount','60.00000000'),
+    'deducted',jsonb_build_object('netAmount','0','taxAmount','0','grossAmount','0'),
+    'refunded',jsonb_build_object('netAmount','0','taxAmount','0','grossAmount','0'),
+    'disputed',jsonb_build_object('netAmount','0','taxAmount','0','grossAmount','0'),
+    'unallocated',jsonb_build_object('amount','0')
+  );
+  result:=finance_api.commit_dealer_finance_summary_snapshot(
+    actor,hq,account_b,branch_b,date '2026-11-30','TRY','LOCAL-E2E-V1',totals,
+    jsonb_build_object('syntheticDealer','B'),repeat('4',64),corr
+  );
+  if result->>'outcome'<>'CREATED' then raise exception 'second dealer summary creation failed: %',result;end if;
+  hq_result:=finance_api.get_headquarters_finance_summary(hq,date '2026-11-30','TRY');
+  if hq_result->>'dealerCount'<>'2' or hq_result->>'branchCount'<>'2'
+     or hq_result#>>'{accrued,grossAmount}'<>'480.00000000'
+     or hq_result#>>'{open,grossAmount}'<>'440.00000000'
+     or hq_result#>>'{dealerRanking,0,dealerCode}'<>'READ-DEALER-A'
+     or hq_result#>>'{feeFamilies,0,feeFamily}'<>'EXTERNAL_SERVICE'
+     or hq_result#>>'{feeFamilies,0,grossAmount}'<>'300.00000000' then
+    raise exception 'headquarters finance aggregation mismatch: %',hq_result;
+  end if;
+
   page_1:=finance_api.get_dealer_statement(hq,account_a,branch_a,date '2026-11-01',date '2026-11-30',null,null,1);
   if (page_1->>'hasMore')::boolean is distinct from true or jsonb_array_length(page_1->'items')<>1
      or page_1#>>'{items,0,sourceReference}'<>'READ-SOURCE-1'
@@ -184,7 +215,7 @@ begin
   end;
   if not denied then raise exception 'cross-dealer payment list was not denied'; end if;
 
-  raise notice 'DEALER READ MODELS E2E PASSED: summary, statement and payment-list pagination/filter/scope isolation verified';
+  raise notice 'DEALER READ MODELS E2E PASSED: headquarters aggregation, summary, statement and payment-list pagination/filter/scope isolation verified';
 end
 $test$;
 
