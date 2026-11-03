@@ -20,7 +20,7 @@ begin
  (active_version,fee_royalty,'ROYALTY-10','payment.settled','[]',100,'ACTIVE','CONFIGURED','{"kind":"COLLECTED_GROSS"}','PERCENTAGE','{"rate":"0.10"}',tax_version,'{}','{}',true,'TRY',2,'HALF_UP',maker,checker,now(),maker,corr),
  (candidate_version,fee_royalty,'ROYALTY-12','payment.settled','[]',100,'DRAFT','CONFIGURED','{"kind":"COLLECTED_GROSS"}','PERCENTAGE','{"rate":"0.12"}',tax_version,'{}','{}',true,'TRY',2,'HALF_UP',maker,null,null,maker,corr),
  (candidate_version,fee_entry,'ENTRY-100','contract.activated','[]',100,'DRAFT','CONFIGURED','{"kind":"FIXED"}','FIXED','{"amount":"100"}',tax_version,'{}','{}',false,'TRY',2,'HALF_UP',maker,null,null,maker,corr),
- (candidate_version,fee_unsupported,'TIERED-1','service.used','[]',100,'DRAFT','CONFIGURED','{"kind":"USAGE"}','TIERED','{"tiers":[]}',tax_version,'{}','{}',false,'TRY',2,'HALF_UP',maker,null,null,maker,corr);
+ (candidate_version,fee_unsupported,'TIERED-1','service.used','[]',100,'DRAFT','CONFIGURED','{"kind":"USAGE"}','TIERED','{"tiers":[{"upTo":"500","rate":"0.10"},{"upTo":null,"rate":"0.05"}]}',tax_version,'{}','{}',false,'TRY',2,'HALF_EVEN',maker,null,null,maker,corr);
  timeline:=finance_api.list_contract_versions(hq,account,branch,contract_id,null,25);
  if jsonb_array_length(timeline->'items')<>2 or timeline#>>'{items,0,versionNo}'<>'2' or timeline#>>'{items,0,ruleCount}'<>'3' or timeline#>>'{items,1,ruleCount}'<>'1' or (timeline->>'rawDefinitionsExposed')::boolean or timeline::text like '%synthetic/candidate%' then raise exception 'safe contract timeline mismatch: %',timeline;end if;
  select count(*) into before_count from finance.accruals;
@@ -29,7 +29,10 @@ begin
  if not(result->>'complete')::boolean or result#>>'{totals,activeGrossAmount}'<>'118.00' or result#>>'{totals,candidateGrossAmount}'<>'261.60' or result#>>'{totals,deltaGrossAmount}'<>'143.60' or (result->>'writesPerformed')::boolean or (result->>'rawDefinitionsExposed')::boolean then raise exception 'complete impact simulation mismatch: %',result;end if;
  scenario:=jsonb_set(scenario,'{items}',(scenario->'items')||jsonb_build_array(jsonb_build_object('feeDefinitionId',fee_unsupported,'basisAmount','1000','quantity','1')));
  result:=finance_api.simulate_contract_version_impact(hq,account,branch,active_version,candidate_version,scenario);
- if (result->>'complete')::boolean or result->'totals'<>'null'::jsonb or result#>>'{items,2,candidate,reasonCode}'<>'CALCULATION_METHOD_UNSUPPORTED' then raise exception 'unsupported method did not fail closed: %',result;end if;
+ if not(result->>'complete')::boolean or (result#>>'{items,2,candidate,grossAmount}')::numeric<>90.00 or (result#>>'{totals,candidateGrossAmount}')::numeric<>351.60 then raise exception 'tiered method simulation mismatch: %',result;end if;
+ if (finance_private.simulate_rule_gross('COST_PLUS','{"markupRate":"0.10","markupAmount":"5"}',0.20,false,100,1,null,null,2,'UP')->>'grossAmount')::numeric<>138.00 then raise exception 'cost plus contract mismatch';end if;
+ if (finance_private.simulate_rule_gross('CONDITIONAL','{"operator":"GTE","threshold":"100","whenMatched":{"method":"PERCENTAGE","parameters":{"rate":"0.10"}},"whenNotMatched":{"method":"FIXED","parameters":{"amount":"3"}}}',0,true,150,1,null,null,2,'HALF_EVEN')->>'grossAmount')::numeric<>15.00 then raise exception 'conditional contract mismatch';end if;
+ if finance_private.simulate_rule_gross('TIERED','{"tiers":[]}',0,true,100,1,null,null,2,'HALF_UP')->>'reasonCode'<>'TIERED_PARAMETERS_INVALID' then raise exception 'invalid tier contract did not fail closed';end if;
  select count(*) into after_count from finance.accruals;if before_count<>after_count or exists(select 1 from finance.journal_entries where legal_entity_id=hq) or exists(select 1 from finance.open_items where legal_entity_id=hq) then raise exception 'simulation performed financial writes';end if;
 end $test$;
 rollback;
