@@ -390,3 +390,12 @@ Karar ve geri alma: docs/decisions/2026-09-08-kaporta-360-studio.md; migration i
 - Added the independent **GM İK Sistemi** / **İK Yönetim Merkezi** ERP navigation bridge while preserving the existing `hr` route.
 - Published the static pilot through `samivolkan/Ototr` commit `c53b5225a8b4d696acbec4ac3930c2017fbaa90d`; GitHub Pages run `41551471430` completed successfully and injected the shared ERP access gate into the direct module entry.
 - No database migration, Supabase schema/RLS change, production HR integration or real employee/candidate record was created. Production activation remains blocked by the acceptance gates in `docs/hr/GM_HR_SYSTEM_ANALYSIS_2026-11-03.md`.
+
+## 2026-11-03 — GM Finans royalty access and card settlement chain
+
+- Added reviewed finance migrations `20261103010132`–`20261103010134`: overdue branch-operation access state, cash-payout-disabled royalty credit projection, and provider-neutral atomic card-payment callback.
+- The card callback performs payment creation, independent system-actor verification, full invoice allocation and branch access re-evaluation in one transaction. Raw card number/CVV is not accepted or stored.
+- Added service-only `finance-branch-access` and HMAC-verified `finance-payment-callback-worker` Edge Function packages. Browser/mobile clients receive no service-role secret.
+- Updated the immutable promotion manifest to 135 finance migrations and staging deployment inventory to 10 function packages. Local catalog: 52 finance tables, 181 `finance_api` functions and 52 forced-RLS finance tables.
+- Published scoped commits through `a9d758a`; later traceability corrections are `0dfc416` and `5bfac1f`. No production database migration, production secret or real payment/customer data was used.
+- Pre-production remains `NO_GO`: real ERP route binding, selected payment-provider checkout/3D Secure adapter, staging role/IDOR tests and authorized business/security signoffs remain external gates.

@@ -1317,3 +1317,12 @@ Sınırlar: otomatik fotogrametri, üretici model kütüphanesi, buluttan ses/vi
 - Live HTTP checks returned 200 for ERP root, `gm-ik/` and the navigation bridge. Root contained the integration tag; module contained `OTOTR_AUTH_GATE_V1`, the pilot warning and exact CSP allowlist; bridge contained the heading and mutation observer.
 - Fresh-session browser security smoke redirected direct `gm-ik/` access to `Giriş yap · OTOTR V3` with the original module path preserved in `returnTo`, confirming fail-closed unauthenticated behavior.
 - Limits: no authenticated production role matrix, real employee data, payroll/SGK operation, legal approval, physical mobile device or production write was exercised.
+
+## 2026-11-03 — GM Finans local acceptance and payment callback validation
+
+- `scripts/Test-FinanceLocalAcceptance.ps1`: PASS, 49/49 checks, `LOCAL_ONLY`, `productionDataUsed: false`.
+- `scripts/Test-FinanceProviderCardPaymentCallbackE2E.ps1`: PASS. Verified issued royalty invoice lookup, HMAC-canonical callback commit, balanced payment verification journal, full open-item allocation, automatic `LOCKED_OVERDUE -> OPEN`, and idempotent replay without duplicate payment/allocation.
+- `scripts/Test-FinancePaymentCallbackWorker.ps1`: PASS. Verified invalid signature denial, strict `SETTLED` payload, deterministic intent hash, safe error masking and absence of raw card fields.
+- `scripts/Test-FinanceBranchOverdueAccessE2E.ps1` and `scripts/Test-FinanceBranchAccessWorker.ps1`: PASS. Verified overdue lock, partial-payment lock retention, full-payment unlock, cross-branch isolation, allowed locked capabilities and service-only ERP gateway contract.
+- Migration/deployment manifest, local replay, backup/restore, recovery contract, UAT inventory and `git diff --check`: PASS. Current verified local catalog is 163 total migrations, 135 finance migrations, 52 finance tables and 181 finance API functions.
+- Scope limit: tests used synthetic local data. Real provider checkout/3D Secure, staging delivery, real ERP middleware binding and human approvals were not exercised; pre-production remains `NO_GO`.
