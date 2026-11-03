@@ -31,8 +31,8 @@ Her satır için `UYGULANMAZ` veya açık değer girilmelidir.
 
 ## 3. Royalty için zorunlu cevaplar
 
-1. Varsayılan royalty oranı nedir; bayi/şube/sözleşme bazında değişebilir mi? **Karar alındı; oran değeri public repoya yazılmaz, `FINANCE_ROYALTY_DEFAULT_RATE_PERCENT` secret'ından server-side okunur; bayi bazında esnetilebilir.**
-2. Oran değişikliği hangi tarihten itibaren uygulanır; geçmiş işlemler yeniden hesaplanır mı?
+1. Varsayılan royalty oranı nedir; bayi/şube/sözleşme bazında değişebilir mi? **Karar alındı; oran değeri public repoya yazılmaz, `FINANCE_ROYALTY_DEFAULT_RATE_PERCENT` secret'ından server-side okunur; şube açılışında şube bazında esnetilebilir.**
+2. Oran değişikliği hangi tarihten itibaren uygulanır; geçmiş işlemler yeniden hesaplanır mı? **Şube açılışında ticari değer/oran ve süre manuel seçilir; açılış tarihinden ileriye uygulanır. Geçmiş tahsilatlar yeniden hesaplanmaz; değişiklikler yalnız ileri tarihli yeni sürümle yapılır.**
 3. Kredi kartı komisyonu veya başka kesintiler royalty matrahından düşer mi? **Hayır. Royalty her durumda müşteriden tahsil edilen KDV dahil brüt tutarın tamamı üzerinden hesaplanır.**
 4. Tahsilat iptali ile müşteri iadesi aynı finansal davranışı mı izler?
 5. Fazla iade girişimi reddedilecek mi; istisna için kim onay verebilir?
@@ -40,9 +40,9 @@ Her satır için `UYGULANMAZ` veya açık değer girilmelidir.
 
 ### Onaylanan royalty muafiyet politikası
 
-- Yeni bayi için sözleşme kararına göre ilk 6 ay veya ilk 12 ay royalty alınmayabilir.
-- Zarar ettiği değerlendirilen bayi için Finans Direktörü ve Franchise Yönetimi maker-checker onayıyla, başlangıç ve bitiş tarihi bulunan geçici muafiyet uygulanabilir.
-- Muafiyet doğrudan kayıt silmez; bayi kapsamlı, tarih aralıklı `EXEMPT` kural istisnası üretir ve audit izi korunur.
+- Yeni şube için açılış kararına göre ilk 6 ay veya ilk 12 ay royalty alınmayabilir.
+- Zarar ettiği değerlendirilen şube için Finans Direktörü ve Franchise Yönetimi maker-checker onayıyla, başlangıç ve bitiş tarihi bulunan geçici muafiyet uygulanabilir.
+- Muafiyet doğrudan kayıt silmez; şube kapsamlı, tarih aralıklı `EXEMPT` kural istisnası üretir ve audit izi korunur.
 - Vardiya sistemi royalty hesaplama veya muafiyet koşulu değildir.
 
 ## 4. Muhasebe eşleme matrisi
