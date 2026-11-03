@@ -1392,6 +1392,7 @@ button,input,select,textarea{font:inherit}.app{min-height:100vh;display:grid;gri
                 <div class="finance-statement-controls">
                   <label>Başlangıç<input type="date" data-finance-statement-from disabled></label>
                   <label>Bitiş<input type="date" data-finance-statement-to disabled></label>
+                  <label>Para birimi<select data-finance-statement-currency disabled><option value="TRY">TRY</option><option value="EUR">EUR</option><option value="USD">USD</option></select></label>
                   <label>Durum
                     <select data-finance-statement-status disabled>
                       <option value="">Tümü</option>
@@ -1405,6 +1406,13 @@ button,input,select,textarea{font:inherit}.app{min-height:100vh;display:grid;gri
                   <button class="btn" type="button" data-finance-statement-refresh disabled>Kayıtları Getir</button>
                 </div>
               </div>
+              <div class="finance-payment-kpis" data-finance-statement-control hidden>
+                <article><span>Devir bakiyesi</span><b data-finance-statement-control-value="openingBalance">—</b></article>
+                <article><span>Dönem borç / alacak</span><b data-finance-statement-control-value="periodMovement">—</b></article>
+                <article><span>Tahsis / ters tahsis</span><b data-finance-statement-control-value="allocations">—</b></article>
+                <article><span>Kapanış bakiyesi</span><b data-finance-statement-control-value="closingBalance">—</b></article>
+              </div>
+              <div class="finance-statement-table-wrap" data-finance-statement-aging hidden><table class="finance-statement-table"><thead><tr><th>Vadesi gelmemiş</th><th>1–30 gün</th><th>31–60 gün</th><th>61–90 gün</th><th>91+ gün</th></tr></thead><tbody><tr><td data-finance-aging="current">—</td><td data-finance-aging="days1To30">—</td><td data-finance-aging="days31To60">—</td><td data-finance-aging="days61To90">—</td><td data-finance-aging="days91Plus">—</td></tr></tbody></table></div>
               <div class="finance-statement-state" data-finance-statement-state role="status">Kapsam ve yetkili bağlantı bekleniyor.</div>
               <div class="finance-statement-table-wrap" data-finance-statement-table hidden>
                 <table class="finance-statement-table">

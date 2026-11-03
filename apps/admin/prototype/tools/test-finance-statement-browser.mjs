@@ -108,6 +108,10 @@ try {
           : {items:[paymentItem('55555555-5555-4555-8555-555555555555')],nextCursor:'payment-page-2',hasMore:true};
       await route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({data})});return;
     }
+    if(body.operationId==='getDealerStatementControl'){
+      const data={from:body.query.from,to:body.query.to,currency:body.query.currency,openingBalance:'100.00000000',periodDebits:'120.00000000',periodCredits:'0.00000000',periodAllocations:'20.00000000',allocationReversals:'0.00000000',closingBalance:'200.00000000',aging:{current:'50.00000000',days1To30:'150.00000000',days31To60:'0.00000000',days61To90:'0.00000000',days91Plus:'0.00000000'},historicalReconstruction:true,rawRecordsExposed:false};
+      await route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({data})});return;
+    }
     if(body.operationId==='listRoyaltyRefunds'){
       const refund=(id,refundId,amount)=>({reversalAccrualId:id,refundId,refundBusinessDate:'2026-11-03',originalCollectionId:'13131313-1313-4313-8313-131313131313',refundedGrossAmount:amount,originalRoyaltyAccrualId:'14141414-1414-4414-8414-141414141414',originalRoyaltyAmount:'118.00000000',royaltyReversalAmount:'59.00000000',currency:'TRY',status:'POSTED',originalPeriodId:'16161616-1616-4616-8616-161616161616',postingPeriodId:'17171717-1717-4717-8717-171717171717'});
       const data=body.query.cursor?{items:[refund('26262626-2626-4626-8626-262626262626','27272727-2727-4727-8727-272727272727','100.00000000')],nextCursor:null,hasMore:false}:{items:[refund('bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb','12121212-1212-4212-8212-121212121212','590.00000000')],nextCursor:'refund-page-2',hasMore:true};
@@ -544,9 +548,11 @@ try {
   await page.click('[data-finance-statement-refresh]');
   await page.waitForFunction(() => document.querySelectorAll('[data-finance-statement-body] tr').length === 1);
   assert.match(await page.locator('[data-finance-statement-body]').innerText(), /ROYALTY/);
-  assert.equal(requests.at(-1).query.status, 'OPEN');
-  assert.equal(requests.at(-1).scope.branchId, scope.branchId);
-  assert.equal(requests.at(-1).operationId, 'getDealerStatement');
+  const statementRequest=requests.findLast(request=>request.operationId==='getDealerStatement');
+  assert.equal(statementRequest.query.status, 'OPEN');
+  assert.equal(statementRequest.scope.branchId, scope.branchId);
+  assert.match(await page.locator('[data-finance-statement-control]').innerText(),/100,00000000 TRY/);
+  assert.match(await page.locator('[data-finance-statement-aging]').innerText(),/150,00000000 TRY/);
 
   await page.selectOption('[data-finance-statement-status]', 'REVERSED');
   await page.click('[data-finance-statement-refresh]');

@@ -46,6 +46,9 @@
   const statementFrom = root.querySelector('[data-finance-statement-from]');
   const statementTo = root.querySelector('[data-finance-statement-to]');
   const statementStatus = root.querySelector('[data-finance-statement-status]');
+  const statementCurrency = root.querySelector('[data-finance-statement-currency]');
+  const statementControl = root.querySelector('[data-finance-statement-control]');
+  const statementAging = root.querySelector('[data-finance-statement-aging]');
   const statementRefreshButton = root.querySelector('[data-finance-statement-refresh]');
   const statementMoreButton = root.querySelector('[data-finance-statement-more]');
   const statementState = root.querySelector('[data-finance-statement-state]');
@@ -273,6 +276,7 @@
     statementState.hidden = next === 'READY' && statementRowCount > 0;
     statementRefreshButton.disabled = !scopeReady || next === 'LOADING';
     statementStatus.disabled = !scopeReady || next === 'LOADING';
+    statementCurrency.disabled = !scopeReady || next === 'LOADING';
     statementFrom.disabled = !scopeReady || next === 'LOADING';
     statementTo.disabled = !scopeReady || next === 'LOADING';
     if (next === 'LOADING') statementMoreButton.disabled = true;
@@ -284,6 +288,8 @@
     statementMoreButton.hidden = true;
     statementMoreButton.disabled = true;
     statementCount.textContent = '0 kayıt';
+    statementControl.hidden = true;
+    statementAging.hidden = true;
     setStatementState('EMPTY', message || 'Henüz yetkili ekstre isteği yapılmadı.');
   };
   const renderStatementPage = (payload, {append = false} = {}) => {
@@ -320,7 +326,15 @@
     statementMoreButton.dataset.cursor = payload.nextCursor || '';
     setStatementState(statementRowCount ? 'READY' : 'EMPTY', statementRowCount ? 'Ekstre yüklendi.' : 'Seçili filtrelerde kayıt bulunamadı.');
   };
-  const getStatementFilters = () => Object.freeze({from:statementFrom.value||undefined,to:statementTo.value||undefined,status: statementStatus.value || undefined, limit: 25});
+  const renderStatementControl = payload => {
+    if (!payload || !/^\d{4}-\d{2}-\d{2}$/.test(payload.from || '') || !/^\d{4}-\d{2}-\d{2}$/.test(payload.to || '') || !/^[A-Z]{3}$/.test(payload.currency || '') || payload.historicalReconstruction !== true || payload.rawRecordsExposed !== false || !payload.aging) throw new Error('INVALID_FINANCE_STATEMENT_CONTROL');
+    const show = value => amount(value, payload.currency);
+    const values = {openingBalance:show(payload.openingBalance),periodMovement:`${show(payload.periodDebits)} / ${show(payload.periodCredits)}`,allocations:`${show(payload.periodAllocations)} / ${show(payload.allocationReversals)}`,closingBalance:show(payload.closingBalance)};
+    for (const node of statementControl.querySelectorAll('[data-finance-statement-control-value]')) node.textContent = values[node.dataset.financeStatementControlValue] || '—';
+    for (const node of statementAging.querySelectorAll('[data-finance-aging]')) node.textContent = show(payload.aging[node.dataset.financeAging]);
+    statementControl.hidden = false; statementAging.hidden = false;
+  };
+  const getStatementFilters = () => Object.freeze({from:statementFrom.value||undefined,to:statementTo.value||undefined,currency:statementCurrency.value||'TRY',status: statementStatus.value || undefined, limit: 25});
 
   const setContractState=(next,message)=>{
     if(!['EMPTY','LOADING','READY','ERROR'].includes(next)) throw new Error('INVALID_FINANCE_CONTRACT_STATE');
@@ -755,4 +769,5 @@
   window.OTOTRFinanceComparisonUI=Object.freeze({setContractComparisonState,renderContractVersionComparison,resetContractComparison,getContractImpactScenario,setContractImpactState,renderContractImpactSimulation,contractImpactForm});
   window.OTOTRFinanceTimelineUI=Object.freeze({resetContractTimeline,setContractTimelineState,renderContractTimelinePage,contractTimelineMore});
   window.OTOTRFinanceUI = Object.freeze({setConnectionState, setScopeContext, renderSummary,renderHeadquartersSummary,resetHeadquartersSummary,setServiceUsagesState,renderServiceUsagesPage,resetServiceUsages,getServiceUsageFilters,setExpensesState,renderExpensesPage,resetExpenses,getExpenseFilters,setExpenseState,renderExpenseDetail,resetExpense,setDisputesState,renderDisputesPage,resetDisputes,getDisputeFilters,setDisputeState,renderDisputeDetail,resetDispute,setExportPackagesState,renderExportPackagesPage,resetExportPackages,getExportPackageFilters,setExportPackageState,renderExportPackageDetail,resetExportPackage,setIntegrationErrorsState,renderIntegrationErrorsPage,resetIntegrationErrors,getIntegrationErrorFilters,setIntegrationErrorState,renderIntegrationErrorDetail,resetIntegrationError,setApprovalsState,renderApprovalsPage,resetApprovals,getApprovalFilters,setApprovalState,renderApprovalDetail,resetApproval,setAuditState,renderAuditPage,resetAudit,getAuditFilters,downloadAuditExport,setAuditTraceState,renderAuditTrace,resetAuditTrace, setStatementState, renderStatementPage, resetStatement, getStatementFilters, setContractState, renderCurrentContract, resetContract, setContractRulesState, renderContractRulesPage, resetContractRules, setContractRulesVersion, getContractRulesVersion, getContractRuleFilters, setPaymentsState, renderPaymentsPage, resetPayments, getPaymentFilters, setRefundsState,renderRefundsPage,resetRefunds,getRefundFilters,setPaymentState, renderPaymentDetail, resetPayment, setAccrualState, renderAccrualDetail, resetAccrual, setRefundState, renderRefundTrace, resetRefund, renderCurrentPeriod, resetCurrentPeriod, connectButton, statementRefreshButton, statementMoreButton, statementStatus, contractRefreshButton, contractMoreButton, contractRuleStatus, paymentsRefreshButton, paymentsMoreButton, paymentsStatus,refundsRefreshButton,refundsMoreButton,serviceUsagesRefreshButton,serviceUsagesMoreButton,serviceUsagesFamily,serviceUsagesChargeStatus,expensesRefreshButton,expensesMoreButton,expensesStatus,disputesRefreshButton,disputesMoreButton,disputesStatus,exportPackagesRefreshButton,exportPackagesMoreButton,exportPackagesType,exportPackagesStatus,integrationErrorsRefreshButton,integrationErrorsMoreButton,integrationErrorsStatus,integrationErrorsSource,approvalsRefreshButton,approvalsMoreButton,approvalsStatus,auditRefreshButton,auditExportButton,auditMoreButton});
+  window.OTOTRFinanceUI = Object.freeze({...window.OTOTRFinanceUI, renderStatementControl, statementCurrency});
 })();

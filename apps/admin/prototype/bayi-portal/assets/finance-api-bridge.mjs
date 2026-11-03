@@ -16,6 +16,7 @@ const AUDIT_TRACE_OPERATION='getAuditCorrelationTrace';
 const DISPUTES_OPERATION='listDisputes';
 const DISPUTE_OPERATION='getDispute';
 const STATEMENT_OPERATION = 'getDealerStatement';
+const STATEMENT_CONTROL_OPERATION = 'getDealerStatementControl';
 const PAYMENTS_OPERATION = 'listPayments';
 const PAYMENT_OPERATION = 'getPayment';
 const ACCRUAL_OPERATION = 'getAccrualDetail';
@@ -134,6 +135,12 @@ export function createFinanceSummaryClient({getConfig, getAccessToken, fetchImpl
       if (limit !== undefined && (!Number.isInteger(limit) || limit < 1 || limit > 200)) throw new FinanceBridgeError('VALIDATION_ERROR', 'Ekstre limit değeri 1–200 arasında olmalıdır.');
       return execute(rawScope, STATEMENT_OPERATION, {from,to,status,cursor,limit});
     },
+    async getDealerStatementControl(rawScope, {from,to,currency='TRY'} = {}) {
+      for (const [field,value] of [['from',from],['to',to]]) if (!/^\d{4}-\d{2}-\d{2}$/.test(value || '')) throw new FinanceBridgeError('VALIDATION_ERROR', `${field} YYYY-MM-DD biçiminde olmalıdır.`);
+      if (from > to) throw new FinanceBridgeError('VALIDATION_ERROR', 'Ekstre kontrol tarih aralığı geçersiz.');
+      if (!/^[A-Z]{3}$/.test(currency)) throw new FinanceBridgeError('VALIDATION_ERROR', 'Para birimi geçersiz.');
+      return execute(rawScope, STATEMENT_CONTROL_OPERATION, {from,to,currency});
+    },
     async getPayment(rawScope, paymentId) {
       const normalizedPaymentId = requiredUuid(paymentId, 'paymentId', 'VALIDATION_ERROR');
       return execute(rawScope, PAYMENT_OPERATION, {}, {paymentId:normalizedPaymentId});
@@ -250,6 +257,11 @@ if (auth && ui) {
       const scope = configuredScope || refreshContext();
       if (!scope) throw new FinanceBridgeError('FINANCE_SCOPE_UNAVAILABLE', 'ERP finans kapsamı henüz sağlanmadı.');
       return client.getDealerStatement(scope, options);
+    },
+    async getDealerStatementControl(options = {}) {
+      const scope = configuredScope || refreshContext();
+      if (!scope) throw new FinanceBridgeError('FINANCE_SCOPE_UNAVAILABLE', 'ERP finans kapsamı henüz sağlanmadı.');
+      return client.getDealerStatementControl(scope, options);
     },
     async getHeadquartersFinanceSummary(options={}) {
       const scope=configuredScope||refreshContext();
@@ -411,8 +423,9 @@ if (auth && ui) {
       const filters = ui.getStatementFilters?.() || {};
       ui.setStatementState?.('LOADING', append ? 'Ekstre devam sayfası yükleniyor…' : 'Yetkili ekstre yükleniyor…');
       try {
-        const result = await api.getDealerStatement({...filters, cursor});
+        const [result, control] = await Promise.all([api.getDealerStatement({...filters, cursor}), append ? Promise.resolve(null) : api.getDealerStatementControl(filters)]);
         ui.renderStatementPage?.(result.data, {append});
+        if (control) ui.renderStatementControl?.(control.data);
         return result;
       } catch (error) {
         ui.setStatementState?.('ERROR', error instanceof FinanceBridgeError ? error.message : 'Ekstre servisine ulaşılamadı.');
