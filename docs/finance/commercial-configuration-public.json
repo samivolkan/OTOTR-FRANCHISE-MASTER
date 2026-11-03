@@ -17,8 +17,8 @@
     },
     {
       "code": "ENTRY_FRANCHISE",
-      "decisionStatus": "PENDING",
-      "confirmedBehavior": "Şube veya sözleşme aktivasyonu tetikleyicisi tanımlı.",
+      "decisionStatus": "PARTIALLY_CONFIRMED",
+      "confirmedBehavior": "Giriş franchise bedeli şube açılışında, açılış referansıyla şube başına yalnız bir kez tahakkuk eder; tekrar tahakkuk reddedilir ve geriye dönük oluşturulmaz.",
       "pendingFields": [
         "calculationMethod",
         "amountOrRate",

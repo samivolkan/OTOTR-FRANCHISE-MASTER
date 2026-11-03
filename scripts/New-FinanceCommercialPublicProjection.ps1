@@ -9,7 +9,7 @@ if ($source.schemaVersion -ne 1 -or $source.module -ne 'OTOTR_FRANCHISE_FINANCE'
 $codes = @('ROYALTY','ENTRY_FRANCHISE','QUERY','EXTERNAL_SERVICE','OPTIONAL_PRODUCT_SERVICE','PASS_THROUGH_EXPENSE','DEDUCTION_CREDIT')
 $behaviors = [ordered]@{
   ROYALTY = 'Varsayılan oran güvenli backend yapılandırmasında onaylıdır; matrah müşteriden tahsil edilen KDV dahil brüt tutarın tamamıdır ve gider/kart komisyonu düşülmez; hesaplanan bedele ayrıca %20 KDV uygulanır. Şube açılışında ticari değer, süre ve günlük/haftalık/aylık fatura periyodu manuel seçilir; değişiklikler yalnız ileriye uygulanır. Dönem tahakkukları faturada Royalty Hizmet Bedeli adıyla tek satırda toplanır; müşteri iadesi ters kayıtları sonraki aynı satırda eksi mahsup edilir. Fazla eksi bakiye aynı şubenin sonraki dönemlerine süresiz kredi olarak devreder; şubeler arasında aktarılamaz ve alt hesaplama izi korunur. Fatura ertesi gün kredi kartıyla ödenir; doğrulanmış tam ödeme yoksa operasyon erişimi kilitlenir, ödeme ve destek erişimi açık kalır. 6/12 ay yeni şube ve onaylı mali zorluk muafiyeti desteklenir.'
-  ENTRY_FRANCHISE = 'Şube veya sözleşme aktivasyonu tetikleyicisi tanımlı.'
+  ENTRY_FRANCHISE = 'Giriş franchise bedeli şube açılışında, açılış referansıyla şube başına yalnız bir kez tahakkuk eder; tekrar tahakkuk reddedilir ve geriye dönük oluşturulmaz.'
   QUERY = 'Başarılı ve ücretlendirilebilir sorgu tetikleyicisi tanımlı.'
   EXTERNAL_SERVICE = 'Başarılı hizmet teslimi tetikleyicisi tanımlı.'
   OPTIONAL_PRODUCT_SERVICE = 'Ürün veya hizmet aktivasyonu tetikleyicisi tanımlı.'
