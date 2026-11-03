@@ -1364,6 +1364,7 @@ button,input,select,textarea{font:inherit}.app{min-height:100vh;display:grid;gri
               <div class="finance-statement-state" data-finance-contract-rules-state role="status">Sözleşme sürümü bekleniyor.</div>
               <div class="finance-statement-table-wrap" data-finance-contract-rules-table hidden><table class="finance-statement-table"><thead><tr><th>Bedel / kural</th><th>Aile</th><th>Tetikleyici</th><th>Hesaplama</th><th>Vergi dahil</th><th>Durum</th></tr></thead><tbody data-finance-contract-rules-body></tbody></table></div>
               <div class="finance-statement-footer"><span data-finance-contract-rules-count>0 kural</span><button class="btn" type="button" data-finance-contract-more hidden disabled>Daha Fazla</button></div>
+              <section class="finance-payment-detail" data-finance-rule-simulator hidden><div class="finance-payment-detail-head"><div><span class="finance-screen-code">SENTETİK · KAYIT YAPMAZ</span><h4>Royalty Kural Simülatörü</h4><p>KDV dahil kesinleşmiş tahsilat parçası üzerinden, kullanıcı tarafından girilen oranla hesaplar. Hiçbir oran varsayılmaz veya sözleşmeye yazılmaz.</p></div></div><form class="finance-statement-controls"><label>KDV dahil tahsilat (TRY)<input name="collectedGross" inputmode="decimal" placeholder="Örn. 1180,00" required></label><label>Royalty oranı (%)<input name="ratePercent" inputmode="decimal" placeholder="Onaylı oranı girin" required></label><label>Müşteri iadesi (TRY)<input name="refundGross" inputmode="decimal" value="0,00" required></label><button class="btn" type="submit">Sentetik Hesapla</button></form><div class="finance-inline-note" data-finance-simulator-state>Değer girilmeden sonuç üretilmez.</div><div class="finance-period-grid" data-finance-simulator-result hidden><article><span>Matrah</span><b data-finance-simulator-basis>—</b><small>KDV dahil tahsil edilen brüt</small></article><article><span>Royalty</span><b data-finance-simulator-royalty>—</b><small>Her kesinleşmiş tahsilat parçasında</small></article><article><span>İade ters kaydı</span><b data-finance-simulator-reversal>—</b><small>İade oranında otomatik azaltım</small></article><article><span>Kalan royalty</span><b data-finance-simulator-remaining>—</b><small>Orijinal referans korunur</small></article></div></section>
             </section>
             <section class="finance-statement" data-finance-statement hidden aria-labelledby="financeStatementTitle">
               <div class="finance-statement-head">
@@ -7177,5 +7178,6 @@ setWorkOrderFilter('open',false);
 <script src="assets/finance-ui.js"></script>
 <script type="module" src="assets/finance-api-bridge.mjs"></script>
 <script type="module" src="assets/finance-command-bridge.mjs"></script>
+<script type="module" src="assets/finance-rule-simulator.mjs"></script>
 </body>
 </html>

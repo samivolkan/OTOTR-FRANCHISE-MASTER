@@ -15,6 +15,7 @@ $checks = @(
   'Test-FinanceIntegrationErrorReadE2E.ps1',
   'Test-FinanceIntegrationRetryIdentityE2E.ps1',
   'Test-FinanceCommandEdge.ps1',
+  'Test-FinanceRuleSimulator.ps1',
   'Test-FinancePeriodCalculationE2E.ps1',
   'Test-FinancePeriodGovernanceE2E.ps1',
   'Test-FinanceDealerReadModelsE2E.ps1',
@@ -32,7 +33,7 @@ $results = foreach ($check in $checks) {
   if (-not (Test-Path -LiteralPath $path -PathType Leaf)) { throw "Finance acceptance check not found: $path" }
   $checkStartedAt = [DateTimeOffset]::UtcNow
   $global:LASTEXITCODE = 0
-  & $path
+  & $path | Out-Host
   if ($null -ne $LASTEXITCODE -and $LASTEXITCODE -ne 0) { throw "Finance acceptance check failed: $check (exit $LASTEXITCODE)" }
   [pscustomobject]@{
     check = $check

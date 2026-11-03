@@ -1,0 +1,7 @@
+import assert from 'node:assert/strict';
+import {simulateRoyalty} from '../bayi-portal/assets/finance-rule-simulator.mjs';
+let result=simulateRoyalty({collectedGross:'1180,00',ratePercent:'10',refundGross:'590,00'});assert.deepEqual(result,{currency:'TRY',basis:'VAT_INCLUSIVE_COLLECTED_GROSS',collectedGross:'1180.00',ratePercent:'10.0000',royaltyAmount:'118.00',refundGross:'590.00',royaltyReversalAmount:'59.00',remainingRoyaltyAmount:'59.00',postingPolicy:'EACH_FINALIZED_COLLECTION_PART',refundPolicy:'PROPORTIONAL_REVERSAL_WITH_ORIGINAL_PROVENANCE'});
+result=simulateRoyalty({collectedGross:'333.33',ratePercent:'7.5000',refundGross:'0'});assert.equal(result.royaltyAmount,'25.00');assert.equal(result.remainingRoyaltyAmount,'25.00');
+result=simulateRoyalty({collectedGross:'100.00',ratePercent:'0',refundGross:'100.00'});assert.equal(result.royaltyAmount,'0.00');assert.equal(result.royaltyReversalAmount,'0.00');
+assert.throws(()=>simulateRoyalty({collectedGross:'100',ratePercent:'10',refundGross:'101'}),/REFUND_EXCEEDS_COLLECTION/);assert.throws(()=>simulateRoyalty({collectedGross:'0',ratePercent:'10'}),/COLLECTED_GROSS_REQUIRED/);assert.throws(()=>simulateRoyalty({collectedGross:'100',ratePercent:'100.0001'}),/RATE_PERCENT_RANGE/);assert.throws(()=>simulateRoyalty({collectedGross:'100.001',ratePercent:'10'}),/COLLECTED_GROSS_INVALID/);
+console.log('PASS finance-rule-simulator: VAT-inclusive collection, partial piece, proportional refund reversal, rounding and invalid inputs verified');
