@@ -12,7 +12,7 @@ begin
  insert into finance.dealer_accounts(id,legal_entity_id,dealer_legal_entity_id,account_code,currency_code,status,created_by,correlation_id)values(a1,hq,d1,'SCOPE-A1','TRY','ACTIVE',ceo,corr),(a2,hq,d2,'SCOPE-A2','TRY','ACTIVE',ceo,corr);
  insert into finance_private.erp_branch_scope_mappings(erp_branch_id,legal_entity_id,dealer_account_id,finance_branch_id,effective_from,status,created_by,correlation_id)values(erp1,hq,a1,b1,current_date-1,'ACTIVE',ceo,corr);
  insert into finance_private.actor_scope_grants(app_user_id,legal_entity_id,dealer_account_id,finance_branch_id,effective_from,status,granted_by,correlation_id)values(auditor,hq,a1,b1,current_date-1,'ACTIVE',ceo,corr);
- foreach op in array array['getDealerFinanceSummary','listApprovalWorkItems','getApprovalWorkItem','listAuditEvents','getAuditCorrelationTrace','listIntegrationErrors','getIntegrationError'] loop
+ foreach op in array array['getDealerFinanceSummary','listPayments','listApprovalWorkItems','getApprovalWorkItem','listAuditEvents','getAuditCorrelationTrace','listIntegrationErrors','getIntegrationError'] loop
   if not finance_private.current_actor_can_read_scope(ceo_auth,hq,a1,b1,op) then raise exception 'CEO denied %',op;end if;
   if not finance_private.current_actor_can_read_scope(finance_auth,hq,a1,b1,op) then raise exception 'FINANCE denied %',op;end if;
   if not finance_private.current_actor_can_read_scope(manager_auth,hq,a1,b1,op) then raise exception 'BRANCH_MANAGER own scope denied %',op;end if;
@@ -21,6 +21,8 @@ begin
   if finance_private.current_actor_can_read_scope(auditor_auth,hq,a2,b2,op) then raise exception 'AUDITOR ungranted scope allowed %',op;end if;
   if finance_private.current_actor_can_read_scope(regional_auth,hq,a1,b1,op) or finance_private.current_actor_can_read_scope(inactive_auth,hq,a1,b1,op) then raise exception 'unauthorized role allowed %',op;end if;
  end loop;
+ if not finance_private.current_actor_can_create_payment(ceo_auth,hq,a1,b1) or not finance_private.current_actor_can_create_payment(finance_auth,hq,a1,b1) then raise exception 'HQ payment creator role denied';end if;
+ if finance_private.current_actor_can_create_payment(manager_auth,hq,a1,b1) or finance_private.current_actor_can_create_payment(finance_auth,hq,a2,b1) then raise exception 'payment create role or scope boundary violated';end if;
  if finance_private.current_actor_can_read_scope(manager_auth,hq,a1,b2,'getDealerFinanceSummary') then raise exception 'mismatched dealer and branch accepted';end if;
  raise notice 'IDENTITY SCOPE E2E PASSED: real ERP roles, mappings, grants and cross-scope denial verified';
 end $test$;
