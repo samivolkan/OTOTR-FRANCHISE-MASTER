@@ -398,3 +398,10 @@ Karar ve geri alma: docs/decisions/2026-09-08-kaporta-360-studio.md; migration i
 - Privacy/KVKK item 2 is explicitly excluded. Real-person rows, sensitive documents and production approval remain database-blocked.
 - Added a PGlite PostgreSQL 17 acceptance suite and public-browser read-only bridge. No staging/production migration, remote schema mutation, real HR record or private credential was used.
 - Rollout/rollback procedure: `docs/hr/GM_HR_ACCEPTANCE_RUNBOOK_2026-11-03.md`.
+
+## 2026-11-03 — GM İK production foundation published with fail-closed live gate
+
+- Pushed the reviewed source implementation to `codex/gm-ik-safe-pilot` at code commit `80203aa`.
+- Pushed the static ERP bundle to `samivolkan/Ototr` `main` at `6079d7d59a838c7498c1fc2e683495add91cc566`.
+- GitHub Pages deployment `41556872750` completed successfully; the live module, runtime files, ERP navigation bridge and anonymous access redirect were verified.
+- No remote Supabase migration was applied. Because privacy/KVKK item 2 was excluded by request, production activation and all real HR data remain fail-closed rather than being represented as complete.

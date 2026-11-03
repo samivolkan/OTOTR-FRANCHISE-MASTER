@@ -1331,3 +1331,14 @@ Sınırlar: otomatik fotogrametri, üretici model kütüphanesi, buluttan ses/vi
 - Browser security smoke: a stored candidate payload containing `<img ... onerror>` produced 0 injected images and 0 scripts; the UI displayed the idempotently sanitized text instead. Browser console warning/error list was empty.
 - Responsive browser acceptance: desktop 1440×1050 visually reviewed. CDP mobile emulation measured `innerWidth/clientWidth/scrollWidth = 390/390/390`, banner width 390, status width 358 and readiness card width 324; only the navigation rail has its intended internal horizontal scroll.
 - Limits: Docker/local Supabase stack unavailable; no staging/production migration or hosted backup restore was run. All records were synthetic.
+
+## 2026-11-03 — GM İK production-foundation publication acceptance
+
+- Source branch `codex/gm-ik-safe-pilot` code commit `80203aa` was pushed after rebasing on the current source `main`.
+- Static ERP publication commit `6079d7d59a838c7498c1fc2e683495add91cc566` was pushed to `samivolkan/Ototr` `main`.
+- GitHub Pages run `41556872750`: PASS. Archive verification, ERP access-gate injection, artifact upload and deployment completed successfully.
+- Live HTTP acceptance: ERP root, `gm-ik/index.html`, `hr-api-bridge.mjs`, `hr-live-controller.mjs`, `hr-runtime-config.js` and `erp-nav-integration.js` returned HTTP 200.
+- The three runtime JavaScript modules matched the published Git commit exactly. The HTML contained the expected workflow-injected `OTOTR_AUTH_GATE_V1`, live controller reference, real-data lock notice and **GM İK Sistemi** title.
+- The ERP root loaded the GM İK navigation bridge; the live bridge contained the **GM İK Sistemi** heading and `gm-ik` route.
+- Fresh unauthenticated in-app-browser acceptance redirected `/Ototr/gm-ik/` to `Giriş yap · OTOTR V3` while preserving `%2FOtotr%2Fgm-ik%2F` in `returnTo`.
+- Production database migration was intentionally not applied. Item 2 remains excluded, so real-person rows, sensitive HR documents and production approval remain blocked by the reviewed database package.
