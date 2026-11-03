@@ -32,6 +32,8 @@ Atama, retry, çözüm ve dead-letter kararları `integration-error-action-polic
 
 ## Geri dönüş stratejisi
 
+Pre-production geri dönüş kaydı `docs/finance/staging-recovery-evidence.json` dosyasıdır. RTO/RPO onayı, ayrı hedef restore, katalog ve finansal kontrol hash eşitliği, yazma erişimi kapatma, uygulama rollback ve forward-fix tatbikatları `Test-FinanceStagingRecovery.ps1 -RequirePassed` ile doğrulanmadan FIN-G11 kapatılamaz.
+
 - Uygulama hatasında önce yeni yazma yolu feature flag/route seviyesinde kapatılır ve son doğrulanmış uygulama paketi geri alınır.
 - Şema değişikliklerinde down migration uygulanmaz. Geriye uyumlu forward-fix hazırlanır; eski uygulamanın okuyabileceği alanlar korunur.
 - Finansal kayıt silinmez veya overwrite edilmez. İptal ve düzeltmeler orijinal dönem/tahakkuk referansını taşıyan ters kayıtla yapılır.
