@@ -16,7 +16,7 @@ const approvalList={items:[{requestId:approvalRequestId,subjectType:'PASS_THROUG
 const approvalDetail={...approvalList.items[0],snapshotHash:'a'.repeat(64),steps:[{stepNo:1,requiredRole:'finance-expense-approver',decision:null,decidedBy:null,decidedAtUtc:null}]};
 const auditEvent={eventId:'16161616-1616-4616-8616-161616161616',actorId:'15151515-1515-4515-8515-151515151515',actorType:'USER',actionCode:'PASS_THROUGH_EXPENSE_SUBMITTED',subjectType:'PASS_THROUGH_EXPENSE',subjectId:approvalSubjectId,decision:'ALLOW',reasonCode:'SUBMIT',createdAtUtc:'2026-11-03T06:10:00Z',correlationId:governanceCorrelationId,integrityHash:'c'.repeat(64),previousIntegrityHash:'b'.repeat(64)};
 const auditList={items:[auditEvent],nextCursor:null,hasMore:false};
-const auditTrace={correlationId:governanceCorrelationId,items:[auditEvent],eventCount:1,chainProjection:'HASH_REFERENCES_ONLY',rawContextExposed:false};
+const auditTrace={correlationId:governanceCorrelationId,items:[auditEvent],eventCount:1,chainProjection:'SHA256_V2_VERIFIED',chainVerification:{version:'AUDIT_SHA256_V2',checkedEventCount:1,invalidEventCount:0,legacyEventCount:0,valid:true},rawContextExposed:false};
 const mime={'.html':'text/html; charset=utf-8','.js':'text/javascript; charset=utf-8','.mjs':'text/javascript; charset=utf-8','.css':'text/css; charset=utf-8','.svg':'image/svg+xml'};
 
 const api=body=>({getDealerFinanceSummary:summary,getHeadquartersFinanceSummary:headquarters,getFinancePeriod:period,listIntegrationErrors:integrationList,getIntegrationError:integrationDetail,listApprovalWorkItems:approvalList,getApprovalWorkItem:approvalDetail,listAuditEvents:auditList,getAuditCorrelationTrace:auditTrace}[body.operationId]??{items:[],nextCursor:null,hasMore:false});

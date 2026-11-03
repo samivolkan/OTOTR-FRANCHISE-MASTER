@@ -17,7 +17,8 @@ begin
  if jsonb_array_length(v->'items')<>1 or jsonb_array_length(d->'steps')<>1 or d::text like '%must-not-leak%' or d::text like '%secret-evidence-ref%' or d::text like '%subject_snapshot%' then raise exception 'unsafe approval projection: % / %',v,d;end if;
  if jsonb_array_length((finance_api.list_approval_work_items(hq,account2,branch2,null,null,null,25))->'items')<>0 then raise exception 'cross-scope approval leak';end if;
  v:=finance_api.list_audit_events(hq,account,branch,null,null,null,25);t:=finance_api.get_audit_correlation_trace(hq,account,branch,corr);
- if jsonb_array_length(v->'items')<>2 or t->>'eventCount'<>'2' or t->>'rawContextExposed'<>'false' or t::text like '%must-not-leak%' then raise exception 'unsafe audit projection: % / %',v,t;end if;
+ if jsonb_array_length(v->'items')<>2 or t->>'eventCount'<>'2' or t->>'rawContextExposed'<>'false' or t->>'chainProjection'<>'SHA256_V2_VERIFIED' or t#>>'{chainVerification,valid}'<>'true' or t#>>'{chainVerification,checkedEventCount}'<>'2' or t::text like '%must-not-leak%' then raise exception 'unsafe or unverified audit projection: % / %',v,t;end if;
+ if exists(select 1 from finance.audit_events where legal_entity_id=hq and(length(integrity_hash)<>64 or safe_context->>'integrityVersion'<>'AUDIT_SHA256_V2'))then raise exception 'non canonical audit hash persisted';end if;
  if jsonb_array_length((finance_api.list_audit_events(hq,account2,branch2,null,null,null,25))->'items')<>0 then raise exception 'cross-scope audit leak';end if;
  raise notice 'GOVERNANCE READ E2E PASSED: safe projections and cross-scope isolation verified';
 end $test$;
