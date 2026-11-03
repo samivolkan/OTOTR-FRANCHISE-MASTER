@@ -39,6 +39,7 @@ $checks = @(
   'Test-FinanceLocalBackupRestore.ps1',
   'Test-GMFinanceDemoEnvironment.ps1',
   'Test-FinanceUATCoverage.ps1',
+  'Test-FinanceUATExecutionContract.ps1',
   'Test-FinanceCommercialConfiguration.ps1',
   'Test-FinancePreproductionGateEvidence.ps1',
   'Test-FinancePreproductionReadiness.ps1'

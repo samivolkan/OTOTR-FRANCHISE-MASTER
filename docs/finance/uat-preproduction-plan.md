@@ -46,6 +46,12 @@ Her satır için kaynak olay kimliği, correlation ID, sözleşme/kural sürüm�
 
 ## UAT kayıt şablonu
 
+Makinece doğrulanan yürütme kaydı `docs/finance/uat-execution-evidence.json` dosyasıdır. Repository’deki kayıt gerçek staging çalışması yapılana kadar `NOT_SIGNED` kalır. On sekiz senaryonun tamamında farklı uygulayan/onaylayan kurumsal kimliği, doğru onay rolü, sonuç hash’leri, eşit kontrol toplamları ve repository-relative hash’li kanıt bulunmadan aşağıdaki kapı geçmez:
+
+```powershell
+pwsh -NoProfile -File scripts/Test-FinanceUATExecution.ps1 -RequirePassed
+```
+
 Her çalıştırma için aşağıdaki alanlar zorunludur:
 
 - senaryo ID ve test tarihi;
