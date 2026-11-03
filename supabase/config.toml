@@ -69,6 +69,10 @@ verify_jwt = false
 [functions.finance-payment-callback-worker]
 verify_jwt = false
 
+[functions.finance-payment-checkout]
+# Trusted ERP/BFF gateway token is verified by the handler.
+verify_jwt = false
+
 [analytics]
 enabled = true
 port = 55327

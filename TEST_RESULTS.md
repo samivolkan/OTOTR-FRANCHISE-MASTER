@@ -1320,12 +1320,13 @@ Sınırlar: otomatik fotogrametri, üretici model kütüphanesi, buluttan ses/vi
 
 ## 2026-11-03 — GM Finans local acceptance and payment callback validation
 
-- `scripts/Test-FinanceLocalAcceptance.ps1`: PASS, 52/52 checks, `LOCAL_ONLY`, `productionDataUsed: false`.
+- `scripts/Test-FinanceLocalAcceptance.ps1`: PASS, 53/53 checks, `LOCAL_ONLY`, `productionDataUsed: false`.
 - `scripts/Test-FinanceProviderCardPaymentCallbackE2E.ps1`: PASS. Verified ERP branch-manager scoped checkout context, server-derived open amount, token-hash-only idempotent checkout audit, issued royalty invoice callback commit, balanced payment verification journal, full open-item allocation, automatic `LOCKED_OVERDUE -> OPEN`, and replay without duplicate financial records.
 - `scripts/Test-FinancePaymentCallbackWorker.ps1`: PASS. Verified invalid signature denial, strict `SETTLED` payload, deterministic intent hash, safe error masking and absence of raw card fields.
 - `scripts/Test-FinanceBranchOverdueAccessE2E.ps1` and `scripts/Test-FinanceBranchAccessWorker.ps1`: PASS. Verified overdue lock, partial-payment lock retention, full-payment unlock, cross-branch isolation, allowed locked capabilities and service-only ERP gateway contract.
 - `scripts/Test-FinanceBranchAccessMiddleware.ps1`: PASS. Verified guarded-route denial, locked-state payment allowance, outage timeout fail-closed behavior, HTTP status/body mismatch fail-closed behavior, HTTPS-only endpoint and server-only credential requirements.
 - `scripts/Test-FinancePaymentProviderAdapter.ps1`: PASS. Verified provider-neutral canonical checkout, token-only response, raw-card field rejection on both request and response, HTTPS-only redirects, positive amount and future-expiry controls.
 - `scripts/Test-FinancePaymentCheckoutOrchestrator.ps1`: PASS. Verified trusted-gateway authentication, server-derived invoice amount/currency/branch scope, client amount rejection, provider-token hashing and non-exposure, and fail-closed invalid context behavior.
+- `scripts/Test-FinancePaymentCheckoutWorker.ps1`: PASS. Verified deployable Edge route composition, service-role checkout RPC calls, canonical provider HTTPS delivery, secret-bearing headers, server-derived amount/scope and token-hash-only session recording.
 - Migration/deployment manifest, local replay, backup/restore, recovery contract, UAT inventory and `git diff --check`: PASS. Current verified local catalog is 164 total migrations, 136 finance migrations, 52 finance tables and 183 finance API functions.
 - Scope limit: tests used synthetic local data. A real provider is not selected or bound; provider sandbox checkout/3D Secure, staging delivery, real ERP middleware binding and human approvals were not exercised; pre-production remains `NO_GO`.
