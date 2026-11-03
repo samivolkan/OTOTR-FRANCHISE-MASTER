@@ -19,6 +19,8 @@ $checks = @(
   'Test-FinanceGovernanceReadE2E.ps1',
   'Test-FinanceIdentityScopeE2E.ps1',
   'Test-FinanceDataMinimizationE2E.ps1',
+  'Test-FinanceOperationalPerformanceE2E.ps1',
+  'Test-FinanceLocalBackupRestore.ps1',
   'Test-FinanceUATCoverage.ps1'
 )
 
