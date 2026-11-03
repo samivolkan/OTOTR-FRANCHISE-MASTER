@@ -1,6 +1,6 @@
 # Local-only Supabase config for OTOTR.
-# This file was hand-authored because Supabase CLI is not installed on this machine.
-# After installing the CLI, validate with `supabase start` and update only if the CLI requires it.
+# Replay worktree configuration validated against pinned Supabase CLI 3.0.0.
+# Local stack startup still requires an approved Docker-compatible runtime.
 
 project_id = "ototr-local"
 
@@ -14,13 +14,13 @@ max_rows = 1000
 [db]
 port = 55322
 shadow_port = 55320
-major_version = 15
+major_version = 17
 
 [studio]
 enabled = true
 port = 55323
 
-[inbucket]
+[local_smtp]
 enabled = true
 port = 55324
 
@@ -42,3 +42,7 @@ verify_jwt = false
 enabled = true
 port = 55327
 backend = "postgres"
+
+# Use the Supabase CLI 3 schema diff engine explicitly for deterministic replay work.
+[experimental.pgdelta]
+enabled = true

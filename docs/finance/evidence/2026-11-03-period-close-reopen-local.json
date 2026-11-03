@@ -1,0 +1,44 @@
+{
+  "evidenceId": "FIN-E2E-PERIOD-CLOSE-REOPEN-LOCAL-20261103",
+  "status": "PASSED",
+  "evidenceType": "LOCAL_POSTGRES_TRANSACTION_TEST",
+  "environment": {
+    "target": "ototr-local",
+    "database": "Supabase PostgreSQL 17",
+    "productionDataUsed": false,
+    "stagingMutation": false,
+    "productionMutation": false
+  },
+  "scenario": {
+    "initialStatus": "APPROVED",
+    "closedStatus": "LOCKED",
+    "reopenRequestStatus": "REOPEN_PENDING",
+    "terminalStatus": "REOPENED",
+    "reconciliationStatusAfterClose": "LOCKED",
+    "reopenReasonCode": "APPROVED_LATE_DOCUMENT"
+  },
+  "assertions": [
+    "period preparer cannot close the same period",
+    "close requires an approved maker-checker request",
+    "close requires resolved reconciliation and an exact reconciliation snapshot hash",
+    "close locks the period and its reconciliation together",
+    "reopen request requires active document evidence",
+    "reopen approval uses a different actor from the request preparer",
+    "reopen preserves the original source and reconciliation snapshot hashes",
+    "identical reopen approval retry returns REPLAY",
+    "business-date lookup returns the scoped branch period with status and immutable snapshot hashes",
+    "transaction rollback leaves no synthetic finance row"
+  ],
+  "execution": {
+    "command": "pwsh -NoProfile -File scripts/Test-FinancePeriodGovernanceE2E.ps1",
+    "sql": "supabase/tests/finance_period_close_reopen_e2e.sql",
+    "result": "FINANCE PERIOD GOVERNANCE E2E: PASSED"
+  },
+  "limitations": {
+    "calculationQueue": "NOT_COVERED_BY_THIS_SCENARIO",
+    "commercialApproval": "SYNTHETIC_APPROVAL_NOT_A_REAL_FINANCE_SIGNOFF",
+    "uatSignoff": "NOT_RUN",
+    "stagingRun": "NOT_RUN",
+    "preProductionDecision": "NO_GO"
+  }
+}

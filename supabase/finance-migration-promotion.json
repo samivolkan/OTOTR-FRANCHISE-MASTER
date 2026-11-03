@@ -1,0 +1,595 @@
+{
+  "manifestId": "OTOTR-FINANCE-LOCAL-MIGRATION-PROMOTION-V1",
+  "generatedAtUtc": "2026-11-02T22:15:28.3710686+00:00",
+  "sourceRoot": "ototr-finans-modulu/database/supabase",
+  "migrationCount": 73,
+  "applyTarget": "LOCAL_ONLY",
+  "stagingApplied": false,
+  "productionApplied": false,
+  "migrations": [
+    {
+      "version": "20261103010000",
+      "kind": "SCHEMA",
+      "source": "candidate-schema.sql",
+      "sourceSha256": "41F4487E93F417D41FF4405BA57B214CFBB3791DC520969A954AAD4C6D5A5C92",
+      "migration": "20261103010000_finance_schema_foundation.sql",
+      "migrationSha256": "CF5974CD0BA3C31A699F96594AAB4DAFA7E12C63B857A74C818011783D8C7AA2"
+    },
+    {
+      "version": "20261103010001",
+      "kind": "RPC",
+      "source": "candidate-accounting-batch-rpc.sql",
+      "sourceSha256": "A83AA16C61608B1A9BB549205D3CE55D1B48A1B39FA498CCB1E3827E9D74FFC2",
+      "migration": "20261103010001_finance_accounting_batch.sql",
+      "migrationSha256": "C5BFF7BF985ADD243FFB683D21B50FC856FD2496DB0F54590B873E2453BC02B7"
+    },
+    {
+      "version": "20261103010002",
+      "kind": "RPC",
+      "source": "candidate-accounting-export-queue-rpc.sql",
+      "sourceSha256": "35BF4AAAF4EC2817123F5B4AE30B21D2C1E16FB589A42E2043CAB01EB5B66F2C",
+      "migration": "20261103010002_finance_accounting_export_queue.sql",
+      "migrationSha256": "F400D50E818238C3CC1062C25E14CD5CD159B1129C85D7C3D9B81DC3C80E9E63"
+    },
+    {
+      "version": "20261103010003",
+      "kind": "RPC",
+      "source": "candidate-accounting-feedback-rpc.sql",
+      "sourceSha256": "A485E5D76ED956C555FCC3F683D81624DCAD8A0A0225CFC83DC7AAC9A267013E",
+      "migration": "20261103010003_finance_accounting_feedback.sql",
+      "migrationSha256": "C6603640C788CDDA5C1075AA92847DFBD5E57ED2D811EB82DC4A9301757C0B06"
+    },
+    {
+      "version": "20261103010004",
+      "kind": "RPC",
+      "source": "candidate-accrual-calculation-rpc.sql",
+      "sourceSha256": "B278718FD0E3A131863CD7789096755C716D037D70AA406346E249F9975469B9",
+      "migration": "20261103010004_finance_accrual_calculation.sql",
+      "migrationSha256": "E5A17E4EC5AAF050172D229FED38E4555E0D7D35073B809523C412B257F8EDEA"
+    },
+    {
+      "version": "20261103010005",
+      "kind": "RPC",
+      "source": "candidate-accrual-detail-read-rpc.sql",
+      "sourceSha256": "4066C8D0B6767BBFF55C7973435F2D5DEFC426333A7C8ED2D62CAE90412EDC84",
+      "migration": "20261103010005_finance_accrual_detail_read.sql",
+      "migrationSha256": "60211ADCCCDF7DAA03DB4503D8B023C585825E05032F867E7BDA2E3CB72CB722"
+    },
+    {
+      "version": "20261103010006",
+      "kind": "RPC",
+      "source": "candidate-billing-batch-rpc.sql",
+      "sourceSha256": "F3A3E6E34F4B4D0F4CC9755BC2391FF6406B5221885693B1E9237E44C2A2A172",
+      "migration": "20261103010006_finance_billing_batch.sql",
+      "migrationSha256": "D4F9B285065677BC7855040C4EAD563F3A482A65C498ECD15078CDE0F0786C96"
+    },
+    {
+      "version": "20261103010007",
+      "kind": "RPC",
+      "source": "candidate-contract-version-approve-rpc.sql",
+      "sourceSha256": "CEB0ADE6CC9F0173CBED4C88E5E70E306E61FA14E9E1FCD85EA5989E2C30126F",
+      "migration": "20261103010007_finance_contract_version_approve.sql",
+      "migrationSha256": "4C28B888D6A3B2E3EA7FAC1E1CCACA4EA3DF4C152EF81CDD6E9674497211B874"
+    },
+    {
+      "version": "20261103010008",
+      "kind": "RPC",
+      "source": "candidate-contract-version-create-rpc.sql",
+      "sourceSha256": "B32FEBA54F9BC304CD02C9E007571D20CDCB6E443647BC5D18F41545A52EA915",
+      "migration": "20261103010008_finance_contract_version_create.sql",
+      "migrationSha256": "E6C8CE1DB7B41F0C198666B0D8E931069CB545D99EB1683741D74BEC713A2FD7"
+    },
+    {
+      "version": "20261103010009",
+      "kind": "RPC",
+      "source": "candidate-contract-version-list-rpc.sql",
+      "sourceSha256": "248C1806AC6BAD50F335C9A39C44F9B94E69A34E8CA1C6AB68045E81481E2F15",
+      "migration": "20261103010009_finance_contract_version_list.sql",
+      "migrationSha256": "672F28E60D9132F5E86AAF30DA1F0EBF537CFEC2B6D918E9955D26443C42A213"
+    },
+    {
+      "version": "20261103010010",
+      "kind": "RPC",
+      "source": "candidate-contract-version-replace-rpc.sql",
+      "sourceSha256": "AC4C99C0269C9AEC2B78DB35D740DFFD349CF0D74F5F8F06CAB039CF5147E61A",
+      "migration": "20261103010010_finance_contract_version_replace.sql",
+      "migrationSha256": "224429028685BFF5FDAA5F791242E56D4780552DF9A876C7C1FF74986871A0AF"
+    },
+    {
+      "version": "20261103010011",
+      "kind": "RPC",
+      "source": "candidate-contract-version-submit-rpc.sql",
+      "sourceSha256": "28664BA2B796D6895E08011C450CD1EBAA01CF326E3F7F2F8FB1CA1658D7B337",
+      "migration": "20261103010011_finance_contract_version_submit.sql",
+      "migrationSha256": "D5596B63A326D65B96ABC750584F75C46341C9D59AF87E608121F89D671CC850"
+    },
+    {
+      "version": "20261103010012",
+      "kind": "RPC",
+      "source": "candidate-dealer-finance-summary-rpc.sql",
+      "sourceSha256": "C81C07205A5E6339D893097C26BAF727464D299608D69E6DC6951F05702D44B6",
+      "migration": "20261103010012_finance_dealer_finance_summary.sql",
+      "migrationSha256": "1208DC690ED5D1CC886927C8E365371C866751CED6A47692038E0C1750CED1F1"
+    },
+    {
+      "version": "20261103010013",
+      "kind": "RPC",
+      "source": "candidate-dealer-statement-read-rpc.sql",
+      "sourceSha256": "F811346A4D6F7C0DFDDE2A838CF684B05489D321B63015BF6136586029451624",
+      "migration": "20261103010013_finance_dealer_statement_read.sql",
+      "migrationSha256": "EBEB8A20CA9089410C83531C1F9466FC0B4DE07A105D665B62777ADA4FF330F6"
+    },
+    {
+      "version": "20261103010014",
+      "kind": "RPC",
+      "source": "candidate-dispute-create-rpc.sql",
+      "sourceSha256": "0FB99AADA6EC0E5F5717D66C959F8EE1F37732C2C55D5C35432ADB6AB6A0E698",
+      "migration": "20261103010014_finance_dispute_create.sql",
+      "migrationSha256": "38C859DAD423DC1E3F992D06C95C54AF1638CCA4A7073026EE00F9D22CA7949A"
+    },
+    {
+      "version": "20261103010015",
+      "kind": "RPC",
+      "source": "candidate-dispute-decision-rpc.sql",
+      "sourceSha256": "F7A2A11C98733115A8560E90EE736CFA8DB388FDB9462EB8EB6C8784F51A5220",
+      "migration": "20261103010015_finance_dispute_decision.sql",
+      "migrationSha256": "CAF3246583F0707604090EC90B64E26C65246F835E7690F492F838FDA45149A5"
+    },
+    {
+      "version": "20261103010016",
+      "kind": "RPC",
+      "source": "candidate-dispute-submit-rpc.sql",
+      "sourceSha256": "2701EF0433354969A653C861DEEAC8027F504F1C68D57539B1249DA793144E19",
+      "migration": "20261103010016_finance_dispute_submit.sql",
+      "migrationSha256": "8450F62AC16611E4156CE6A5B9B3E59AB61A813A923CF8E0F65A08CF4B2D8536"
+    },
+    {
+      "version": "20261103010017",
+      "kind": "RPC",
+      "source": "candidate-expense-approval-submit-rpc.sql",
+      "sourceSha256": "2DBE70A1580B5003D3D865B27FAEE7C7A70866E761A7410A5FDDDC508B3AAA2C",
+      "migration": "20261103010017_finance_expense_approval_submit.sql",
+      "migrationSha256": "A99BFE8ED32B3F5B6A514CE8FEE77F43B18A3AA0B07A10C436E51A6A924CC502"
+    },
+    {
+      "version": "20261103010018",
+      "kind": "RPC",
+      "source": "candidate-expense-approve-rpc.sql",
+      "sourceSha256": "890601C3904EFF8504E64ACB545E45E47255CF98725238B52B275519304A93FC",
+      "migration": "20261103010018_finance_expense_approve.sql",
+      "migrationSha256": "F2CB80A7456CE06419CC0708BF965EB4432BED32458C643347781CAD1F18B353"
+    },
+    {
+      "version": "20261103010019",
+      "kind": "RPC",
+      "source": "candidate-expense-share-calculation-rpc.sql",
+      "sourceSha256": "69E0986D5CA4C5314D66671C0BC7391CCB0A3330F13ACC98034443E4FD13DD1A",
+      "migration": "20261103010019_finance_expense_share_calculation.sql",
+      "migrationSha256": "25C9EBA3248B74D43B8B9EBC63FE72755D6DC7189E8F305FF95F3DA3DC3D7EC7"
+    },
+    {
+      "version": "20261103010020",
+      "kind": "RPC",
+      "source": "candidate-fee-rule-activation-rpc.sql",
+      "sourceSha256": "CCCF4A32BA29C1F1724649D37E13115889F2E7DF3CC6470380E05DF62C8F02AD",
+      "migration": "20261103010020_finance_fee_rule_activation.sql",
+      "migrationSha256": "CE808419D09F7F55F654E8D11028F375217ACAA21AAAD29AFB99021566FEAA84"
+    },
+    {
+      "version": "20261103010021",
+      "kind": "RPC",
+      "source": "candidate-fee-rule-create-rpc.sql",
+      "sourceSha256": "095D69019BB457568DC8BDB495000D8AA7DA99CA69BF011306927020F5F0DAEE",
+      "migration": "20261103010021_finance_fee_rule_create.sql",
+      "migrationSha256": "B83DEECD801FDB3F57C2FF631ACA39740373AA1F3D564E13B79B1195130602AC"
+    },
+    {
+      "version": "20261103010022",
+      "kind": "RPC",
+      "source": "candidate-fee-rule-discard-rpc.sql",
+      "sourceSha256": "5A5D34275F1346CBE61882D8BD940B7AC90C5119DE71B3D9E948DC4F58A3EF4A",
+      "migration": "20261103010022_finance_fee_rule_discard.sql",
+      "migrationSha256": "B4D8C321920A72448725FF06F1A587C5C21C978D12BA8A48939584C3144145E3"
+    },
+    {
+      "version": "20261103010023",
+      "kind": "RPC",
+      "source": "candidate-fee-rule-read-rpc.sql",
+      "sourceSha256": "D98075D79D7296074471113ECC048ED8028EDC000174D05BBA86817029ACCCCA",
+      "migration": "20261103010023_finance_fee_rule_read.sql",
+      "migrationSha256": "3E05573A495717E3464D5477EDFA213EB5F3C9584056491AB046E41F92BC133D"
+    },
+    {
+      "version": "20261103010024",
+      "kind": "RPC",
+      "source": "candidate-fee-rule-update-rpc.sql",
+      "sourceSha256": "764791BF9EF0F85977C5E512821E0A462E9CBFCAAB86B1AC7569B355B746298C",
+      "migration": "20261103010024_finance_fee_rule_update.sql",
+      "migrationSha256": "5E341058E4F70C4FAD5F333BA45621AA42735772A92C5BE679AEA08C56514FAF"
+    },
+    {
+      "version": "20261103010025",
+      "kind": "RPC",
+      "source": "candidate-finance-period-calculation-rpc.sql",
+      "sourceSha256": "28B1632C39BC11C981732F9DFC9651F9669F9171222AEE798805C54E120EC2B4",
+      "migration": "20261103010025_finance_finance_period_calculation.sql",
+      "migrationSha256": "E498B6E2CD584172C860625EC0D5808C5948E23EDFE083DBA427786F96EB0125"
+    },
+    {
+      "version": "20261103010026",
+      "kind": "RPC",
+      "source": "candidate-finance-period-create-rpc.sql",
+      "sourceSha256": "B0273189C3EB0AF63D9C081D61A4249DF47444C6FCB4614290BC95558C64FFC5",
+      "migration": "20261103010026_finance_finance_period_create.sql",
+      "migrationSha256": "87AF595A7299C9CF42321A651DAF9EF9488AE6DC8F77C9B01AEE1F56ED1F1978"
+    },
+    {
+      "version": "20261103010027",
+      "kind": "RPC",
+      "source": "candidate-finance-period-read-rpc.sql",
+      "sourceSha256": "6B0F0004B0264522AE284985E4FD20BC79F576CDD799DCB14DD52AB045A93565",
+      "migration": "20261103010027_finance_finance_period_read.sql",
+      "migrationSha256": "185265D9EC3150E0CBBCB4E475384C1E17321E0FC69B8DDDA7013C861D26DD78"
+    },
+    {
+      "version": "20261103010028",
+      "kind": "RPC",
+      "source": "candidate-finance-period-reopen-rpc.sql",
+      "sourceSha256": "B9FA845E155146EF5DEE321878F7D668768B8021B7658EDF05DD689CD6DD77D7",
+      "migration": "20261103010028_finance_finance_period_reopen.sql",
+      "migrationSha256": "3BBBF1DD0A76D9B8064D447BF70B769FAF07D3111150AC6789C28B64B1329EBF"
+    },
+    {
+      "version": "20261103010029",
+      "kind": "RPC",
+      "source": "candidate-franchise-contract-create-rpc.sql",
+      "sourceSha256": "E9245C708997E6A76BFBCD86D0EDE1E64D20ADFB9E394D0EDBCF7676A3183CB7",
+      "migration": "20261103010029_finance_franchise_contract_create.sql",
+      "migrationSha256": "71D30AF68D216050FAA7591338466B93CD1D5C73298FDAD32213288DCBF9CCB7"
+    },
+    {
+      "version": "20261103010030",
+      "kind": "RPC",
+      "source": "candidate-franchise-contract-discard-rpc.sql",
+      "sourceSha256": "09CABFFB889845B3388AA652E38B7C66C0158D31DCEB12CE12C7EFFB021463EA",
+      "migration": "20261103010030_finance_franchise_contract_discard.sql",
+      "migrationSha256": "CDEFBABFC90CBEAD5B82F3C2AD7057F0E5EF7BDF8EB4A187819A143E675ED378"
+    },
+    {
+      "version": "20261103010031",
+      "kind": "RPC",
+      "source": "candidate-franchise-contract-read-rpc.sql",
+      "sourceSha256": "21C166BADC55B44A652D0FF90678DD73270EF65A2FE3EC4C78EF5BD7D9C47AC1",
+      "migration": "20261103010031_finance_franchise_contract_read.sql",
+      "migrationSha256": "5C3FE0AD7EA867F703E8FA9BC7A2FD787E05F67CBAD8BDEFA6381693512DEFA8"
+    },
+    {
+      "version": "20261103010032",
+      "kind": "RPC",
+      "source": "candidate-franchise-contract-update-rpc.sql",
+      "sourceSha256": "FEAD23B6FE89398FE2A9DC4BD49C971305A6AD865AD5E8C6CB42DA4DDD235AC6",
+      "migration": "20261103010032_finance_franchise_contract_update.sql",
+      "migrationSha256": "13D58807064C31B0B4E8734B877E37A5BA1C9A32C2890504A096A4C85A1F7D87"
+    },
+    {
+      "version": "20261103010033",
+      "kind": "RPC",
+      "source": "candidate-integration-error-read-rpc.sql",
+      "sourceSha256": "C0355F6D45C0A72117C2FEA15AEBB73BE29D8D294EF1976D901DD03FB595116D",
+      "migration": "20261103010033_finance_integration_error_read.sql",
+      "migrationSha256": "B3C7E1EE5E3258862A33ABCFF5DFAC0123991CCCE7B5D2E1E43782529FAE9ACB"
+    },
+    {
+      "version": "20261103010034",
+      "kind": "RPC",
+      "source": "candidate-integration-error-retry-rpc.sql",
+      "sourceSha256": "9F0302712BE5F8E799252E20FDB93D5992704F699C3E0764B1048106C8723C78",
+      "migration": "20261103010034_finance_integration_error_retry.sql",
+      "migrationSha256": "D404C70DD2E18C910806B836975B315A6777B02009362F45CC583C079C8CD18D"
+    },
+    {
+      "version": "20261103010035",
+      "kind": "RPC",
+      "source": "candidate-invoice-callback-rpc.sql",
+      "sourceSha256": "F9868FBFC35A09D55F7A34944F11F2BCA891F996B9D20890B782F831A1FAFD44",
+      "migration": "20261103010035_finance_invoice_callback.sql",
+      "migrationSha256": "AC82BED13F416496D3A438E27F9AEEDE9A82A3CEF8A4F1DEA5F1E42D5795BD77"
+    },
+    {
+      "version": "20261103010036",
+      "kind": "RPC",
+      "source": "candidate-invoice-dispatch-rpc.sql",
+      "sourceSha256": "AA206A92F535E2B7A984E649A037DC9EE0CC4079E262F9A54DCAA09BE1CA81CC",
+      "migration": "20261103010036_finance_invoice_dispatch.sql",
+      "migrationSha256": "643934914B9CEA329F755ABED46D5C44056C5092B9ED445905DF317321302DE9"
+    },
+    {
+      "version": "20261103010037",
+      "kind": "RPC",
+      "source": "candidate-outbox-publisher-rpc.sql",
+      "sourceSha256": "175F6E6E11CBEA8E98DCB2B5A01FBF1B4A0697BE651ABDDA71C688FB79D5DD1A",
+      "migration": "20261103010037_finance_outbox_publisher.sql",
+      "migrationSha256": "FA1DB3DA274394EA2D6609AD64D953CC89FFCBB3D9C75B7CB8A257C93AE100E4"
+    },
+    {
+      "version": "20261103010038",
+      "kind": "RPC",
+      "source": "candidate-pass-through-expense-create-rpc.sql",
+      "sourceSha256": "FB5B133AF5E51C8AD70363F98FDFF496D17AAE2ADC079C165114A40618111E22",
+      "migration": "20261103010038_finance_pass_through_expense_create.sql",
+      "migrationSha256": "72E2CE601408FBE4F0A1BDBB22D6872A938C511E7A38B146C9866CAA453B5289"
+    },
+    {
+      "version": "20261103010039",
+      "kind": "RPC",
+      "source": "candidate-pass-through-expense-posting-rpc.sql",
+      "sourceSha256": "7B3401D0D2D345719244009C76B5FED6CDCC1F10C34A3B9033E3F31365C29281",
+      "migration": "20261103010039_finance_pass_through_expense_posting.sql",
+      "migrationSha256": "FC59C5D38093AF6617B633595DE487ADBDCDC9568C4E4D4816ADB8A0D06A2264"
+    },
+    {
+      "version": "20261103010040",
+      "kind": "RPC",
+      "source": "candidate-pass-through-expense-reversal-rpc.sql",
+      "sourceSha256": "606CE031ABCEABE337CD05518102AB8D0A0A6D5755FA7656DF8ABAA9C3F4BBF0",
+      "migration": "20261103010040_finance_pass_through_expense_reversal.sql",
+      "migrationSha256": "B002FB0B5DCE92CC77D9278E664BE1AC408C56AF63765C4DA62AE3FE7F1F6EE8"
+    },
+    {
+      "version": "20261103010041",
+      "kind": "RPC",
+      "source": "candidate-payment-allocation-reversal-rpc.sql",
+      "sourceSha256": "A5A15A09519EC7F413B7702260E8C2C9FC31CAE7E35ED129E391EA791DA8354C",
+      "migration": "20261103010041_finance_payment_allocation_reversal.sql",
+      "migrationSha256": "34AED1A01374483DB10A60DF0CD9D2A41473922C52F6B566E808974037283971"
+    },
+    {
+      "version": "20261103010042",
+      "kind": "RPC",
+      "source": "candidate-payment-allocation-rpc.sql",
+      "sourceSha256": "E9771AB1B104EB2D462970C08879467331BAEF9867C9707B6D69C62C53419C33",
+      "migration": "20261103010042_finance_payment_allocation.sql",
+      "migrationSha256": "948DB731A7782B8C0E5D5F6569CD3B903221EFC51CB1ECCA8D30A89D99EE234B"
+    },
+    {
+      "version": "20261103010043",
+      "kind": "RPC",
+      "source": "candidate-payment-create-rpc.sql",
+      "sourceSha256": "3B37A5276BF4EC50F14A81C01EDDE51AACE9AB762E825311FF06B5B12B4B3FBE",
+      "migration": "20261103010043_finance_payment_create.sql",
+      "migrationSha256": "B2BD070F18C818FDC8B5A0E8A2898B5D8A47025F5A56C9D3448364733F69CAB5"
+    },
+    {
+      "version": "20261103010044",
+      "kind": "RPC",
+      "source": "candidate-payment-read-rpc.sql",
+      "sourceSha256": "9A465CD5D186F638507CBA548820C00089DEC2B50B50CEDF6984079B640F7170",
+      "migration": "20261103010044_finance_payment_read.sql",
+      "migrationSha256": "7508EA32424B3F7E063257000E1D6001F74AB5D83C1920ABD344AEB4BF7048F1"
+    },
+    {
+      "version": "20261103010045",
+      "kind": "RPC",
+      "source": "candidate-payment-verification-rpc.sql",
+      "sourceSha256": "2EB80A89852E775A00551F76911D93B261E5FC81FBC9914F9121493FA3056D84",
+      "migration": "20261103010045_finance_payment_verification.sql",
+      "migrationSha256": "EFB086BD01B338C5D78E4FCCF24BBDF2CAAEB614B2ACF7B270D40C203AF453B7"
+    },
+    {
+      "version": "20261103010046",
+      "kind": "RPC",
+      "source": "candidate-period-closing-rpc.sql",
+      "sourceSha256": "797DA67478661A8CBE68C7C00F78D5DA3EC0FE343B6236E75601C102819E2649",
+      "migration": "20261103010046_finance_period_closing.sql",
+      "migrationSha256": "E7E1A5CC252983F056DB9DFA1B58528539CE54712D13BB9DA2B40CB47D08C069"
+    },
+    {
+      "version": "20261103010047",
+      "kind": "RPC",
+      "source": "candidate-royalty-refund-read-rpc.sql",
+      "sourceSha256": "A75E612E661C638B2611A593E5A9D3B794857222BF565A4DF57C450499A37704",
+      "migration": "20261103010047_finance_royalty_refund_read.sql",
+      "migrationSha256": "7ECD92CEE3231EAC135F12C6BD03EF2D88136904D5EF1D460DE37E297F10C23D"
+    },
+    {
+      "version": "20261103010048",
+      "kind": "RPC",
+      "source": "candidate-royalty-refund-reversal-rpc.sql",
+      "sourceSha256": "BE74EFF022D0E4ED73CF4FF6D4DD8FD561B361CFFCBF85B83BCCE047D6585F32",
+      "migration": "20261103010048_finance_royalty_refund_reversal.sql",
+      "migrationSha256": "735C2D612C3EF6AA9CC17CEC0364BA9BEB914363A551B0A3DCFF4FEAC580FDC9"
+    },
+    {
+      "version": "20261103010049",
+      "kind": "RPC",
+      "source": "candidate-source-event-rpc.sql",
+      "sourceSha256": "8DC07BD6D727263E341AE376859EA0C538D2A1C2CB56691A313199918F0BB223",
+      "migration": "20261103010049_finance_source_event.sql",
+      "migrationSha256": "64E2F47C2104076E142F7177D71975DC461DBC08A3D13A09150602842600B015"
+    },
+    {
+      "version": "20261103010050",
+      "kind": "RPC",
+      "source": "candidate-source-event-status-read-rpc.sql",
+      "sourceSha256": "4FDC5B20733DC919219734E72CCF940A578720D2C2922ADB29C3139ADBF746DF",
+      "migration": "20261103010050_finance_source_event_status_read.sql",
+      "migrationSha256": "C56DE9EC922284000261B281A2CC05B78AEEE741DF57D9E9964C97031FBA05FD"
+    },
+    {
+      "version": "20261103010051",
+      "kind": "SECURITY",
+      "source": "candidate-erp-finance-identity-bridge.sql",
+      "sourceSha256": "A460E7B74D619FED35B2527C7319E5CDEB937223FDF604D629B70C996C57AABF",
+      "migration": "20261103010051_finance_erp_identity_bridge.sql",
+      "migrationSha256": "E14F03A6D3CFF7EC962386478C43DD4FE0ACA3C76A4528F60691B2FF760BA409"
+    },
+    {
+      "version": "20261103010052",
+      "kind": "SECURITY",
+      "source": "internal-review-refund-trace-identity-fix",
+      "sourceSha256": "0F8497A4D6289A4689B52926D333BFD129BC14AE146DC9C5EB219781C761E256",
+      "migration": "20261103010052_finance_refund_trace_identity_bridge.sql",
+      "migrationSha256": "0F8497A4D6289A4689B52926D333BFD129BC14AE146DC9C5EB219781C761E256"
+    },
+    {
+      "version": "20261103010053",
+      "kind": "RPC",
+      "source": "internal-review-refund-trace-by-accrual",
+      "sourceSha256": "E9F40C02EC1F266E3936B6AE2462D2DD7636701505547FE70A3B53F38F5876AC",
+      "migration": "20261103010053_finance_refund_trace_by_accrual.sql",
+      "migrationSha256": "E9F40C02EC1F266E3936B6AE2462D2DD7636701505547FE70A3B53F38F5876AC"
+    },
+    {
+      "version": "20261103010054",
+      "kind": "RPC",
+      "source": "internal-review-current-finance-period",
+      "sourceSha256": "B51709251857381FD9F03ED447A396F46BC71D398BE7347DF46B2447CDA07766",
+      "migration": "20261103010054_finance_current_period_read.sql",
+      "migrationSha256": "B51709251857381FD9F03ED447A396F46BC71D398BE7347DF46B2447CDA07766"
+    },
+    {
+      "version": "20261103010055",
+      "kind": "SECURITY",
+      "source": "internal-review-payment-list-identity-bridge",
+      "sourceSha256": "7BF4685CF5C1827F9EEFCC397407245809DB77BB0825D751B069E2D28C568BE0",
+      "migration": "20261103010055_finance_payment_list_identity_bridge.sql",
+      "migrationSha256": "7BF4685CF5C1827F9EEFCC397407245809DB77BB0825D751B069E2D28C568BE0"
+    },
+    {
+      "version": "20261103010056",
+      "kind": "RPC",
+      "source": "internal-review-payment-list-read",
+      "sourceSha256": "9B789CE0C715F7F56274AAEDE032523240C0BEBD75D32DE50FD983848C1DE6A1",
+      "migration": "20261103010056_finance_payment_list_read.sql",
+      "migrationSha256": "9B789CE0C715F7F56274AAEDE032523240C0BEBD75D32DE50FD983848C1DE6A1"
+    },
+    {
+      "version": "20261103010057",
+      "kind": "SECURITY",
+      "source": "internal-review-contract-read-identity-bridge",
+      "sourceSha256": "3F3EEC223E743F582A9C47B374B81F6563D4B245B8539BA2107B6D2CC3A424F8",
+      "migration": "20261103010057_finance_contract_read_identity_bridge.sql",
+      "migrationSha256": "3F3EEC223E743F582A9C47B374B81F6563D4B245B8539BA2107B6D2CC3A424F8"
+    },
+    {
+      "version": "20261103010058",
+      "kind": "RPC",
+      "source": "internal-review-contract-rule-read-models",
+      "sourceSha256": "E77EDBC25BCDEC52EE6A112858FE58E6E7E2F332DC288E3B667566EE83D82740",
+      "migration": "20261103010058_finance_contract_rule_read_models.sql",
+      "migrationSha256": "E77EDBC25BCDEC52EE6A112858FE58E6E7E2F332DC288E3B667566EE83D82740"
+    },
+    {
+      "version": "20261103010059",
+      "kind": "SECURITY",
+      "source": "internal-review-refund-list-identity-bridge",
+      "sourceSha256": "F031F83BC7EA46C4800C9C1A1E8A240E0094BC7C0CA3BFF052F24E2F44C48818",
+      "migration": "20261103010059_finance_refund_list_identity_bridge.sql",
+      "migrationSha256": "F031F83BC7EA46C4800C9C1A1E8A240E0094BC7C0CA3BFF052F24E2F44C48818"
+    },
+    {
+      "version": "20261103010060",
+      "kind": "RPC",
+      "source": "internal-review-refund-list-read",
+      "sourceSha256": "1E809763910803EDD04E584FF723764C978007E0180B567CF576E0A1192C7F5A",
+      "migration": "20261103010060_finance_refund_list_read.sql",
+      "migrationSha256": "1E809763910803EDD04E584FF723764C978007E0180B567CF576E0A1192C7F5A"
+    },
+    {
+      "version": "20261103010061",
+      "kind": "SECURITY",
+      "source": "internal-review-headquarters-summary-identity",
+      "sourceSha256": "0E5ABB718DFB563BD3A0CE8A438D9FB462C6B6B4062D7B0C8C6EE86F121ECE3D",
+      "migration": "20261103010061_finance_headquarters_summary_identity.sql",
+      "migrationSha256": "0E5ABB718DFB563BD3A0CE8A438D9FB462C6B6B4062D7B0C8C6EE86F121ECE3D"
+    },
+    {
+      "version": "20261103010062",
+      "kind": "RPC",
+      "source": "internal-review-headquarters-summary-read",
+      "sourceSha256": "4E5CB28A87D20ECD2A9F7772F757BAFB12C9F8EE1AAB12DB09B4200A9C73ED49",
+      "migration": "20261103010062_finance_headquarters_summary_read.sql",
+      "migrationSha256": "4E5CB28A87D20ECD2A9F7772F757BAFB12C9F8EE1AAB12DB09B4200A9C73ED49"
+    },
+    {
+      "version": "20261103010063",
+      "kind": "SECURITY",
+      "source": "internal-review-service-usage-identity-bridge",
+      "sourceSha256": "CFEC4CF7793A914454D747DD59DDDD0AD3CFD2485296DAF8B23F8BD9D0578EFD",
+      "migration": "20261103010063_finance_service_usage_identity_bridge.sql",
+      "migrationSha256": "CFEC4CF7793A914454D747DD59DDDD0AD3CFD2485296DAF8B23F8BD9D0578EFD"
+    },
+    {
+      "version": "20261103010064",
+      "kind": "RPC",
+      "source": "internal-review-service-usage-read",
+      "sourceSha256": "52A723746CB8809120664E378F02B3AF4E50B639DF40B7D9BDBB50F14AE9BB32",
+      "migration": "20261103010064_finance_service_usage_read.sql",
+      "migrationSha256": "52A723746CB8809120664E378F02B3AF4E50B639DF40B7D9BDBB50F14AE9BB32"
+    },
+    {
+      "version": "20261103010065",
+      "kind": "SECURITY",
+      "source": "internal-review-expense-read-identity",
+      "sourceSha256": "33B0C0B123027398CB22C391E8073C9D93126BA25D58C68C000F154337BFACC9",
+      "migration": "20261103010065_finance_expense_read_identity.sql",
+      "migrationSha256": "33B0C0B123027398CB22C391E8073C9D93126BA25D58C68C000F154337BFACC9"
+    },
+    {
+      "version": "20261103010066",
+      "kind": "RPC",
+      "source": "internal-review-expense-read-models",
+      "sourceSha256": "78780F377C7E475B5300C0146DEADB0BBEDB8C9E706C6FA5A4C34D758503600C",
+      "migration": "20261103010066_finance_expense_read_models.sql",
+      "migrationSha256": "78780F377C7E475B5300C0146DEADB0BBEDB8C9E706C6FA5A4C34D758503600C"
+    },
+    {
+      "version": "20261103010067",
+      "kind": "SECURITY",
+      "source": "internal-review-dispute-read-identity",
+      "sourceSha256": "7F1A85AFBCDFD3D0A19AF1C588A3ECF585222DF921202C781C7B4BA5A17B0ECC",
+      "migration": "20261103010067_finance_dispute_read_identity.sql",
+      "migrationSha256": "7F1A85AFBCDFD3D0A19AF1C588A3ECF585222DF921202C781C7B4BA5A17B0ECC"
+    },
+    {
+      "version": "20261103010068",
+      "kind": "RPC",
+      "source": "internal-review-dispute-read-models",
+      "sourceSha256": "B57E14F0D0E2B6C7583A56C1AA096412A7DAAC77D5A636CF65ACD4233783A501",
+      "migration": "20261103010068_finance_dispute_read_models.sql",
+      "migrationSha256": "B57E14F0D0E2B6C7583A56C1AA096412A7DAAC77D5A636CF65ACD4233783A501"
+    },
+    {
+      "version": "20261103010069",
+      "kind": "SECURITY",
+      "source": "internal-review-export-read-identity",
+      "sourceSha256": "64F833371BC00310F85CBE9EAEB6DBE46267193E5469FE2E84E272D2DB3AB84E",
+      "migration": "20261103010069_finance_export_read_identity.sql",
+      "migrationSha256": "64F833371BC00310F85CBE9EAEB6DBE46267193E5469FE2E84E272D2DB3AB84E"
+    },
+    {
+      "version": "20261103010070",
+      "kind": "RPC",
+      "source": "internal-review-export-read-models",
+      "sourceSha256": "FAFAD3FEFFC88593D0CE7579C2A6FC857A2D63AEBCACADF68C563856D4CC1FB6",
+      "migration": "20261103010070_finance_export_read_models.sql",
+      "migrationSha256": "FAFAD3FEFFC88593D0CE7579C2A6FC857A2D63AEBCACADF68C563856D4CC1FB6"
+    },
+    {
+      "version": "20261103010071",
+      "kind": "SECURITY",
+      "source": "internal-review-integration-read-identity",
+      "sourceSha256": "2926F94AE2245FA2847C31937FA6D638D6060F12412F0C55A352E2F0528702DE",
+      "migration": "20261103010071_finance_integration_read_identity.sql",
+      "migrationSha256": "2926F94AE2245FA2847C31937FA6D638D6060F12412F0C55A352E2F0528702DE"
+    },
+    {
+      "version": "20261103010072",
+      "kind": "RPC",
+      "source": "internal-review-integration-error-detail-read",
+      "sourceSha256": "0870AE7554EEFBBF59325EF596580F253A7DBD11DBE3E77D296F4DD844750070",
+      "migration": "20261103010072_finance_integration_error_detail_read.sql",
+      "migrationSha256": "0870AE7554EEFBBF59325EF596580F253A7DBD11DBE3E77D296F4DD844750070"
+    }
+  ]
+}

@@ -1,0 +1,48 @@
+{
+  "evidenceId": "FIN-E2E-PASS-THROUGH-EXPENSE-LOCAL-20261103",
+  "status": "PASSED",
+  "evidenceType": "LOCAL_POSTGRES_TRANSACTION_TEST",
+  "environment": {
+    "target": "ototr-local",
+    "database": "Supabase PostgreSQL 17",
+    "productionDataUsed": false,
+    "stagingMutation": false,
+    "productionMutation": false
+  },
+  "scenario": {
+    "currency": "TRY",
+    "sourceExpenseNet": "1000.00000000",
+    "sourceExpenseTax": "200.00000000",
+    "sourceExpenseGross": "1200.00000000",
+    "allocationMethod": "EQUAL",
+    "branchCount": 2,
+    "grossPerBranch": "600.00000000",
+    "makerChecker": "DISTINCT_ACTORS",
+    "debitOpenItemsTotal": "1200.00000000",
+    "reversalCreditItemsTotal": "1200.00000000",
+    "terminalStatus": "REVERSED"
+  },
+  "assertions": [
+    "expense is created from an active supplier document reference",
+    "equal allocation creates two branch shares of 600 TRY",
+    "maker and checker are different actors",
+    "approval is required before posting",
+    "posting creates two DEBIT open items totaling 1200 TRY",
+    "reversal creates two CREDIT open items totaling 1200 TRY",
+    "reversal journal references the original journal",
+    "original and reversal journal entries are balanced",
+    "expense reaches REVERSED terminal status",
+    "transaction rollback leaves no synthetic finance row"
+  ],
+  "execution": {
+    "command": "pwsh -NoProfile -File scripts/Test-FinancePassThroughExpenseE2E.ps1",
+    "sql": "supabase/tests/finance_pass_through_expense_lifecycle_e2e.sql",
+    "result": "FINANCE PASS-THROUGH EXPENSE E2E: PASSED"
+  },
+  "limitations": {
+    "allocationPolicy": "SYNTHETIC_TEST_VECTOR_NOT_A_BUSINESS_RATE_APPROVAL",
+    "uatSignoff": "NOT_RUN",
+    "stagingRun": "NOT_RUN",
+    "preProductionDecision": "NO_GO"
+  }
+}

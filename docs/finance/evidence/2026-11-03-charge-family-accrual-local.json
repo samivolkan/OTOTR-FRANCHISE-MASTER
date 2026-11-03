@@ -1,0 +1,49 @@
+{
+  "evidenceId": "FIN-E2E-CHARGE-FAMILY-ACCRUAL-LOCAL-20261103",
+  "status": "PASSED",
+  "evidenceType": "LOCAL_POSTGRES_TRANSACTION_TEST",
+  "environment": {
+    "target": "ototr-local",
+    "database": "Supabase PostgreSQL 17",
+    "productionDataUsed": false,
+    "stagingMutation": false,
+    "productionMutation": false
+  },
+  "familiesVerified": [
+    "ENTRY_FRANCHISE",
+    "QUERY",
+    "EXTERNAL_SERVICE",
+    "OPTIONAL_PRODUCT_SERVICE"
+  ],
+  "scenario": {
+    "currency": "TRY",
+    "grossTotal": "1980.00000000",
+    "calculationRuns": 4,
+    "postedAccruals": 4,
+    "balancedJournals": 4,
+    "branchDebitOpenItems": 4,
+    "duplicateRunsCreatedByRetry": 0
+  },
+  "assertions": [
+    "each family resolves through an active franchise contract and configured fee rule",
+    "each family category is preserved in the server-resolved rule context",
+    "each family creates one posted accrual and one branch debit open item",
+    "each accounting journal is balanced",
+    "authorized accrual detail projection returns calculation snapshot, open item and at least two journal lines",
+    "identical retry returns REPLAY and creates no duplicate calculation run",
+    "transaction rollback leaves no synthetic finance row"
+  ],
+  "execution": {
+    "command": "pwsh -NoProfile -File scripts/Test-FinanceChargeFamiliesE2E.ps1",
+    "sql": "supabase/tests/finance_charge_family_accrual_e2e.sql",
+    "result": "FINANCE CHARGE FAMILY E2E: PASSED"
+  },
+  "limitations": {
+    "commercialValues": "SYNTHETIC_TEST_VECTORS_NOT_APPROVED_BUSINESS_RATES",
+    "adjustmentFamily": "NOT_COVERED_REQUIRES_EXPLICIT_DEBIT_OR_CREDIT_ADJUSTMENT_WORKFLOW",
+    "periodicFranchiseFamily": "NOT_COVERED_PENDING_FIRST_RELEASE_SCOPE_DECISION",
+    "uatSignoff": "NOT_RUN",
+    "stagingRun": "NOT_RUN",
+    "preProductionDecision": "NO_GO"
+  }
+}

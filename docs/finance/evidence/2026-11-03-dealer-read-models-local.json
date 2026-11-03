@@ -1,0 +1,50 @@
+{
+  "evidenceId": "FIN-E2E-DEALER-READ-MODELS-LOCAL-20261103",
+  "status": "PASSED",
+  "evidenceType": "LOCAL_POSTGRES_TRANSACTION_TEST",
+  "environment": {
+    "target": "ototr-local",
+    "database": "Supabase PostgreSQL 17",
+    "productionDataUsed": false,
+    "stagingMutation": false,
+    "productionMutation": false
+  },
+  "summary": {
+    "currency": "TRY",
+    "accruedGross": "300.00000000",
+    "collectedGross": "40.00000000",
+    "openGross": "260.00000000",
+    "unallocatedCash": "60.00000000",
+    "readModelVersion": "LOCAL-E2E-V1"
+  },
+  "statement": {
+    "recordCount": 2,
+    "pageSize": 1,
+    "firstPageHasMore": true,
+    "secondPageHasMore": false,
+    "openStatusFilterCount": 1,
+    "crossDealerBranchRead": "DENIED"
+  },
+  "assertions": [
+    "summary snapshot requires complete non-negative net tax and gross breakdowns",
+    "identical summary projection returns REPLAY",
+    "summary totals match the seeded accrual payment and open-item control totals",
+    "statement cursor pagination returns every row exactly once",
+    "statement status filter returns only matching open items",
+    "payment and allocation references are projected for the partially allocated item",
+    "dealer-account and branch scope mismatch is denied",
+    "transaction rollback leaves no synthetic finance row"
+  ],
+  "execution": {
+    "command": "pwsh -NoProfile -File scripts/Test-FinanceDealerReadModelsE2E.ps1",
+    "sql": "supabase/tests/finance_dealer_read_models_e2e.sql",
+    "result": "FINANCE DEALER READ MODELS E2E: PASSED"
+  },
+  "limitations": {
+    "projectionWorker": "SYNTHETIC_TOTALS_WITH_EXPLICIT_CONTROL_ASSERTIONS",
+    "browserUI": "NOT_CONNECTED_BY_THIS_SCENARIO",
+    "uatSignoff": "NOT_RUN",
+    "stagingRun": "NOT_RUN",
+    "preProductionDecision": "NO_GO"
+  }
+}

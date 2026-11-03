@@ -1,0 +1,41 @@
+{
+  "evidenceId": "FIN-E2E-PERIOD-CALCULATION-LOCAL-20261103",
+  "status": "PASSED",
+  "evidenceType": "LOCAL_POSTGRES_TRANSACTION_TEST",
+  "environment": {
+    "target": "ototr-local",
+    "database": "Supabase PostgreSQL 17",
+    "productionDataUsed": false,
+    "stagingMutation": false,
+    "productionMutation": false
+  },
+  "scenario": {
+    "initialStatus": "OPEN",
+    "freezeStatus": "SOURCE_FROZEN",
+    "incompleteFinalizationOutcome": "WAITING",
+    "terminalStatus": "CALCULATED",
+    "sourceEventCount": 1,
+    "postedCalculationRunCount": 1
+  },
+  "assertions": [
+    "source snapshot hash is derived from the ordered source-event material",
+    "queue freezes the source set and stores the exact snapshot hash",
+    "finalization waits while a source event is not PROCESSED",
+    "finalization requires one posted LIVE calculation run for each source event",
+    "frozen source hash remains unchanged at finalization",
+    "successful finalization moves the branch period to CALCULATED",
+    "identical queue and finalization retries return REPLAY",
+    "transaction rollback leaves no synthetic finance row"
+  ],
+  "execution": {
+    "command": "pwsh -NoProfile -File scripts/Test-FinancePeriodCalculationE2E.ps1",
+    "sql": "supabase/tests/finance_period_calculation_queue_e2e.sql",
+    "result": "FINANCE PERIOD CALCULATION E2E: PASSED"
+  },
+  "limitations": {
+    "workerExecution": "POSTED_CALCULATION_RUN_IS_SYNTHETICALLY_SEEDED_AFTER_WAITING_ASSERTION",
+    "uatSignoff": "NOT_RUN",
+    "stagingRun": "NOT_RUN",
+    "preProductionDecision": "NO_GO"
+  }
+}

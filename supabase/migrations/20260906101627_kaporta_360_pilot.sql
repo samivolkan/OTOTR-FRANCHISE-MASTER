@@ -118,6 +118,9 @@ begin
  return issues;
 end $$;
 
+alter table public.vehicles
+  add column if not exists body_type text;
+
 create function public.k360_identity() returns jsonb language plpgsql stable security definer set search_path='' as $$
 declare a public.app_users;begin a:=kaporta_private.actor();if a.id is null then raise exception 'Aktif ERP kullanıcısı bulunamadı.';end if;return jsonb_build_object('id',a.id,'auth_id',auth.uid(),'name',a.full_name,'role',a.role);end $$;
 create function public.k360_jobs() returns jsonb language sql stable security definer set search_path='' as $$
