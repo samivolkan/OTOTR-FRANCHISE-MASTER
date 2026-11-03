@@ -8,7 +8,7 @@ const coverage=JSON.parse(await readFile(join(repoRoot,'docs','finance','erp-ui-
 const ui=await readFile(join(repoRoot,'apps','admin','prototype','bayi-portal','assets','finance-ui.js'),'utf8');
 const bridge=await readFile(join(repoRoot,'apps','admin','prototype','bayi-portal','assets','finance-api-bridge.mjs'),'utf8');
 const uiIds=[...ui.matchAll(/\['(SCR-\d{2})','/g)].map(match=>match[1]);
-const allowed=new Set(['SHELL_ONLY','PARTIAL_LIVE_READ','PARTIAL_LIVE_WRITE','LIVE_READ_VERIFIED']);
+const allowed=new Set(['SHELL_ONLY','PARTIAL_LIVE_READ','PARTIAL_LIVE_WRITE','LIVE_READ_VERIFIED','LIVE_WRITE']);
 
 assert.equal(coverage.schemaVersion,1);
 assert.equal(coverage.module,'OTOTR_FRANCHISE_FINANCE');
@@ -39,5 +39,5 @@ for(const capability of coverage.crossScreenCapabilities){
 }
 
 const counts=Object.fromEntries([...allowed].map(status=>[status,coverage.screens.filter(screen=>screen.status===status).length]));
-assert.deepEqual(counts,{SHELL_ONLY:0,PARTIAL_LIVE_READ:14,PARTIAL_LIVE_WRITE:2,LIVE_READ_VERIFIED:1});
-console.log(`PASS finance-ui-coverage: 17 screens; verified=${counts.LIVE_READ_VERIFIED}; partialRead=${counts.PARTIAL_LIVE_READ}; partialWrite=${counts.PARTIAL_LIVE_WRITE}; shell=${counts.SHELL_ONLY}; decision=NO_GO`);
+assert.deepEqual(counts,{SHELL_ONLY:0,PARTIAL_LIVE_READ:10,PARTIAL_LIVE_WRITE:4,LIVE_READ_VERIFIED:1,LIVE_WRITE:2});
+console.log(`PASS finance-ui-coverage: 17 screens; liveWrite=${counts.LIVE_WRITE}; verifiedRead=${counts.LIVE_READ_VERIFIED}; partialRead=${counts.PARTIAL_LIVE_READ}; partialWrite=${counts.PARTIAL_LIVE_WRITE}; shell=${counts.SHELL_ONLY}; decision=NO_GO`);
