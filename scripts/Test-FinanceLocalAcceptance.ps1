@@ -9,6 +9,7 @@ $checks = @(
   'Test-FinanceRoyaltyE2E.ps1',
   'Test-FinanceChargeFamiliesE2E.ps1',
   'Test-FinancePassThroughExpenseE2E.ps1',
+  'Test-FinanceExpenseIdentityBridgeE2E.ps1',
   'Test-FinanceDisputeAdjustmentE2E.ps1',
   'Test-FinancePaymentLifecycleE2E.ps1',
   'Test-FinanceBillingAccountingE2E.ps1',
