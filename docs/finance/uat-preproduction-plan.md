@@ -67,6 +67,12 @@ Her çalıştırma için aşağıdaki alanlar zorunludur:
 
 ## Pre-production teknik kapısı
 
+Güvenlik yürütme kaydı `docs/finance/staging-security-evidence.json` dosyasıdır. Sekiz kontrolün tamamı hash’li kanıtla geçmeden, uygulayan ve onaylayan kurumsal kimlikler ayrışmadan ve kritik/yüksek/çözülmemiş/kabul edilmiş risk sayıları sıfır olmadan aşağıdaki kapı geçmez:
+
+```powershell
+pwsh -NoProfile -File scripts/Test-FinanceStagingSecurity.ps1 -RequirePassed
+```
+
 1. Temiz migration replay aynı manifest ile geçer.
 2. Hiçbir tarayıcı rolü `finance` veya `finance_private` tablolarına doğrudan erişemez.
 3. ERP JWT kimliği ve şube kapsamı sunucuda doğrulanır; tarayıcı kapsamı güven kaynağı değildir.
