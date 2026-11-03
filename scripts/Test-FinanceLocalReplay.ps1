@@ -26,7 +26,7 @@ select 'migration_count=' || count(*)
   from supabase_migrations.schema_migrations;
 select 'finance_migration_count=' || count(*)
   from supabase_migrations.schema_migrations
-where version between '20261103010000' and '20261103010129';
+where version between '20261103010000' and '20261103010130';
 select 'finance_tables=' || count(*)
   from information_schema.tables
  where table_schema='finance' and table_type='BASE TABLE';
@@ -94,13 +94,13 @@ foreach ($line in $lines) {
 }
 
 $expected = [ordered]@{
-  migration_count = '158'
-  finance_migration_count = '130'
-  finance_tables = '49'
+  migration_count = '159'
+  finance_migration_count = '131'
+  finance_tables = '51'
   finance_private_tables = '2'
   finance_api_functions = '178'
-  finance_rls_enabled = '49'
-  finance_rls_forced = '49'
+  finance_rls_enabled = '51'
+  finance_rls_forced = '51'
   raw_client_table_grants = '0'
   scope_hook_uses_erp_identity = 'true'
   scope_hook_fail_closed_stub = 'false'

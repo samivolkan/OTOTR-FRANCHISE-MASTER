@@ -90,6 +90,10 @@ begin
     id,legal_entity_id,pass_through_expense_id,dealer_account_id,branch_id,journal_entry_id,sequence_no,
     fee_definition_id,currency_code,net_amount,tax_amount,gross_amount,status,created_by,correlation_id
   ) values(source_accrual_id,hq,expense_id,account,branch,accrual_journal,1,fee,'TRY',120,20,140,'POSTED',maker,corr);
+  insert into finance.open_items(
+    legal_entity_id,accrual_id,dealer_account_id,branch_id,due_date,currency_code,item_type,
+    original_amount,allocated_amount,open_amount,status,created_by,correlation_id
+  ) values(hq,source_accrual_id,account,branch,date '2026-11-04','TRY','DEBIT',140,0,140,'OPEN',maker,corr);
 
   result:=finance_api.commit_billing_batch_creation(
     checker,hq,account,branch,branch_period,'BRANCH-MONTHLY','billing-batch-demo',repeat('e',64),corr
