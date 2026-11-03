@@ -13,6 +13,8 @@ create or replace function finance_private.current_dispute_evidence_request_comm
 returns boolean language sql stable security definer set search_path=pg_catalog as $$select true$$;
 create or replace function finance_private.current_dispute_evidence_finalize_committer_is_trusted()
 returns boolean language sql stable security definer set search_path=pg_catalog as $$select true$$;
+create or replace function finance_private.current_dispute_sla_policy_committer_is_trusted()
+returns boolean language sql stable security definer set search_path=pg_catalog as $$select true$$;
 create or replace function finance_private.current_actor_can_read_scope(p_actor_id uuid,p_legal_entity_id uuid,p_dealer_account_id uuid,p_branch_id uuid,p_operation_id text)
 returns boolean language sql stable security definer set search_path=pg_catalog as $$select p_operation_id in('listDisputes','getDispute','getAccrualDetail')$$;
 
@@ -34,12 +36,12 @@ declare
   document_id constant uuid := '83000000-0000-4000-8000-000000000004';
   external_document_id constant uuid := '83000000-0000-4000-8000-000000000005';
   corr constant uuid := '93000000-0000-4000-8000-000000000001';
-  result jsonb; replay jsonb; dispute_id uuid; version_no bigint; correction_journal uuid; dispute_list jsonb; dispute_detail jsonb;evidence_requests jsonb;evidence_request_id uuid;uploaded_external uuid:='84000000-0000-4000-8000-000000000001';uploaded_object_key text;sla_state jsonb;
+  result jsonb; replay jsonb; dispute_id uuid; version_no bigint; correction_journal uuid; dispute_list jsonb; dispute_detail jsonb;evidence_requests jsonb;evidence_request_id uuid;uploaded_external uuid:='84000000-0000-4000-8000-000000000001';uploaded_object_key text;sla_state jsonb;sla_draft jsonb;sla_publish jsonb;
   credit_count integer; credit_total numeric(24,8); correction_accrual uuid;
 begin
   insert into public.app_users(id,auth_user_id,branch_id,full_name,role,is_active) values
     (maker,maker,null,'Sentetik Finans Maker','FINANCE',true),
-    (checker,checker,null,'Sentetik Finans Checker','FINANCE',true);
+    (checker,checker,null,'Sentetik Finans Checker','GENERAL_MANAGER',true);
   insert into finance.legal_entities(id,entity_code,legal_name,status,created_by,correlation_id)
   values(hq,'OTOTR-HQ-DISPUTE-DEMO','OTOTR Sentetik Düzeltme Merkezi','ACTIVE',maker,corr);
   insert into finance.dealer_legal_entities(id,legal_entity_id,dealer_code,legal_name,status,created_by,correlation_id)
@@ -50,8 +52,18 @@ begin
   values(account,hq,dealer,'DISPUTE-ACCOUNT','TRY','ACTIVE',maker,corr);
   insert into finance.fee_definitions(id,legal_entity_id,code,version_no,fee_family,name,status,created_by,correlation_id)
   values(fee,hq,'SYNTHETIC-ADJUSTMENT',1,'ADJUSTMENT','Sentetik Düzeltme','PUBLISHED',maker,corr);
-  insert into finance.dispute_sla_policies(id,legal_entity_id,policy_code,version_no,clock_type,response_minutes,resolution_minutes,owner_role,effective_from,status,approved_by,approved_at_utc,created_by,correlation_id)
-  values(sla_policy,hq,'DISPUTE_REVIEW',1,'CALENDAR_MINUTES',60,240,'FINANCE',date '2026-01-01','PUBLISHED',checker,now(),maker,corr);
+  sla_draft:=finance_api.commit_dispute_sla_policy_draft(maker,hq,account,branch,60,240,'FINANCE',date '2026-01-01',null,'POLICY_PREPARED',repeat('6',64),'sla-policy-draft-demo',repeat('7',64),corr);
+  if sla_draft->>'outcome'<>'CREATED'or sla_draft->>'status'<>'DRAFT'then raise exception 'SLA draft failed: %',sla_draft;end if;
+  begin
+    perform finance_api.commit_dispute_sla_policy_publish(maker,hq,account,branch,(sla_draft->>'policyId')::uuid,1,'POLICY_APPROVED',repeat('8',64),'sla-policy-maker-denied',repeat('a',64),corr);
+    raise exception 'SLA maker published own draft';
+  exception when insufficient_privilege then null;end;
+  sla_publish:=finance_api.commit_dispute_sla_policy_publish(checker,hq,account,branch,(sla_draft->>'policyId')::uuid,1,'POLICY_APPROVED',repeat('8',64),'sla-policy-publish-demo',repeat('9',64),corr);
+  if sla_publish->>'outcome'<>'PUBLISHED'or sla_publish->>'makerId'<>maker::text or sla_publish->>'checkerId'<>checker::text then raise exception 'SLA publish failed: %',sla_publish;end if;
+  replay:=finance_api.commit_dispute_sla_policy_publish(checker,hq,account,branch,(sla_draft->>'policyId')::uuid,1,'POLICY_APPROVED',repeat('8',64),'sla-policy-publish-demo',repeat('9',64),corr);
+  if replay->>'outcome'<>'REPLAY'then raise exception 'SLA publish replay failed: %',replay;end if;
+  sla_state:=finance_api.get_dispute_sla_policy_state(hq,account,branch);
+  if sla_state->>'status'<>'PUBLISHED'or sla_state->>'responseMinutes'<>'60'or sla_state->>'resolutionMinutes'<>'240'or sla_state->>'rawRecordsExposed'<>'false'then raise exception 'SLA policy state mismatch: %',sla_state;end if;
   insert into finance.finance_periods(id,legal_entity_id,scope_type,period_start,period_end,currency_code,mode,status,created_by,correlation_id)
   values(period_id,hq,'HEADQUARTERS',date '2026-11-01',date '2026-11-30','TRY','LIVE','OPEN',maker,corr);
   insert into finance.pass_through_expenses(
