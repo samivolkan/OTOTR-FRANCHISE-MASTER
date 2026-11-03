@@ -89,7 +89,16 @@
         "financialHardshipReviewRequired": true,
         "shiftSystemDependency": false
       },
-      "refundExcessPolicy": null,
+      "refundExcessPolicy": {
+        "mode": "CARRY_FORWARD_CREDIT",
+        "scope": "BRANCH",
+        "applyToInvoiceLineCode": "ROYALTY_SERVICE_FEE",
+        "consumeOnNextEligibleInvoice": true,
+        "expires": false,
+        "crossBranchTransferAllowed": false,
+        "preserveSourceTrace": true
+      },
+      "refundCashPayoutPolicy": null,
       "refundPolicy": {
         "mode": "PROPORTIONAL_REVERSAL",
         "onEachConfirmedRefund": true,

@@ -47,6 +47,7 @@ Her satır için `UYGULANMAZ` veya açık değer girilmelidir.
 - Erişim yalnız ödeme kuruluşundan doğrulanmış tam ödeme callback'i geldikten sonra açılır; kart formunun gönderilmesi yeterli değildir.
 - Seçilen fatura dönemindeki royalty tahakkukları faturada `Royalty Hizmet Bedeli` adıyla tek satırda toplanır; satırın alt tahakkuk ve ekstre izleri korunur.
 - Müşteri iadesinden oluşan royalty ters kayıtları sonraki faturadaki aynı `Royalty Hizmet Bedeli` satırında eksi tutar olarak mahsup edilir; orijinal tahakkuk ve iade izi korunur.
+- Eksi royalty tutarı dönem pozitif royalty toplamını aşarsa kalan kısım aynı şubenin sonraki uygun faturalarına kredi olarak devreder; süresi dolmaz ve başka şube/bayiye aktarılamaz.
 
 ### Onaylanan royalty muafiyet politikası
 
