@@ -22,9 +22,9 @@ function Get-PackageHash([string]$Directory, [object[]]$Files) {
 
 $migrationPath = [IO.Path]::GetFullPath((Join-Path $root $manifest.migrationManifest.path))
 if (-not $migrationPath.StartsWith($root, [StringComparison]::OrdinalIgnoreCase) -or (Get-PortableHash $migrationPath) -ne $manifest.migrationManifest.sha256) { throw 'Migration manifest hash mismatch.' }
-$expected = @('finance-read','finance-command','finance-customer-revenue-worker','finance-payment-ingestion-worker','finance-refund-worker','finance-service-usage-worker','finance-invoice-callback-worker','finance-accounting-export-worker','finance-branch-access')
+$expected = @('finance-read','finance-command','finance-customer-revenue-worker','finance-payment-ingestion-worker','finance-refund-worker','finance-service-usage-worker','finance-invoice-callback-worker','finance-accounting-export-worker','finance-branch-access','finance-payment-callback-worker')
 $names = @($manifest.functions | ForEach-Object name)
-if ($names.Count -ne 9 -or @($names | Sort-Object -Unique).Count -ne 9 -or @($expected | Where-Object { $_ -notin $names }).Count) { throw 'Finance function deployment inventory is incomplete.' }
+if ($names.Count -ne 10 -or @($names | Sort-Object -Unique).Count -ne 10 -or @($expected | Where-Object { $_ -notin $names }).Count) { throw 'Finance function deployment inventory is incomplete.' }
 $config = Get-Content -Raw -LiteralPath (Join-Path $root 'supabase\config.toml')
 foreach ($function in $manifest.functions) {
   if ($function.packageSha256 -notmatch '^[a-f0-9]{64}$' -or (Get-PackageHash (Join-Path $root "supabase\functions\$($function.name)") @($function.files)) -ne $function.packageSha256) { throw "Function package hash mismatch: $($function.name)" }
@@ -37,4 +37,4 @@ $serialized = $manifest | ConvertTo-Json -Depth 30
 if ($serialized -match 'sb_secret_|eyJ[A-Za-z0-9_-]{20,}|Bearer\s+\S+|https://[a-z0-9-]+\.supabase\.co') { throw 'Deployment manifest contains a secret value or concrete project endpoint.' }
 if (@($manifest.deploymentEvidenceRequired).Count -ne 8) { throw 'Staging deployment evidence contract is incomplete.' }
 Write-Host 'FINANCE STAGING DEPLOYMENT MANIFEST: PASSED' -ForegroundColor Green
-Write-Host '134 migrations; 9 immutable function packages; JWT policy and secret-name-only inventory verified; stagingApplied: false.'
+Write-Host '135 migrations; 10 immutable function packages; JWT policy and secret-name-only inventory verified; stagingApplied: false.'
