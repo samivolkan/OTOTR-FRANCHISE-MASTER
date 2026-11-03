@@ -21,7 +21,7 @@ Eşikler adaydır; staging ölçümü ve sahip onayı olmadan üretim SLO’su d
 
 1. Alarmı alan görevli correlation ID, tüzel kişi, bayi/şube test kimliği ve UTC zamanı kaydeder; ham payload veya kişisel veri destek kaydına kopyalanmaz.
 2. Finansal yazma etkileniyorsa ilgili adaptör/komut yolu kapatılır; ham tabloya manuel düzeltme yapılmaz.
-3. Retry yalnız `retryable=true`, kapsam yetkisi ve aynı idempotency/intent sözleşmesiyle çalıştırılır.
+3. Retry yalnız `retryable=true`, ERP rol/şube kapsam yetkisi ve aynı idempotency/intent sözleşmesiyle çalıştırılır. GM Finans ekranı kullanıcı JWT’siyle yetki sorar; commit yalnız `finance-command` içindeki server-side service-role adaptörü üzerinden yapılır. Çözüm notunun yalnız SHA-256 izi saklanır.
 4. Tutar etkisi varsa tahakkuk → journal → açık kalem → ödeme/tahsis → fatura/export kontrol toplamları karşılaştırılır.
 5. Düzeltme ters kayıt veya forward-fix ile yapılır. Finans migrasyonunda yıkıcı down migration kullanılmaz.
 6. Kapanışta kök neden, etkilenen correlation ID’ler, düzeltme commit’i, kontrol toplamı ve iki yetkili onayı saklanır.

@@ -41,6 +41,9 @@ verify_jwt = false
 [functions.finance-read]
 verify_jwt = true
 
+[functions.finance-command]
+verify_jwt = true
+
 [analytics]
 enabled = true
 port = 55327

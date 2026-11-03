@@ -2,7 +2,7 @@
 
 Authenticated, request-scoped finance read endpoint. The browser sends a publishable key and a Supabase user JWT. The function verifies the user, calls `finance_api.authorize_scope`, and only then reads the branch-scoped projection.
 
-Allowed operations are `getDealerFinanceSummary` and cursor-paginated `getDealerStatement`; arbitrary RPC names are rejected.
+Allowed operations are an explicit allowlist covering the 17 GM Finance read screens, including headquarters/operational health, contracts and rules, statements, payments, refunds, services, expenses, disputes, export packages, integration errors, approvals and audit traces. Arbitrary RPC names are rejected.
 
 Required secrets/configuration:
 

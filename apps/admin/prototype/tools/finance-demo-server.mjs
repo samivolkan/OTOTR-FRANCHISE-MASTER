@@ -24,6 +24,9 @@ const api=body=>({getDealerFinanceSummary:summary,getHeadquartersFinanceSummary:
 export function createFinanceDemoServer({port=4173}={}){
 const server=createServer(async(req,res)=>{
   try{
+    if(req.method==='POST'&&req.url==='/functions/v1/finance-command'){
+      let raw='';for await(const chunk of req)raw+=chunk;if(raw.length>16384)throw new Error('PAYLOAD_TOO_LARGE');const body=JSON.parse(raw);if(body.operationId!=='retryIntegrationError')throw new Error('INVALID_COMMAND');const data={outcome:'QUEUED',errorId:body.command.errorId,jobId:'20202020-2020-4020-8020-202020202020',status:'QUEUED',version:2,correlationId:'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa'};res.writeHead(200,{'content-type':'application/json; charset=utf-8','cache-control':'no-store','correlation-id':data.correlationId});res.end(JSON.stringify({data}));return;
+    }
     if(req.method==='POST'&&req.url==='/functions/v1/finance-read'){
       let raw='';for await(const chunk of req)raw+=chunk;if(raw.length>32768)throw new Error('PAYLOAD_TOO_LARGE');
       const body=JSON.parse(raw);const data=api(body);res.writeHead(200,{'content-type':'application/json; charset=utf-8','cache-control':'no-store','correlation-id':'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa'});res.end(JSON.stringify({data}));return;
