@@ -61,6 +61,10 @@ try {
       const data={legalEntityId:scope.legalEntityId,asOf:'2026-11-03',currency:'TRY',dealerCount:2,branchCount:2,accrued:money('480.00000000'),invoiced:money('300.00000000'),collected:money('40.00000000'),open:money('440.00000000'),overdue:money('60.00000000'),refunded:money('59.00000000'),disputed:money('70.00000000'),unallocated:{amount:'60.00000000',currency:'TRY'},feeFamilies:[{feeFamily:'ROYALTY',netAmount:'100.00000000',taxAmount:'20.00000000',grossAmount:'120.00000000',currency:'TRY'},{feeFamily:'ENTRY_FRANCHISE',netAmount:'300.00000000',taxAmount:'60.00000000',grossAmount:'360.00000000',currency:'TRY'}],dealerRanking:[{dealerLegalEntityId:'20202020-2020-4020-8020-202020202020',dealerCode:'BAYI-A',dealerName:'Bayi A',dealerAccountId:scope.dealerAccountId,branchId:scope.branchId,branchCode:'NILUFER',accruedGrossAmount:'300.00000000',collectedGrossAmount:'40.00000000',openGrossAmount:'260.00000000',overdueGrossAmount:'0.00000000',currency:'TRY'}]};
       await route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({data})});return;
     }
+    if(body.operationId==='getFinanceOperationalHealth'){
+      const data={status:'DEGRADED',generatedAtUtc:'2026-11-03T10:00:00Z',outbox:{pending:2,failed:0,deadLetter:1,oldestPendingAgeSeconds:180},integrationErrors:{open:1,retryScheduled:0},auditIntegrity:{valid:true,checkedEventCount:12,invalidEventCount:0,version:'AUDIT_SHA256_V2'},rawPayloadExposed:false};
+      await route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({data})});return;
+    }
     if(body.operationId==='getFinancePeriod'){
       const data={periodId:'18181818-1818-4818-8818-181818181818',parentPeriodId:'19191919-1919-4919-8919-191919191919',dealerAccountId:scope.dealerAccountId,branchId:scope.branchId,periodStart:'2026-11-01',periodEnd:'2026-11-30',currencyCode:'TRY',status:'LOCKED',sourceSnapshotHash:'a'.repeat(64),checkSnapshotHash:'b'.repeat(64),lockedAtUtc:'2026-11-30T20:00:00Z',version:3};
       await route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({data})});return;

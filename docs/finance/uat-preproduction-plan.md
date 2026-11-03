@@ -93,7 +93,7 @@ Bir kapı yalnız kanıt dosyası mevcutken; SHA-256, imzalayan ve UTC imza zama
 - Onay iş listesi ve audit/correlation projectionları şube izolasyonu ve veri minimizasyonuyla doğrulandı.
 - ERP arayüzü izole Chrome testinde yönetişim, entegrasyon, export, masraf, itiraz, ekstre ve ödeme akışlarıyla doğrulandı.
 - Ticari/mali karar girişi için `commercial-configuration-intake.md`, ERP staging eşlemesi için `erp-staging-mapping-intake.md` hazırlandı.
-- Yerel sentetik operasyon tabanı hazırdır: 2.000 kapsamlı audit kaydında sayfalama ölçülür; ayrı yerel hedefe backup/restore katalog doğrulaması yapılır; `operations-runbook.md` alarm, retry, forward-fix ve tatbikat kayıtlarını tanımlar.
+- Yerel sentetik operasyon tabanı hazırdır: 2.000 kapsamlı audit kaydında sayfalama ölçülür; ayrı yerel hedefe backup/restore katalog doğrulaması yapılır; `operations-runbook.md` alarm, retry, forward-fix ve tatbikat kayıtlarını tanımlar; GM Finans sağlık özeti outbox yaşı/sayısı, dead-letter, açık entegrasyon hatası ve audit zincirini yetkili genel merkez ekranına taşır.
 - Staging adaptörleri, gerçek kullanıcı UAT’si, ticari/vergi imzaları, staging hacminde performans, pre-production restore ve imzalı operasyon tatbikatı henüz yoktur.
 
 Sonuç: **NO-GO**. Bu, bir hata değil; eksik kurumsal kanıtları görünür tutan fail-closed karardır.

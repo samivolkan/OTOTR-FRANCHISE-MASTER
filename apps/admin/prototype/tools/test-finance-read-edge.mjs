@@ -17,6 +17,7 @@ const handler = createFinanceReadHandler({
   authenticate: async value => { calls.push(['authenticate', value]); return { id: 'user-1', token: value }; },
   authorizeScope: async value => { calls.push(['authorize', value]); return true; },
   authorizeHeadquartersScope:async value=>{calls.push(['authorize-hq',value]);return true;},
+  readOperationalHealth:async value=>{calls.push(['operational-health',value]);return {status:'HEALTHY',outbox:{pending:0,failed:0,deadLetter:0,oldestPendingAgeSeconds:0},integrationErrors:{open:0,retryScheduled:0},auditIntegrity:{valid:true}};},
   readHeadquartersSummary:async value=>{calls.push(['headquarters',value]);return {...ids,dealerCount:2,branchCount:2};},
   readExpenses:async value=>{calls.push(['expenses',value]);return {items:[],nextCursor:null,hasMore:false};},
   readExpense:async value=>{calls.push(['expense',value]);return {expense:{expenseId:value.expenseId},shares:[]};},
@@ -61,6 +62,8 @@ assert.equal(calls[2][0], 'read');
 const headquartersRequest={operationId:'getHeadquartersFinanceSummary',scope:ids,pathParams:{},query:{asOf:'2026-11-03',currency:'TRY'}};
 const headquartersResponse=await handler(makeRequest(headquartersRequest));
 assert.equal(headquartersResponse.status,200);assert.equal((await headquartersResponse.json()).data.dealerCount,2);assert.equal(calls.at(-1)[0],'headquarters');assert.equal(calls.at(-2)[0],'authorize-hq');
+const healthResponse=await handler(makeRequest({operationId:'getFinanceOperationalHealth',scope:ids,pathParams:{},query:{}}));
+assert.equal(healthResponse.status,200);assert.equal((await healthResponse.json()).data.status,'HEALTHY');assert.equal(calls.at(-1)[0],'operational-health');assert.equal(calls.at(-2)[0],'authorize-hq');
 
 const expenseId='aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
 const expensesRequest={operationId:'listPassThroughExpenses',scope:ids,pathParams:{},query:{from:'2026-11-01',to:'2026-11-30',status:'POSTED',limit:25}};
@@ -160,12 +163,12 @@ assert.equal((await handler(makeRequest({...exportPackagesRequest,query:{package
 assert.equal((await handler(makeRequest({...exportPackageRequest,query:{}}))).status,400);
 assert.equal((await handler(makeRequest({...disputesRequest,query:{status:'INVALID'}}))).status,400);
 assert.equal((await handler(makeRequest({...disputeRequest,pathParams:{dealerAccountId:ids.dealerAccountId,disputeId:'bad'}}))).status,400);
-const requiredPorts={authenticate(){},authorizeScope(){},authorizeHeadquartersScope(){},readHeadquartersSummary(){},readExpenses(){},readExpense(){},readExportPackages(){},readExportPackage(){},readIntegrationErrors(){},readIntegrationError(){},readApprovalWorkItems(){},readApprovalWorkItem(){},readAuditEvents(){},readAuditCorrelationTrace(){},readDisputes(){},readDispute(){},readSummary(){},readStatement(){},readPayments(){},readPayment(){},readAccrualDetail(){},readRoyaltyRefunds(){},readServiceUsages(){},readRefundTrace(){},readCurrentPeriod(){},readCurrentContract(){},readContractFeeRules(){}};
+const requiredPorts={authenticate(){},authorizeScope(){},authorizeHeadquartersScope(){},readOperationalHealth(){},readHeadquartersSummary(){},readExpenses(){},readExpense(){},readExportPackages(){},readExportPackage(){},readIntegrationErrors(){},readIntegrationError(){},readApprovalWorkItems(){},readApprovalWorkItem(){},readAuditEvents(){},readAuditCorrelationTrace(){},readDisputes(){},readDispute(){},readSummary(){},readStatement(){},readPayments(){},readPayment(){},readAccrualDetail(){},readRoyaltyRefunds(){},readServiceUsages(){},readRefundTrace(){},readCurrentPeriod(){},readCurrentContract(){},readContractFeeRules(){}};
 assert.throws(() => createFinanceReadHandler({ allowedOrigins: ['*'],...requiredPorts }), /allowlist/);
 assert.throws(() => createFinanceReadHandler({ allowedOrigins: ['http://erp.ototr.test'],...requiredPorts }), /allowlist/);
 assert.throws(() => createFinanceReadHandler({ allowedOrigins: [origin],...requiredPorts,maxBodyBytes:100 }), /maxBodyBytes/);
 
-const safeHandler = createFinanceReadHandler({ allowedOrigins: [origin], correlationFactory: () => correlationId, authenticate: async () => { throw new Error('database password leaked'); }, authorizeScope: async () => true,authorizeHeadquartersScope:async()=>true,readHeadquartersSummary:async()=>({}),readExpenses:async()=>({}),readExpense:async()=>({}),readExportPackages:async()=>({}),readExportPackage:async()=>({}),readIntegrationErrors:async()=>({}),readIntegrationError:async()=>({}),readApprovalWorkItems:async()=>({}),readApprovalWorkItem:async()=>({}),readAuditEvents:async()=>({}),readAuditCorrelationTrace:async()=>({}),readDisputes:async()=>({}),readDispute:async()=>({}), readSummary: async () => ({}), readStatement: async () => ({}), readPayments:async()=>({}), readPayment: async () => ({}), readAccrualDetail: async () => ({}),readRoyaltyRefunds:async()=>({}),readServiceUsages:async()=>({}), readRefundTrace:async()=>({}),readCurrentPeriod:async()=>({}),readCurrentContract:async()=>({}),readContractFeeRules:async()=>({}) });
+const safeHandler = createFinanceReadHandler({ allowedOrigins: [origin], correlationFactory: () => correlationId, authenticate: async () => { throw new Error('database password leaked'); }, authorizeScope: async () => true,authorizeHeadquartersScope:async()=>true,readOperationalHealth:async()=>({}),readHeadquartersSummary:async()=>({}),readExpenses:async()=>({}),readExpense:async()=>({}),readExportPackages:async()=>({}),readExportPackage:async()=>({}),readIntegrationErrors:async()=>({}),readIntegrationError:async()=>({}),readApprovalWorkItems:async()=>({}),readApprovalWorkItem:async()=>({}),readAuditEvents:async()=>({}),readAuditCorrelationTrace:async()=>({}),readDisputes:async()=>({}),readDispute:async()=>({}), readSummary: async () => ({}), readStatement: async () => ({}), readPayments:async()=>({}), readPayment: async () => ({}), readAccrualDetail: async () => ({}),readRoyaltyRefunds:async()=>({}),readServiceUsages:async()=>({}), readRefundTrace:async()=>({}),readCurrentPeriod:async()=>({}),readCurrentContract:async()=>({}),readContractFeeRules:async()=>({}) });
 const safeResponse = await safeHandler(makeRequest());
 assert.equal(safeResponse.status, 500);
 assert.doesNotMatch(JSON.stringify(await safeResponse.json()), /password|leaked/);

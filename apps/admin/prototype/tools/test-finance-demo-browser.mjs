@@ -15,6 +15,9 @@ try{
   await page.click('[data-finance-connect]');
   await page.waitForFunction(()=>document.querySelector('[data-finance-state]')?.textContent?.includes('SYNTHETIC TEST DATA'));
   await page.waitForFunction(()=>document.querySelector('[data-finance-headquarters]')?.dataset.state==='READY');
+  await page.waitForFunction(()=>document.querySelector('[data-finance-operational-health]')?.dataset.status==='DEGRADED');
+  assert.match(await page.locator('[data-finance-operational-health]').innerText(),/İZLEME GEREKİYOR/);
+  assert.match(await page.locator('[data-finance-operational-health]').innerText(),/DOĞRULANDI/);
   assert.match(await page.locator('.finance-screen-stage').innerText(),/248\.000,00000000 TRY/);
   assert.match(await page.locator('.finance-screen-stage').innerText(),/Sentetik Nilüfer Bayii/);
   await page.click('[data-finance-screen="SCR-15"]');await page.click('[data-finance-approvals-refresh]');await page.waitForFunction(()=>document.querySelectorAll('[data-finance-approvals-body] tr').length===1);assert.match(await page.locator('[data-finance-approvals-body]').innerText(),/EXPENSE_APPROVAL_V1/);await page.click('[data-finance-approvals-body] [data-finance-approval-id]');await page.waitForFunction(()=>document.querySelector('[data-finance-approval-content]')?.hidden===false);assert.match(await page.locator('[data-finance-approval-detail]').innerText(),/finance-expense-approver/);assert.doesNotMatch(await page.locator('[data-finance-approval-detail]').innerText(),/subject_snapshot|evidenceRef|secret/i);

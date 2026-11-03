@@ -1,6 +1,7 @@
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const READ_OPERATION = 'getDealerFinanceSummary';
 const HEADQUARTERS_OPERATION = 'getHeadquartersFinanceSummary';
+const OPERATIONAL_HEALTH_OPERATION = 'getFinanceOperationalHealth';
 const EXPENSES_OPERATION='listPassThroughExpenses';
 const EXPENSE_OPERATION='getPassThroughExpense';
 const EXPORT_PACKAGES_OPERATION='listFinanceExportPackages';
@@ -96,6 +97,7 @@ export function createFinanceSummaryClient({getConfig, getAccessToken, fetchImpl
       } finally { clearTimeout(timer); }
   }
   return Object.freeze({
+    async getFinanceOperationalHealth(rawScope) {return execute(rawScope,OPERATIONAL_HEALTH_OPERATION,{}, {},false,true);},
     async getHeadquartersFinanceSummary(rawScope,{asOf,currency='TRY'}={}) {
       if(typeof asOf!=='string'||!/^\d{4}-\d{2}-\d{2}$/.test(asOf)) throw new FinanceBridgeError('VALIDATION_ERROR','asOf YYYY-MM-DD biçiminde zorunludur.');
       if(typeof currency!=='string'||!/^[A-Z]{3}$/.test(currency)) throw new FinanceBridgeError('VALIDATION_ERROR','Para birimi üç harfli kod olmalıdır.');
@@ -175,6 +177,7 @@ export function createFinanceSummaryClient({getConfig, getAccessToken, fetchImpl
 
 const auth = globalThis.OTOTRDealerFinanceAuth;
 const ui = globalThis.OTOTRFinanceUI;
+const operationalUi=globalThis.OTOTRFinanceOperationalUI;
 if (auth && ui) {
   const client = createFinanceSummaryClient({getConfig: () => auth.getConfig(), getAccessToken: () => auth.getAccessToken()});
   let configuredScope = null;
@@ -203,6 +206,8 @@ if (auth && ui) {
         try {
           const headquartersResult=await client.getHeadquartersFinanceSummary(scope,{asOf:result.data.asOf,currency:result.data.currencyCode||'TRY'});
           ui.renderHeadquartersSummary?.(headquartersResult.data);
+          const healthResult=await client.getFinanceOperationalHealth(scope);
+          operationalUi?.renderOperationalHealth(healthResult.data);
         } catch(error) {
           if(error instanceof FinanceBridgeError&&error.code==='SCOPE_DENIED') ui.resetHeadquartersSummary?.('Bu kullanıcı için genel merkez finans kapsamı tanımlı değil.');
           else throw error;
@@ -228,6 +233,7 @@ if (auth && ui) {
       if(!scope) throw new FinanceBridgeError('FINANCE_SCOPE_UNAVAILABLE','ERP finans kapsamı henüz sağlanmadı.');
       return client.getHeadquartersFinanceSummary(scope,{asOf:options.asOf||connectedAsOf,currency:options.currency||'TRY'});
     },
+    async getFinanceOperationalHealth(){const scope=configuredScope||refreshContext();if(!scope)throw new FinanceBridgeError('FINANCE_SCOPE_UNAVAILABLE','ERP finans kapsamı henüz sağlanmadı.');return client.getFinanceOperationalHealth(scope);},
     async listPassThroughExpenses(options={}){const scope=configuredScope||refreshContext();if(!scope)throw new FinanceBridgeError('FINANCE_SCOPE_UNAVAILABLE','ERP finans kapsamı henüz sağlanmadı.');return client.listPassThroughExpenses(scope,options);},
     async getPassThroughExpense(expenseId){const scope=configuredScope||refreshContext();if(!scope)throw new FinanceBridgeError('FINANCE_SCOPE_UNAVAILABLE','ERP finans kapsamı henüz sağlanmadı.');return client.getPassThroughExpense(scope,expenseId);},
     async listFinanceExportPackages(options={}){const scope=configuredScope||refreshContext();if(!scope)throw new FinanceBridgeError('FINANCE_SCOPE_UNAVAILABLE','ERP finans kapsamı henüz sağlanmadı.');return client.listFinanceExportPackages(scope,options);},
