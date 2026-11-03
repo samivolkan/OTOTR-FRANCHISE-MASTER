@@ -144,6 +144,15 @@ begin
      or result#>>'{operationalContribution,status}'<>'SOURCE_NOT_CONNECTED' then
     raise exception 'dealer finance summary totals mismatch: %',result;
   end if;
+  export_result:=finance_api.export_dealer_finance_summary(hq,account_a,branch_a,date '2026-11-30');
+  if export_result->>'documentType'<>'OTOTR_FINANCE_DEALER_SUMMARY_EXPORT'
+     or export_result->>'hasData'<>'true'
+     or export_result->>'rawRecordsExposed'<>'false'
+     or export_result#>>'{summary,accrued,grossAmount}'<>'300.00000000'
+     or export_result#>>'{summary,branchBreakdown,0,branchCode}'<>'READ-BRANCH-A'
+     or export_result ? 'rawRecords' then
+    raise exception 'dealer summary export mismatch: %',export_result;
+  end if;
 
   totals:=jsonb_build_object(
     'accrued',jsonb_build_object('netAmount','150.00000000','taxAmount','30.00000000','grossAmount','180.00000000'),

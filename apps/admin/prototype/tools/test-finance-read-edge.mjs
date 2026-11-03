@@ -34,6 +34,7 @@ const handler = createFinanceReadHandler({
   readDisputes:async value=>{calls.push(['disputes',value]);return {items:[],nextCursor:null,hasMore:false};},
   readDispute:async value=>{calls.push(['dispute',value]);return {disputeId:value.disputeId};},
   readSummary: async value => { calls.push(['read', value]); return { ...ids, calculatedAtUtc: '2026-11-03T10:00:00Z' }; },
+  exportDealerSummary:async value=>{calls.push(['dealer-summary-export',value]);return {documentType:'OTOTR_FINANCE_DEALER_SUMMARY_EXPORT',asOf:value.asOf,currency:'TRY',hasData:true,summary:{...ids},rawRecordsExposed:false};},
   readStatement: async value => { calls.push(['statement', value]); return { items: [], nextCursor: null, hasMore: false }; },
   exportAccruals:async value=>{calls.push(['accrual-export',value]);return {documentType:'OTOTR_FINANCE_DEALER_STATEMENT_EXPORT',exportKind:'ACCRUALS',rowCount:0,items:[],truncated:false,rawRecordsExposed:false};},
   readAccruals:async value=>{calls.push(['accruals',value]);return {items:[],nextCursor:null,hasMore:false};},
@@ -71,6 +72,7 @@ assert.equal(calls[0][0], 'authenticate');
 assert.equal(calls[1][0], 'authorize');
 assert.deepEqual(calls[1][1].scope, ids);
 assert.equal(calls[2][0], 'read');
+const dealerSummaryExportResponse=await handler(makeRequest({operationId:'exportDealerFinanceSummary',scope:ids,pathParams:{dealerAccountId:ids.dealerAccountId},query:{asOf:'2026-11-03'}}));assert.equal(dealerSummaryExportResponse.status,200);assert.equal((await dealerSummaryExportResponse.json()).data.documentType,'OTOTR_FINANCE_DEALER_SUMMARY_EXPORT');assert.equal(calls.at(-1)[0],'dealer-summary-export');assert.equal(calls.at(-2)[1].operationId,'getDealerFinanceSummary');
 
 const headquartersRequest={operationId:'getHeadquartersFinanceSummary',scope:ids,pathParams:{},query:{asOf:'2026-11-03',currency:'TRY'}};
 const headquartersResponse=await handler(makeRequest(headquartersRequest));
@@ -197,7 +199,7 @@ assert.equal((await handler(makeRequest({...exportPackagesRequest,query:{package
 assert.equal((await handler(makeRequest({...exportPackageRequest,query:{}}))).status,400);
 assert.equal((await handler(makeRequest({...disputesRequest,query:{status:'INVALID'}}))).status,400);
 assert.equal((await handler(makeRequest({...disputeRequest,pathParams:{dealerAccountId:ids.dealerAccountId,disputeId:'bad'}}))).status,400);
-const requiredPorts={authenticate(){},authorizeScope(){},authorizeHeadquartersScope(){},readOperationalHealth(){},readHeadquartersSummary(){},readExpenses(){},readExpense(){},readExportPackages(){},readExportPackage(){},readIntegrationErrors(){},readIntegrationError(){},readApprovalWorkItems(){},readApprovalWorkItem(){},readAuditEvents(){},exportAuditEvents(){},readAuditCorrelationTrace(){},readDisputes(){},readDispute(){},readSummary(){},readStatement(){},readStatementControl(){},exportDealerStatement(){},exportAccruals(){},readAccruals(){},readPayments(){},readPayment(){},readAccrualDetail(){},readRoyaltyRefunds(){},readServiceUsages(){},readServiceUsageDetail(){},exportServiceUsages(){},readRefundTrace(){},readCurrentPeriod(){},readPeriodReconciliations(){},readCurrentContract(){},readContractVersions(){},readContractFeeRules(){},readContractFeeRule(){},readContractVersionComparison(){},simulateContractVersionImpact(){}};
+const requiredPorts={authenticate(){},authorizeScope(){},authorizeHeadquartersScope(){},readOperationalHealth(){},readHeadquartersSummary(){},readExpenses(){},readExpense(){},readExportPackages(){},readExportPackage(){},readIntegrationErrors(){},readIntegrationError(){},readApprovalWorkItems(){},readApprovalWorkItem(){},readAuditEvents(){},exportAuditEvents(){},readAuditCorrelationTrace(){},readDisputes(){},readDispute(){},readSummary(){},exportDealerSummary(){},readStatement(){},readStatementControl(){},exportDealerStatement(){},exportAccruals(){},readAccruals(){},readPayments(){},readPayment(){},readAccrualDetail(){},readRoyaltyRefunds(){},readServiceUsages(){},readServiceUsageDetail(){},exportServiceUsages(){},readRefundTrace(){},readCurrentPeriod(){},readPeriodReconciliations(){},readCurrentContract(){},readContractVersions(){},readContractFeeRules(){},readContractFeeRule(){},readContractVersionComparison(){},simulateContractVersionImpact(){}};
 requiredPorts.exportHeadquartersSummary=()=>({});
 assert.throws(() => createFinanceReadHandler({ allowedOrigins: ['*'],...requiredPorts }), /allowlist/);
 assert.throws(() => createFinanceReadHandler({ allowedOrigins: ['http://erp.ototr.test'],...requiredPorts }), /allowlist/);
@@ -244,7 +246,8 @@ await adapter.simulateContractVersionImpact({actor,scope:ids,dealerAccountId:ids
 await adapter.readContractVersions({actor,scope:ids,dealerAccountId:ids.dealerAccountId,contractId,cursor:null,limit:25});
 await adapter.readServiceUsageDetail({actor,scope:ids,dealerAccountId:ids.dealerAccountId,sourceEventId});
 await adapter.exportServiceUsages({actor,scope:ids,dealerAccountId:ids.dealerAccountId,from:'2026-11-01',to:'2026-11-30',family:'QUERY',chargeStatus:'CHARGED',limit:10000});
-assert.equal(fetchCalls.length, 30);
+await adapter.exportDealerSummary({actor,scope:ids,dealerAccountId:ids.dealerAccountId,asOf:'2026-11-03'});assert.match(fetchCalls.at(-1).url,/export_dealer_finance_summary/);
+assert.equal(fetchCalls.length, 31);
 assert.equal(fetchCalls[0].options.headers.Authorization, `Bearer ${token}`);
 assert.equal(fetchCalls[1].options.headers['Accept-Profile'], 'finance_api');
 assert.deepEqual(JSON.parse(fetchCalls[2].options.body), { p_legal_entity_id: ids.legalEntityId, p_dealer_account_id: ids.dealerAccountId, p_branch_id: ids.branchId, p_as_of: '2026-11-03' });

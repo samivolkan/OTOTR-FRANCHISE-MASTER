@@ -52,7 +52,7 @@ async function body(request, maxBytes) {
   try { parsed = JSON.parse(raw); } catch { throw new FinanceReadError(400, 'INVALID_JSON', 'Geçerli JSON zorunludur.'); }
   if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) throw new FinanceReadError(400, 'INVALID_REQUEST', 'İstek nesne olmalıdır.');
   if (Object.keys(parsed).some(key => !KEYS.has(key))) throw new FinanceReadError(400, 'UNKNOWN_FIELD', 'İstek bilinmeyen alan içeriyor.');
-  if (!['getFinanceOperationalHealth','getHeadquartersFinanceSummary','exportHeadquartersFinanceSummary','listPassThroughExpenses','getPassThroughExpense','listFinanceExportPackages','getFinanceExportPackage','listIntegrationErrors','getIntegrationError','listApprovalWorkItems','getApprovalWorkItem','listAuditEvents','exportAuditEvents','getAuditCorrelationTrace','listDisputes','getDispute','getDealerFinanceSummary','getDealerStatement','getDealerStatementControl','exportDealerStatement','exportAccruals','listAccruals','listPayments','getPayment','getAccrualDetail','listRoyaltyRefunds','listServiceUsages','getServiceUsageDetail','exportServiceUsages','getRoyaltyRefundTrace','getFinancePeriod','getFinancePeriodReconciliations','getCurrentFranchiseContract','listContractVersions','listContractFeeRules','getContractFeeRule','getContractVersionComparison','simulateContractVersionImpact'].includes(parsed.operationId)) throw new FinanceReadError(403, 'OPERATION_DENIED', 'Finans okuma operasyonuna izin verilmiyor.');
+  if (!['getFinanceOperationalHealth','getHeadquartersFinanceSummary','exportHeadquartersFinanceSummary','exportDealerFinanceSummary','listPassThroughExpenses','getPassThroughExpense','listFinanceExportPackages','getFinanceExportPackage','listIntegrationErrors','getIntegrationError','listApprovalWorkItems','getApprovalWorkItem','listAuditEvents','exportAuditEvents','getAuditCorrelationTrace','listDisputes','getDispute','getDealerFinanceSummary','getDealerStatement','getDealerStatementControl','exportDealerStatement','exportAccruals','listAccruals','listPayments','getPayment','getAccrualDetail','listRoyaltyRefunds','listServiceUsages','getServiceUsageDetail','exportServiceUsages','getRoyaltyRefundTrace','getFinancePeriod','getFinancePeriodReconciliations','getCurrentFranchiseContract','listContractVersions','listContractFeeRules','getContractFeeRule','getContractVersionComparison','simulateContractVersionImpact'].includes(parsed.operationId)) throw new FinanceReadError(403, 'OPERATION_DENIED', 'Finans okuma operasyonuna izin verilmiyor.');
   const scope = Object.freeze({
     legalEntityId: uuid(parsed.scope?.legalEntityId, 'legalEntityId'),
     dealerAccountId: uuid(parsed.scope?.dealerAccountId, 'dealerAccountId'),
@@ -97,6 +97,11 @@ async function body(request, maxBytes) {
     const asOf=calendarDate(query.asOf);if(!asOf) throw new FinanceReadError(400,'INVALID_QUERY','Genel merkez özeti için asOf zorunludur.');
     if(typeof query.currency!=='string'||!/^[A-Z]{3}$/.test(query.currency)) throw new FinanceReadError(400,'INVALID_QUERY','Genel merkez özeti için para birimi zorunludur.');
     return Object.freeze({operationId:parsed.operationId,scope,asOf,currency:query.currency});
+  }
+  if(parsed.operationId==='exportDealerFinanceSummary'){
+    if(Object.keys(query).some(key=>key!=='asOf'))throw new FinanceReadError(400,'INVALID_QUERY','Bayi özet exportu yalnız asOf kabul eder.');
+    const asOf=calendarDate(query.asOf);if(!asOf)throw new FinanceReadError(400,'INVALID_QUERY','Bayi özet exportu için asOf zorunludur.');
+    return Object.freeze({operationId:parsed.operationId,scope,dealerAccountId,asOf});
   }
   if(parsed.operationId==='listPassThroughExpenses'){
     const allowed=new Set(['from','to','status','cursor','limit']);if(Object.keys(query).some(key=>!allowed.has(key))) throw new FinanceReadError(400,'INVALID_QUERY','Masraf listesi için geçersiz query parametresi.');const from=calendarDate(query.from,'from'),to=calendarDate(query.to,'to');if(from&&to&&from>to) throw new FinanceReadError(400,'INVALID_QUERY','Masraf tarih aralığı geçersiz.');if(query.status!==undefined&&!['DRAFT','CALCULATED','PENDING_APPROVAL','APPROVED','POSTED','REVERSED'].includes(query.status)) throw new FinanceReadError(400,'INVALID_QUERY','Masraf durumu geçersiz.');if(query.cursor!==undefined&&(typeof query.cursor!=='string'||!query.cursor.length||query.cursor.length>512)) throw new FinanceReadError(400,'INVALID_QUERY','Masraf cursor değeri geçersiz.');if(query.limit!==undefined&&(!Number.isInteger(query.limit)||query.limit<1||query.limit>200)) throw new FinanceReadError(400,'INVALID_QUERY','Masraf limit değeri geçersiz.');return Object.freeze({operationId:parsed.operationId,scope,from,to,status:query.status,cursor:query.cursor,limit:query.limit});
@@ -273,6 +278,7 @@ async function body(request, maxBytes) {
 
 export function createFinanceReadHandler({ allowedOrigins, authenticate, authorizeScope, authorizeHeadquartersScope, readOperationalHealth,readHeadquartersSummary,readExpenses,readExpense,readExportPackages,readExportPackage,readIntegrationErrors,readIntegrationError,readApprovalWorkItems,readApprovalWorkItem,readAuditEvents,exportAuditEvents,readAuditCorrelationTrace,readDisputes,readDispute, readSummary, readStatement,readStatementControl,exportDealerStatement,exportAccruals,readAccruals, readPayments, readPayment, readAccrualDetail, readRoyaltyRefunds, readServiceUsages,readServiceUsageDetail,exportServiceUsages, readRefundTrace, readCurrentPeriod,readPeriodReconciliations, readCurrentContract,readContractVersions, readContractFeeRules,readContractFeeRule,readContractVersionComparison,simulateContractVersionImpact, correlationFactory = () => crypto.randomUUID(), maxBodyBytes = 32768 } = {}) {
   const exportHeadquartersSummary=arguments[0]?.exportHeadquartersSummary||readHeadquartersSummary;
+  const exportDealerSummary=arguments[0]?.exportDealerSummary||readSummary;
   const origins = new Set(allowedOrigins || []);
   const invalidOrigin = value => {
     try { const url = new URL(value); return value === '*' || url.origin !== value || (url.protocol !== 'https:' && !(url.protocol === 'http:' && ['localhost', '127.0.0.1'].includes(url.hostname))); } catch { return true; }
@@ -280,6 +286,7 @@ export function createFinanceReadHandler({ allowedOrigins, authenticate, authori
   if (!origins.size || [...origins].some(invalidOrigin)) throw new Error('HTTPS veya local HTTP açık origin allowlist zorunludur.');
   if (![authenticate, authorizeScope, authorizeHeadquartersScope, readOperationalHealth,readHeadquartersSummary,readExpenses,readExpense,readExportPackages,readExportPackage,readIntegrationErrors,readIntegrationError,readApprovalWorkItems,readApprovalWorkItem,readAuditEvents,exportAuditEvents,readAuditCorrelationTrace,readDisputes,readDispute, readSummary, readStatement,readStatementControl,exportDealerStatement,exportAccruals,readAccruals, readPayments, readPayment, readAccrualDetail, readRoyaltyRefunds, readServiceUsages,readServiceUsageDetail,exportServiceUsages, readRefundTrace, readCurrentPeriod,readPeriodReconciliations, readCurrentContract,readContractVersions, readContractFeeRules,readContractFeeRule,readContractVersionComparison,simulateContractVersionImpact].every(fn => typeof fn === 'function')) throw new Error('Finans sunucu portları zorunludur.');
   if(typeof exportHeadquartersSummary!=='function')throw new Error('Genel merkez export portu zorunludur.');
+  if(typeof exportDealerSummary!=='function')throw new Error('Bayi özet export portu zorunludur.');
   if (!Number.isInteger(maxBodyBytes) || maxBodyBytes < 1024 || maxBodyBytes > 65536) throw new Error('maxBodyBytes 1024–65536 arasında olmalıdır.');
   return async request => {
     const correlationId = correlation(request.headers.get('correlation-id'), correlationFactory);
@@ -295,7 +302,7 @@ export function createFinanceReadHandler({ allowedOrigins, authenticate, authori
       const input = await body(request, maxBodyBytes);
       const allowed=['getFinanceOperationalHealth','getHeadquartersFinanceSummary','exportHeadquartersFinanceSummary','listPassThroughExpenses','getPassThroughExpense','listFinanceExportPackages','getFinanceExportPackage'].includes(input.operationId)
         ? await authorizeHeadquartersScope({actor,legalEntityId:input.scope.legalEntityId,operationId:input.operationId})
-        : await authorizeScope({ actor, scope: input.scope, operationId: input.operationId });
+        : await authorizeScope({ actor, scope: input.scope, operationId: input.operationId==='exportDealerFinanceSummary'?'getDealerFinanceSummary':input.operationId });
       if (allowed !== true) throw new FinanceReadError(403, 'SCOPE_DENIED', 'Finans kapsamına erişim reddedildi.');
       const data = input.operationId === 'getFinanceOperationalHealth'
         ? await readOperationalHealth({actor,...input})
@@ -331,6 +338,8 @@ export function createFinanceReadHandler({ allowedOrigins, authenticate, authori
             ? await readDispute({actor,...input})
         : input.operationId === 'getDealerFinanceSummary'
         ? await readSummary({ actor, ...input })
+        : input.operationId === 'exportDealerFinanceSummary'
+        ? await exportDealerSummary({actor,...input})
         : input.operationId === 'getDealerStatement'
           ? await readStatement({ actor, ...input })
           : input.operationId === 'getDealerStatementControl'

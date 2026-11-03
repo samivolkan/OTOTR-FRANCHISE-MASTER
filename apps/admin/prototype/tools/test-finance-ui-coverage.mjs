@@ -39,5 +39,5 @@ for(const capability of coverage.crossScreenCapabilities){
 }
 
 const counts=Object.fromEntries([...allowed].map(status=>[status,coverage.screens.filter(screen=>screen.status===status).length]));
-assert.deepEqual(counts,{SHELL_ONLY:0,PARTIAL_LIVE_READ:8,PARTIAL_LIVE_WRITE:4,LIVE_READ_VERIFIED:3,LIVE_WRITE:2});
+assert.deepEqual(counts,{SHELL_ONLY:0,PARTIAL_LIVE_READ:2,PARTIAL_LIVE_WRITE:6,LIVE_READ_VERIFIED:4,LIVE_WRITE:5});
 console.log(`PASS finance-ui-coverage: 17 screens; liveWrite=${counts.LIVE_WRITE}; verifiedRead=${counts.LIVE_READ_VERIFIED}; partialRead=${counts.PARTIAL_LIVE_READ}; partialWrite=${counts.PARTIAL_LIVE_WRITE}; shell=${counts.SHELL_ONLY}; decision=NO_GO`);

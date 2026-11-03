@@ -27,6 +27,8 @@ assert.equal(captured.options.headers.apikey, publishableKey);
 assert.equal(captured.options.headers.Authorization, `Bearer ${token}`);
 assert.equal(captured.options.headers['Correlation-Id'], correlationId);
 assert.deepEqual(JSON.parse(captured.options.body), { operationId: 'getDealerFinanceSummary', scope, pathParams: { dealerAccountId: scope.dealerAccountId }, query: { asOf: '2026-11-03' } });
+await client.exportDealerFinanceSummary(scope,{asOf:'2026-11-03'});
+assert.deepEqual(JSON.parse(captured.options.body),{operationId:'exportDealerFinanceSummary',scope,pathParams:{dealerAccountId:scope.dealerAccountId},query:{asOf:'2026-11-03'}});
 await client.getHeadquartersFinanceSummary(scope,{asOf:'2026-11-03',currency:'TRY'});
 assert.deepEqual(JSON.parse(captured.options.body),{operationId:'getHeadquartersFinanceSummary',scope,pathParams:{},query:{asOf:'2026-11-03',currency:'TRY'}});
 await client.getFinanceOperationalHealth(scope);

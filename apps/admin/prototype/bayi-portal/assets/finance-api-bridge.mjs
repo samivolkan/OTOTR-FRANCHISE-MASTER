@@ -1,5 +1,6 @@
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const READ_OPERATION = 'getDealerFinanceSummary';
+const DEALER_SUMMARY_EXPORT_OPERATION='exportDealerFinanceSummary';
 const HEADQUARTERS_OPERATION = 'getHeadquartersFinanceSummary';
 const HEADQUARTERS_EXPORT_OPERATION='exportHeadquartersFinanceSummary';
 const OPERATIONAL_HEALTH_OPERATION = 'getFinanceOperationalHealth';
@@ -132,6 +133,7 @@ export function createFinanceSummaryClient({getConfig, getAccessToken, fetchImpl
       if (asOf !== undefined && !/^\d{4}-\d{2}-\d{2}$/.test(asOf)) throw new FinanceBridgeError('VALIDATION_ERROR', 'asOf YYYY-MM-DD biçiminde olmalıdır.');
       return execute(rawScope, READ_OPERATION, {asOf});
     },
+    async exportDealerFinanceSummary(rawScope,{asOf}={}){if(typeof asOf!=='string'||!/^\d{4}-\d{2}-\d{2}$/.test(asOf))throw new FinanceBridgeError('VALIDATION_ERROR','asOf YYYY-MM-DD biçiminde zorunludur.');return execute(rawScope,DEALER_SUMMARY_EXPORT_OPERATION,{asOf});},
     async getDealerStatement(rawScope, {from,to,status,cursor,limit} = {}) {
       for (const [field,value] of [['from',from],['to',to]]) if (value !== undefined && !/^\d{4}-\d{2}-\d{2}$/.test(value)) throw new FinanceBridgeError('VALIDATION_ERROR', `${field} YYYY-MM-DD biçiminde olmalıdır.`);
       if (from && to && from > to) throw new FinanceBridgeError('VALIDATION_ERROR', 'Ekstre tarih aralığı geçersiz.');
@@ -246,6 +248,7 @@ if (auth && ui) {
         const result = await client.getDealerFinanceSummary(scope, options);
         connectedAsOf=result.data.asOf;
         ui.renderSummary(result.data, result.scope);
+        for(const control of document.querySelectorAll('[data-finance-dealer-export],[data-finance-dealer-dispute]')){control.disabled=false;control.dataset.asOf=result.data.asOf;}
         const periodResult=await client.getCurrentFinancePeriod(scope,{asOf:result.data.asOf});
         ui.renderCurrentPeriod?.(periodResult.data);
         try {
@@ -259,6 +262,7 @@ if (auth && ui) {
         }
         return result;
       } catch (error) {
+        for(const control of document.querySelectorAll('[data-finance-dealer-export],[data-finance-dealer-dispute]'))control.disabled=true;
         ui.setConnectionState('ERROR', error instanceof FinanceBridgeError ? error.message : 'Finans servisine ulaşılamadı.');
         throw error;
       }
@@ -284,6 +288,7 @@ if (auth && ui) {
       if(!scope) throw new FinanceBridgeError('FINANCE_SCOPE_UNAVAILABLE','ERP finans kapsamı henüz sağlanmadı.');
       return client.getHeadquartersFinanceSummary(scope,{asOf:options.asOf||connectedAsOf,currency:options.currency||'TRY'});
     },
+    async exportDealerFinanceSummary(options={}){const scope=configuredScope||refreshContext();if(!scope)throw new FinanceBridgeError('FINANCE_SCOPE_UNAVAILABLE','ERP finans kapsamı henüz sağlanmadı.');return client.exportDealerFinanceSummary(scope,{asOf:options.asOf||connectedAsOf});},
     async exportHeadquartersFinanceSummary(options={}){const scope=configuredScope||refreshContext();if(!scope)throw new FinanceBridgeError('FINANCE_SCOPE_UNAVAILABLE','ERP finans kapsamı henüz sağlanmadı.');return client.exportHeadquartersFinanceSummary(scope,{asOf:options.asOf||connectedAsOf,currency:options.currency||'TRY'});},
     async getFinanceOperationalHealth(){const scope=configuredScope||refreshContext();if(!scope)throw new FinanceBridgeError('FINANCE_SCOPE_UNAVAILABLE','ERP finans kapsamı henüz sağlanmadı.');return client.getFinanceOperationalHealth(scope);},
     async listPassThroughExpenses(options={}){const scope=configuredScope||refreshContext();if(!scope)throw new FinanceBridgeError('FINANCE_SCOPE_UNAVAILABLE','ERP finans kapsamı henüz sağlanmadı.');return client.listPassThroughExpenses(scope,options);},
