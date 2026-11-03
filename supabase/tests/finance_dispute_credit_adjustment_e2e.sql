@@ -12,7 +12,7 @@ returns boolean language sql stable security definer set search_path=pg_catalog 
 create or replace function finance_private.current_actor_can_decide_dispute(p_actor_id uuid,p_dispute_id uuid)
 returns boolean language sql stable security definer set search_path=pg_catalog as $$select true$$;
 create or replace function finance_private.current_actor_can_read_scope(p_actor_id uuid,p_legal_entity_id uuid,p_dealer_account_id uuid,p_branch_id uuid,p_operation_id text)
-returns boolean language sql stable security definer set search_path=pg_catalog as $$select p_operation_id in('listDisputes','getDispute')$$;
+returns boolean language sql stable security definer set search_path=pg_catalog as $$select p_operation_id in('listDisputes','getDispute','getAccrualDetail')$$;
 create or replace function finance_private.resolve_dispute_decision_context(
   p_dispute_id uuid,p_decision_date date,p_accepted_amount numeric
 ) returns jsonb language sql stable security definer set search_path=pg_catalog,finance as $$
@@ -52,6 +52,7 @@ declare
   result jsonb; replay jsonb; dispute_id uuid; version_no bigint; correction_journal uuid; dispute_list jsonb; dispute_detail jsonb;
   credit_count integer; credit_total numeric(24,8); correction_accrual uuid;
 begin
+  insert into public.app_users(id,auth_user_id,branch_id,full_name,role,is_active) values(maker,maker,null,'Sentetik Finans Maker','FINANCE',true);
   insert into finance.legal_entities(id,entity_code,legal_name,status,created_by,correlation_id)
   values(hq,'OTOTR-HQ-DISPUTE-DEMO','OTOTR Sentetik Düzeltme Merkezi','ACTIVE',maker,corr);
   insert into finance.dealer_legal_entities(id,legal_entity_id,dealer_code,legal_name,status,created_by,correlation_id)
@@ -97,6 +98,8 @@ begin
     id,legal_entity_id,accrual_id,dealer_account_id,branch_id,due_date,currency_code,item_type,
     original_amount,allocated_amount,open_amount,status,created_by,correlation_id
   ) values(original_open,hq,original_accrual,account,branch,date '2026-11-15','TRY','DEBIT',140,0,140,'OPEN',maker,corr);
+  result:=finance_api.authorize_dispute_create(account,'OPEN_ITEM',original_open,'finance.disputes.create');
+  if not coalesce((result->>'allowed')::boolean,false) or (result->>'legalEntityId')::uuid<>hq or (result->>'dealerAccountId')::uuid<>account or (result->>'branchId')::uuid<>branch then raise exception 'dispute identity scope authorization failed: %',result;end if;
   insert into finance.document_references(
     id,legal_entity_id,external_document_id,document_type,storage_provider,object_key,content_hash,status,created_by,correlation_id
   ) values(document_id,hq,external_document_id,'DISPUTE_EVIDENCE','LOCAL_TEST','synthetic/dispute/evidence.pdf',repeat('d',64),'ACTIVE',maker,corr);

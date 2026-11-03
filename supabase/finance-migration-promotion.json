@@ -2,7 +2,7 @@
   "manifestId": "OTOTR-FINANCE-LOCAL-MIGRATION-PROMOTION-V1",
   "generatedAtUtc": "2026-11-03T00:28:22.4208782+00:00",
   "sourceRoot": "ototr-finans-modulu/database/supabase",
-  "migrationCount": 93,
+  "migrationCount": 94,
   "applyTarget": "LOCAL_ONLY",
   "stagingApplied": false,
   "productionApplied": false,
@@ -750,6 +750,14 @@
       "sourceSha256": "853DDA954D710CA1EB4AC07D0C19339441F1C4B55D0792EE9489CFAA03A372FB",
       "migration": "20261103010092_finance_dealer_summary_breakdowns.sql",
       "migrationSha256": "853DDA954D710CA1EB4AC07D0C19339441F1C4B55D0792EE9489CFAA03A372FB"
+    },
+    {
+      "version": "20261103010093",
+      "kind": "SECURITY",
+      "source": "internal-review-dispute-create-identity-bridge",
+      "sourceSha256": "1714C8CB4F68816C7400FDFC03241B6403050655FD5F207617905C392322F7FD",
+      "migration": "20261103010093_finance_dispute_create_identity_bridge.sql",
+      "migrationSha256": "1714C8CB4F68816C7400FDFC03241B6403050655FD5F207617905C392322F7FD"
     }
   ]
 }
