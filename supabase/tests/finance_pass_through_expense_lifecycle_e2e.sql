@@ -18,6 +18,8 @@ create or replace function finance_private.current_actor_can_reverse_expense(p_a
 returns boolean language sql stable security definer set search_path=pg_catalog as $$select true$$;
 create or replace function finance_private.current_actor_can_read_headquarters(p_actor_id uuid,p_legal_entity_id uuid,p_operation_id text)
 returns boolean language sql stable security definer set search_path=pg_catalog as $$select p_operation_id in('listPassThroughExpenses','getPassThroughExpense')$$;
+create or replace function finance_private.current_actor_can_upload_expense_evidence(p_actor_id uuid,p_legal_entity_id uuid,p_dealer_account_id uuid,p_branch_id uuid)
+returns boolean language sql stable security definer set search_path=pg_catalog as $$select true$$;
 
 create or replace function finance_private.resolve_approved_expense_allocation_context(
   p_expense_id uuid,p_distribution_method text,p_distribution_rule_reference text
@@ -95,6 +97,8 @@ declare
   period_id constant uuid := '71000000-0000-4000-8000-000000000011';
   document_id constant uuid := '81000000-0000-4000-8000-000000000011';
   external_document_id constant uuid := '82000000-0000-4000-8000-000000000011';
+  uploaded_external_id constant uuid := '82000000-0000-4000-8000-000000000012';
+  uploaded_object_key constant text := 'finance-expenses/11000000-0000-4000-8000-000000000001/41000000-0000-4000-8000-000000000001/31000000-0000-4000-8000-000000000001/82000000-0000-4000-8000-000000000012.pdf';
   corr constant uuid := '91000000-0000-4000-8000-000000000011';
   result jsonb; expense_id uuid; version_no bigint; original_journal uuid; reversal_journal uuid; expense_page jsonb; expense_detail jsonb;
   amount numeric(24,8); item_count integer;
@@ -113,10 +117,14 @@ begin
   values(period_id,hq,'HEADQUARTERS',date '2026-11-01',date '2026-11-30','TRY','LIVE','OPEN',maker,corr);
   insert into finance.document_references(id,legal_entity_id,external_document_id,document_type,storage_provider,object_key,content_hash,status,created_by,correlation_id)
   values(document_id,hq,external_document_id,'SUPPLIER_INVOICE','LOCAL_TEST','synthetic/expense/invoice.pdf',repeat('a',64),'ACTIVE',maker,corr);
+  insert into storage.objects(bucket_id,name,metadata) values('ototr-evidence',uploaded_object_key,jsonb_build_object('size',512,'mimetype','application/pdf'));
+  perform pg_catalog.set_config('request.jwt.claim.role','service_role',true);
+  result:=finance_api.commit_expense_evidence_registration(maker,hq,account_a,branch_a,uploaded_external_id,uploaded_object_key,'application/pdf',512,repeat('b',64),'expense-evidence-demo',repeat('c',64),corr);
+  if result->>'outcome'<>'CREATED' then raise exception 'expense evidence registration failed: %',result;end if;
 
   result:=finance_api.commit_pass_through_expense_create(
     maker,hq,'TED-2026-001','TED-2026-001',fee,date '2026-11-03','TRY',
-    1000.00000000,200.00000000,1200.00000000,'SYNTHETIC-CONTRACT-BASIS',array[external_document_id],
+    1000.00000000,200.00000000,1200.00000000,'SYNTHETIC-CONTRACT-BASIS',array[external_document_id,uploaded_external_id],
     jsonb_build_array(
       jsonb_build_object('branchId',branch_a,'dealerAccountId',account_a),
       jsonb_build_object('branchId',branch_b,'dealerAccountId',account_b)
@@ -124,6 +132,10 @@ begin
   );
   if result->>'outcome'<>'CREATED' then raise exception 'expense create failed: %',result;end if;
   expense_id:=(result->>'expenseId')::uuid;version_no:=(result->>'version')::bigint;
+  perform pg_catalog.set_config('request.jwt.claim.role','authenticated',true);
+  result:=finance_api.get_expense_evidence_locator(hq,expense_id,uploaded_external_id);
+  if result->>'bucketId'<>'ototr-evidence' or result->>'objectKey'<>uploaded_object_key or result->>'expiresIn'<>'120' then raise exception 'expense evidence locator mismatch: %',result;end if;
+  perform pg_catalog.set_config('request.jwt.claim.role','service_role',true);
 
   result:=finance_api.commit_expense_share_calculation(
     maker,expense_id,'EQUAL','SYNTHETIC-EQUAL-V1',version_no,'expense-share-demo',repeat('d',64),corr
@@ -183,7 +195,7 @@ begin
      or expense_page#>>'{items,0,expenseId}'<>expense_id::text
      or expense_page#>>'{items,0,distributableAmount}'<>'1200.00000000'
      or expense_page#>>'{items,0,shareCount}'<>'2'
-     or expense_page#>>'{items,0,documentCount}'<>'1' then raise exception 'expense list projection mismatch: %',expense_page;end if;
+     or expense_page#>>'{items,0,documentCount}'<>'2' then raise exception 'expense list projection mismatch: %',expense_page;end if;
   expense_detail:=finance_api.get_pass_through_expense(hq,expense_id);
   if expense_detail->>'status'<>'REVERSED'
      or jsonb_array_length(expense_detail->'shares')<>2
