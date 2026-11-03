@@ -22,6 +22,7 @@ try{
   assert.match(await page.locator('[data-finance-readiness-passed]').innerText(),/^0 \/ 12$/);
   assert.equal(await page.locator('[data-finance-readiness-body] tr').count(),12);
   const readinessText=await page.locator('[data-finance-readiness]').innerText();assert.match(readinessText,/FIN-G01 · Ticari parametre onayı/);assert.match(readinessText,/PENDING/);assert.doesNotMatch(readinessText,/signedBy|identitySha256|sha256|evidencePath|secret/i);
+  await page.waitForFunction(()=>document.querySelector('[data-finance-commercial]')?.dataset.state==='READY');assert.match(await page.locator('[data-finance-commercial-status]').innerText(),/KARAR BEKLİYOR/);assert.equal(await page.locator('[data-finance-commercial-body] tr').count(),7);const commercialText=await page.locator('[data-finance-commercial]').innerText();assert.match(commercialText,/ROYALTY/);assert.match(commercialText,/ratePercent/);assert.match(commercialText,/KDV dahil oran/);assert.doesNotMatch(commercialText,/financeDirector|financialAdvisor|evidenceSha256|evidencePath/i);
   assert.match(await page.locator('[data-finance-operational-health]').innerText(),/İZLEME GEREKİYOR/);
   assert.match(await page.locator('[data-finance-operational-health]').innerText(),/DOĞRULANDI/);
   assert.match(await page.locator('.finance-screen-stage').innerText(),/248\.000,00000000 TRY/);

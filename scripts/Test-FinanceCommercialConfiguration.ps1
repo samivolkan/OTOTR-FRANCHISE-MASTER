@@ -1,7 +1,8 @@
 [CmdletBinding()]
 param(
   [switch]$RequireApproved,
-  [string]$ConfigurationFile = (Join-Path $PSScriptRoot '..\docs\finance\commercial-configuration.json')
+  [string]$ConfigurationFile = (Join-Path $PSScriptRoot '..\docs\finance\commercial-configuration.json'),
+  [string]$PublicProjectionFile = (Join-Path $PSScriptRoot '..\docs\finance\commercial-configuration-public.json')
 )
 $ErrorActionPreference = 'Stop'
 $root = (Resolve-Path (Join-Path $PSScriptRoot '..')).Path
@@ -15,6 +16,15 @@ $royalty = $d.feeFamilies | Where-Object code -eq 'ROYALTY'
 if ($royalty.trigger -ne 'SETTLED_COLLECTION_PIECE' -or $royalty.calculationMethod -ne 'PERCENTAGE' -or $royalty.basisIncludesTax -ne $true -or $royalty.refundPolicy.mode -ne 'PROPORTIONAL_REVERSAL' -or -not $royalty.refundPolicy.onEachConfirmedRefund -or -not $royalty.refundPolicy.preserveOriginalPeriodReference -or -not $royalty.refundPolicy.preserveOriginalAccrualReference -or -not $royalty.refundPolicy.postToOpenPeriodWhenOriginalLocked) { throw 'Confirmed royalty/refund invariants were changed.' }
 $deduction = $d.feeFamilies | Where-Object code -eq 'DEDUCTION_CREDIT'
 if ($deduction.directBalanceEditAllowed -ne $false) { throw 'Direct balance editing must remain forbidden.' }
+$publicRaw = Get-Content -Raw -LiteralPath (Resolve-Path $PublicProjectionFile)
+$public = $publicRaw | ConvertFrom-Json -Depth 20
+if ($public.schemaVersion -ne 1 -or $public.module -ne $d.module -or $public.projection -ne 'COMMERCIAL_DECISION_STATUS_PUBLIC' -or $public.productionValuesExposed -ne $false -or $public.approvalIdentitiesExposed -ne $false -or $public.evidenceMetadataExposed -ne $false) { throw 'Invalid commercial public projection identity.' }
+if ($publicRaw -match 'financeDirector|financialAdvisor|franchiseManagement|evidencePath|evidenceSha256|signedAtUtc|ratePercent\s*"\s*:|amountOrRate\s*"\s*:') { throw 'Commercial public projection exposes protected approval, evidence or production values.' }
+if (@($public.feeFamilies).Count -ne 7) { throw 'Commercial public projection fee family inventory is incomplete.' }
+foreach ($sourceFamily in $d.feeFamilies) {
+ $projected = @($public.feeFamilies | Where-Object code -eq $sourceFamily.code)
+ if ($projected.Count -ne 1 -or $projected[0].decisionStatus -ne $sourceFamily.decisionStatus -or [string]::IsNullOrWhiteSpace($projected[0].confirmedBehavior) -or $null -eq $projected[0].pendingFields) { throw "Commercial public projection mismatch: $($sourceFamily.code)" }
+}
 $approved = $d.status -eq 'APPROVED'
 if ($approved) {
  if ($d.currencyCode -notmatch '^[A-Z]{3}$' -or $d.roundingMode -notin @('HALF_UP','HALF_EVEN','DOWN','UP')) { throw 'Approved general commercial values are incomplete.' }
