@@ -8,11 +8,6 @@ create or replace function finance_private.current_actor_can_dispatch_invoice(
 ) returns boolean language sql stable security definer set search_path='' as $$select true$$;
 create or replace function finance_private.current_callback_caller_is_trusted()
 returns boolean language sql stable security definer set search_path='' as $$select true$$;
-create or replace function finance_private.current_accounting_batch_worker_is_trusted()
-returns boolean language sql stable security definer set search_path='' as $$select true$$;
-create or replace function finance_private.accounting_export_mapping_is_valid(
-  p_legal_entity_id uuid,p_mapping_version text,p_journal_entry_id uuid
-) returns boolean language sql stable security definer set search_path='' as $$select p_mapping_version='SYNTHETIC-ERP-MAP-V1'$$;
 create or replace function finance_private.current_actor_can_read_headquarters(p_actor_id uuid,p_legal_entity_id uuid,p_operation_id text)
 returns boolean language sql stable security definer set search_path=pg_catalog as $$select p_operation_id in('listFinanceExportPackages','getFinanceExportPackage')$$;
 
@@ -48,8 +43,12 @@ begin
   values(finance_app_user,checker,null,'Sentetik Faturalama Yetkilisi','FINANCE',true);
   result:=finance_api.authorize_billing_batch_scope(account,branch,null,'finance.billing-batches.create');
   if coalesce((result->>'allowed')::boolean,false) is not true or result->>'dealerAccountId'<>account::text or result->>'branchId'<>branch::text then raise exception 'billing create identity scope denied: %',result;end if;
+  result:=finance_api.authorize_accounting_batch_creation_scope(hq,account,branch,'finance.accounting-batches.create');
+  if coalesce((result->>'allowed')::boolean,false) is not true then raise exception 'accounting create identity scope denied: %',result;end if;
   insert into finance.fee_definitions(id,legal_entity_id,code,version_no,fee_family,name,status,created_by,correlation_id)
   values(fee,hq,'SYNTHETIC-BILLING',1,'EXTERNAL_SERVICE','Sentetik Faturalama','PUBLISHED',maker,corr);
+  insert into finance.accounting_mappings(legal_entity_id,fee_definition_id,version_no,effective_from,receivable_account_code,revenue_account_code,tax_account_code,reversal_account_code,erp_mapping_payload,status,prepared_by,approved_by,approved_at_utc,created_by,correlation_id)
+  values(hq,fee,1,date '2026-01-01','120.BAYI','600.HIZMET','391.KDV','600.HIZMET',jsonb_build_object('mappingVersion','SYNTHETIC-ERP-MAP-V1'),'ACTIVE',maker,checker,now(),maker,corr);
 
   insert into finance.finance_periods(
     id,legal_entity_id,scope_type,period_start,period_end,currency_code,mode,status,
@@ -167,11 +166,17 @@ begin
     'accounting-batch-demo',repeat('2',64),corr
   );
   if replay->>'outcome'<>'REPLAY' then raise exception 'accounting batch replay failed: %',replay; end if;
+  result:=finance_api.authorize_accounting_export_scope(export_accounting_batch_id,account,branch,'finance.accounting-batches.export');
+  if coalesce((result->>'allowed')::boolean,false) is not true then raise exception 'accounting export identity scope denied: %',result;end if;
+  result:=finance_api.queue_accounting_export(checker,export_accounting_batch_id,'SYNTHETIC_ERP','SYNTHETIC-ERP-MAP-V1',1,'accounting-export-demo',repeat('3',64),corr);
+  if result->>'outcome'<>'QUEUED' then raise exception 'accounting export queue failed: %',result;end if;
+  replay:=finance_api.queue_accounting_export(checker,export_accounting_batch_id,'SYNTHETIC_ERP','SYNTHETIC-ERP-MAP-V1',1,'accounting-export-demo',repeat('3',64),corr);
+  if replay->>'outcome'<>'REPLAY' then raise exception 'accounting export replay failed: %',replay;end if;
 
   package_list:=finance_api.list_finance_export_packages(hq,null,null,null,25);
   if pg_catalog.jsonb_array_length(package_list->'items')<>2
      or not exists(select 1 from pg_catalog.jsonb_array_elements(package_list->'items') x where x->>'packageType'='BILLING' and x->>'status'='INVOICED' and x->>'grossTotal'='140.00000000')
-     or not exists(select 1 from pg_catalog.jsonb_array_elements(package_list->'items') x where x->>'packageType'='ACCOUNTING' and x->>'status'='READY' and x->>'grossTotal'='140.00000000') then
+     or not exists(select 1 from pg_catalog.jsonb_array_elements(package_list->'items') x where x->>'packageType'='ACCOUNTING' and x->>'status'='EXPORT_QUEUED' and x->>'grossTotal'='140.00000000') then
     raise exception 'finance export package list mismatch: %',package_list;
   end if;
   package_detail:=finance_api.get_finance_export_package(hq,'BILLING',batch_id);
@@ -188,7 +193,7 @@ begin
     raise exception 'accounting export package detail mismatch: %',package_detail;
   end if;
 
-  raise notice 'BILLING + ACCOUNTING E2E PASSED: list/detail projections; 140 TRY billed -> invoice issued -> 140 TRY accounting package ready';
+  raise notice 'BILLING + ACCOUNTING E2E PASSED: 140 TRY billed -> invoice issued -> balanced accounting package -> idempotent export queue';
 end
 $test$;
 
