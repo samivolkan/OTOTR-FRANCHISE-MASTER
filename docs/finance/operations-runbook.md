@@ -47,6 +47,8 @@ Bu komut ERP kimlik bağımlılıkları ile `finance`, `finance_api` ve `finance
 
 ## Pre-production tatbikat kayıt alanları
 
+Operasyon kabul kaydı `docs/finance/staging-operations-evidence.json` dosyasıdır. Alarm/destek kanallarının yalnız secret-manager adları, nöbetçi kimliklerinin yalnız SHA-256 izleri saklanır. Altı tatbikatın tamamı onaylı süre içinde geçmeden `Test-FinanceStagingOperations.ps1 -RequirePassed` başarısız olur ve FIN-G10 kapatılamaz.
+
 - ortam, commit ve migration manifest hash’i;
 - başlangıç/bitiş UTC zamanı;
 - alarmı alan, teknik uygulayan ve finansal kontrolü yapan roller;

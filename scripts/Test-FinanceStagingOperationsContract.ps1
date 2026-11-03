@@ -1,0 +1,11 @@
+$ErrorActionPreference='Stop'
+$root=(Resolve-Path(Join-Path $PSScriptRoot '..')).Path;$tempEvidence=Join-Path $root 'docs\finance\evidence\.operations-test.json';$tempArtifact=Join-Path $root 'docs\finance\evidence\.operations-artifact-test.json'
+try{
+ [IO.File]::WriteAllText($tempArtifact,'{"synthetic":true}',[Text.UTF8Encoding]::new($false));$hash=(Get-FileHash $tempArtifact -Algorithm SHA256).Hash.ToLowerInvariant();$relative=[IO.Path]::GetRelativePath($root,$tempArtifact).Replace('\','/')
+ $d=Get-Content -Raw(Join-Path $root 'docs\finance\staging-operations-evidence.json')|ConvertFrom-Json -Depth 30;$d.status='PASSED';$d.run.environmentId='preprod-synthetic';$d.run.deployedCommit='a'*40;$d.run.startedAtUtc='2026-11-03T01:00:00Z';$d.run.completedAtUtc='2026-11-03T02:00:00Z';$d.run.executedByIdentitySha256='b'*64;$d.run.approvedByIdentitySha256='c'*64
+ $d.configuration.alertChannelSecretName='FINANCE_ALERT_CHANNEL';$d.configuration.supportChannelSecretName='FINANCE_SUPPORT_CHANNEL';$d.configuration.primaryOnCallIdentitySha256='d'*64;$d.configuration.backupOnCallIdentitySha256='e'*64;$d.configuration.supportSlaPolicyPath=$relative;$d.configuration.supportSlaPolicySha256=$hash;$d.configuration.first24hSchedulePath=$relative;$d.configuration.first24hScheduleSha256=$hash
+ foreach($drill in $d.drills){$drill.status='PASSED';$drill.targetMaxMinutes=15;$drill.observedMinutes=10;$drill.evidence=@([pscustomobject]@{path=$relative;sha256=$hash})}
+ [IO.File]::WriteAllText($tempEvidence,($d|ConvertTo-Json -Depth 30),[Text.UTF8Encoding]::new($false));& (Join-Path $PSScriptRoot 'Test-FinanceStagingOperations.ps1') -RequirePassed -EvidenceFile $tempEvidence
+ $d.drills[1].observedMinutes=16;[IO.File]::WriteAllText($tempEvidence,($d|ConvertTo-Json -Depth 30),[Text.UTF8Encoding]::new($false));$rejected=$false;try{& (Join-Path $PSScriptRoot 'Test-FinanceStagingOperations.ps1') -RequirePassed -EvidenceFile $tempEvidence}catch{$rejected=$_.Exception.Message -match 'target breached'};if(-not$rejected){throw'Operations SLA breach was not rejected.'}
+ Write-Host 'FINANCE STAGING OPERATIONS CONTRACT: PASSED' -ForegroundColor Green;Write-Host 'Six drills accepted within approved targets; acknowledgement SLA breach rejected.'
+}finally{foreach($path in @($tempEvidence,$tempArtifact)){if(Test-Path $path){Remove-Item -LiteralPath $path -Force}}}

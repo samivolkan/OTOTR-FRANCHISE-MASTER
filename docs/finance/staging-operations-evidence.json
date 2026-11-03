@@ -1,0 +1,18 @@
+{
+  "schemaVersion": 1,
+  "module": "OTOTR_FRANCHISE_FINANCE",
+  "target": "PREPRODUCTION_OPERATIONS",
+  "status": "NOT_RUN",
+  "productionDataUsed": false,
+  "run": {"environmentId":null,"deployedCommit":null,"startedAtUtc":null,"completedAtUtc":null,"executedByIdentitySha256":null,"approvedByIdentitySha256":null},
+  "configuration": {"alertChannelSecretName":null,"supportChannelSecretName":null,"primaryOnCallIdentitySha256":null,"backupOnCallIdentitySha256":null,"supportSlaPolicyPath":null,"supportSlaPolicySha256":null,"first24hSchedulePath":null,"first24hScheduleSha256":null},
+  "drills": [
+    {"id":"OPS-FIN-01","name":"Alarm teslimi","status":"NOT_RUN","targetMaxMinutes":null,"observedMinutes":null,"evidence":[]},
+    {"id":"OPS-FIN-02","name":"Olay kabulü","status":"NOT_RUN","targetMaxMinutes":null,"observedMinutes":null,"evidence":[]},
+    {"id":"OPS-FIN-03","name":"Correlation araması","status":"NOT_RUN","targetMaxMinutes":null,"observedMinutes":null,"evidence":[]},
+    {"id":"OPS-FIN-04","name":"Eskalasyon zinciri","status":"NOT_RUN","targetMaxMinutes":null,"observedMinutes":null,"evidence":[]},
+    {"id":"OPS-FIN-05","name":"Finansal olay çözümü","status":"NOT_RUN","targetMaxMinutes":null,"observedMinutes":null,"evidence":[]},
+    {"id":"OPS-FIN-06","name":"İlk 24 saat vardiya devri","status":"NOT_RUN","targetMaxMinutes":null,"observedMinutes":null,"evidence":[]}
+  ],
+  "preProductionDecision": "NO_GO"
+}
