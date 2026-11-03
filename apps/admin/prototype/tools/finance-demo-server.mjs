@@ -3,7 +3,10 @@ import {readFile,stat} from 'node:fs/promises';
 import {dirname,extname,join,normalize} from 'node:path';
 import {fileURLToPath} from 'node:url';
 
-const root=join(dirname(fileURLToPath(import.meta.url)),'..','bayi-portal');
+const toolsDir=dirname(fileURLToPath(import.meta.url));
+const root=join(toolsDir,'..','bayi-portal');
+const repositoryRoot=join(toolsDir,'..','..','..','..');
+const publicGovernanceFiles=new Map([['/docs/finance/uat-preproduction-gates.json',join(repositoryRoot,'docs','finance','uat-preproduction-gates.json')],['/docs/finance/preproduction-decision.json',join(repositoryRoot,'docs','finance','preproduction-decision.json')]]);
 const ids={legalEntityId:'11111111-1111-4111-8111-111111111111',dealerAccountId:'22222222-2222-4222-8222-222222222222',branchId:'33333333-3333-4333-8333-333333333333'};
 const money=gross=>({netAmount:gross,taxAmount:'0.00000000',grossAmount:gross,currency:'TRY'});
 const summary={...ids,asOf:'2026-11-03',currencyCode:'TRY',accrued:money('248000.00000000'),invoiced:money('221000.00000000'),collected:money('184500.00000000'),open:money('63500.00000000'),overdue:money('12500.00000000'),feeFamilies:[{feeFamily:'ROYALTY',netAmount:'110000.00000000',taxAmount:'22000.00000000',grossAmount:'132000.00000000',currency:'TRY'},{feeFamily:'QUERY',netAmount:'25000.00000000',taxAmount:'5000.00000000',grossAmount:'30000.00000000',currency:'TRY'}],branchBreakdown:[{branchId:ids.branchId,branchCode:'DEMO-NILUFER',accruedGrossAmount:'248000.00000000',collectedGrossAmount:'184500.00000000',openGrossAmount:'63500.00000000',overdueGrossAmount:'12500.00000000',currency:'TRY'}],operationalContribution:{status:'CALCULATED',amount:'202000.00000000',currency:'TRY',customerNetRevenueAmount:'450000.00000000',gmAccruedGrossAmount:'248000.00000000',method:'CUSTOMER_NET_REVENUE_MINUS_GM_ACCRUALS',isAccountingProfit:false,sourceSystem:'SYNTHETIC_ERP',adapterContractVersion:'1',rawCustomerRecordsExposed:false},calculatedAtUtc:'2026-11-03T06:00:00Z'};
@@ -27,6 +30,9 @@ const server=createServer(async(req,res)=>{
   try{
     if(req.method==='GET'&&req.url==='/health'){
       res.writeHead(200,{'content-type':'application/json; charset=utf-8','cache-control':'no-store'});res.end(JSON.stringify(health));return;
+    }
+    if(req.method==='GET'&&publicGovernanceFiles.has(req.url)){
+      res.writeHead(200,{'content-type':'application/json; charset=utf-8','cache-control':'no-store'});res.end(await readFile(publicGovernanceFiles.get(req.url)));return;
     }
     if(req.method==='POST'&&req.url==='/functions/v1/finance-command'){
       let raw='';for await(const chunk of req)raw+=chunk;if(raw.length>16384)throw new Error('PAYLOAD_TOO_LARGE');const body=JSON.parse(raw);if(body.operationId!=='retryIntegrationError')throw new Error('INVALID_COMMAND');const data={outcome:'QUEUED',errorId:body.command.errorId,jobId:'20202020-2020-4020-8020-202020202020',status:'QUEUED',version:2,correlationId:'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa'};res.writeHead(200,{'content-type':'application/json; charset=utf-8','cache-control':'no-store','correlation-id':data.correlationId});res.end(JSON.stringify({data}));return;

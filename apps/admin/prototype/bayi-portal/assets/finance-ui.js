@@ -86,6 +86,7 @@
   const headquartersEmpty = root.querySelector('[data-finance-headquarters-empty]');
   const dealerBreakdown=root.querySelector('[data-finance-dealer-breakdown]');const dealerBreakdownState=root.querySelector('[data-finance-dealer-breakdown-state]');const dealerFamiliesTable=root.querySelector('[data-finance-dealer-families-table]');const dealerFamilies=root.querySelector('[data-finance-dealer-families]');const dealerBranchesTable=root.querySelector('[data-finance-dealer-branches-table]');const dealerBranches=root.querySelector('[data-finance-dealer-branches]');const dealerBreakdownEmpty=root.querySelector('[data-finance-dealer-breakdown-empty]');const operationalContribution=root.querySelector('[data-finance-operational-contribution]');
   const operationalHealth=root.querySelector('[data-finance-operational-health]');const healthStatus=root.querySelector('[data-finance-health-status]');const healthGenerated=root.querySelector('[data-finance-health-generated]');const healthPending=root.querySelector('[data-finance-health-pending]');const healthAge=root.querySelector('[data-finance-health-age]');const healthDead=root.querySelector('[data-finance-health-dead]');const healthErrors=root.querySelector('[data-finance-health-errors]');const healthAudit=root.querySelector('[data-finance-health-audit]');const healthAuditCount=root.querySelector('[data-finance-health-audit-count]');
+  const readiness=root.querySelector('[data-finance-readiness]');const readinessPassed=root.querySelector('[data-finance-readiness-passed]');const readinessDecision=root.querySelector('[data-finance-readiness-decision]');const readinessState=root.querySelector('[data-finance-readiness-state]');const readinessTable=root.querySelector('[data-finance-readiness-table]');const readinessBody=root.querySelector('[data-finance-readiness-body]');
   const refunds = root.querySelector('[data-finance-refunds]');
   const refundsFrom = root.querySelector('[data-finance-refunds-from]');
   const refundsTo = root.querySelector('[data-finance-refunds-to]');
@@ -802,7 +803,23 @@
   integrationErrorCloseButton.addEventListener('click',resetIntegrationError);
   approvalCloseButton.addEventListener('click',resetApproval);auditCloseButton.addEventListener('click',resetAuditTrace);
 
+  const loadReadiness=async()=>{
+    const failClosed=()=>{readiness.dataset.state='ERROR';readinessPassed.textContent='0 / 12';readinessDecision.textContent='NO_GO';readinessDecision.className='finance-readiness-decision is-no-go';readinessState.textContent='Hazırlık kaydı yüklenemedi veya doğrulanamadı; canlı geçiş kapalı.';readinessTable.hidden=true;readinessBody.replaceChildren();};
+    try{
+      const gatesUrl=new URL('../../../../docs/finance/uat-preproduction-gates.json',window.location.href);const decisionUrl=new URL('../../../../docs/finance/preproduction-decision.json',window.location.href);const [gatesResponse,decisionResponse]=await Promise.all([fetch(gatesUrl,{cache:'no-store'}),fetch(decisionUrl,{cache:'no-store'})]);
+      if(!gatesResponse.ok||!decisionResponse.ok)throw new Error('READINESS_FETCH_FAILED');
+      const [registry,decision]=await Promise.all([gatesResponse.json(),decisionResponse.json()]);
+      const expectedIds=Array.from({length:12},(_,index)=>`FIN-G${String(index+1).padStart(2,'0')}`);const allowedStatuses=new Set(['PENDING','PASSED','FAILED','BLOCKED']);
+      if(registry?.schemaVersion!==1||registry?.module!=='OTOTR_FRANCHISE_FINANCE'||!Array.isArray(registry.gates)||registry.gates.length!==12||decision?.schemaVersion!==1||decision?.module!=='OTOTR_FRANCHISE_FINANCE')throw new Error('READINESS_SCHEMA_INVALID');
+      registry.gates.forEach((gate,index)=>{if(gate?.id!==expectedIds[index]||typeof gate.name!=='string'||typeof gate.owner!=='string'||!allowedStatuses.has(gate.status)||typeof gate.blockingReason!=='string')throw new Error('READINESS_GATE_INVALID');});
+      const passed=registry.gates.filter(gate=>gate.status==='PASSED').length;const isGo=passed===12&&decision.productionDecision==='GO'&&decision.decision==='GO';
+      readinessBody.replaceChildren(...registry.gates.map(gate=>{const row=document.createElement('tr');const values=[`${gate.id} · ${gate.name}`,gate.owner,gate.status,gate.blockingReason||'Engel bildirilmedi.'];values.forEach((value,index)=>{const cell=document.createElement('td');cell.textContent=value;if(index===2)cell.className=`finance-readiness-status is-${gate.status.toLowerCase()}`;row.append(cell);});return row;}));
+      readiness.dataset.state='READY';readinessPassed.textContent=`${passed} / 12`;readinessDecision.textContent=isGo?'GO':'NO_GO';readinessDecision.className=`finance-readiness-decision ${isGo?'is-go':'is-no-go'}`;readinessState.textContent=isGo?'Tüm kapılar geçti ve nihai karar onaylandı.':'Eksik kapılar var; canlı geçiş kapalı.';readinessTable.hidden=false;
+    }catch(error){failClosed();}
+  };
+
   selectScreen(screens[0]);
+  loadReadiness();
   window.OTOTRFinanceRuleDetailUI=Object.freeze({setContractRuleDetailState,renderContractRuleDetail});
   window.OTOTRFinanceComparisonUI=Object.freeze({setContractComparisonState,renderContractVersionComparison,resetContractComparison,getContractImpactScenario,setContractImpactState,renderContractImpactSimulation,contractImpactForm});
   window.OTOTRFinanceTimelineUI=Object.freeze({resetContractTimeline,setContractTimelineState,renderContractTimelinePage,contractTimelineMore});
