@@ -1,0 +1,16 @@
+import assert from 'node:assert/strict';
+import {createFinanceBranchAccessHandler} from '../../../../supabase/functions/finance-branch-access/core.mjs';
+import {createFinanceBranchAccessAdapter} from '../../../../supabase/functions/finance-branch-access/supabase-adapter.mjs';
+const id=n=>`${String(n).padStart(8,'0')}-1111-4111-8111-${String(n).padStart(12,'0')}`;
+const serviceRoleKey='service-role-secret-that-is-longer-than-forty-characters';
+const event={actorId:id(1),legalEntityId:id(2),dealerAccountId:id(3),branchId:id(4),capability:'WORK_ORDER_WRITE',businessDate:'2026-11-03'};
+let captured;
+const handler=createFinanceBranchAccessHandler({serviceRoleKey,correlationFactory:()=>id(8),authorizeAccess:async input=>{captured=input;return {allowed:input.capability==='PAYMENT',accessState:'LOCKED_OVERDUE',reasonCode:'ROYALTY_INVOICE_OVERDUE',blockingOpenItemId:id(9),blockingOpenAmount:'120.00000000',currency:'TRY',evaluatedAtUtc:'2026-11-03T09:00:00Z'};}});
+const request=(body=event,key=serviceRoleKey)=>new Request('https://worker.local',{method:'POST',headers:{authorization:`Bearer ${key}`,'content-type':'application/json'},body:JSON.stringify(body)});
+let response=await handler(request(event,'wrong-secret-that-is-longer-than-forty-characters'));assert.equal(response.status,401);
+response=await handler(request());assert.equal(response.status,423);let payload=await response.json();assert.equal(payload.data.allowed,false);assert.equal(payload.data.reasonCode,'ROYALTY_INVOICE_OVERDUE');assert.equal(captured.capability,'WORK_ORDER_WRITE');
+response=await handler(request({...event,capability:'PAYMENT'}));assert.equal(response.status,200);assert.equal((await response.json()).data.allowed,true);
+response=await handler(request({...event,capability:'bad capability'}));assert.equal(response.status,400);
+const failing=createFinanceBranchAccessHandler({serviceRoleKey,correlationFactory:()=>id(8),authorizeAccess:async()=>{throw new Error('database secret leaked');}});response=await failing(request());payload=await response.json();assert.equal(response.status,500);assert.doesNotMatch(JSON.stringify(payload),/database secret/);
+let call;const adapter=createFinanceBranchAccessAdapter({supabaseUrl:'https://example.supabase.co',serviceRoleKey,fetchImpl:async(url,options)=>{call={url,options};return new Response(JSON.stringify({allowed:true,accessState:'OPEN'}),{status:200,headers:{'content-type':'application/json'}});}});assert.equal((await adapter.authorizeAccess(captured)).allowed,true);assert.equal(call.url,'https://example.supabase.co/rest/v1/rpc/authorize_branch_operation_access');assert.equal(JSON.parse(call.options.body).p_capability,'PAYMENT');
+console.log('PASS finance-branch-access: service authentication, strict ERP capability contract, fail-closed denial, locked payment allowance, safe errors and RPC mapping');

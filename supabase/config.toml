@@ -63,6 +63,9 @@ verify_jwt = false
 [functions.finance-accounting-export-worker]
 verify_jwt = false
 
+[functions.finance-branch-access]
+verify_jwt = false
+
 [analytics]
 enabled = true
 port = 55327
