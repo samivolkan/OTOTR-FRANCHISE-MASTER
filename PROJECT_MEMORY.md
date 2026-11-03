@@ -190,3 +190,11 @@ Each topic conversation must end with:
 - tests run,
 - risks discovered,
 - decisions that should be added to this memory file.
+
+## GM İK Safe Pilot — 2026-11-03
+
+- The Claude-authored HR HTML was imported by copy into `apps/admin/prototype/gm-ik/`; the supplied download remains unchanged.
+- ERP navigation exposes a separate **GM İK Sistemi** heading and **İK Yönetim Merkezi** link. The existing `hr` route remains intact; production must converge both surfaces on one reviewed API/data model.
+- The published module is a synthetic-data workflow pilot, not a production HR system. Real employee, candidate, payroll, health, disciplinary or identity data must not be entered.
+- Production activation remains blocked on server-side Auth/RLS scope, private document storage, special-category data separation, immutable audit, retention/deletion approval, payroll/SGK integration, backup/recovery and legal/KVKK acceptance.
+- GitHub Pages injects the shared ERP session gate into direct HTML entries. The pilot CSP allowlists only the existing OTOTR Supabase HTTPS/WSS origin needed by that gate; no new third-party service was added.

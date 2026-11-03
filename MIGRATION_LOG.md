@@ -382,3 +382,11 @@ Karar ve geri alma: docs/decisions/2026-09-08-kaporta-360-studio.md; migration i
 - User selected Passat B8 as a candidate. Created provisional sedan preparation pack: 28 capture angles, 25 existing inspection regions, model delivery brief and planning JSON. Body/year/trim and actual evidence remain pending.
 - Linked the pack from demo studio preparation; generated in ERP builds. No model purchased/downloaded, no seller contacted, no customer data or database changes.
 - Research found editorial-use label and wheelbase listing discrepancy on candidate 917105; not accepted for integration. Decision: docs/decisions/2026-09-13-passat-b8-pilot.md.
+
+## 2026-11-03 — GM İK safe-pilot import and ERP publication
+
+- Imported the user-supplied `OTOTR İK Modülü.html` by copy into `apps/admin/prototype/gm-ik/`; the download source was not moved or modified.
+- Replaced original sample identities with explicit demo identities, removed external fonts, added no-index/referrer controls, visible real-data prohibition, mobile overflow fixes, readiness gates and a CSP limited to the existing OTOTR Supabase session origin.
+- Added the independent **GM İK Sistemi** / **İK Yönetim Merkezi** ERP navigation bridge while preserving the existing `hr` route.
+- Published the static pilot through `samivolkan/Ototr` commit `c53b5225a8b4d696acbec4ac3930c2017fbaa90d`; GitHub Pages run `41551471430` completed successfully and injected the shared ERP access gate into the direct module entry.
+- No database migration, Supabase schema/RLS change, production HR integration or real employee/candidate record was created. Production activation remains blocked by the acceptance gates in `docs/hr/GM_HR_SYSTEM_ANALYSIS_2026-11-03.md`.

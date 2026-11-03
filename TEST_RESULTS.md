@@ -1306,3 +1306,14 @@ Sınırlar: otomatik fotogrametri, üretici model kütüphanesi, buluttan ses/vi
 - In-app browser checked desktop 1440x1000 and mobile 390x844, section navigation, counts and download links. No page overflow or browser errors observed. No physical print or real vehicle acceptance this turn.
 
 - Public release 34fc593 verified: Passat HTML/JSON/model brief, studio HTML and studio-Em-F5QPx.js returned HTTP 200 with byte-exact build SHA-256 after Pages deployment. Unrelated package-matrix mobile update was preserved.
+
+## 2026-11-03 — GM İK safe-pilot validation
+
+- `node apps/admin/prototype/tools/test-gm-hr.mjs`: PASS. Verified pilot warning, anonymized demo data, legal-policy placeholders, exact ERP-session network allowlist, no business-data network calls, no secret patterns, readiness route, ERP backlink and navigation bridge contract.
+- `node --check apps/admin/prototype/gm-ik/erp-nav-integration.js` and extracted inline-script compilation: PASS.
+- Headless Chrome rendered the ERP shell with `data-gm-hr-heading` and `data-gm-hr-link`; the final navigation labels were **GM İK Sistemi** and **İK Yönetim Merkezi**.
+- Visual QA: desktop 1440×1050 and emulated mobile 390×844. Mobile metrics were `innerWidth=390`, `htmlScrollWidth=390`, module/grid/card widths `390/358/173`; no horizontal page overflow remained.
+- GitHub Pages run `41551471430`: PASS in 44 seconds, including archive-bundle verification, shared access-gate injection, artifact upload and deployment. The workflow emitted only platform migration notices for Node 20 actions and the future `ubuntu-latest` image change.
+- Live HTTP checks returned 200 for ERP root, `gm-ik/` and the navigation bridge. Root contained the integration tag; module contained `OTOTR_AUTH_GATE_V1`, the pilot warning and exact CSP allowlist; bridge contained the heading and mutation observer.
+- Fresh-session browser security smoke redirected direct `gm-ik/` access to `Giriş yap · OTOTR V3` with the original module path preserved in `returnTo`, confirming fail-closed unauthenticated behavior.
+- Limits: no authenticated production role matrix, real employee data, payroll/SGK operation, legal approval, physical mobile device or production write was exercised.
