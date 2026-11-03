@@ -1,0 +1,24 @@
+\set ON_ERROR_STOP on
+begin;
+set local request.jwt.claim.sub='00000000-0000-4000-8000-000000000091';
+create or replace function finance_private.current_actor_can_read_scope(p_actor_id uuid,p_legal_entity_id uuid,p_dealer_account_id uuid,p_branch_id uuid,p_operation_id text)
+returns boolean language sql stable security definer set search_path=pg_catalog as $$select p_operation_id in('listApprovalWorkItems','getApprovalWorkItem','listAuditEvents','getAuditCorrelationTrace')$$;
+do $test$
+declare actor constant uuid:='00000000-0000-4000-8000-000000000091';hq constant uuid:='1a000000-0000-4000-8000-000000000001';dealer constant uuid:='2a000000-0000-4000-8000-000000000001';dealer2 constant uuid:='2a000000-0000-4000-8000-000000000002';branch constant uuid:='3a000000-0000-4000-8000-000000000001';branch2 constant uuid:='3a000000-0000-4000-8000-000000000002';account constant uuid:='4a000000-0000-4000-8000-000000000001';account2 constant uuid:='4a000000-0000-4000-8000-000000000002';req constant uuid:='5a000000-0000-4000-8000-000000000001';subject constant uuid:='6a000000-0000-4000-8000-000000000001';event1 constant uuid:='7a000000-0000-4000-8000-000000000001';event2 constant uuid:='7a000000-0000-4000-8000-000000000002';corr constant uuid:='9a000000-0000-4000-8000-000000000001';v jsonb;d jsonb;t jsonb;
+begin
+ insert into finance.legal_entities(id,entity_code,legal_name,status,created_by,correlation_id)values(hq,'OTOTR-HQ-GOV-DEMO','Sentetik Yönetişim Merkezi','ACTIVE',actor,corr);
+ insert into finance.dealer_legal_entities(id,legal_entity_id,dealer_code,legal_name,status,created_by,correlation_id)values(dealer,hq,'GOV-D1','Sentetik Bayi 1','ACTIVE',actor,corr),(dealer2,hq,'GOV-D2','Sentetik Bayi 2','ACTIVE',actor,corr);
+ insert into finance.branches(id,legal_entity_id,dealer_legal_entity_id,branch_code,status,created_by,correlation_id)values(branch,hq,dealer,'GOV-B1','ACTIVE',actor,corr),(branch2,hq,dealer2,'GOV-B2','ACTIVE',actor,corr);
+ insert into finance.dealer_accounts(id,legal_entity_id,dealer_legal_entity_id,account_code,currency_code,status,created_by,correlation_id)values(account,hq,dealer,'GOV-A1','TRY','ACTIVE',actor,corr),(account2,hq,dealer2,'GOV-A2','TRY','ACTIVE',actor,corr);
+ insert into finance.approval_requests(id,legal_entity_id,subject_type,subject_id,approval_policy_version,prepared_by,subject_snapshot,subject_snapshot_hash,status,created_by,correlation_id)values(req,hq,'SYNTHETIC_GOVERNANCE',subject,'GOV_V1',actor,jsonb_build_object('dealerAccountId',account,'branchId',branch,'secret','must-not-leak'),repeat('a',64),'PENDING',actor,corr);
+ insert into finance.approval_steps(approval_request_id,step_no,required_role,evidence_ref,created_by,correlation_id)values(req,1,'finance-approver','secret-evidence-ref',actor,corr);
+ insert into finance.audit_events(id,legal_entity_id,actor_id,actor_type,action_code,subject_type,subject_id,decision,integrity_hash,safe_context,created_at_utc,correlation_id)values(event1,hq,actor,'USER','GOV_CREATED','SYNTHETIC_GOVERNANCE',subject,'ALLOW',repeat('b',64),jsonb_build_object('dealerAccountId',account,'branchId',branch,'secret','must-not-leak'),now()-interval '1 minute',corr),(event2,hq,actor,'USER','GOV_SUBMITTED','SYNTHETIC_GOVERNANCE',subject,'ALLOW',repeat('c',64),jsonb_build_object('dealerAccountId',account,'branchId',branch,'secret','must-not-leak'),now(),corr);
+ v:=finance_api.list_approval_work_items(hq,account,branch,'PENDING',null,null,25);d:=finance_api.get_approval_work_item(hq,account,branch,req);
+ if jsonb_array_length(v->'items')<>1 or jsonb_array_length(d->'steps')<>1 or d::text like '%must-not-leak%' or d::text like '%secret-evidence-ref%' or d::text like '%subject_snapshot%' then raise exception 'unsafe approval projection: % / %',v,d;end if;
+ if jsonb_array_length((finance_api.list_approval_work_items(hq,account2,branch2,null,null,null,25))->'items')<>0 then raise exception 'cross-scope approval leak';end if;
+ v:=finance_api.list_audit_events(hq,account,branch,null,null,null,25);t:=finance_api.get_audit_correlation_trace(hq,account,branch,corr);
+ if jsonb_array_length(v->'items')<>2 or t->>'eventCount'<>'2' or t->>'rawContextExposed'<>'false' or t::text like '%must-not-leak%' then raise exception 'unsafe audit projection: % / %',v,t;end if;
+ if jsonb_array_length((finance_api.list_audit_events(hq,account2,branch2,null,null,null,25))->'items')<>0 then raise exception 'cross-scope audit leak';end if;
+ raise notice 'GOVERNANCE READ E2E PASSED: safe projections and cross-scope isolation verified';
+end $test$;
+rollback;
