@@ -2,6 +2,8 @@
 
 Bu belge FIN-G03 ve FIN-G05 için gerekli teknik girdileri toplar. Üretim kimlik bilgileri repository'ye yazılmaz; yalnız secret manager referansı kaydedilir.
 
+Dağıtılacak 130 migration ve sekiz finans Edge Function paketinin değişmez hash, JWT politikası ve gerekli secret **adları** `staging-deployment-manifest.json` içinde tutulur. Manifest gerçek secret değeri veya proje endpoint'i içeremez; `stagingApplied` ancak gerçek dağıtım ve smoke-test kanıtı ayrıca imzalandıktan sonra güncellenebilir.
+
 ## Ana veri eşlemeleri
 
 | Alan | ERP kaynak nesnesi/alanı | Finans hedefi | Tekillik anahtarı | Sahip | Durum |

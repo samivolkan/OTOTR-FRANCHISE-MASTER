@@ -48,6 +48,21 @@ verify_jwt = true
 # Internal endpoint verifies the complete service-role secret itself.
 verify_jwt = false
 
+[functions.finance-customer-revenue-worker]
+verify_jwt = false
+
+[functions.finance-payment-ingestion-worker]
+verify_jwt = false
+
+[functions.finance-service-usage-worker]
+verify_jwt = false
+
+[functions.finance-invoice-callback-worker]
+verify_jwt = false
+
+[functions.finance-accounting-export-worker]
+verify_jwt = false
+
 [analytics]
 enabled = true
 port = 55327
