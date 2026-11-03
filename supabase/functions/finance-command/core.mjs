@@ -16,7 +16,7 @@ async function parse(request,maxBodyBytes){
   const raw=await request.text();if(encode(raw).byteLength>maxBodyBytes)throw new FinanceCommandError(413,'PAYLOAD_TOO_LARGE','Komut gövdesi sınırı aşıldı.');
   let body;try{body=JSON.parse(raw);}catch{throw new FinanceCommandError(400,'INVALID_JSON','Geçerli JSON zorunludur.');}
   if(!body||typeof body!=='object'||Array.isArray(body)||Object.keys(body).some(key=>!KEYS.has(key)))throw new FinanceCommandError(400,'INVALID_COMMAND','Komut sözleşmesi geçersiz.');
-  if(!['retryIntegrationError','updateContractFeeRule'].includes(body.operationId))throw new FinanceCommandError(403,'OPERATION_DENIED','Finans komutuna izin verilmiyor.');
+  if(!['retryIntegrationError','updateContractFeeRule','submitContractVersion','approveContractVersion','publishContractVersion'].includes(body.operationId))throw new FinanceCommandError(403,'OPERATION_DENIED','Finans komutuna izin verilmiyor.');
   const scope=Object.freeze({legalEntityId:uuid(body.scope?.legalEntityId,'legalEntityId'),dealerAccountId:uuid(body.scope?.dealerAccountId,'dealerAccountId'),branchId:uuid(body.scope?.branchId,'branchId')});
   const command=body.command;if(!command||typeof command!=='object'||Array.isArray(command))throw new FinanceCommandError(400,'INVALID_COMMAND','Komut gövdesi geçersiz.');
   if(body.operationId==='updateContractFeeRule'){
@@ -29,6 +29,12 @@ async function parse(request,maxBodyBytes){
     if(!Number.isInteger(command.expectedVersion)||command.expectedVersion<1||typeof command.idempotencyKey!=='string'||command.idempotencyKey.length<8||command.idempotencyKey.length>200||!/^[A-Za-z0-9:_-]+$/.test(command.idempotencyKey))throw new FinanceCommandError(400,'INVALID_COMMAND','Kural sürümü veya idempotency anahtarı geçersiz.');
     return Object.freeze({operationId:body.operationId,scope,contractVersionId:uuid(command.contractVersionId,'contractVersionId'),feeRuleId:uuid(command.feeRuleId,'feeRuleId'),expectedVersion:command.expectedVersion,rule:Object.freeze(rule),idempotencyKey:command.idempotencyKey});
   }
+  if(['submitContractVersion','approveContractVersion','publishContractVersion'].includes(body.operationId)){
+    if(Object.keys(command).some(key=>!['contractVersionId','expectedVersion','reasonCode','note','idempotencyKey'].includes(key)))throw new FinanceCommandError(400,'INVALID_COMMAND','Sözleşme sürümü yaşam döngüsü komutu geçersiz.');
+    if(typeof command.reasonCode!=='string'||!REASON.test(command.reasonCode)||typeof command.note!=='string'||!command.note.trim()||command.note.length>2000)throw new FinanceCommandError(400,'INVALID_COMMAND','Karar nedeni ve 1–2000 karakter not zorunludur.');
+    if(!Number.isInteger(command.expectedVersion)||command.expectedVersion<1||typeof command.idempotencyKey!=='string'||command.idempotencyKey.length<8||command.idempotencyKey.length>200||!/^[A-Za-z0-9:_-]+$/.test(command.idempotencyKey))throw new FinanceCommandError(400,'INVALID_COMMAND','Sürüm veya idempotency anahtarı geçersiz.');
+    return Object.freeze({operationId:body.operationId,scope,contractVersionId:uuid(command.contractVersionId,'contractVersionId'),expectedVersion:command.expectedVersion,reasonCode:command.reasonCode,note:command.note.trim(),idempotencyKey:command.idempotencyKey});
+  }
   if(Object.keys(command).some(key=>!['errorId','reasonCode','resolutionNote','expectedVersion','idempotencyKey'].includes(key)))throw new FinanceCommandError(400,'INVALID_COMMAND','Retry komutu geçersiz.');
   const errorId=uuid(command.errorId,'errorId');
   if(typeof command.reasonCode!=='string'||!REASON.test(command.reasonCode))throw new FinanceCommandError(400,'INVALID_COMMAND','reasonCode geçersiz.');
@@ -38,10 +44,10 @@ async function parse(request,maxBodyBytes){
   return Object.freeze({operationId:body.operationId,scope,errorId,reasonCode:command.reasonCode,resolutionNote:command.resolutionNote.trim(),expectedVersion:command.expectedVersion,idempotencyKey:command.idempotencyKey});
 }
 
-export function createFinanceCommandHandler({allowedOrigins,authenticate,authorizeRetry,commitRetry,authorizeFeeRuleUpdate,commitFeeRuleUpdate,correlationFactory=()=>crypto.randomUUID(),digest=sha256,maxBodyBytes=16384}={}){
+export function createFinanceCommandHandler({allowedOrigins,authenticate,authorizeRetry,commitRetry,authorizeFeeRuleUpdate,commitFeeRuleUpdate,authorizeContractVersionSubmit,commitContractVersionSubmit,authorizeContractVersionApprove,commitContractVersionApprove,authorizeContractVersionPublish,commitContractVersionPublish,correlationFactory=()=>crypto.randomUUID(),digest=sha256,maxBodyBytes=16384}={}){
   const origins=new Set(allowedOrigins||[]);const invalid=value=>{try{const u=new URL(value);return value==='*'||u.origin!==value||(u.protocol!=='https:'&&!(u.protocol==='http:'&&['localhost','127.0.0.1'].includes(u.hostname)));}catch{return true;}};
   if(!origins.size||[...origins].some(invalid))throw new Error('HTTPS veya local HTTP açık origin allowlist zorunludur.');
-  if(![authenticate,authorizeRetry,commitRetry,authorizeFeeRuleUpdate,commitFeeRuleUpdate,digest].every(fn=>typeof fn==='function'))throw new Error('Finans komut portları zorunludur.');
+  if(![authenticate,authorizeRetry,commitRetry,authorizeFeeRuleUpdate,commitFeeRuleUpdate,authorizeContractVersionSubmit,commitContractVersionSubmit,authorizeContractVersionApprove,commitContractVersionApprove,authorizeContractVersionPublish,commitContractVersionPublish,digest].every(fn=>typeof fn==='function'))throw new Error('Finans komut portları zorunludur.');
   if(!Number.isInteger(maxBodyBytes)||maxBodyBytes<1024||maxBodyBytes>32768)throw new Error('maxBodyBytes 1024–32768 arasında olmalıdır.');
   return async request=>{
     const rawCorrelation=request.headers.get('correlation-id');const correlationId=typeof rawCorrelation==='string'&&UUID.test(rawCorrelation)?rawCorrelation.toLowerCase():correlationFactory();const origin=request.headers.get('origin')||'';
@@ -53,7 +59,7 @@ export function createFinanceCommandHandler({allowedOrigins,authenticate,authori
       const match=/^Bearer\s+([^\s]+)$/i.exec(request.headers.get('authorization')||'');if(!match||match[1].length<20)throw new FinanceCommandError(401,'AUTH_REQUIRED','Geçerli kullanıcı oturumu gereklidir.');
       const actor=await authenticate(match[1]);if(!actor?.id||!UUID.test(actor.id))throw new FinanceCommandError(401,'AUTH_REQUIRED','Kullanıcı doğrulanamadı.');
       const input=await parse(request,maxBodyBytes);
-      const authorized=input.operationId==='retryIntegrationError'?await authorizeRetry({actor,errorId:input.errorId}):await authorizeFeeRuleUpdate({actor,contractVersionId:input.contractVersionId,feeRuleId:input.feeRuleId});
+      const authorized=input.operationId==='retryIntegrationError'?await authorizeRetry({actor,errorId:input.errorId}):input.operationId==='updateContractFeeRule'?await authorizeFeeRuleUpdate({actor,contractVersionId:input.contractVersionId,feeRuleId:input.feeRuleId}):input.operationId==='submitContractVersion'?await authorizeContractVersionSubmit({actor,contractVersionId:input.contractVersionId}):input.operationId==='approveContractVersion'?await authorizeContractVersionApprove({actor,contractVersionId:input.contractVersionId}):await authorizeContractVersionPublish({actor,contractVersionId:input.contractVersionId});
       if(!authorized?.allowed||authorized.legalEntityId!==input.scope.legalEntityId||authorized.dealerAccountId!==input.scope.dealerAccountId||authorized.branchId!==input.scope.branchId)throw new FinanceCommandError(403,'SCOPE_DENIED','Finans komutu kapsamına erişim reddedildi.');
       if(input.operationId==='updateContractFeeRule'){
         const intentHash=await digest([input.contractVersionId,input.feeRuleId,input.expectedVersion,canonical(input.rule),input.idempotencyKey].join('|'));
@@ -61,6 +67,14 @@ export function createFinanceCommandHandler({allowedOrigins,authenticate,authori
         const result=await commitFeeRuleUpdate({actorId:actor.id,scope:input.scope,dealerLegalEntityId:authorized.dealerLegalEntityId,contractVersionId:input.contractVersionId,feeRuleId:input.feeRuleId,expectedVersion:input.expectedVersion,rule:input.rule,idempotencyKey:input.idempotencyKey,intentHash,correlationId});
         if(!result||!['UPDATED','REPLAY','CONFLICT'].includes(result.outcome))throw new Error('invalid fee rule commit response');
         return json(origin,correlationId,result.outcome==='CONFLICT'?409:200,{data:{outcome:result.outcome,resource:result.resource||null,correlationId}});
+      }
+      if(['submitContractVersion','approveContractVersion','publishContractVersion'].includes(input.operationId)){
+        const noteHash=await digest(input.note);const intentHash=await digest([input.operationId,input.contractVersionId,input.expectedVersion,input.reasonCode,noteHash,input.idempotencyKey].join('|'));
+        if(!/^[a-f0-9]{64}$/.test(noteHash)||!/^[a-f0-9]{64}$/.test(intentHash))throw new FinanceCommandError(503,'DIGEST_UNAVAILABLE','Komut özeti üretilemedi.');
+        const commit=input.operationId==='submitContractVersion'?commitContractVersionSubmit:input.operationId==='approveContractVersion'?commitContractVersionApprove:commitContractVersionPublish;
+        const result=await commit({actorId:actor.id,scope:input.scope,dealerLegalEntityId:authorized.dealerLegalEntityId,contractVersionId:input.contractVersionId,expectedVersion:input.expectedVersion,reasonCode:input.reasonCode,note:input.note,noteHash,idempotencyKey:input.idempotencyKey,intentHash,correlationId});
+        if(!result||!['SUBMITTED','APPROVED','CREATED','REPLAY','CONFLICT'].includes(result.outcome))throw new Error('invalid contract version lifecycle response');
+        return json(origin,correlationId,result.outcome==='CONFLICT'?409:200,{data:{...result,correlationId}});
       }
       const resolutionNoteHash=await digest(input.resolutionNote);
       const intentHash=await digest([input.errorId,input.reasonCode,resolutionNoteHash,input.expectedVersion,input.idempotencyKey].join('|'));

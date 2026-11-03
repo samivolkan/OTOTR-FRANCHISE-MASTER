@@ -1,6 +1,6 @@
 # finance-command
 
-Authenticated, allowlisted and server-committed GM Finance command endpoint. Supported commands are `retryIntegrationError` and `updateContractFeeRule`.
+Authenticated, allowlisted and server-committed GM Finance command endpoint. Supported commands are `retryIntegrationError`, `updateContractFeeRule`, `submitContractVersion`, `approveContractVersion`, and `publishContractVersion`.
 
 Security boundaries:
 
@@ -11,6 +11,7 @@ Security boundaries:
 - only the server-side service-role call can invoke `commit_integration_error_retry`;
 - fee-rule updates are accepted only for draft rule/version pairs, resolve their canonical ERP finance scope with `finance.fee-rules.update`, and can invoke `commit_fee_rule_update` only through the service-role adapter;
 - fee-rule command intent is canonically serialized and hashed before commit; optimistic version and idempotency conflicts are returned without overwriting a newer draft;
+- contract-version submission, independent approval and publication are separate commands; the maker cannot approve their own version and only an approved version can be published;
 - idempotent replay is returned as `REPLAY`; different intent with the same key is `409 CONFLICT`.
 
 Required configuration: `SUPABASE_URL`, `SUPABASE_PUBLISHABLE_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, and explicit `OTOTR_FINANCE_ALLOWED_ORIGINS`.
