@@ -2,9 +2,9 @@
 begin;
 set local request.jwt.claim.sub='00000000-0000-4000-8000-000000000091';
 create or replace function finance_private.current_actor_can_read_scope(p_actor_id uuid,p_legal_entity_id uuid,p_dealer_account_id uuid,p_branch_id uuid,p_operation_id text)
-returns boolean language sql stable security definer set search_path=pg_catalog as $$select p_operation_id in('listApprovalWorkItems','getApprovalWorkItem','listAuditEvents','getAuditCorrelationTrace')$$;
+returns boolean language sql stable security definer set search_path=pg_catalog as $$select p_operation_id in('listApprovalWorkItems','getApprovalWorkItem','listAuditEvents','exportAuditEvents','getAuditCorrelationTrace')$$;
 do $test$
-declare actor constant uuid:='00000000-0000-4000-8000-000000000091';hq constant uuid:='1a000000-0000-4000-8000-000000000001';dealer constant uuid:='2a000000-0000-4000-8000-000000000001';dealer2 constant uuid:='2a000000-0000-4000-8000-000000000002';branch constant uuid:='3a000000-0000-4000-8000-000000000001';branch2 constant uuid:='3a000000-0000-4000-8000-000000000002';account constant uuid:='4a000000-0000-4000-8000-000000000001';account2 constant uuid:='4a000000-0000-4000-8000-000000000002';req constant uuid:='5a000000-0000-4000-8000-000000000001';subject constant uuid:='6a000000-0000-4000-8000-000000000001';event1 constant uuid:='7a000000-0000-4000-8000-000000000001';event2 constant uuid:='7a000000-0000-4000-8000-000000000002';corr constant uuid:='9a000000-0000-4000-8000-000000000001';v jsonb;d jsonb;t jsonb;
+declare actor constant uuid:='00000000-0000-4000-8000-000000000091';hq constant uuid:='1a000000-0000-4000-8000-000000000001';dealer constant uuid:='2a000000-0000-4000-8000-000000000001';dealer2 constant uuid:='2a000000-0000-4000-8000-000000000002';branch constant uuid:='3a000000-0000-4000-8000-000000000001';branch2 constant uuid:='3a000000-0000-4000-8000-000000000002';account constant uuid:='4a000000-0000-4000-8000-000000000001';account2 constant uuid:='4a000000-0000-4000-8000-000000000002';req constant uuid:='5a000000-0000-4000-8000-000000000001';subject constant uuid:='6a000000-0000-4000-8000-000000000001';event1 constant uuid:='7a000000-0000-4000-8000-000000000001';event2 constant uuid:='7a000000-0000-4000-8000-000000000002';corr constant uuid:='9a000000-0000-4000-8000-000000000001';v jsonb;d jsonb;t jsonb;e jsonb;
 begin
  insert into finance.legal_entities(id,entity_code,legal_name,status,created_by,correlation_id)values(hq,'OTOTR-HQ-GOV-DEMO','Sentetik Yönetişim Merkezi','ACTIVE',actor,corr);
  insert into finance.dealer_legal_entities(id,legal_entity_id,dealer_code,legal_name,status,created_by,correlation_id)values(dealer,hq,'GOV-D1','Sentetik Bayi 1','ACTIVE',actor,corr),(dealer2,hq,'GOV-D2','Sentetik Bayi 2','ACTIVE',actor,corr);
@@ -20,6 +20,9 @@ begin
  if jsonb_array_length(v->'items')<>2 or t->>'eventCount'<>'2' or t->>'rawContextExposed'<>'false' or t->>'chainProjection'<>'SHA256_V2_VERIFIED' or t#>>'{chainVerification,valid}'<>'true' or t#>>'{chainVerification,checkedEventCount}'<>'2' or t::text like '%must-not-leak%' then raise exception 'unsafe or unverified audit projection: % / %',v,t;end if;
  if exists(select 1 from finance.audit_events where legal_entity_id=hq and(length(integrity_hash)<>64 or safe_context->>'integrityVersion'<>'AUDIT_SHA256_V2'))then raise exception 'non canonical audit hash persisted';end if;
  if jsonb_array_length((finance_api.list_audit_events(hq,account2,branch2,null,null,null,25))->'items')<>0 then raise exception 'cross-scope audit leak';end if;
+ e:=finance_api.export_audit_events(hq,account,branch,now()-interval '1 day',now()+interval '1 day',null,'SYNTHETIC_GOVERNANCE',10000);
+ if e->>'documentType'<>'OTOTR_FINANCE_AUDIT_EXPORT' or e->>'rowCount'<>'2' or e->>'totalMatchingCount'<>'2' or e->>'truncated'<>'false' or e->>'rawContextExposed'<>'false' or e::text like '%must-not-leak%' or e::text like '%safe_context%' then raise exception 'unsafe audit export: %',e;end if;
+ e:=finance_api.export_audit_events(hq,account2,branch2,null,null,null,null,10000);if e->>'rowCount'<>'0' then raise exception 'cross-scope audit export leak: %',e;end if;
  raise notice 'GOVERNANCE READ E2E PASSED: safe projections and cross-scope isolation verified';
 end $test$;
 rollback;
