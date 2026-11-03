@@ -177,6 +177,7 @@ try {
       const data = {
         accrualId,sourceEventId:'88888888-8888-4888-8888-888888888888',feeRuleId:'99999999-9999-4999-8999-999999999999',status:'POSTED',
         calculation:{status:'CALCULATED',amounts:{netAmount:'100.00000000',taxAmount:'20.00000000',grossAmount:'120.00000000',currency:'TRY'}},
+        calculationTrace:{fee:{code:'ROYALTY',name:'Royalty',family:'ROYALTY'},basis:{definition:{type:'COLLECTED_GROSS'},amount:'1200.00000000',currency:'TRY'},calculation:{method:'PERCENTAGE',parameters:{rate:'0.10'}},tax:{rate:'0.20000000',priceIncludesTax:true,versionId:'77777777-7777-4777-8777-777777777777'},rounding:{mode:'HALF_UP',decimalScale:2,currency:'TRY'},amounts:{netAmount:'100.00000000',taxAmount:'20.00000000',grossAmount:'120.00000000',currency:'TRY'},period:{periodId:'66666666-6666-4666-8666-666666666666',status:'OPEN',businessDate:'2026-11-03'},provenance:{calculationRunId:'55555555-5555-4555-8555-555555555551',runType:'LIVE',calculationStatus:'POSTED',inputHash:'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',resultHash:'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb',snapshotHash:'cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc'},rawInputExposed:false},
         journalEntry:{journalEntryId:'aaaaaaaa-bbbb-4ccc-8ddd-eeeeeeeeeeee',entryNumber:'JE-TEST-001',postingDate:'2026-11-03',currency:'TRY',source:{sourceType:'customer-payment.settled'},lines:[
           {accountCode:'120.01',direction:'DEBIT',amount:'120.00000000',description:'Bayi alacağı'},
           {accountCode:'600.01',direction:'CREDIT',amount:'100.00000000',description:'Royalty geliri'},
@@ -468,6 +469,10 @@ try {
   assert.match(await page.locator('[data-finance-accrual-detail]').innerText(), /120,00000000 TRY/);
   assert.match(await page.locator('[data-finance-accrual-lines]').innerText(), /Royalty geliri/);
   assert.equal(requests.at(-1).operationId, 'getAccrualDetail');
+  assert.match(await page.locator('[data-finance-accrual-detail]').innerText(),/ROYALTY · ROYALTY/);
+  assert.match(await page.locator('[data-finance-accrual-detail]').innerText(),/PERCENTAGE/);
+  assert.match(await page.locator('[data-finance-accrual-detail]').innerText(),/%0.20000000/);
+  assert.match(await page.locator('[data-finance-accrual-detail]').innerText(),/HALF_UP · 2 hane · TRY/);
   await page.click('[data-finance-accrual-close]');
   assert.equal(await page.locator('[data-finance-accrual-detail]').isVisible(), true);
   assert.equal(await page.locator('[data-finance-accrual-detail]').getAttribute('data-state'), 'EMPTY');

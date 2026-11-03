@@ -48,6 +48,7 @@ declare
   v_refund_result jsonb;
   v_trace jsonb;
   v_trace_by_accrual jsonb;
+  v_calculation_trace jsonb;
   v_refund_list jsonb;
   v_replay jsonb;
   v_original_accrual uuid;
@@ -205,6 +206,15 @@ begin
 
   select a.gross_amount into v_amount from finance.accruals a where a.id=v_original_accrual;
   if v_amount <> 118.00000000 then raise exception 'royalty gross mismatch: %',v_amount; end if;
+
+  v_calculation_trace:=finance_api.get_accrual_calculation_trace(v_hq,v_account,v_branch,v_original_accrual);
+  if v_calculation_trace#>>'{basis,amount}'<>'1180.00000000'
+     or v_calculation_trace#>>'{calculation,method}'<>'PERCENTAGE'
+     or v_calculation_trace#>>'{calculation,parameters,rate}'<>'0.10'
+     or v_calculation_trace#>>'{tax,rate}'<>'0.20000000'
+     or (v_calculation_trace->>'rawInputExposed')::boolean then
+    raise exception 'safe calculation trace mismatch: %',v_calculation_trace;
+  end if;
 
   select oi.open_amount into v_amount from finance.open_items oi
    where oi.accrual_id=v_original_accrual and oi.item_type='DEBIT';

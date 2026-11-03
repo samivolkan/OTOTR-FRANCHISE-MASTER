@@ -128,6 +128,7 @@
   const accrualSource = root.querySelector('[data-finance-accrual-source]');
   const accrualRule = root.querySelector('[data-finance-accrual-rule]');
   const accrualLines = root.querySelector('[data-finance-accrual-lines]');
+  const accrualFee=root.querySelector('[data-finance-accrual-fee]'),accrualBasis=root.querySelector('[data-finance-accrual-basis]'),accrualMethod=root.querySelector('[data-finance-accrual-method]'),accrualParameters=root.querySelector('[data-finance-accrual-parameters]'),accrualTax=root.querySelector('[data-finance-accrual-tax]'),accrualTaxPolicy=root.querySelector('[data-finance-accrual-tax-policy]'),accrualRounding=root.querySelector('[data-finance-accrual-rounding]'),accrualPeriod=root.querySelector('[data-finance-accrual-period]'),accrualProvenance=root.querySelector('[data-finance-accrual-provenance]');
   const refundDetail = root.querySelector('[data-finance-refund-detail]');
   const refundCloseButton = root.querySelector('[data-finance-refund-close]');
   const refundState = root.querySelector('[data-finance-refund-state]');
@@ -537,13 +538,15 @@
     accrualState.textContent = 'Tahakkuk listesinden bir kayıt seçin.';
     accrualContent.hidden = true;
     accrualLines.replaceChildren();
+    accrualProvenance.replaceChildren();
   };
   const renderAccrualDetail = payload => {
     const calculation = payload?.calculation;
     const journal = payload?.journalEntry;
     const amounts = calculation?.amounts;
     const lines = journal?.lines;
-    if (!uuidPattern.test(payload?.accrualId || '') || typeof payload.status !== 'string' || !amounts || typeof amounts.grossAmount !== 'string' || !/^[A-Z]{3}$/.test(amounts.currency || '') || !journal || !uuidPattern.test(journal.journalEntryId || '') || journal.currency !== amounts.currency || !Array.isArray(lines) || lines.length < 2) throw new Error('INVALID_FINANCE_ACCRUAL');
+    const trace=payload?.calculationTrace;
+    if (!uuidPattern.test(payload?.accrualId || '') || typeof payload.status !== 'string' || !amounts || typeof amounts.grossAmount !== 'string' || !/^[A-Z]{3}$/.test(amounts.currency || '') || !journal || !uuidPattern.test(journal.journalEntryId || '') || journal.currency !== amounts.currency || !Array.isArray(lines) || lines.length < 2||!trace||trace.rawInputExposed!==false||!trace.fee||!trace.basis||!trace.calculation||!trace.tax||!trace.rounding||!trace.period||!trace.provenance) throw new Error('INVALID_FINANCE_ACCRUAL');
     const rows = lines.map(line => {
       if (!line || typeof line.accountCode !== 'string' || !['DEBIT','CREDIT'].includes(line.direction) || typeof line.amount !== 'string') throw new Error('INVALID_FINANCE_JOURNAL_LINE');
       const tr=document.createElement('tr'); tr.append(cell(line.accountCode),cell(line.direction === 'DEBIT' ? 'Borç' : 'Alacak'),cell(amount(line.amount,journal.currency)),cell(line.description || line.accountCode)); return tr;
@@ -554,6 +557,12 @@
     accrualDate.textContent = journal.postingDate || 'Belirtilmedi';
     accrualSource.textContent = journal.source?.sourceType || payload.sourceEventId || 'Belirtilmedi';
     accrualRule.textContent = payload.feeRuleId || 'Kural referansı yok';
+    const basisDefinition=trace.basis.definition||{},parameters=trace.calculation.parameters||{};const parameterText=Object.entries(parameters).map(([key,value])=>`${key}: ${typeof value==='object'?JSON.stringify(value):value}`).join(' · ');
+    accrualFee.textContent=`${trace.fee.code} · ${trace.fee.family}`;accrualBasis.textContent=[basisDefinition.kind||basisDefinition.type||'Tanımlı matrah',trace.basis.amount?amount(trace.basis.amount,trace.basis.currency):null].filter(Boolean).join(' · ');
+    accrualMethod.textContent=trace.calculation.method||'Yöntem belirtilmedi';accrualParameters.textContent=parameterText||'Ek parametre yok';
+    accrualTax.textContent=trace.tax.rate==null?'KDV oranı yok':`%${trace.tax.rate}`;accrualTaxPolicy.textContent=trace.tax.priceIncludesTax?'KDV dahil matrah':'KDV hariç matrah';
+    accrualRounding.textContent=[trace.rounding.mode,trace.rounding.decimalScale!=null?`${trace.rounding.decimalScale} hane`:null,trace.rounding.currency].filter(Boolean).join(' · ')||'Yuvarlama belirtilmedi';accrualPeriod.textContent=`${trace.period.status} · ${trace.period.businessDate}`;
+    const short=value=>typeof value==='string'&&value.length>20?`${value.slice(0,12)}…${value.slice(-8)}`:value||'—';accrualProvenance.replaceChildren(...[`Hesaplama: ${trace.provenance.calculationRunId}`,`Girdi hash: ${short(trace.provenance.inputHash)}`,`Sonuç hash: ${short(trace.provenance.resultHash)}`,`Snapshot hash: ${short(trace.provenance.snapshotHash)}`].map(value=>{const span=document.createElement('span');span.textContent=value;return span;}));
     accrualLines.replaceChildren(...rows);
     setAccrualState('READY');
   };

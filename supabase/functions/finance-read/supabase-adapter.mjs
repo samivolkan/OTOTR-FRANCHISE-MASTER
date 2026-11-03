@@ -84,12 +84,17 @@ export function createFinanceSupabaseAdapter({ supabaseUrl, publishableKey, fetc
     }, 'finance_api');
   }
   async function readAccrualDetail({ actor, scope, dealerAccountId, accrualId }) {
-    return post('/rest/v1/rpc/get_accrual_detail', actor.token, {
+    const payload={
       p_legal_entity_id: scope.legalEntityId,
       p_dealer_account_id: dealerAccountId,
       p_branch_id: scope.branchId,
       p_accrual_id: accrualId,
-    }, 'finance_api');
+    };
+    const [detail,calculationTrace]=await Promise.all([
+      post('/rest/v1/rpc/get_accrual_detail',actor.token,payload,'finance_api'),
+      post('/rest/v1/rpc/get_accrual_calculation_trace',actor.token,payload,'finance_api')
+    ]);
+    return detail===null?null:{...detail,calculationTrace};
   }
   async function readRoyaltyRefunds({ actor, scope, dealerAccountId, from, to, cursor, limit }) {
     return post('/rest/v1/rpc/list_royalty_refunds', actor.token, {
