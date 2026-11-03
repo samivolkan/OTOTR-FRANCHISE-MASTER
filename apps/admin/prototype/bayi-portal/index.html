@@ -6,6 +6,7 @@
 <meta name="ototr-bayi-portal-version" content="v5.2026.07.01-1328" />
 <title>OTOTR Bayii ERP - Operasyon Merkezi V2</title>
 <link rel="icon" href="data:," />
+<link rel="stylesheet" href="assets/finance-ui.css" />
 <style>
 :root{
   --bg:#f5f6fa; --surface:#fff; --surface-2:#f8fafc; --nav:#050505; --nav-2:#111;
@@ -1283,7 +1284,231 @@ button,input,select,textarea{font:inherit}.app{min-height:100vh;display:grid;gri
         </div>
       </section>
       <section class="module-page" id="financePage">
-        <div class="module-head"><div><h1>Finans & Kasa</h1><p>Tahsilat, açık bakiye ve nakit akışı özeti.</p></div><button class="btn" data-open-module="dashboardPage" data-open-module-nav="navDashboard">Kokpite Dön</button></div>
+        <div class="module-head finance-module-head">
+          <div>
+            <div class="finance-eyebrow">OTOTR Franchise Finans</div>
+            <h1>Merkez–Bayi Finans Yönetimi</h1>
+            <p>Royalty, franchise, sorgu/hizmet, masraf yansıtma, ödeme, mutabakat ve muhasebe aktarım süreçleri.</p>
+          </div>
+          <div class="finance-head-actions">
+            <span class="finance-context-status" data-finance-context-status>KAPSAM BEKLENİYOR</span>
+            <button class="btn primary" type="button" data-finance-connect disabled>Yetkili Veriyi Getir</button>
+            <span class="finance-environment-badge" data-finance-environment>ADAY UI · LIVE BAĞLANTI KAPALI</span>
+            <button class="btn" data-open-module="dashboardPage" data-open-module-nav="navDashboard">Kokpite Dön</button>
+          </div>
+        </div>
+        <div class="finance-safety-banner" role="status">
+          <strong>Finansal veri kaynağı bağlı değil.</strong>
+          <span>Bu ekran demo rakam üretmez. Tutarlar yalnız yetkili finans API’si, doğrulanmış kullanıcı oturumu ve şube kapsamı sağlandığında gösterilir.</span>
+        </div>
+        <div class="finance-context-bar" aria-label="Finans kapsamı">
+          <div><span>Tüzel kişi</span><b data-finance-legal-entity>Seçilmedi</b></div>
+          <div><span>Bayi hesabı</span><b data-finance-dealer>Seçilmedi</b></div>
+          <div><span>Şube</span><b data-finance-branch>Seçilmedi</b></div>
+          <div><span>Dönem</span><b data-finance-period>Seçilmedi</b></div>
+          <div><span>Veri tazeliği</span><b data-finance-freshness>Bağlantı yok</b></div>
+        </div>
+        <div class="finance-workspace">
+          <nav class="finance-screen-nav" aria-label="Finans ekranları" data-finance-screen-nav></nav>
+          <main class="finance-screen-stage" aria-live="polite">
+            <div class="finance-screen-heading">
+              <div>
+                <span class="finance-screen-code" data-finance-screen-code>SCR-01</span>
+                <h2 data-finance-screen-title>Genel Merkez Finans Özeti</h2>
+                <p data-finance-screen-description>Yetkili finans API bağlantısı bekleniyor.</p>
+              </div>
+              <span class="finance-state-chip" data-finance-state>EMPTY · SOURCE UNCONFIGURED</span>
+            </div>
+            <section class="finance-kpi-empty-grid" aria-label="Finans özet göstergeleri">
+              <article><span>Tahakkuk</span><b data-finance-kpi="accrued">—</b><small>Defter bağlantısı bekleniyor</small></article>
+              <article><span>Faturalanan</span><b data-finance-kpi="invoiced">—</b><small>Harici fatura geri bildirimi yok</small></article>
+              <article><span>Tahsil edilen</span><b data-finance-kpi="collected">—</b><small>Doğrulanmış ödeme verisi yok</small></article>
+              <article><span>Açık / geciken</span><b data-finance-kpi="open">—</b><small data-finance-overdue>Açık kalem projectionı yok</small></article>
+            </section>
+            <section class="finance-statement" data-finance-headquarters hidden aria-labelledby="financeHeadquartersTitle">
+              <div class="finance-statement-head"><div><span class="finance-screen-code">GENEL MERKEZ PROJECTION</span><h3 id="financeHeadquartersTitle">Tüm Bayiler Finans Görünümü</h3><p data-finance-headquarters-subtitle>Yetkili tüzel kişi kapsamındaki bayi ve şubelerin aynı gün ve para birimindeki snapshot toplamları.</p></div><span class="finance-state-chip" data-finance-headquarters-state>EMPTY · YETKİLİ VERİ BEKLENİYOR</span></div>
+              <div class="finance-period-grid" data-finance-headquarters-counts hidden><article><span>Bayi sayısı</span><b data-finance-headquarters-dealers>—</b><small>Aktif bayi tüzel kişileri</small></article><article><span>Şube sayısı</span><b data-finance-headquarters-branches>—</b><small>Snapshot kapsamındaki şubeler</small></article><article><span>İade edilen</span><b data-finance-headquarters-refunded>—</b><small>Royalty ve diğer ters kayıtlar</small></article><article><span>İtirazlı</span><b data-finance-headquarters-disputed>—</b><small>Karar bekleyen finansal tutar</small></article></div>
+              <div class="finance-statement-head"><div><span class="finance-screen-code">BEDEL AİLESİ</span><h4>Gelir ve Kesinti Kırılımı</h4></div></div>
+              <div class="finance-statement-table-wrap" data-finance-headquarters-families-table hidden><table class="finance-statement-table"><thead><tr><th>Bedel ailesi</th><th>Net</th><th>KDV</th><th>Brüt</th></tr></thead><tbody data-finance-headquarters-families></tbody></table></div>
+              <div class="finance-statement-head"><div><span class="finance-screen-code">BAYİ SIRALAMASI</span><h4>Açık Bakiye Önceliği</h4></div></div>
+              <div class="finance-statement-table-wrap" data-finance-headquarters-ranking-table hidden><table class="finance-statement-table"><thead><tr><th>Bayi / şube</th><th>Tahakkuk</th><th>Tahsilat</th><th>Açık</th><th>Geciken</th></tr></thead><tbody data-finance-headquarters-ranking></tbody></table></div>
+              <div class="finance-statement-state" data-finance-headquarters-empty>Yetkili genel merkez özeti bekleniyor.</div>
+            </section>
+            <section class="finance-period-detail" data-finance-period-detail hidden aria-labelledby="financePeriodTitle">
+              <div class="finance-period-detail-head"><div><span class="finance-screen-code">ŞUBE DÖNEM PROJECTION</span><h3 id="financePeriodTitle">Dönem, Mutabakat ve Kilit</h3></div><span class="finance-state-chip" data-finance-period-state>EMPTY · YETKİLİ VERİ BEKLENİYOR</span></div>
+              <div class="finance-period-grid" data-finance-period-content hidden>
+                <article><span>Durum</span><b data-finance-period-status>—</b><small data-finance-period-range>—</small></article>
+                <article><span>Sürüm / kilit</span><b data-finance-period-version>—</b><small data-finance-period-locked>—</small></article>
+                <article><span>Kaynak snapshot</span><b data-finance-period-source-hash>—</b><small>Kaynak dondurma kanıtı</small></article>
+                <article><span>Kontrol snapshot</span><b data-finance-period-check-hash>—</b><small>Mutabakat kontrol kanıtı</small></article>
+              </div>
+              <div class="finance-statement-state" data-finance-period-empty>Kapsam ve yetkili dönem verisi bekleniyor.</div>
+            </section>
+            <section class="finance-statement" data-finance-contract-workspace hidden aria-labelledby="financeContractTitle">
+              <div class="finance-statement-head">
+                <div><span class="finance-screen-code">YETKİLİ SÖZLEŞME PROJECTION</span><h3 id="financeContractTitle" data-finance-contract-title>Sözleşme ve Kural Sürümleri</h3><p data-finance-contract-subtitle>Seçili şubenin aktif sözleşmesi, geçerli sürümü ve bekleyen sürümü.</p></div>
+                <div class="finance-statement-controls"><button class="btn" type="button" data-finance-contract-refresh disabled>Sözleşme ve Kuralları Getir</button></div>
+              </div>
+              <div class="finance-statement-state" data-finance-contract-state role="status">Kapsam ve yetkili bağlantı bekleniyor.</div>
+              <div class="finance-period-grid" data-finance-contract-content hidden>
+                <article><span>Sözleşme</span><b data-finance-contract-code>—</b><small data-finance-contract-status>—</small></article>
+                <article><span>Aktif sürüm</span><b data-finance-contract-active>—</b><small data-finance-contract-validity>—</small></article>
+                <article><span>Bekleyen sürüm</span><b data-finance-contract-pending>—</b><small data-finance-contract-pending-status>—</small></article>
+                <article><span>Kanıt izi</span><b data-finance-contract-hash>—</b><small>İçerik hash özeti</small></article>
+              </div>
+              <div class="finance-statement-head">
+                <div><span class="finance-screen-code">BEDEL KURALLARI</span><h4>Sürümdeki Kurallar</h4></div>
+                <div class="finance-statement-controls"><label>Durum<select data-finance-contract-rule-status disabled><option value="">Tümü</option><option value="ACTIVE">Aktif</option><option value="DRAFT">Taslak</option><option value="PENDING_APPROVAL">Onay bekliyor</option><option value="APPROVED">Onaylandı</option><option value="SUPERSEDED">Geçmiş</option><option value="DISABLED">Devre dışı</option></select></label></div>
+              </div>
+              <div class="finance-statement-state" data-finance-contract-rules-state role="status">Sözleşme sürümü bekleniyor.</div>
+              <div class="finance-statement-table-wrap" data-finance-contract-rules-table hidden><table class="finance-statement-table"><thead><tr><th>Bedel / kural</th><th>Aile</th><th>Tetikleyici</th><th>Hesaplama</th><th>Vergi dahil</th><th>Durum</th></tr></thead><tbody data-finance-contract-rules-body></tbody></table></div>
+              <div class="finance-statement-footer"><span data-finance-contract-rules-count>0 kural</span><button class="btn" type="button" data-finance-contract-more hidden disabled>Daha Fazla</button></div>
+            </section>
+            <section class="finance-statement" data-finance-statement hidden aria-labelledby="financeStatementTitle">
+              <div class="finance-statement-head">
+                <div>
+                  <span class="finance-screen-code">YETKİLİ PROJECTION</span>
+                  <h3 id="financeStatementTitle" data-finance-statement-title>Bayi Ekstresi</h3>
+                  <p data-finance-statement-subtitle>Yalnız seçili tüzel kişi, bayi hesabı ve şube kapsamındaki doğrulanmış hareketler.</p>
+                </div>
+                <div class="finance-statement-controls">
+                  <label>Durum
+                    <select data-finance-statement-status disabled>
+                      <option value="">Tümü</option>
+                      <option value="OPEN">Açık</option>
+                      <option value="PARTIALLY_ALLOCATED">Kısmi tahsis</option>
+                      <option value="CLOSED">Kapalı</option>
+                      <option value="DISPUTED">İtirazlı</option>
+                      <option value="REVERSED">Ters kayıt</option>
+                    </select>
+                  </label>
+                  <button class="btn" type="button" data-finance-statement-refresh disabled>Kayıtları Getir</button>
+                </div>
+              </div>
+              <div class="finance-statement-state" data-finance-statement-state role="status">Kapsam ve yetkili bağlantı bekleniyor.</div>
+              <div class="finance-statement-table-wrap" data-finance-statement-table hidden>
+                <table class="finance-statement-table">
+                  <thead><tr><th>Tarih</th><th>Bedel / kaynak</th><th>Brüt</th><th>Tahsis</th><th>Açık</th><th>Durum / işlem</th></tr></thead>
+                  <tbody data-finance-statement-body></tbody>
+                </table>
+              </div>
+              <div class="finance-statement-footer">
+                <span data-finance-statement-count>0 kayıt</span>
+                <button class="btn" type="button" data-finance-statement-more hidden disabled>Daha Fazla</button>
+              </div>
+            </section>
+            <section class="finance-statement" data-finance-refunds hidden aria-labelledby="financeRefundsTitle">
+              <div class="finance-statement-head">
+                <div><span class="finance-screen-code">YETKİLİ İADE PROJECTION</span><h3 id="financeRefundsTitle">Müşteri İadeleri ve Royalty Ters Kayıtları</h3><p>Kesinleşmiş iadeler, ilk royalty ve dönem kökeni seçili şube kapsamında gösterilir.</p></div>
+                <div class="finance-statement-controls"><button class="btn" type="button" data-finance-refunds-refresh disabled>İadeleri Getir</button></div>
+              </div>
+              <div class="finance-statement-state" data-finance-refunds-state role="status">Kapsam ve yetkili bağlantı bekleniyor.</div>
+              <div class="finance-statement-table-wrap" data-finance-refunds-table hidden><table class="finance-statement-table"><thead><tr><th>İade tarihi / kimliği</th><th>Orijinal tahsilat</th><th>Müşteri iadesi</th><th>İlk royalty</th><th>Royalty azaltımı</th><th>Dönem / işlem</th></tr></thead><tbody data-finance-refunds-body></tbody></table></div>
+              <section class="finance-payment-detail finance-refund-detail" data-finance-refund-detail hidden aria-labelledby="financeRefundTitle">
+                <div class="finance-payment-detail-head"><div><span class="finance-screen-code">ROYALTY TERS KAYIT İZİ</span><h4 id="financeRefundTitle">Müşteri İadesi ve Royalty Azaltımı</h4></div><button class="btn" type="button" data-finance-refund-close>Seçimi Temizle</button></div>
+                <div class="finance-payment-detail-state" data-finance-refund-state role="status">İade listesinden bir kayıt seçin.</div>
+                <div data-finance-refund-content hidden><div class="finance-payment-kpis"><article><span>Müşteri iadesi</span><b data-finance-refund-gross>—</b><small data-finance-refund-id>—</small></article><article><span>Orijinal royalty</span><b data-finance-refund-original>—</b><small data-finance-refund-original-period>—</small></article><article><span>Royalty ters kayıt</span><b data-finance-refund-reversal>—</b><small data-finance-refund-posting-period>—</small></article></div><div class="finance-refund-provenance" data-finance-refund-provenance></div></div>
+              </section>
+              <div class="finance-statement-footer"><span data-finance-refunds-count>0 kayıt</span><button class="btn" type="button" data-finance-refunds-more hidden disabled>Daha Fazla</button></div>
+            </section>
+            <section class="finance-statement" data-finance-service-usages hidden aria-labelledby="financeServiceUsagesTitle">
+              <div class="finance-statement-head"><div><span class="finance-screen-code">YETKİLİ KULLANIM PROJECTION</span><h3 id="financeServiceUsagesTitle">Sorgu ve Harici Hizmet Kullanımları</h3><p>Ücretli, ücretsiz hak ve teknik tekrar kullanımları tahakkuktan bağımsız olarak izlenir.</p></div><div class="finance-statement-controls"><label>Aile<select data-finance-service-usages-family disabled><option value="">Tümü</option><option value="QUERY">Sorgu</option><option value="EXTERNAL_SERVICE">Harici hizmet</option></select></label><label>Ücret durumu<select data-finance-service-usages-charge-status disabled><option value="">Tümü</option><option value="CHARGED">Ücretlendirildi</option><option value="NOT_CHARGED">Ücretlendirilmedi</option><option value="FAILED">Hatalı</option></select></label><button class="btn" type="button" data-finance-service-usages-refresh disabled>Kullanımları Getir</button></div></div>
+              <div class="finance-statement-state" data-finance-service-usages-state role="status">Kapsam ve yetkili bağlantı bekleniyor.</div>
+              <div class="finance-statement-table-wrap" data-finance-service-usages-table hidden><table class="finance-statement-table"><thead><tr><th>Tarih / kullanım</th><th>Hizmet / sağlayıcı</th><th>Sağlayıcı maliyeti</th><th>Bayi fiyatı</th><th>Marj</th><th>Durum / tahakkuk</th></tr></thead><tbody data-finance-service-usages-body></tbody></table></div>
+              <div class="finance-statement-footer"><span data-finance-service-usages-count>0 kayıt</span><button class="btn" type="button" data-finance-service-usages-more hidden disabled>Daha Fazla</button></div>
+            </section>
+            <section class="finance-statement" data-finance-expenses hidden aria-labelledby="financeExpensesTitle">
+              <div class="finance-statement-head"><div><span class="finance-screen-code">GENEL MERKEZ MASRAF PROJECTION</span><h3 id="financeExpensesTitle">Masraf Yansıtma ve Paylaştırma</h3><p>Kaynak belge, sözleşmesel dayanak, paylaştırma, onay, tahakkuk ve ters kayıt zinciri.</p></div><div class="finance-statement-controls"><label>Durum<select data-finance-expenses-status disabled><option value="">Tümü</option><option value="DRAFT">Taslak</option><option value="CALCULATED">Hesaplandı</option><option value="PENDING_APPROVAL">Onay bekliyor</option><option value="APPROVED">Onaylandı</option><option value="POSTED">Kaydedildi</option><option value="REVERSED">Ters kayıt</option></select></label><button class="btn" type="button" data-finance-expenses-refresh disabled>Masrafları Getir</button></div></div>
+              <div class="finance-statement-state" data-finance-expenses-state role="status">Genel merkez yetkisi ve bağlantı bekleniyor.</div>
+              <div class="finance-statement-table-wrap" data-finance-expenses-table hidden><table class="finance-statement-table"><thead><tr><th>Tarih / tedarikçi</th><th>Dayanak / bedel</th><th>Kaynak</th><th>Yansıtılabilir</th><th>Pay / belge</th><th>Durum / işlem</th></tr></thead><tbody data-finance-expenses-body></tbody></table></div>
+              <section class="finance-payment-detail" data-finance-expense-detail hidden><div class="finance-payment-detail-head"><div><span class="finance-screen-code">MASRAF DAĞILIM İZİ</span><h4>Paylar, Belgeler ve Onay</h4></div><button class="btn" type="button" data-finance-expense-close>Seçimi Temizle</button></div><div class="finance-payment-detail-state" data-finance-expense-state role="status">Masraf listesinden bir kayıt seçin.</div><div data-finance-expense-content hidden><div class="finance-payment-kpis"><article><span>Kaynak masraf</span><b data-finance-expense-source>—</b><small data-finance-expense-reference>—</small></article><article><span>Yansıtılabilir</span><b data-finance-expense-distributable>—</b><small data-finance-expense-status>—</small></article><article><span>Onay / belge</span><b data-finance-expense-approval>—</b><small data-finance-expense-documents>—</small></article></div><div class="finance-statement-table-wrap"><table class="finance-statement-table"><thead><tr><th>Bayi / şube</th><th>Yöntem</th><th>Oran</th><th>Net / KDV</th><th>Pay / tahakkuk</th></tr></thead><tbody data-finance-expense-shares></tbody></table></div><div class="finance-refund-provenance" data-finance-expense-provenance></div></div></section>
+              <div class="finance-statement-footer"><span data-finance-expenses-count>0 kayıt</span><button class="btn" type="button" data-finance-expenses-more hidden disabled>Daha Fazla</button></div>
+            </section>
+            <section class="finance-statement" data-finance-disputes hidden aria-labelledby="financeDisputesTitle">
+              <div class="finance-statement-head"><div><span class="finance-screen-code">ŞUBE KAPSAMLI İTİRAZ KUYRUĞU</span><h3 id="financeDisputesTitle">Finansal İtiraz Yönetimi</h3><p>İtiraz edilen kalem, kanıt, maker-checker kararı ve oluşan kredi düzeltmesi aynı izde.</p></div><div class="finance-statement-controls"><label>Durum<select data-finance-disputes-status disabled><option value="">Tümü</option><option value="DRAFT">Taslak</option><option value="SUBMITTED">Gönderildi</option><option value="UNDER_REVIEW">İncelemede</option><option value="ACCEPTED">Kabul</option><option value="PARTIALLY_ACCEPTED">Kısmi kabul</option><option value="REJECTED">Red</option><option value="CLOSED">Kapalı</option></select></label><button class="btn" type="button" data-finance-disputes-refresh disabled>İtirazları Getir</button></div></div>
+              <div class="finance-statement-state" data-finance-disputes-state role="status">Kapsam ve yetkili bağlantı bekleniyor.</div>
+              <div class="finance-statement-table-wrap" data-finance-disputes-table hidden><table class="finance-statement-table"><thead><tr><th>Dosya / açılış</th><th>Bedel / gerekçe</th><th>İtiraz</th><th>Kabul</th><th>Kanıt</th><th>Durum / işlem</th></tr></thead><tbody data-finance-disputes-body></tbody></table></div>
+              <section class="finance-payment-detail" data-finance-dispute-detail hidden><div class="finance-payment-detail-head"><div><span class="finance-screen-code">İTİRAZ KARAR VE KANIT İZİ</span><h4>Dosya, Onay ve Kredi Düzeltmesi</h4></div><button class="btn" type="button" data-finance-dispute-close>Seçimi Temizle</button></div><div class="finance-payment-detail-state" data-finance-dispute-state role="status">İtiraz listesinden bir dosya seçin.</div><div data-finance-dispute-content hidden><div class="finance-payment-kpis"><article><span>İtiraz edilen</span><b data-finance-dispute-amount>—</b><small data-finance-dispute-case>—</small></article><article><span>Kabul edilen</span><b data-finance-dispute-accepted>—</b><small data-finance-dispute-status>—</small></article><article><span>Onay / kanıt</span><b data-finance-dispute-approval>—</b><small data-finance-dispute-documents>—</small></article></div><div class="finance-refund-provenance" data-finance-dispute-provenance></div><div class="finance-statement-table-wrap"><table class="finance-statement-table"><thead><tr><th>Kanıt türü</th><th>Belge kimliği</th><th>İçerik doğrulama</th></tr></thead><tbody data-finance-dispute-evidence></tbody></table></div><p class="finance-inline-note" data-finance-dispute-sla>SLA ve sahiplik politikası henüz yapılandırılmadı; bu ekranda tahmini süre üretilmez.</p></div></section>
+              <div class="finance-statement-footer"><span data-finance-disputes-count>0 kayıt</span><button class="btn" type="button" data-finance-disputes-more hidden disabled>Daha Fazla</button></div>
+            </section>
+            <section class="finance-statement" data-finance-export-packages hidden aria-labelledby="financeExportPackagesTitle">
+              <div class="finance-statement-head"><div><span class="finance-screen-code">GENEL MERKEZ EXPORT PROJECTION</span><h3 id="financeExportPackagesTitle">Faturalama ve Muhasebe Export Paketleri</h3><p>Kontrol toplamları, mapping sürümü, harici fatura callback’i ve muhasebe alt paketleri.</p></div><div class="finance-statement-controls"><label>Tür<select data-finance-export-packages-type disabled><option value="">Tümü</option><option value="BILLING">Faturalama</option><option value="ACCOUNTING">Muhasebe</option></select></label><label>Durum<select data-finance-export-packages-status disabled><option value="">Tümü</option><option value="READY">Hazır</option><option value="EXPORT_QUEUED">Aktarım kuyruğunda</option><option value="EXPORTED">Aktarıldı</option><option value="INVOICED">Faturalandı</option><option value="ACCEPTED">Kabul edildi</option><option value="REJECTED">Reddedildi</option></select></label><button class="btn" type="button" data-finance-export-packages-refresh disabled>Paketleri Getir</button></div></div>
+              <div class="finance-statement-state" data-finance-export-packages-state role="status">Genel merkez yetkisi ve bağlantı bekleniyor.</div>
+              <div class="finance-statement-table-wrap" data-finance-export-packages-table hidden><table class="finance-statement-table"><thead><tr><th>Paket / tarih</th><th>Tür / mapping</th><th>Toplam</th><th>Kayıt</th><th>Harici durum</th><th>Durum / işlem</th></tr></thead><tbody data-finance-export-packages-body></tbody></table></div>
+              <section class="finance-payment-detail" data-finance-export-package-detail hidden><div class="finance-payment-detail-head"><div><span class="finance-screen-code">EXPORT KONTROL VE PROVENANCE</span><h4>Paket, Alt Kayıtlar ve Harici Sonuç</h4></div><button class="btn" type="button" data-finance-export-package-close>Seçimi Temizle</button></div><div class="finance-payment-detail-state" data-finance-export-package-state role="status">Paket listesinden bir kayıt seçin.</div><div data-finance-export-package-content hidden><div class="finance-payment-kpis"><article><span>Paket toplamı</span><b data-finance-export-package-total>—</b><small data-finance-export-package-batch>—</small></article><article><span>Durum</span><b data-finance-export-package-status>—</b><small data-finance-export-package-adapter>—</small></article><article><span>Harici sonuç</span><b data-finance-export-package-external>—</b><small data-finance-export-package-items>—</small></article></div><div class="finance-statement-table-wrap"><table class="finance-statement-table"><thead><tr><th>Kayıt / paket</th><th>Kapsam</th><th>Toplam</th><th>Durum</th></tr></thead><tbody data-finance-export-package-rows></tbody></table></div><div class="finance-refund-provenance" data-finance-export-package-provenance></div></div></section>
+              <div class="finance-statement-footer"><span data-finance-export-packages-count>0 kayıt</span><button class="btn" type="button" data-finance-export-packages-more hidden disabled>Daha Fazla</button></div>
+            </section>
+            <section class="finance-statement" data-finance-integration-errors hidden aria-labelledby="financeIntegrationErrorsTitle">
+              <div class="finance-statement-head"><div><span class="finance-screen-code">ŞUBE KAPSAMLI ENTEGRASYON İZLEME</span><h3 id="financeIntegrationErrorsTitle">Entegrasyon Hata Kuyruğu</h3><p>ERP ve diğer kaynakların güvenli hata özeti, tekrar sayısı ve korelasyon izi. Ham payload hiçbir zaman gösterilmez.</p></div><div class="finance-statement-controls"><label>Durum<select data-finance-integration-errors-status disabled><option value="">Tümü</option><option value="RETRYABLE">Yeniden denenebilir</option><option value="ACTION_REQUIRED">Aksiyon gerekli</option><option value="RESOLVED">Çözüldü</option><option value="IGNORED">Onayla yok sayıldı</option></select></label><label>Kaynak<select data-finance-integration-errors-source disabled><option value="">Tümü</option><option value="ERP">ERP</option><option value="ACCOUNTING">Muhasebe</option><option value="BILLING">Faturalama</option></select></label><button class="btn" type="button" data-finance-integration-errors-refresh disabled>Hataları Getir</button></div></div>
+              <div class="finance-statement-state" data-finance-integration-errors-state role="status">Şube kapsamı ve yetkili bağlantı bekleniyor.</div>
+              <div class="finance-statement-table-wrap" data-finance-integration-errors-table hidden><table class="finance-statement-table"><thead><tr><th>Kaynak / kod</th><th>Durum</th><th>Tekrar</th><th>Oluşma</th><th>Correlation</th><th>İşlem</th></tr></thead><tbody data-finance-integration-errors-body></tbody></table></div>
+              <section class="finance-payment-detail" data-finance-integration-error-detail hidden><div class="finance-payment-detail-head"><div><span class="finance-screen-code">GÜVENLİ HATA VE KORELASYON İZİ</span><h4>Entegrasyon Hata Detayı</h4></div><button class="btn" type="button" data-finance-integration-error-close>Seçimi Temizle</button></div><div class="finance-payment-detail-state" data-finance-integration-error-state role="status">Hata kuyruğundan bir kayıt seçin.</div><div data-finance-integration-error-content hidden><div class="finance-payment-kpis"><article><span>Hata</span><b data-finance-integration-error-code>—</b><small data-finance-integration-error-source>—</small></article><article><span>Durum</span><b data-finance-integration-error-status>—</b><small data-finance-integration-error-retry>—</small></article><article><span>Güvenli açıklama</span><b data-finance-integration-error-message>—</b><small>Ham payload gösterilmez</small></article></div><div class="finance-statement-table-wrap"><table class="finance-statement-table"><thead><tr><th>Zaman</th><th>Kanal</th><th>Durum</th><th>Güvenli metadata</th></tr></thead><tbody data-finance-integration-error-trace></tbody></table></div><div class="finance-refund-provenance" data-finance-integration-error-provenance></div></div></section>
+              <div class="finance-statement-footer"><span data-finance-integration-errors-count>0 kayıt</span><button class="btn" type="button" data-finance-integration-errors-more hidden disabled>Daha Fazla</button></div>
+            </section>
+            <section class="finance-statement" data-finance-payments hidden aria-labelledby="financePaymentsTitle">
+              <div class="finance-statement-head">
+                <div><span class="finance-screen-code">YETKİLİ ÖDEME PROJECTION</span><h3 id="financePaymentsTitle">Ödeme ve Tahsis</h3><p>Yalnız seçili şubeye ait tahsilatlar, doğrulama durumu ve dağıtılmamış tutarlar.</p></div>
+                <div class="finance-statement-controls">
+                  <label>Durum<select data-finance-payments-status disabled><option value="">Tümü</option><option value="PENDING_VERIFICATION">Doğrulama bekliyor</option><option value="VERIFIED">Doğrulandı</option><option value="PARTIALLY_ALLOCATED">Kısmi tahsis</option><option value="ALLOCATED">Tahsis edildi</option><option value="REVERSED">Ters kayıt</option><option value="REJECTED">Reddedildi</option></select></label>
+                  <button class="btn" type="button" data-finance-payments-refresh disabled>Ödemeleri Getir</button>
+                </div>
+              </div>
+              <div class="finance-statement-state" data-finance-payments-state role="status">Kapsam ve yetkili bağlantı bekleniyor.</div>
+              <div class="finance-statement-table-wrap" data-finance-payments-table hidden>
+                <table class="finance-statement-table"><thead><tr><th>Tarih</th><th>Referans / yöntem</th><th>Tahsilat</th><th>Doğrulanan</th><th>Tahsis / kalan</th><th>Durum / işlem</th></tr></thead><tbody data-finance-payments-body></tbody></table>
+              </div>
+              <section class="finance-payment-detail" data-finance-payment-detail hidden aria-labelledby="financePaymentTitle">
+                <div class="finance-payment-detail-head"><div><span class="finance-screen-code">ÖDEME PROJECTION</span><h4 id="financePaymentTitle">Ödeme ve Tahsis Detayı</h4></div><button class="btn" type="button" data-finance-payment-close>Seçimi Temizle</button></div>
+                <div class="finance-payment-detail-state" data-finance-payment-state role="status">Ödeme listesinden bir kayıt seçin.</div>
+                <div data-finance-payment-content hidden>
+                  <div class="finance-payment-kpis">
+                    <article><span>Ödeme</span><b data-finance-payment-amount>—</b><small data-finance-payment-reference>—</small></article>
+                    <article><span>Dağıtılmamış</span><b data-finance-payment-unallocated>—</b><small data-finance-payment-status>—</small></article>
+                    <article><span>Yöntem / tarih</span><b data-finance-payment-method>—</b><small data-finance-payment-date>—</small></article>
+                  </div>
+                  <div class="finance-statement-table-wrap"><table class="finance-statement-table"><thead><tr><th>Tahsis</th><th>Açık kalem</th><th>Tutar</th><th>Durum</th></tr></thead><tbody data-finance-payment-allocations></tbody></table></div>
+                </div>
+              </section>
+              <div class="finance-statement-footer"><span data-finance-payments-count>0 kayıt</span><button class="btn" type="button" data-finance-payments-more hidden disabled>Daha Fazla</button></div>
+            </section>
+            <section class="finance-payment-detail finance-accrual-detail" data-finance-accrual-detail hidden aria-labelledby="financeAccrualTitle">
+              <div class="finance-payment-detail-head">
+                <div><span class="finance-screen-code">YETKİLİ TAHAKKUK İZİ</span><h3 id="financeAccrualTitle">Tahakkuk ve Hesaplama Detayı</h3></div>
+                <button class="btn" type="button" data-finance-accrual-close>Seçimi Temizle</button>
+              </div>
+              <div class="finance-payment-detail-state" data-finance-accrual-state role="status">Tahakkuk listesinden bir kayıt seçin.</div>
+              <div data-finance-accrual-content hidden>
+                <div class="finance-payment-kpis">
+                  <article><span>Hesaplanan brüt</span><b data-finance-accrual-amount>—</b><small data-finance-accrual-status>—</small></article>
+                  <article><span>Fiş / tarih</span><b data-finance-accrual-journal>—</b><small data-finance-accrual-date>—</small></article>
+                  <article><span>Kaynak / kural</span><b data-finance-accrual-source>—</b><small data-finance-accrual-rule>—</small></article>
+                </div>
+                <div class="finance-statement-table-wrap">
+                  <table class="finance-statement-table"><thead><tr><th>Hesap</th><th>Yön</th><th>Tutar</th><th>Açıklama</th></tr></thead><tbody data-finance-accrual-lines></tbody></table>
+                </div>
+              </div>
+            </section>
+            <section class="finance-screen-contract">
+              <div class="finance-contract-card">
+                <h3>Ekran bölümleri</h3>
+                <ul data-finance-sections></ul>
+              </div>
+              <div class="finance-contract-card">
+                <h3>Yetkili aksiyonlar</h3>
+                <ul data-finance-actions></ul>
+              </div>
+              <div class="finance-contract-card">
+                <h3>Güvenlik sınırı</h3>
+                <ul>
+                  <li>Sunucu tarafı rol ve şube kapsamı</li>
+                  <li>Ham finans tablosuna tarayıcı erişimi yok</li>
+                  <li>LIVE → DEMO sessiz fallback yok</li>
+                  <li>Export işlemleri audit kaydı gerektirir</li>
+                </ul>
+              </div>
+            </section>
+          </main>
+        </div>
       </section>
       <section class="module-page" id="warrantyRiskPage">
         <div class="module-head"><div><h1>Garanti & Risk</h1><p>Garanti kapsamı, riskli araçlar ve uyarı listesi.</p></div><button class="btn" data-open-module="dashboardPage" data-open-module-nav="navDashboard">Kokpite Dön</button></div>
@@ -3428,6 +3653,16 @@ async function dealerSupabaseRequest(path,options={}){
   }
   return body;
 }
+window.OTOTRDealerFinanceAuth=Object.freeze({
+  getConfig(){
+    const config=window.OTOTR_SUPABASE_CONFIG||{};
+    return Object.freeze({url:String(config.url||'').replace(/\/+$/,''),publishableKey:String(config.publishableKey||config.key||'')});
+  },
+  getAccessToken(){
+    const provider=window.OTOTR_FINANCE_AUTH;
+    return provider&&typeof provider.getAccessToken==='function'?provider.getAccessToken():null;
+  }
+});
 function dealerMileageNumber(value){
   const numeric=String(value||'').replace(/[^\d]/g,'');
   return numeric?Number(numeric):0;
@@ -6923,5 +7158,7 @@ setWorkOrderFilter('open',false);
   document.getElementById('navDashboard')?.classList.add('active');
 })();
 </script>
+<script src="assets/finance-ui.js"></script>
+<script type="module" src="assets/finance-api-bridge.mjs"></script>
 </body>
 </html>

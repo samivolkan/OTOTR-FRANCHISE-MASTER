@@ -1,0 +1,404 @@
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+const READ_OPERATION = 'getDealerFinanceSummary';
+const HEADQUARTERS_OPERATION = 'getHeadquartersFinanceSummary';
+const EXPENSES_OPERATION='listPassThroughExpenses';
+const EXPENSE_OPERATION='getPassThroughExpense';
+const EXPORT_PACKAGES_OPERATION='listFinanceExportPackages';
+const EXPORT_PACKAGE_OPERATION='getFinanceExportPackage';
+const INTEGRATION_ERRORS_OPERATION='listIntegrationErrors';
+const INTEGRATION_ERROR_OPERATION='getIntegrationError';
+const DISPUTES_OPERATION='listDisputes';
+const DISPUTE_OPERATION='getDispute';
+const STATEMENT_OPERATION = 'getDealerStatement';
+const PAYMENTS_OPERATION = 'listPayments';
+const PAYMENT_OPERATION = 'getPayment';
+const ACCRUAL_OPERATION = 'getAccrualDetail';
+const REFUNDS_OPERATION = 'listRoyaltyRefunds';
+const SERVICE_USAGES_OPERATION='listServiceUsages';
+const REFUND_TRACE_OPERATION = 'getRoyaltyRefundTrace';
+const PERIOD_OPERATION = 'getFinancePeriod';
+const CURRENT_CONTRACT_OPERATION = 'getCurrentFranchiseContract';
+const CONTRACT_RULES_OPERATION = 'listContractFeeRules';
+
+export class FinanceBridgeError extends Error {
+  constructor(code, message, status = 0) {
+    super(message);
+    this.name = 'FinanceBridgeError';
+    this.code = code;
+    this.status = status;
+  }
+}
+
+function requiredUuid(value, field, code = 'FINANCE_SCOPE_INVALID') {
+  if (typeof value !== 'string' || !UUID.test(value)) throw new FinanceBridgeError(code, `${field} geçerli UUID olmalıdır.`);
+  return value.toLowerCase();
+}
+
+export function validateFinanceScope(scope) {
+  if (!scope || typeof scope !== 'object' || Array.isArray(scope)) throw new FinanceBridgeError('FINANCE_SCOPE_INVALID', 'Finans kapsamı zorunludur.');
+  return Object.freeze({
+    legalEntityId: requiredUuid(scope.legalEntityId, 'legalEntityId'),
+    dealerAccountId: requiredUuid(scope.dealerAccountId, 'dealerAccountId'),
+    branchId: requiredUuid(scope.branchId, 'branchId'),
+  });
+}
+
+function validatedConfig(config) {
+  let url;
+  try { url = new URL(config?.url); } catch { throw new FinanceBridgeError('CONFIGURATION_ERROR', 'Finans Supabase URL geçersiz.'); }
+  const local = ['localhost', '127.0.0.1'].includes(url.hostname);
+  if (url.protocol !== 'https:' && !(local && url.protocol === 'http:')) throw new FinanceBridgeError('CONFIGURATION_ERROR', 'Finans Supabase URL HTTPS olmalıdır.');
+  const publishableKey = config?.publishableKey;
+  if (typeof publishableKey !== 'string' || !publishableKey.startsWith('sb_publishable_') || publishableKey.length < 24) throw new FinanceBridgeError('CONFIGURATION_ERROR', 'Finans tarayıcı istemcisi yalnız publishable key kabul eder.');
+  return Object.freeze({url: url.origin, publishableKey});
+}
+
+function validatedToken(token) {
+  if (typeof token !== 'string' || token.length < 20) throw new FinanceBridgeError('AUTH_REQUIRED', 'Geçerli finans kullanıcı oturumu bulunamadı.', 401);
+  return token;
+}
+
+async function jsonOrNull(response) {
+  if (!(response.headers?.get?.('content-type') || '').toLowerCase().includes('application/json')) return null;
+  try { return await response.json(); } catch { return null; }
+}
+
+export function createFinanceSummaryClient({getConfig, getAccessToken, fetchImpl = globalThis.fetch, correlationFactory = () => crypto.randomUUID(), timeoutMs = 10000} = {}) {
+  if (typeof getConfig !== 'function' || typeof getAccessToken !== 'function' || typeof fetchImpl !== 'function') throw new FinanceBridgeError('CONFIGURATION_ERROR', 'Finans istemci bağımlılıkları eksik.');
+  if (!Number.isInteger(timeoutMs) || timeoutMs < 1000 || timeoutMs > 30000) throw new FinanceBridgeError('CONFIGURATION_ERROR', 'Finans timeout değeri geçersiz.');
+  async function execute(rawScope, operationId, query, extraPathParams = {}, allowNull = false, headquarters = false) {
+      const scope = validateFinanceScope(rawScope);
+      const config = validatedConfig(await getConfig());
+      const accessToken = validatedToken(await getAccessToken());
+      const correlationId = correlationFactory();
+      if (!UUID.test(correlationId)) throw new FinanceBridgeError('CORRELATION_UNAVAILABLE', 'Geçerli correlation UUID üretilemedi.');
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), timeoutMs);
+      try {
+        const response = await fetchImpl(`${config.url}/functions/v1/finance-read`, {
+          method: 'POST', signal: controller.signal,
+          headers: {apikey: config.publishableKey, Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json; charset=utf-8', 'X-Client-Info': 'ototr-finance-web/0.1', 'Correlation-Id': correlationId},
+          body: JSON.stringify({operationId, scope, pathParams: headquarters ? {...extraPathParams} : {dealerAccountId: scope.dealerAccountId, ...extraPathParams}, query}),
+        });
+        const payload = await jsonOrNull(response);
+        if (!response.ok) throw new FinanceBridgeError(payload?.error?.code || (response.status === 403 ? 'SCOPE_DENIED' : 'FINANCE_READ_FAILED'), payload?.error?.message || 'Finans özeti alınamadı.', response.status);
+        const data = payload && Object.prototype.hasOwnProperty.call(payload,'data') ? payload.data : payload;
+        if (!(allowNull && data === null) && (!data || typeof data !== 'object')) throw new FinanceBridgeError('INVALID_RESPONSE', 'Finans servisi geçersiz yanıt verdi.', 502);
+        return Object.freeze({data, scope, correlationId: response.headers?.get?.('correlation-id') || correlationId});
+      } catch (error) {
+        if (error?.name === 'AbortError') throw new FinanceBridgeError('TIMEOUT', 'Finans servisi zaman aşımına uğradı.');
+        if (error instanceof FinanceBridgeError) throw error;
+        throw new FinanceBridgeError('TRANSPORT_ERROR', 'Finans servisine ulaşılamadı.');
+      } finally { clearTimeout(timer); }
+  }
+  return Object.freeze({
+    async getHeadquartersFinanceSummary(rawScope,{asOf,currency='TRY'}={}) {
+      if(typeof asOf!=='string'||!/^\d{4}-\d{2}-\d{2}$/.test(asOf)) throw new FinanceBridgeError('VALIDATION_ERROR','asOf YYYY-MM-DD biçiminde zorunludur.');
+      if(typeof currency!=='string'||!/^[A-Z]{3}$/.test(currency)) throw new FinanceBridgeError('VALIDATION_ERROR','Para birimi üç harfli kod olmalıdır.');
+      return execute(rawScope,HEADQUARTERS_OPERATION,{asOf,currency},{},true,true);
+    },
+    async listPassThroughExpenses(rawScope,{from,to,status,cursor,limit}={}) {for(const [field,value] of [['from',from],['to',to]])if(value!==undefined&&!/^\d{4}-\d{2}-\d{2}$/.test(value))throw new FinanceBridgeError('VALIDATION_ERROR',`${field} YYYY-MM-DD biçiminde olmalıdır.`);if(from&&to&&from>to)throw new FinanceBridgeError('VALIDATION_ERROR','Masraf tarih aralığı geçersiz.');if(status!==undefined&&!['DRAFT','CALCULATED','PENDING_APPROVAL','APPROVED','POSTED','REVERSED'].includes(status))throw new FinanceBridgeError('VALIDATION_ERROR','Masraf durumu geçersiz.');if(cursor!==undefined&&(typeof cursor!=='string'||!cursor.length||cursor.length>512))throw new FinanceBridgeError('VALIDATION_ERROR','Masraf cursor değeri geçersiz.');if(limit!==undefined&&(!Number.isInteger(limit)||limit<1||limit>200))throw new FinanceBridgeError('VALIDATION_ERROR','Masraf limit değeri geçersiz.');return execute(rawScope,EXPENSES_OPERATION,{from,to,status,cursor,limit},{},false,true);},
+    async getPassThroughExpense(rawScope,expenseId){const id=requiredUuid(expenseId,'expenseId','VALIDATION_ERROR');return execute(rawScope,EXPENSE_OPERATION,{}, {expenseId:id},true,true);},
+    async listFinanceExportPackages(rawScope,{packageType,status,cursor,limit}={}){if(packageType!==undefined&&!['BILLING','ACCOUNTING'].includes(packageType))throw new FinanceBridgeError('VALIDATION_ERROR','Export paketi türü geçersiz.');if(status!==undefined&&!['DRAFT','READY','EXPORT_QUEUED','EXPORTED','INVOICED','PARTIALLY_ACCEPTED','ACCEPTED','REJECTED'].includes(status))throw new FinanceBridgeError('VALIDATION_ERROR','Export paketi durumu geçersiz.');if(cursor!==undefined&&(typeof cursor!=='string'||!cursor.length||cursor.length>512))throw new FinanceBridgeError('VALIDATION_ERROR','Export paketi cursor değeri geçersiz.');if(limit!==undefined&&(!Number.isInteger(limit)||limit<1||limit>200))throw new FinanceBridgeError('VALIDATION_ERROR','Export paketi limit değeri geçersiz.');return execute(rawScope,EXPORT_PACKAGES_OPERATION,{packageType,status,cursor,limit},{},false,true);},
+    async getFinanceExportPackage(rawScope,packageType,packageId){if(!['BILLING','ACCOUNTING'].includes(packageType))throw new FinanceBridgeError('VALIDATION_ERROR','Export paketi türü geçersiz.');const id=requiredUuid(packageId,'packageId','VALIDATION_ERROR');return execute(rawScope,EXPORT_PACKAGE_OPERATION,{packageType},{packageId:id},true,true);},
+    async listIntegrationErrors(rawScope,{status,sourceSystem,cursor,limit}={}){if(status!==undefined&&!['RETRYABLE','ACTION_REQUIRED','RESOLVED','IGNORED'].includes(status))throw new FinanceBridgeError('VALIDATION_ERROR','Entegrasyon hata durumu geçersiz.');if(sourceSystem!==undefined&&(typeof sourceSystem!=='string'||!/^[A-Z][A-Z0-9_-]{1,63}$/.test(sourceSystem)))throw new FinanceBridgeError('VALIDATION_ERROR','Kaynak sistem filtresi geçersiz.');if(cursor!==undefined&&(typeof cursor!=='string'||!cursor.length||cursor.length>512))throw new FinanceBridgeError('VALIDATION_ERROR','Entegrasyon hata cursor değeri geçersiz.');if(limit!==undefined&&(!Number.isInteger(limit)||limit<1||limit>200))throw new FinanceBridgeError('VALIDATION_ERROR','Entegrasyon hata limit değeri geçersiz.');return execute(rawScope,INTEGRATION_ERRORS_OPERATION,{status,sourceSystem,cursor,limit});},
+    async getIntegrationError(rawScope,errorId){const id=requiredUuid(errorId,'errorId','VALIDATION_ERROR');return execute(rawScope,INTEGRATION_ERROR_OPERATION,{}, {errorId:id},true);},
+    async listDisputes(rawScope,{status,cursor,limit}={}) {if(status!==undefined&&!['DRAFT','SUBMITTED','UNDER_REVIEW','ACCEPTED','PARTIALLY_ACCEPTED','REJECTED','CLOSED'].includes(status))throw new FinanceBridgeError('VALIDATION_ERROR','İtiraz durumu geçersiz.');if(cursor!==undefined&&(typeof cursor!=='string'||!cursor.length||cursor.length>512))throw new FinanceBridgeError('VALIDATION_ERROR','İtiraz cursor değeri geçersiz.');if(limit!==undefined&&(!Number.isInteger(limit)||limit<1||limit>200))throw new FinanceBridgeError('VALIDATION_ERROR','İtiraz limit değeri geçersiz.');return execute(rawScope,DISPUTES_OPERATION,{status,cursor,limit});},
+    async getDispute(rawScope,disputeId){const id=requiredUuid(disputeId,'disputeId','VALIDATION_ERROR');return execute(rawScope,DISPUTE_OPERATION,{}, {disputeId:id},true);},
+    async getDealerFinanceSummary(rawScope, {asOf} = {}) {
+      if (asOf !== undefined && !/^\d{4}-\d{2}-\d{2}$/.test(asOf)) throw new FinanceBridgeError('VALIDATION_ERROR', 'asOf YYYY-MM-DD biçiminde olmalıdır.');
+      return execute(rawScope, READ_OPERATION, {asOf});
+    },
+    async getDealerStatement(rawScope, {from,to,status,cursor,limit} = {}) {
+      for (const [field,value] of [['from',from],['to',to]]) if (value !== undefined && !/^\d{4}-\d{2}-\d{2}$/.test(value)) throw new FinanceBridgeError('VALIDATION_ERROR', `${field} YYYY-MM-DD biçiminde olmalıdır.`);
+      if (from && to && from > to) throw new FinanceBridgeError('VALIDATION_ERROR', 'Ekstre tarih aralığı geçersiz.');
+      if (status !== undefined && !['OPEN','PARTIALLY_ALLOCATED','CLOSED','DISPUTED','REVERSED'].includes(status)) throw new FinanceBridgeError('VALIDATION_ERROR', 'Ekstre durum filtresi geçersiz.');
+      if (cursor !== undefined && (typeof cursor !== 'string' || !cursor.length || cursor.length > 512)) throw new FinanceBridgeError('VALIDATION_ERROR', 'Ekstre cursor değeri geçersiz.');
+      if (limit !== undefined && (!Number.isInteger(limit) || limit < 1 || limit > 200)) throw new FinanceBridgeError('VALIDATION_ERROR', 'Ekstre limit değeri 1–200 arasında olmalıdır.');
+      return execute(rawScope, STATEMENT_OPERATION, {from,to,status,cursor,limit});
+    },
+    async getPayment(rawScope, paymentId) {
+      const normalizedPaymentId = requiredUuid(paymentId, 'paymentId', 'VALIDATION_ERROR');
+      return execute(rawScope, PAYMENT_OPERATION, {}, {paymentId:normalizedPaymentId});
+    },
+    async listPayments(rawScope, {from,to,status,cursor,limit} = {}) {
+      for (const [field,value] of [['from',from],['to',to]]) if (value !== undefined && !/^\d{4}-\d{2}-\d{2}$/.test(value)) throw new FinanceBridgeError('VALIDATION_ERROR', `${field} YYYY-MM-DD biçiminde olmalıdır.`);
+      if (from && to && from > to) throw new FinanceBridgeError('VALIDATION_ERROR', 'Ödeme tarih aralığı geçersiz.');
+      if (status !== undefined && !['PENDING_VERIFICATION','VERIFIED','PARTIALLY_ALLOCATED','ALLOCATED','REVERSED','REJECTED'].includes(status)) throw new FinanceBridgeError('VALIDATION_ERROR', 'Ödeme durum filtresi geçersiz.');
+      if (cursor !== undefined && (typeof cursor !== 'string' || !cursor.length || cursor.length > 512)) throw new FinanceBridgeError('VALIDATION_ERROR', 'Ödeme cursor değeri geçersiz.');
+      if (limit !== undefined && (!Number.isInteger(limit) || limit < 1 || limit > 200)) throw new FinanceBridgeError('VALIDATION_ERROR', 'Ödeme limit değeri 1–200 arasında olmalıdır.');
+      return execute(rawScope, PAYMENTS_OPERATION, {from,to,status,cursor,limit});
+    },
+    async getAccrualDetail(rawScope, accrualId) {
+      const normalizedAccrualId = requiredUuid(accrualId, 'accrualId', 'VALIDATION_ERROR');
+      return execute(rawScope, ACCRUAL_OPERATION, {}, {accrualId:normalizedAccrualId});
+    },
+    async getRoyaltyRefundTrace(rawScope, reversalAccrualId) {
+      const normalizedId = requiredUuid(reversalAccrualId, 'reversalAccrualId', 'VALIDATION_ERROR');
+      return execute(rawScope, REFUND_TRACE_OPERATION, {}, {reversalAccrualId:normalizedId});
+    },
+    async listRoyaltyRefunds(rawScope,{from,to,cursor,limit}={}) {
+      for(const [field,value] of [['from',from],['to',to]]) if(value!==undefined&&!/^\d{4}-\d{2}-\d{2}$/.test(value)) throw new FinanceBridgeError('VALIDATION_ERROR',`${field} YYYY-MM-DD biçiminde olmalıdır.`);
+      if(from&&to&&from>to) throw new FinanceBridgeError('VALIDATION_ERROR','İade tarih aralığı geçersiz.');
+      if(cursor!==undefined&&(typeof cursor!=='string'||!cursor.length||cursor.length>512)) throw new FinanceBridgeError('VALIDATION_ERROR','İade cursor değeri geçersiz.');
+      if(limit!==undefined&&(!Number.isInteger(limit)||limit<1||limit>200)) throw new FinanceBridgeError('VALIDATION_ERROR','İade limit değeri 1–200 arasında olmalıdır.');
+      return execute(rawScope,REFUNDS_OPERATION,{from,to,cursor,limit});
+    },
+    async listServiceUsages(rawScope,{from,to,family,chargeStatus,cursor,limit}={}) {
+      for(const [field,value] of [['from',from],['to',to]]) if(value!==undefined&&!/^\d{4}-\d{2}-\d{2}$/.test(value)) throw new FinanceBridgeError('VALIDATION_ERROR',`${field} YYYY-MM-DD biçiminde olmalıdır.`);if(from&&to&&from>to) throw new FinanceBridgeError('VALIDATION_ERROR','Kullanım tarih aralığı geçersiz.');if(family!==undefined&&!['QUERY','EXTERNAL_SERVICE'].includes(family)) throw new FinanceBridgeError('VALIDATION_ERROR','Kullanım ailesi geçersiz.');if(chargeStatus!==undefined&&!['CHARGED','NOT_CHARGED','FAILED'].includes(chargeStatus)) throw new FinanceBridgeError('VALIDATION_ERROR','Ücret durumu geçersiz.');if(cursor!==undefined&&(typeof cursor!=='string'||!cursor.length||cursor.length>512)) throw new FinanceBridgeError('VALIDATION_ERROR','Kullanım cursor değeri geçersiz.');if(limit!==undefined&&(!Number.isInteger(limit)||limit<1||limit>200)) throw new FinanceBridgeError('VALIDATION_ERROR','Kullanım limit değeri geçersiz.');return execute(rawScope,SERVICE_USAGES_OPERATION,{from,to,family,chargeStatus,cursor,limit});
+    },
+    async getCurrentFinancePeriod(rawScope,{asOf}={}) {
+      if (typeof asOf!=='string' || !/^\d{4}-\d{2}-\d{2}$/.test(asOf)) throw new FinanceBridgeError('VALIDATION_ERROR','asOf YYYY-MM-DD biçiminde zorunludur.');
+      return execute(rawScope,PERIOD_OPERATION,{asOf},{},true);
+    },
+    async getCurrentFranchiseContract(rawScope,{asOf}={}) {
+      if(typeof asOf!=='string'||!/^\d{4}-\d{2}-\d{2}$/.test(asOf)) throw new FinanceBridgeError('VALIDATION_ERROR','asOf YYYY-MM-DD biçiminde zorunludur.');
+      return execute(rawScope,CURRENT_CONTRACT_OPERATION,{asOf},{},true);
+    },
+    async listContractFeeRules(rawScope,contractVersionId,{status,cursor,limit}={}) {
+      const normalizedVersionId=requiredUuid(contractVersionId,'contractVersionId','VALIDATION_ERROR');
+      if(status!==undefined&&!['DRAFT','PENDING_APPROVAL','APPROVED','ACTIVE','SUPERSEDED','DISABLED'].includes(status)) throw new FinanceBridgeError('VALIDATION_ERROR','Kural durum filtresi geçersiz.');
+      if(cursor!==undefined) requiredUuid(cursor,'cursor','VALIDATION_ERROR');
+      if(limit!==undefined&&(!Number.isInteger(limit)||limit<1||limit>200)) throw new FinanceBridgeError('VALIDATION_ERROR','Kural limit değeri 1–200 arasında olmalıdır.');
+      return execute(rawScope,CONTRACT_RULES_OPERATION,{status,cursor,limit},{contractVersionId:normalizedVersionId},true);
+    }
+  });
+}
+
+const auth = globalThis.OTOTRDealerFinanceAuth;
+const ui = globalThis.OTOTRFinanceUI;
+if (auth && ui) {
+  const client = createFinanceSummaryClient({getConfig: () => auth.getConfig(), getAccessToken: () => auth.getAccessToken()});
+  let configuredScope = null;
+  let connectedAsOf = null;
+  const refreshContext = () => {
+    try {
+      configuredScope = validateFinanceScope(globalThis.OTOTR_FINANCE_CONTEXT);
+      ui.setScopeContext(configuredScope);
+      return configuredScope;
+    } catch {
+      configuredScope = null;
+      ui.setScopeContext(null);
+      return null;
+    }
+  };
+  const api = {
+    refreshContext,
+    async connect(scope, options = {}) {
+      ui.setConnectionState('LOADING', 'Yetkili finans projectionı yükleniyor.');
+      try {
+        const result = await client.getDealerFinanceSummary(scope, options);
+        connectedAsOf=result.data.asOf;
+        ui.renderSummary(result.data, result.scope);
+        const periodResult=await client.getCurrentFinancePeriod(scope,{asOf:result.data.asOf});
+        ui.renderCurrentPeriod?.(periodResult.data);
+        try {
+          const headquartersResult=await client.getHeadquartersFinanceSummary(scope,{asOf:result.data.asOf,currency:result.data.currencyCode||'TRY'});
+          ui.renderHeadquartersSummary?.(headquartersResult.data);
+        } catch(error) {
+          if(error instanceof FinanceBridgeError&&error.code==='SCOPE_DENIED') ui.resetHeadquartersSummary?.('Bu kullanıcı için genel merkez finans kapsamı tanımlı değil.');
+          else throw error;
+        }
+        return result;
+      } catch (error) {
+        ui.setConnectionState('ERROR', error instanceof FinanceBridgeError ? error.message : 'Finans servisine ulaşılamadı.');
+        throw error;
+      }
+    },
+    async connectConfiguredScope(options = {}) {
+      const scope = configuredScope || refreshContext();
+      if (!scope) throw new FinanceBridgeError('FINANCE_SCOPE_UNAVAILABLE', 'ERP finans kapsamı henüz sağlanmadı.');
+      return api.connect(scope, options);
+    },
+    async getDealerStatement(options = {}) {
+      const scope = configuredScope || refreshContext();
+      if (!scope) throw new FinanceBridgeError('FINANCE_SCOPE_UNAVAILABLE', 'ERP finans kapsamı henüz sağlanmadı.');
+      return client.getDealerStatement(scope, options);
+    },
+    async getHeadquartersFinanceSummary(options={}) {
+      const scope=configuredScope||refreshContext();
+      if(!scope) throw new FinanceBridgeError('FINANCE_SCOPE_UNAVAILABLE','ERP finans kapsamı henüz sağlanmadı.');
+      return client.getHeadquartersFinanceSummary(scope,{asOf:options.asOf||connectedAsOf,currency:options.currency||'TRY'});
+    },
+    async listPassThroughExpenses(options={}){const scope=configuredScope||refreshContext();if(!scope)throw new FinanceBridgeError('FINANCE_SCOPE_UNAVAILABLE','ERP finans kapsamı henüz sağlanmadı.');return client.listPassThroughExpenses(scope,options);},
+    async getPassThroughExpense(expenseId){const scope=configuredScope||refreshContext();if(!scope)throw new FinanceBridgeError('FINANCE_SCOPE_UNAVAILABLE','ERP finans kapsamı henüz sağlanmadı.');return client.getPassThroughExpense(scope,expenseId);},
+    async listFinanceExportPackages(options={}){const scope=configuredScope||refreshContext();if(!scope)throw new FinanceBridgeError('FINANCE_SCOPE_UNAVAILABLE','ERP finans kapsamı henüz sağlanmadı.');return client.listFinanceExportPackages(scope,options);},
+    async getFinanceExportPackage(packageType,packageId){const scope=configuredScope||refreshContext();if(!scope)throw new FinanceBridgeError('FINANCE_SCOPE_UNAVAILABLE','ERP finans kapsamı henüz sağlanmadı.');return client.getFinanceExportPackage(scope,packageType,packageId);},
+    async listIntegrationErrors(options={}){const scope=configuredScope||refreshContext();if(!scope)throw new FinanceBridgeError('FINANCE_SCOPE_UNAVAILABLE','ERP finans kapsamı henüz sağlanmadı.');return client.listIntegrationErrors(scope,options);},
+    async getIntegrationError(errorId){const scope=configuredScope||refreshContext();if(!scope)throw new FinanceBridgeError('FINANCE_SCOPE_UNAVAILABLE','ERP finans kapsamı henüz sağlanmadı.');return client.getIntegrationError(scope,errorId);},
+    async listDisputes(options={}){const scope=configuredScope||refreshContext();if(!scope)throw new FinanceBridgeError('FINANCE_SCOPE_UNAVAILABLE','ERP finans kapsamı henüz sağlanmadı.');return client.listDisputes(scope,options);},
+    async getDispute(disputeId){const scope=configuredScope||refreshContext();if(!scope)throw new FinanceBridgeError('FINANCE_SCOPE_UNAVAILABLE','ERP finans kapsamı henüz sağlanmadı.');return client.getDispute(scope,disputeId);},
+    async getPayment(paymentId) {
+      const scope = configuredScope || refreshContext();
+      if (!scope) throw new FinanceBridgeError('FINANCE_SCOPE_UNAVAILABLE', 'ERP finans kapsamı henüz sağlanmadı.');
+      return client.getPayment(scope, paymentId);
+    },
+    async listPayments(options = {}) {
+      const scope = configuredScope || refreshContext();
+      if (!scope) throw new FinanceBridgeError('FINANCE_SCOPE_UNAVAILABLE', 'ERP finans kapsamı henüz sağlanmadı.');
+      return client.listPayments(scope, options);
+    },
+    async getAccrualDetail(accrualId) {
+      const scope = configuredScope || refreshContext();
+      if (!scope) throw new FinanceBridgeError('FINANCE_SCOPE_UNAVAILABLE', 'ERP finans kapsamı henüz sağlanmadı.');
+      return client.getAccrualDetail(scope, accrualId);
+    },
+    async getRoyaltyRefundTrace(reversalAccrualId) {
+      const scope = configuredScope || refreshContext();
+      if (!scope) throw new FinanceBridgeError('FINANCE_SCOPE_UNAVAILABLE', 'ERP finans kapsamı henüz sağlanmadı.');
+      return client.getRoyaltyRefundTrace(scope, reversalAccrualId);
+    },
+    async listRoyaltyRefunds(options={}) {
+      const scope=configuredScope||refreshContext();
+      if(!scope) throw new FinanceBridgeError('FINANCE_SCOPE_UNAVAILABLE','ERP finans kapsamı henüz sağlanmadı.');
+      return client.listRoyaltyRefunds(scope,options);
+    },
+    async listServiceUsages(options={}) {const scope=configuredScope||refreshContext();if(!scope) throw new FinanceBridgeError('FINANCE_SCOPE_UNAVAILABLE','ERP finans kapsamı henüz sağlanmadı.');return client.listServiceUsages(scope,options);},
+    async getCurrentFinancePeriod(options={}) {
+      const scope=configuredScope||refreshContext();
+      if(!scope) throw new FinanceBridgeError('FINANCE_SCOPE_UNAVAILABLE','ERP finans kapsamı henüz sağlanmadı.');
+      return client.getCurrentFinancePeriod(scope,options);
+    },
+    async getCurrentFranchiseContract(options={}) {
+      const scope=configuredScope||refreshContext();
+      if(!scope) throw new FinanceBridgeError('FINANCE_SCOPE_UNAVAILABLE','ERP finans kapsamı henüz sağlanmadı.');
+      return client.getCurrentFranchiseContract(scope,{asOf:options.asOf||connectedAsOf});
+    },
+    async listContractFeeRules(contractVersionId,options={}) {
+      const scope=configuredScope||refreshContext();
+      if(!scope) throw new FinanceBridgeError('FINANCE_SCOPE_UNAVAILABLE','ERP finans kapsamı henüz sağlanmadı.');
+      return client.listContractFeeRules(scope,contractVersionId,options);
+    },
+    async loadContractWorkspace({append=false}={}) {
+      try {
+        if(!append){
+          ui.setContractState?.('LOADING','Aktif sözleşme ve sürüm bilgisi yükleniyor…');
+          const contractResult=await api.getCurrentFranchiseContract();
+          ui.renderCurrentContract?.(contractResult.data);
+          const versionId=contractResult.data?.activeVersion?.versionId || contractResult.data?.pendingVersion?.versionId;
+          if(!versionId) return contractResult;
+          ui.setContractRulesVersion?.(versionId);
+        }
+        const versionId=ui.getContractRulesVersion?.();
+        if(!versionId) return null;
+        const cursor=append?ui.contractMoreButton?.dataset?.cursor:undefined;
+        const filters=ui.getContractRuleFilters?.()||{};
+        ui.setContractRulesState?.('LOADING',append?'Kural devam sayfası yükleniyor…':'Sözleşme kuralları yükleniyor…');
+        const rulesResult=await api.listContractFeeRules(versionId,{...filters,cursor});
+        ui.renderContractRulesPage?.(rulesResult.data,{append});
+        return rulesResult;
+      } catch(error){
+        if(!append) ui.setContractState?.('ERROR',error instanceof FinanceBridgeError?error.message:'Sözleşme bilgisi alınamadı.');
+        ui.setContractRulesState?.('ERROR',error instanceof FinanceBridgeError?error.message:'Kural listesi alınamadı.');
+        throw error;
+      }
+    },
+    async loadRoyaltyRefundTrace(reversalAccrualId) {
+      ui.setRefundState?.('LOADING','Orijinal tahsilat, royalty ve dönem provenance yükleniyor…');
+      try { const result=await api.getRoyaltyRefundTrace(reversalAccrualId); ui.renderRefundTrace?.(result.data); return result; }
+      catch(error){ ui.setRefundState?.('ERROR',error instanceof FinanceBridgeError?error.message:'Royalty iade izi alınamadı.'); throw error; }
+    },
+    async loadRoyaltyRefunds({append=false}={}) {
+      const cursor=append?ui.refundsMoreButton?.dataset?.cursor:undefined;
+      ui.setRefundsState?.('LOADING',append?'İade devam sayfası yükleniyor…':'Yetkili iade listesi yükleniyor…');
+      try { const result=await api.listRoyaltyRefunds({...ui.getRefundFilters?.(),cursor}); ui.renderRefundsPage?.(result.data,{append}); return result; }
+      catch(error){ ui.setRefundsState?.('ERROR',error instanceof FinanceBridgeError?error.message:'İade listesi alınamadı.'); throw error; }
+    },
+    async loadServiceUsages({append=false}={}) {const cursor=append?ui.serviceUsagesMoreButton?.dataset?.cursor:undefined;ui.setServiceUsagesState?.('LOADING',append?'Kullanım devam sayfası yükleniyor…':'Yetkili kullanım listesi yükleniyor…');try{const result=await api.listServiceUsages({...ui.getServiceUsageFilters?.(),cursor});ui.renderServiceUsagesPage?.(result.data,{append});return result;}catch(error){ui.setServiceUsagesState?.('ERROR',error instanceof FinanceBridgeError?error.message:'Kullanım listesi alınamadı.');throw error;}},
+    async loadExpenses({append=false}={}){const cursor=append?ui.expensesMoreButton?.dataset?.cursor:undefined;ui.setExpensesState?.('LOADING',append?'Masraf devam sayfası yükleniyor…':'Genel merkez masraf listesi yükleniyor…');try{const result=await api.listPassThroughExpenses({...ui.getExpenseFilters?.(),cursor});ui.renderExpensesPage?.(result.data,{append});return result;}catch(error){ui.setExpensesState?.('ERROR',error instanceof FinanceBridgeError?error.message:'Masraf listesi alınamadı.');throw error;}},
+    async loadExpenseDetail(expenseId){ui.setExpenseState?.('LOADING','Paylar, belgeler ve onay izi yükleniyor…');try{const result=await api.getPassThroughExpense(expenseId);ui.renderExpenseDetail?.(result.data);return result;}catch(error){ui.setExpenseState?.('ERROR',error instanceof FinanceBridgeError?error.message:'Masraf detayı alınamadı.');throw error;}},
+    async loadDisputes({append=false}={}){const cursor=append?ui.disputesMoreButton?.dataset?.cursor:undefined;ui.setDisputesState?.('LOADING',append?'İtiraz devam sayfası yükleniyor…':'Yetkili itiraz kuyruğu yükleniyor…');try{const result=await api.listDisputes({...ui.getDisputeFilters?.(),cursor});ui.renderDisputesPage?.(result.data,{append});return result;}catch(error){ui.setDisputesState?.('ERROR',error instanceof FinanceBridgeError?error.message:'İtiraz listesi alınamadı.');throw error;}},
+    async loadDisputeDetail(disputeId){ui.setDisputeState?.('LOADING','Kanıt, onay ve düzeltme izi yükleniyor…');try{const result=await api.getDispute(disputeId);ui.renderDisputeDetail?.(result.data);return result;}catch(error){ui.setDisputeState?.('ERROR',error instanceof FinanceBridgeError?error.message:'İtiraz detayı alınamadı.');throw error;}},
+    async loadExportPackages({append=false}={}){const cursor=append?ui.exportPackagesMoreButton?.dataset?.cursor:undefined;ui.setExportPackagesState?.('LOADING',append?'Paket devam sayfası yükleniyor…':'Fatura ve muhasebe paketleri yükleniyor…');try{const result=await api.listFinanceExportPackages({...ui.getExportPackageFilters?.(),cursor});ui.renderExportPackagesPage?.(result.data,{append});return result;}catch(error){ui.setExportPackagesState?.('ERROR',error instanceof FinanceBridgeError?error.message:'Export paketleri alınamadı.');throw error;}},
+    async loadExportPackageDetail(packageType,packageId){ui.setExportPackageState?.('LOADING','Kontrol toplamları ve harici durum yükleniyor…');try{const result=await api.getFinanceExportPackage(packageType,packageId);ui.renderExportPackageDetail?.(result.data);return result;}catch(error){ui.setExportPackageState?.('ERROR',error instanceof FinanceBridgeError?error.message:'Export paketi detayı alınamadı.');throw error;}},
+    async loadIntegrationErrors({append=false}={}){const cursor=append?ui.integrationErrorsMoreButton?.dataset?.cursor:undefined;ui.setIntegrationErrorsState?.('LOADING',append?'Hata devam sayfası yükleniyor…':'Şube kapsamlı entegrasyon kuyruğu yükleniyor…');try{const result=await api.listIntegrationErrors({...ui.getIntegrationErrorFilters?.(),cursor});ui.renderIntegrationErrorsPage?.(result.data,{append});return result;}catch(error){ui.setIntegrationErrorsState?.('ERROR',error instanceof FinanceBridgeError?error.message:'Entegrasyon hata kuyruğu alınamadı.');throw error;}},
+    async loadIntegrationErrorDetail(errorId){ui.setIntegrationErrorState?.('LOADING','Güvenli detay ve korelasyon izi yükleniyor…');try{const result=await api.getIntegrationError(errorId);ui.renderIntegrationErrorDetail?.(result.data);return result;}catch(error){ui.setIntegrationErrorState?.('ERROR',error instanceof FinanceBridgeError?error.message:'Entegrasyon hata detayı alınamadı.');throw error;}},
+    async loadAccrualDetail(accrualId) {
+      ui.setAccrualState?.('LOADING', 'Kaynak olay, hesaplama ve çift taraflı fiş yükleniyor…');
+      try {
+        const result = await api.getAccrualDetail(accrualId);
+        ui.renderAccrualDetail?.(result.data);
+        return result;
+      } catch (error) {
+        ui.setAccrualState?.('ERROR', error instanceof FinanceBridgeError ? error.message : 'Tahakkuk servisine ulaşılamadı.');
+        throw error;
+      }
+    },
+    async loadPayment(paymentId) {
+      ui.setPaymentState?.('LOADING', 'Yetkili ödeme ve tahsis detayı yükleniyor…');
+      try {
+        const result = await api.getPayment(paymentId);
+        ui.renderPaymentDetail?.(result.data);
+        return result;
+      } catch (error) {
+        ui.setPaymentState?.('ERROR', error instanceof FinanceBridgeError ? error.message : 'Ödeme servisine ulaşılamadı.');
+        throw error;
+      }
+    },
+    async loadPayments({append = false} = {}) {
+      const cursor = append ? ui.paymentsMoreButton?.dataset?.cursor : undefined;
+      const filters = ui.getPaymentFilters?.() || {};
+      ui.setPaymentsState?.('LOADING', append ? 'Ödeme devam sayfası yükleniyor…' : 'Yetkili ödeme listesi yükleniyor…');
+      try {
+        const result = await api.listPayments({...filters, cursor});
+        ui.renderPaymentsPage?.(result.data, {append});
+        return result;
+      } catch (error) {
+        ui.setPaymentsState?.('ERROR', error instanceof FinanceBridgeError ? error.message : 'Ödeme listesi alınamadı.');
+        throw error;
+      }
+    },
+    async loadDealerStatement({append = false} = {}) {
+      const cursor = append ? ui.statementMoreButton?.dataset?.cursor : undefined;
+      const filters = ui.getStatementFilters?.() || {};
+      ui.setStatementState?.('LOADING', append ? 'Ekstre devam sayfası yükleniyor…' : 'Yetkili ekstre yükleniyor…');
+      try {
+        const result = await api.getDealerStatement({...filters, cursor});
+        ui.renderStatementPage?.(result.data, {append});
+        return result;
+      } catch (error) {
+        ui.setStatementState?.('ERROR', error instanceof FinanceBridgeError ? error.message : 'Ekstre servisine ulaşılamadı.');
+        throw error;
+      }
+    },
+  };
+  globalThis.OTOTRFinance = Object.freeze(api);
+  refreshContext();
+  ui.connectButton?.addEventListener('click', () => { void api.connectConfiguredScope().catch(() => {}); });
+  ui.statementRefreshButton?.addEventListener('click', () => { void api.loadDealerStatement().catch(() => {}); });
+  ui.statementMoreButton?.addEventListener('click', () => { void api.loadDealerStatement({append:true}).catch(() => {}); });
+  ui.statementStatus?.addEventListener('change', () => { ui.resetStatement?.('Filtre değişti. Güncel ekstreyi getirin.'); });
+  ui.paymentsRefreshButton?.addEventListener('click', () => { void api.loadPayments().catch(() => {}); });
+  ui.paymentsMoreButton?.addEventListener('click', () => { void api.loadPayments({append:true}).catch(() => {}); });
+  ui.paymentsStatus?.addEventListener('change', () => { ui.resetPayments?.('Filtre değişti. Güncel ödemeleri getirin.'); });
+  ui.refundsRefreshButton?.addEventListener('click',()=>{void api.loadRoyaltyRefunds().catch(()=>{});});
+  ui.refundsMoreButton?.addEventListener('click',()=>{void api.loadRoyaltyRefunds({append:true}).catch(()=>{});});
+  ui.serviceUsagesRefreshButton?.addEventListener('click',()=>{void api.loadServiceUsages().catch(()=>{});});
+  ui.serviceUsagesMoreButton?.addEventListener('click',()=>{void api.loadServiceUsages({append:true}).catch(()=>{});});
+  ui.serviceUsagesFamily?.addEventListener('change',()=>{ui.resetServiceUsages?.('Filtre değişti. Kullanımları yeniden getirin.');});
+  ui.serviceUsagesChargeStatus?.addEventListener('change',()=>{ui.resetServiceUsages?.('Filtre değişti. Kullanımları yeniden getirin.');});
+  ui.expensesRefreshButton?.addEventListener('click',()=>{void api.loadExpenses().catch(()=>{});});
+  ui.expensesMoreButton?.addEventListener('click',()=>{void api.loadExpenses({append:true}).catch(()=>{});});
+  ui.expensesStatus?.addEventListener('change',()=>{ui.resetExpenses?.('Filtre değişti. Masrafları yeniden getirin.');});
+  ui.disputesRefreshButton?.addEventListener('click',()=>{void api.loadDisputes().catch(()=>{});});
+  ui.disputesMoreButton?.addEventListener('click',()=>{void api.loadDisputes({append:true}).catch(()=>{});});
+  ui.disputesStatus?.addEventListener('change',()=>{ui.resetDisputes?.('Filtre değişti. İtirazları yeniden getirin.');});
+  ui.exportPackagesRefreshButton?.addEventListener('click',()=>{void api.loadExportPackages().catch(()=>{});});
+  ui.exportPackagesMoreButton?.addEventListener('click',()=>{void api.loadExportPackages({append:true}).catch(()=>{});});
+  ui.exportPackagesType?.addEventListener('change',()=>{ui.resetExportPackages?.('Filtre değişti. Paketleri yeniden getirin.');});
+  ui.exportPackagesStatus?.addEventListener('change',()=>{ui.resetExportPackages?.('Filtre değişti. Paketleri yeniden getirin.');});
+  ui.integrationErrorsRefreshButton?.addEventListener('click',()=>{void api.loadIntegrationErrors().catch(()=>{});});
+  ui.integrationErrorsMoreButton?.addEventListener('click',()=>{void api.loadIntegrationErrors({append:true}).catch(()=>{});});
+  ui.integrationErrorsStatus?.addEventListener('change',()=>{ui.resetIntegrationErrors?.('Filtre değişti. Hata kuyruğunu yeniden getirin.');});
+  ui.integrationErrorsSource?.addEventListener('change',()=>{ui.resetIntegrationErrors?.('Filtre değişti. Hata kuyruğunu yeniden getirin.');});
+  ui.contractRefreshButton?.addEventListener('click',()=>{void api.loadContractWorkspace().catch(()=>{});});
+  ui.contractMoreButton?.addEventListener('click',()=>{void api.loadContractWorkspace({append:true}).catch(()=>{});});
+  ui.contractRuleStatus?.addEventListener('change',()=>{ui.resetContractRules?.('Filtre değişti. Kuralları yeniden getirin.');});
+  globalThis.addEventListener?.('ototr:finance-payment-requested', event => { void api.loadPayment(event.detail?.paymentId).catch(() => {}); });
+  globalThis.addEventListener?.('ototr:finance-accrual-requested', event => { void api.loadAccrualDetail(event.detail?.accrualId).catch(() => {}); });
+  globalThis.addEventListener?.('ototr:finance-refund-requested',event=>{void api.loadRoyaltyRefundTrace(event.detail?.reversalAccrualId).catch(()=>{});});
+  globalThis.addEventListener?.('ototr:finance-expense-requested',event=>{void api.loadExpenseDetail(event.detail?.expenseId).catch(()=>{});});
+  globalThis.addEventListener?.('ototr:finance-dispute-requested',event=>{void api.loadDisputeDetail(event.detail?.disputeId).catch(()=>{});});
+  globalThis.addEventListener?.('ototr:finance-export-package-requested',event=>{void api.loadExportPackageDetail(event.detail?.packageType,event.detail?.packageId).catch(()=>{});});
+  globalThis.addEventListener?.('ototr:finance-integration-error-requested',event=>{void api.loadIntegrationErrorDetail(event.detail?.errorId).catch(()=>{});});
+}
