@@ -84,6 +84,12 @@ pwsh -NoProfile -File scripts/Test-FinanceStagingSecurity.ps1 -RequirePassed
 
 ## Karar komutu
 
+FIN-G01…FIN-G11 tamamlandığında nihai karar `docs/finance/preproduction-decision.json` dosyasında hazırlanır. Proje Yöneticisi, Finans Direktörü, ERP Ürün Sahibi, Bilgi Güvenliği ve Franchise Yönetimi farklı kimliklerle imzalamadan; release commit’i, değişiklik penceresi, release manifesti ve rollback kanıtı bağlanmadan aşağıdaki komut `GO` vermez. Doğrulanan karar dosyası daha sonra beş rol tarafından FIN-G12 kanıtı olarak kaydedilir.
+
+```powershell
+pwsh -NoProfile -File scripts/Test-FinancePreproductionDecision.ps1 -RequireGo
+```
+
 Mevcut durumu raporlamak:
 
 ```powershell
