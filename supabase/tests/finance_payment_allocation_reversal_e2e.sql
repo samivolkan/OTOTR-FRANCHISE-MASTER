@@ -111,7 +111,7 @@ begin
 
   result:=finance_api.commit_payment_creation(
     maker,hq,account,branch,date '2026-11-03',date '2026-11-03',100,'TRY','BANK_TRANSFER',
-    'SYNTHETIC-BANK-TXN-001','BANK-REF-001','Sentetik tahsilat',array[external_document_id],
+    'SYNTHETIC-BANK-TXN-001','BANK-REF-001','Sentetik tahsilat',array[uploaded_external_id],
     'payment-create-demo',repeat('e',64),corr
   );
   if result->>'outcome'<>'CREATED' then raise exception 'payment creation failed: %',result; end if;
@@ -191,9 +191,11 @@ begin
      or exists(select 1 from jsonb_array_elements(result->'allocations') x where (x->>'allocationVersion')::bigint<1 or (x->>'openItemVersion')::bigint<1)
      or jsonb_array_length(result->'allocatableOpenItems')<>1
      or result#>>'{allocatableOpenItems,0,version}'<>'3'
-     or jsonb_array_length(result#>'{payment,documents}')<>1 then
+     or jsonb_array_length(result#>'{payment,documents}')<>2 then
     raise exception 'payment read projection mismatch: %',result;
   end if;
+  result:=finance_api.get_payment_evidence_locator(hq,account,branch,payment_id,uploaded_external_id);
+  if result->>'bucketId'<>'ototr-evidence' or result->>'expiresIn'<>'120' or result->>'objectKey'<>uploaded_object_key then raise exception 'payment evidence locator mismatch: %',result;end if;
 
   raise notice 'PAYMENT E2E PASSED: 100 TRY verified -> 80 TRY allocated -> allocation reversed -> 100 TRY unallocated';
 end
