@@ -25,6 +25,16 @@ foreach ($sourceFamily in $d.feeFamilies) {
  $projected = @($public.feeFamilies | Where-Object code -eq $sourceFamily.code)
  if ($projected.Count -ne 1 -or $projected[0].decisionStatus -ne $sourceFamily.decisionStatus -or [string]::IsNullOrWhiteSpace($projected[0].confirmedBehavior) -or $null -eq $projected[0].pendingFields) { throw "Commercial public projection mismatch: $($sourceFamily.code)" }
 }
+$generatedFile = Join-Path ([IO.Path]::GetTempPath()) ("ototr-commercial-public-{0}.json" -f [guid]::NewGuid().ToString('N'))
+try {
+ & (Join-Path $PSScriptRoot 'New-FinanceCommercialPublicProjection.ps1') -ConfigurationFile $ConfigurationFile -OutputFile $generatedFile *> $null
+ $generated = Get-Content -Raw -LiteralPath $generatedFile | ConvertFrom-Json -Depth 20
+ $generatedCanonical = $generated | ConvertTo-Json -Depth 20 -Compress
+ $committedCanonical = $public | ConvertTo-Json -Depth 20 -Compress
+ if ($generatedCanonical -cne $committedCanonical) { throw 'Committed commercial public projection is stale or was edited manually.' }
+} finally {
+ if (Test-Path -LiteralPath $generatedFile) { Remove-Item -LiteralPath $generatedFile -Force }
+}
 $approved = $d.status -eq 'APPROVED'
 if ($approved) {
  if ($d.currencyCode -notmatch '^[A-Z]{3}$' -or $d.roundingMode -notin @('HALF_UP','HALF_EVEN','DOWN','UP')) { throw 'Approved general commercial values are incomplete.' }
