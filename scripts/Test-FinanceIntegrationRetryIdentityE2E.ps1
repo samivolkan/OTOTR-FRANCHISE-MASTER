@@ -10,4 +10,4 @@ if(($output-join"`n")-notmatch'FINANCE INTEGRATION RETRY IDENTITY E2E PASSED'){t
 $residue=@("select count(*) from finance.legal_entities where entity_code='OTOTR-HQ-RETRY-ID-DEMO';"|&$dockerPath exec -i $ContainerName psql -X -At -v ON_ERROR_STOP=1 -U postgres -d postgres)
 if($LASTEXITCODE-ne 0-or$residue.Count-ne 1-or$residue[0]-ne'0'){throw 'Integration retry identity E2E rollback left synthetic data behind.'}
 Write-Host 'FINANCE INTEGRATION RETRY IDENTITY E2E: PASSED' -ForegroundColor Green
-Write-Host 'ERP role, branch scope, cross-scope denial and server-only committer verified.'
+Write-Host 'ERP role, branch scope, assignment, dead-letter resolution policy, audit and server-only commit verified.'

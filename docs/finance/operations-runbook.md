@@ -26,6 +26,8 @@ Eşikler adaydır; staging ölçümü ve sahip onayı olmadan üretim SLO’su d
 5. Düzeltme ters kayıt veya forward-fix ile yapılır. Finans migrasyonunda yıkıcı down migration kullanılmaz.
 6. Kapanışta kök neden, etkilenen correlation ID’ler, düzeltme commit’i, kontrol toplamı ve iki yetkili onayı saklanır.
 
+Atama, retry, çözüm ve dead-letter kararları `integration-error-action-policy.md` içindeki `INTEGRATION_ERROR_ACTION_V1` sözleşmesine uyar. Dead-letter kaydı doğrudan yok sayılamaz; yok sayma için maker-checker onayı gerekir.
+
 ## Geri dönüş stratejisi
 
 - Uygulama hatasında önce yeni yazma yolu feature flag/route seviyesinde kapatılır ve son doğrulanmış uygulama paketi geri alınır.
@@ -39,7 +41,7 @@ Yerel restore doğrulaması:
 pwsh -NoProfile -File scripts/Test-FinanceLocalBackupRestore.ps1
 ```
 
-Bu komut ERP kimlik bağımlılıkları ile `finance`, `finance_api` ve `finance_private` şemalarının yerel dump'ını alır; yalnız `ototr_finance_restore_verify` adlı ayrı veritabanını oluşturur, 45 finans tablosu ve 120 API fonksiyonunu karşılaştırır, ardından geçici hedefi ve dump dosyalarını siler. Supabase'in yönetilen `realtime`, storage veya auth sistem şemalarını restore etmez.
+Bu komut ERP kimlik bağımlılıkları ile `finance`, `finance_api` ve `finance_private` şemalarının yerel dump'ını alır; yalnız `ototr_finance_restore_verify` adlı ayrı veritabanını oluşturur, 48 finans tablosu ve 170 API fonksiyonunu karşılaştırır, ardından geçici hedefi ve dump dosyalarını siler. Supabase'in yönetilen `realtime`, storage veya auth sistem şemalarını restore etmez.
 
 ## Pre-production tatbikat kayıt alanları
 
