@@ -78,6 +78,9 @@ try {
       const data={contractId:'20202020-2020-4020-8020-202020202020',activeVersionId:body.pathParams.activeVersionId,activeVersionNo:3,candidateVersionId:body.pathParams.candidateVersionId,candidateVersionNo:4,summary:{added:1,removed:0,changed:1,unchanged:1,requiresReview:true},items:[{feeDefinitionId:'32323232-3232-4323-8323-323232323232',feeCode:'ROYALTY',feeName:'Royalty Bedeli',feeFamily:'ROYALTY',ruleCode:'RULE-ROYALTY',changeType:'CHANGED',activeRuleId:'23232323-2323-4323-8323-232323232323',candidateRuleId:'33333333-3333-4333-8333-333333333333',activeMethod:'PERCENTAGE',candidateMethod:'PERCENTAGE',activePriceIncludesTax:true,candidatePriceIncludesTax:true,activeCurrency:'TRY',candidateCurrency:'TRY',activeStatus:'ACTIVE',candidateStatus:'DRAFT',activeExceptionCount:0,candidateExceptionCount:1}],rawDefinitionsExposed:false};
       await route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({data})});return;
     }
+    if(body.operationId==='simulateContractVersionImpact'){
+      const scenarioItem=body.query.scenario.items[0];const data={contractId:'20202020-2020-4020-8020-202020202020',activeVersionId:body.pathParams.activeVersionId,activeVersionNo:3,candidateVersionId:body.pathParams.candidateVersionId,candidateVersionNo:4,currency:'TRY',scenarioItemCount:1,complete:true,totals:{activeGrossAmount:'100.00',candidateGrossAmount:'120.00',deltaGrossAmount:'20.00'},items:[{feeDefinitionId:scenarioItem.feeDefinitionId,feeCode:'ROYALTY',feeName:'Royalty Bedeli',basisAmount:scenarioItem.basisAmount,quantity:scenarioItem.quantity,currency:'TRY',active:{supported:true,grossAmount:'100.00'},candidate:{supported:true,grossAmount:'120.00'},deltaGrossAmount:'20.00'}],scenarioHash:'a'.repeat(64),writesPerformed:false,rawDefinitionsExposed:false};await route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({data})});return;
+    }
     if(body.operationId==='listContractFeeRules'){
       const rule=(id,feeCode,category,method,parameter,includesTax)=>({feeRuleId:id,feeDefinitionId:id.replace(/^./,'3'),feeCode,name:`${feeCode} Bedeli`,category,ruleCode:`RULE-${feeCode}`,priority:100,status:'ACTIVE',configurationStatus:'CONFIGURED',triggerEventType:'payment.settled',basis:{kind:'COLLECTED_GROSS'},calculation:{method,currency:'TRY',priceIncludesTax:includesTax,rate:parameter,decimalScale:2,roundingMode:'HALF_UP'},exceptions:feeCode==='ROYALTY'?[{exceptionId:'26262626-2626-4626-8626-262626262627',exceptionCode:'FIRST_MONTH_EXEMPTION',scopeType:'BRANCH',conditionType:'CONTRACT_AGE',overrideType:'RATE_OVERRIDE',priority:200,effectiveFrom:'2026-11-01',effectiveTo:null,status:'ACTIVE',version:1}]:[],exceptionCount:feeCode==='ROYALTY'?1:0,version:1});
       const data=body.query.cursor
@@ -237,10 +240,16 @@ try {
   assert.match(await page.locator('[data-finance-contract-comparison]').innerText(),/v3 → v4/);
   assert.match(await page.locator('[data-finance-contract-comparison]').innerText(),/ROYALTY · Royalty Bedeli/);
   assert.doesNotMatch(await page.locator('[data-finance-contract-comparison]').innerText(),/must-not-leak|calculationParameters|basis_definition/i);
+  await page.click('[data-finance-contract-impact-form] button[type="submit"]');
+  await page.waitForFunction(()=>document.querySelector('[data-finance-contract-impact-result]')?.hidden===false);
+  assert.equal(requests.at(-1).operationId,'simulateContractVersionImpact');
+  assert.match(await page.locator('[data-finance-contract-impact-result]').innerText(),/100\.00 TRY/);
+  assert.match(await page.locator('[data-finance-contract-impact-result]').innerText(),/120\.00 TRY/);
+  assert.match(await page.locator('[data-finance-contract-impact-state]').innerText(),/KAYIT OLUŞTURULMADI/);
   assert.match(await page.locator('[data-finance-contract-rules-body]').innerText(),/ROYALTY/);
   assert.match(await page.locator('[data-finance-contract-rules-body]').innerText(),/PERCENTAGE/);
   assert.match(await page.locator('[data-finance-contract-rules-body]').innerText(),/Evet/);
-  assert.equal(requests.at(-1).operationId,'listContractFeeRules');
+  assert.equal(requests.some(request=>request.operationId==='listContractFeeRules'),true);
   await page.click('[data-finance-contract-rule-id="23232323-2323-4323-8323-232323232323"]');
   await page.waitForFunction(()=>window.OTOTRFinance&&document.querySelector('[data-finance-contract-rule-detail-content]')?.hidden===false);
   assert.equal(requests.at(-1).operationId,'getContractFeeRule');

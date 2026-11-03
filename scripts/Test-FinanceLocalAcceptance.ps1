@@ -17,6 +17,7 @@ $checks = @(
   'Test-FinanceCommandEdge.ps1',
   'Test-FinanceRuleSimulator.ps1',
   'Test-FinanceContractRuleExceptionsE2E.ps1',
+  'Test-FinanceContractImpactSimulationE2E.ps1',
   'Test-FinancePeriodCalculationE2E.ps1',
   'Test-FinancePeriodGovernanceE2E.ps1',
   'Test-FinanceDealerReadModelsE2E.ps1',

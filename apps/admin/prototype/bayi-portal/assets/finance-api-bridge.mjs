@@ -26,6 +26,7 @@ const CURRENT_CONTRACT_OPERATION = 'getCurrentFranchiseContract';
 const CONTRACT_RULES_OPERATION = 'listContractFeeRules';
 const CONTRACT_RULE_OPERATION = 'getContractFeeRule';
 const CONTRACT_COMPARISON_OPERATION = 'getContractVersionComparison';
+const CONTRACT_IMPACT_OPERATION = 'simulateContractVersionImpact';
 
 export class FinanceBridgeError extends Error {
   constructor(code, message, status = 0) {
@@ -179,6 +180,9 @@ export function createFinanceSummaryClient({getConfig, getAccessToken, fetchImpl
     },
     async getContractVersionComparison(rawScope,activeVersionId,candidateVersionId){
       return execute(rawScope,CONTRACT_COMPARISON_OPERATION,{},{activeVersionId:requiredUuid(activeVersionId,'activeVersionId','VALIDATION_ERROR'),candidateVersionId:requiredUuid(candidateVersionId,'candidateVersionId','VALIDATION_ERROR')},true);
+    },
+    async simulateContractVersionImpact(rawScope,activeVersionId,candidateVersionId,scenario){
+      if(!scenario||!Array.isArray(scenario.items)||scenario.items.length<1||scenario.items.length>100)throw new FinanceBridgeError('VALIDATION_ERROR','Etki senaryosu 1–100 kalem içermelidir.');const decimal=/^(0|[1-9]\d*)(?:\.\d{1,8})?$/;const items=scenario.items.map(item=>{if(!item||typeof item!=='object'||!decimal.test(item.basisAmount)||!decimal.test(item.quantity))throw new FinanceBridgeError('VALIDATION_ERROR','Etki senaryosu tutar veya adet değeri geçersiz.');return {feeDefinitionId:requiredUuid(item.feeDefinitionId,'feeDefinitionId','VALIDATION_ERROR'),basisAmount:item.basisAmount,quantity:item.quantity};});return execute(rawScope,CONTRACT_IMPACT_OPERATION,{scenario:{items}},{activeVersionId:requiredUuid(activeVersionId,'activeVersionId','VALIDATION_ERROR'),candidateVersionId:requiredUuid(candidateVersionId,'candidateVersionId','VALIDATION_ERROR')},true);
     }
   });
 }
@@ -192,6 +196,7 @@ if (auth && ui) {
   const client = createFinanceSummaryClient({getConfig: () => auth.getConfig(), getAccessToken: () => auth.getAccessToken()});
   let configuredScope = null;
   let connectedAsOf = null;
+  let contractImpactVersionPair = null;
   const refreshContext = () => {
     try {
       configuredScope = validateFinanceScope(globalThis.OTOTR_FINANCE_CONTEXT);
@@ -299,6 +304,7 @@ if (auth && ui) {
     },
     async getContractFeeRule(contractVersionId,feeRuleId){const scope=configuredScope||refreshContext();if(!scope)throw new FinanceBridgeError('FINANCE_SCOPE_UNAVAILABLE','ERP finans kapsamı henüz sağlanmadı.');return client.getContractFeeRule(scope,contractVersionId,feeRuleId);},
     async getContractVersionComparison(activeVersionId,candidateVersionId){const scope=configuredScope||refreshContext();if(!scope)throw new FinanceBridgeError('FINANCE_SCOPE_UNAVAILABLE','ERP finans kapsamı henüz sağlanmadı.');return client.getContractVersionComparison(scope,activeVersionId,candidateVersionId);},
+    async simulateContractVersionImpact(activeVersionId,candidateVersionId,scenario){const scope=configuredScope||refreshContext();if(!scope)throw new FinanceBridgeError('FINANCE_SCOPE_UNAVAILABLE','ERP finans kapsamı henüz sağlanmadı.');return client.simulateContractVersionImpact(scope,activeVersionId,candidateVersionId,scenario);},
     async loadContractFeeRule(contractVersionId,feeRuleId){ruleDetailUi?.setContractRuleDetailState?.('LOADING');try{const result=await api.getContractFeeRule(contractVersionId,feeRuleId);const detail=result.data?{...result.data,feeCode:result.data.code,ruleCode:result.data.code,triggerEventType:result.data.trigger?.eventType,calculation:result.data.calculation?{...result.data.calculation,priceIncludesTax:result.data.tax?.priceIncludesTax}:null}:null;ruleDetailUi?.renderContractRuleDetail?.(detail);globalThis.dispatchEvent?.(new CustomEvent('ototr:finance-contract-rule-loaded',{detail:result.data}));return result;}catch(error){ruleDetailUi?.setContractRuleDetailState?.('ERROR',error instanceof FinanceBridgeError?error.message:'Kural detayı alınamadı.');throw error;}},
     async loadContractWorkspace({append=false}={}) {
       try {
@@ -308,7 +314,7 @@ if (auth && ui) {
           ui.renderCurrentContract?.(contractResult.data);
           globalThis.dispatchEvent?.(new CustomEvent('ototr:finance-current-contract-loaded',{detail:contractResult.data}));
           const activeVersionId=contractResult.data?.activeVersion?.versionId;const candidateVersionId=contractResult.data?.pendingVersion?.versionId;
-          if(activeVersionId&&candidateVersionId){comparisonUi?.setContractComparisonState?.('LOADING');const comparisonResult=await api.getContractVersionComparison(activeVersionId,candidateVersionId);comparisonUi?.renderContractVersionComparison?.(comparisonResult.data);}else comparisonUi?.resetContractComparison?.('Karşılaştırma için aktif ve bekleyen sürüm birlikte gereklidir.');
+          if(activeVersionId&&candidateVersionId){contractImpactVersionPair=Object.freeze({activeVersionId,candidateVersionId});comparisonUi?.setContractComparisonState?.('LOADING');const comparisonResult=await api.getContractVersionComparison(activeVersionId,candidateVersionId);comparisonUi?.renderContractVersionComparison?.(comparisonResult.data);}else{contractImpactVersionPair=null;comparisonUi?.resetContractComparison?.('Karşılaştırma için aktif ve bekleyen sürüm birlikte gereklidir.');}
           const versionId=contractResult.data?.pendingVersion?.versionId || contractResult.data?.activeVersion?.versionId;
           if(!versionId) return contractResult;
           ui.setContractRulesVersion?.(versionId);
@@ -448,4 +454,5 @@ if (auth && ui) {
   globalThis.addEventListener?.('ototr:finance-audit-trace-requested',event=>{void api.loadAuditCorrelationTrace(event.detail?.correlationId).catch(()=>{});});
   globalThis.addEventListener?.('ototr:finance-contract-rule-requested',event=>{void api.loadContractFeeRule(event.detail?.contractVersionId,event.detail?.feeRuleId).catch(()=>{});});
   globalThis.addEventListener?.('ototr:finance-contract-lifecycle-completed',()=>{void api.loadContractWorkspace().catch(()=>{});void api.loadApprovalWorkItems().catch(()=>{});});
+  comparisonUi?.contractImpactForm?.addEventListener('submit',event=>{event.preventDefault();if(!contractImpactVersionPair)return;comparisonUi.setContractImpactState?.('LOADING');void api.simulateContractVersionImpact(contractImpactVersionPair.activeVersionId,contractImpactVersionPair.candidateVersionId,comparisonUi.getContractImpactScenario?.()).then(result=>comparisonUi.renderContractImpactSimulation?.(result.data)).catch(error=>comparisonUi.setContractImpactState?.('ERROR',error instanceof FinanceBridgeError?error.message:'Parasal etki simülasyonu tamamlanamadı.'));});
 }

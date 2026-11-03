@@ -86,6 +86,9 @@ assert.deepEqual(JSON.parse(captured.options.body),{operationId:'getContractFeeR
 const candidateVersionId='abababab-abab-4bab-8bab-abababababab';
 await client.getContractVersionComparison(scope,contractVersionId,candidateVersionId);
 assert.deepEqual(JSON.parse(captured.options.body),{operationId:'getContractVersionComparison',scope,pathParams:{dealerAccountId:scope.dealerAccountId,activeVersionId:contractVersionId,candidateVersionId},query:{}});
+const impactFeeDefinitionId='acacacac-acac-4cac-8cac-acacacacacac';const impactScenario={items:[{feeDefinitionId:impactFeeDefinitionId,basisAmount:'1180.00',quantity:'1'}]};
+await client.simulateContractVersionImpact(scope,contractVersionId,candidateVersionId,impactScenario);
+assert.deepEqual(JSON.parse(captured.options.body),{operationId:'simulateContractVersionImpact',scope,pathParams:{dealerAccountId:scope.dealerAccountId,activeVersionId:contractVersionId,candidateVersionId},query:{scenario:impactScenario}});
 
 const rejectsWithCode = async (factory, code) => assert.rejects(factory, error => error instanceof FinanceBridgeError && error.code === code);
 assert.throws(() => validateFinanceScope({ ...scope, branchId: 'not-a-uuid' }), error => error.code === 'FINANCE_SCOPE_INVALID');
@@ -125,6 +128,7 @@ await rejectsWithCode(()=>client.getCurrentFranchiseContract(scope,{}),'VALIDATI
 await rejectsWithCode(()=>client.listContractFeeRules(scope,'bad',{}),'VALIDATION_ERROR');
 await rejectsWithCode(()=>client.getContractFeeRule(scope,contractVersionId,'bad'),'VALIDATION_ERROR');
 await rejectsWithCode(()=>client.getContractVersionComparison(scope,'bad',candidateVersionId),'VALIDATION_ERROR');
+await rejectsWithCode(()=>client.simulateContractVersionImpact(scope,contractVersionId,candidateVersionId,{items:[]}),'VALIDATION_ERROR');
 const emptyPeriodClient=createFinanceSummaryClient({getConfig:()=>({url:'https://example.com',publishableKey}),getAccessToken:()=>token,correlationFactory:()=>correlationId,fetchImpl:async()=>({ok:true,status:200,headers:{get:name=>name==='content-type'?'application/json':null},json:async()=>({data:null})})});
 assert.equal((await emptyPeriodClient.getCurrentFinancePeriod(scope,{asOf:'2026-11-03'})).data,null);
 
@@ -173,6 +177,7 @@ assert.equal(typeof globalThis.OTOTRFinance.getCurrentFranchiseContract,'functio
 assert.equal(typeof globalThis.OTOTRFinance.listContractFeeRules,'function');
 assert.equal(typeof globalThis.OTOTRFinance.getContractFeeRule,'function');
 assert.equal(typeof globalThis.OTOTRFinance.getContractVersionComparison,'function');
+assert.equal(typeof globalThis.OTOTRFinance.simulateContractVersionImpact,'function');
 assert.equal(typeof clickListener, 'function');
 globalThis.OTOTR_FINANCE_CONTEXT = { ...scope, branchId: 'invalid' };
 assert.equal(globalThis.OTOTRFinance.refreshContext(), null);

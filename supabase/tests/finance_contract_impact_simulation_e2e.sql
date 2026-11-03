@@ -1,0 +1,34 @@
+\set ON_ERROR_STOP on
+begin;
+create or replace function finance_api.authorize_scope(p_legal_entity_id uuid,p_dealer_account_id uuid,p_branch_id uuid,p_operation_id text) returns boolean language sql stable security definer set search_path='' as $$select p_operation_id='getCurrentFranchiseContract'$$;
+do $test$
+declare maker constant uuid:='10000000-0000-4000-8000-000000000001';checker constant uuid:='10000000-0000-4000-8000-000000000002';hq constant uuid:='11000000-0000-4000-8000-000000000001';dealer constant uuid:='12000000-0000-4000-8000-000000000001';branch constant uuid:='13000000-0000-4000-8000-000000000001';account constant uuid:='14000000-0000-4000-8000-000000000001';contract_id constant uuid:='15000000-0000-4000-8000-000000000001';active_version constant uuid:='16000000-0000-4000-8000-000000000001';candidate_version constant uuid:='16000000-0000-4000-8000-000000000002';fee_royalty constant uuid:='17000000-0000-4000-8000-000000000001';fee_entry constant uuid:='17000000-0000-4000-8000-000000000002';fee_unsupported constant uuid:='17000000-0000-4000-8000-000000000003';tax_code constant uuid:='18000000-0000-4000-8000-000000000001';tax_version constant uuid:='18000000-0000-4000-8000-000000000002';corr constant uuid:='19000000-0000-4000-8000-000000000001';scenario jsonb;result jsonb;before_count integer;after_count integer;
+begin
+ insert into finance.legal_entities(id,entity_code,legal_name,status,created_by,correlation_id) values(hq,'IMPACT-HQ','Sentetik Etki Merkezi','ACTIVE',maker,corr);
+ insert into finance.dealer_legal_entities(id,legal_entity_id,dealer_code,legal_name,status,created_by,correlation_id) values(dealer,hq,'IMPACT-DEALER','Sentetik Etki Bayisi','ACTIVE',maker,corr);
+ insert into finance.branches(id,legal_entity_id,dealer_legal_entity_id,branch_code,status,created_by,correlation_id) values(branch,hq,dealer,'IMPACT-BRANCH','ACTIVE',maker,corr);
+ insert into finance.dealer_accounts(id,legal_entity_id,dealer_legal_entity_id,account_code,currency_code,status,created_by,correlation_id) values(account,hq,dealer,'IMPACT-ACCOUNT','TRY','ACTIVE',maker,corr);
+ insert into finance.fee_definitions(id,legal_entity_id,code,version_no,fee_family,name,status,created_by,correlation_id) values
+ (fee_royalty,hq,'ROYALTY',1,'ROYALTY','Royalty', 'PUBLISHED',maker,corr),(fee_entry,hq,'ENTRY',1,'ENTRY_FRANCHISE','Giriş Bedeli','PUBLISHED',maker,corr),(fee_unsupported,hq,'TIERED',1,'OPTIONAL_PRODUCT_SERVICE','Kademeli Bedel','PUBLISHED',maker,corr);
+ insert into finance.tax_codes(id,legal_entity_id,country_code,code,description,status,created_by,correlation_id) values(tax_code,hq,'TR','KDV20','Sentetik KDV','ACTIVE',maker,corr);
+ insert into finance.tax_code_versions(id,tax_code_id,version_no,effective_from,calculation_method,rate,evidence_object_key,status,prepared_by,approved_by,approved_at_utc,created_by,correlation_id) values(tax_version,tax_code,1,date '2026-01-01','PERCENTAGE',0.20,'synthetic/tax','ACTIVE',maker,checker,now(),maker,corr);
+ insert into finance.franchise_contracts(id,legal_entity_id,dealer_legal_entity_id,contract_code,status,created_by,correlation_id) values(contract_id,hq,dealer,'IMPACT-CONTRACT','ACTIVE',maker,corr);
+ insert into finance.contract_versions(id,contract_id,version_no,currency_code,effective_from,content_hash,evidence_object_key,status,prepared_by,approved_by,approved_at_utc,created_by,correlation_id) values
+ (active_version,contract_id,1,'TRY',date '2026-01-01',repeat('a',64),'synthetic/active','ACTIVE',maker,checker,now(),maker,corr),
+ (candidate_version,contract_id,2,'TRY',date '2027-01-01',repeat('b',64),'synthetic/candidate','DRAFT',maker,null,null,maker,corr);
+ insert into finance.contract_fee_rules(contract_version_id,fee_definition_id,rule_code,trigger_event_type,trigger_conditions,priority,status,configuration_status,basis_definition,calculation_method,calculation_parameters,tax_code_version_id,due_rule,cancellation_policy,price_includes_tax,currency_code,decimal_scale,rounding_mode,prepared_by,approved_by,approved_at_utc,created_by,correlation_id) values
+ (active_version,fee_royalty,'ROYALTY-10','payment.settled','[]',100,'ACTIVE','CONFIGURED','{"kind":"COLLECTED_GROSS"}','PERCENTAGE','{"rate":"0.10"}',tax_version,'{}','{}',true,'TRY',2,'HALF_UP',maker,checker,now(),maker,corr),
+ (candidate_version,fee_royalty,'ROYALTY-12','payment.settled','[]',100,'DRAFT','CONFIGURED','{"kind":"COLLECTED_GROSS"}','PERCENTAGE','{"rate":"0.12"}',tax_version,'{}','{}',true,'TRY',2,'HALF_UP',maker,null,null,maker,corr),
+ (candidate_version,fee_entry,'ENTRY-100','contract.activated','[]',100,'DRAFT','CONFIGURED','{"kind":"FIXED"}','FIXED','{"amount":"100"}',tax_version,'{}','{}',false,'TRY',2,'HALF_UP',maker,null,null,maker,corr),
+ (candidate_version,fee_unsupported,'TIERED-1','service.used','[]',100,'DRAFT','CONFIGURED','{"kind":"USAGE"}','TIERED','{"tiers":[]}',tax_version,'{}','{}',false,'TRY',2,'HALF_UP',maker,null,null,maker,corr);
+ select count(*) into before_count from finance.accruals;
+ scenario:=jsonb_build_object('items',jsonb_build_array(jsonb_build_object('feeDefinitionId',fee_royalty,'basisAmount','1180','quantity','1'),jsonb_build_object('feeDefinitionId',fee_entry,'basisAmount','0','quantity','1')));
+ result:=finance_api.simulate_contract_version_impact(hq,account,branch,active_version,candidate_version,scenario);
+ if not(result->>'complete')::boolean or result#>>'{totals,activeGrossAmount}'<>'118.00' or result#>>'{totals,candidateGrossAmount}'<>'261.60' or result#>>'{totals,deltaGrossAmount}'<>'143.60' or (result->>'writesPerformed')::boolean or (result->>'rawDefinitionsExposed')::boolean then raise exception 'complete impact simulation mismatch: %',result;end if;
+ scenario:=jsonb_set(scenario,'{items}',(scenario->'items')||jsonb_build_array(jsonb_build_object('feeDefinitionId',fee_unsupported,'basisAmount','1000','quantity','1')));
+ result:=finance_api.simulate_contract_version_impact(hq,account,branch,active_version,candidate_version,scenario);
+ if (result->>'complete')::boolean or result->'totals'<>'null'::jsonb or result#>>'{items,2,candidate,reasonCode}'<>'CALCULATION_METHOD_UNSUPPORTED' then raise exception 'unsupported method did not fail closed: %',result;end if;
+ select count(*) into after_count from finance.accruals;if before_count<>after_count or exists(select 1 from finance.journal_entries where legal_entity_id=hq) or exists(select 1 from finance.open_items where legal_entity_id=hq) then raise exception 'simulation performed financial writes';end if;
+end $test$;
+rollback;
+select 'CONTRACT IMPACT SIMULATION E2E PASSED' as result;
