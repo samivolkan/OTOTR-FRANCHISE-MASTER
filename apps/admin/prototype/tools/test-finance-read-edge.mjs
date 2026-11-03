@@ -19,6 +19,7 @@ const handler = createFinanceReadHandler({
   authorizeHeadquartersScope:async value=>{calls.push(['authorize-hq',value]);return true;},
   readOperationalHealth:async value=>{calls.push(['operational-health',value]);return {status:'HEALTHY',outbox:{pending:0,failed:0,deadLetter:0,oldestPendingAgeSeconds:0},integrationErrors:{open:0,retryScheduled:0},auditIntegrity:{valid:true}};},
   readHeadquartersSummary:async value=>{calls.push(['headquarters',value]);return {...ids,dealerCount:2,branchCount:2};},
+  exportHeadquartersSummary:async value=>{calls.push(['headquarters-export',value]);return {documentType:'OTOTR_FINANCE_HEADQUARTERS_SUMMARY_EXPORT',asOf:value.asOf,currency:value.currency,hasData:true,summary:{dealerCount:2},rawRecordsExposed:false};},
   readExpenses:async value=>{calls.push(['expenses',value]);return {items:[],nextCursor:null,hasMore:false};},
   readExpense:async value=>{calls.push(['expense',value]);return {expense:{expenseId:value.expenseId},shares:[]};},
   readExportPackages:async value=>{calls.push(['export-packages',value]);return {items:[],nextCursor:null,hasMore:false};},
@@ -74,6 +75,7 @@ assert.equal(calls[2][0], 'read');
 const headquartersRequest={operationId:'getHeadquartersFinanceSummary',scope:ids,pathParams:{},query:{asOf:'2026-11-03',currency:'TRY'}};
 const headquartersResponse=await handler(makeRequest(headquartersRequest));
 assert.equal(headquartersResponse.status,200);assert.equal((await headquartersResponse.json()).data.dealerCount,2);assert.equal(calls.at(-1)[0],'headquarters');assert.equal(calls.at(-2)[0],'authorize-hq');
+const headquartersExportRequest={operationId:'exportHeadquartersFinanceSummary',scope:ids,pathParams:{},query:{asOf:'2026-11-03',currency:'TRY'}};const headquartersExportResponse=await handler(makeRequest(headquartersExportRequest));assert.equal(headquartersExportResponse.status,200);assert.equal((await headquartersExportResponse.json()).data.documentType,'OTOTR_FINANCE_HEADQUARTERS_SUMMARY_EXPORT');assert.equal(calls.at(-1)[0],'headquarters-export');assert.equal(calls.at(-2)[0],'authorize-hq');
 const healthResponse=await handler(makeRequest({operationId:'getFinanceOperationalHealth',scope:ids,pathParams:{},query:{}}));
 assert.equal(healthResponse.status,200);assert.equal((await healthResponse.json()).data.status,'HEALTHY');assert.equal(calls.at(-1)[0],'operational-health');assert.equal(calls.at(-2)[0],'authorize-hq');
 
@@ -196,6 +198,7 @@ assert.equal((await handler(makeRequest({...exportPackageRequest,query:{}}))).st
 assert.equal((await handler(makeRequest({...disputesRequest,query:{status:'INVALID'}}))).status,400);
 assert.equal((await handler(makeRequest({...disputeRequest,pathParams:{dealerAccountId:ids.dealerAccountId,disputeId:'bad'}}))).status,400);
 const requiredPorts={authenticate(){},authorizeScope(){},authorizeHeadquartersScope(){},readOperationalHealth(){},readHeadquartersSummary(){},readExpenses(){},readExpense(){},readExportPackages(){},readExportPackage(){},readIntegrationErrors(){},readIntegrationError(){},readApprovalWorkItems(){},readApprovalWorkItem(){},readAuditEvents(){},exportAuditEvents(){},readAuditCorrelationTrace(){},readDisputes(){},readDispute(){},readSummary(){},readStatement(){},readStatementControl(){},exportDealerStatement(){},exportAccruals(){},readAccruals(){},readPayments(){},readPayment(){},readAccrualDetail(){},readRoyaltyRefunds(){},readServiceUsages(){},readServiceUsageDetail(){},exportServiceUsages(){},readRefundTrace(){},readCurrentPeriod(){},readPeriodReconciliations(){},readCurrentContract(){},readContractVersions(){},readContractFeeRules(){},readContractFeeRule(){},readContractVersionComparison(){},simulateContractVersionImpact(){}};
+requiredPorts.exportHeadquartersSummary=()=>({});
 assert.throws(() => createFinanceReadHandler({ allowedOrigins: ['*'],...requiredPorts }), /allowlist/);
 assert.throws(() => createFinanceReadHandler({ allowedOrigins: ['http://erp.ototr.test'],...requiredPorts }), /allowlist/);
 assert.throws(() => createFinanceReadHandler({ allowedOrigins: [origin],...requiredPorts,maxBodyBytes:100 }), /maxBodyBytes/);

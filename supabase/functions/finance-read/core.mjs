@@ -52,14 +52,14 @@ async function body(request, maxBytes) {
   try { parsed = JSON.parse(raw); } catch { throw new FinanceReadError(400, 'INVALID_JSON', 'Geçerli JSON zorunludur.'); }
   if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) throw new FinanceReadError(400, 'INVALID_REQUEST', 'İstek nesne olmalıdır.');
   if (Object.keys(parsed).some(key => !KEYS.has(key))) throw new FinanceReadError(400, 'UNKNOWN_FIELD', 'İstek bilinmeyen alan içeriyor.');
-  if (!['getFinanceOperationalHealth','getHeadquartersFinanceSummary','listPassThroughExpenses','getPassThroughExpense','listFinanceExportPackages','getFinanceExportPackage','listIntegrationErrors','getIntegrationError','listApprovalWorkItems','getApprovalWorkItem','listAuditEvents','exportAuditEvents','getAuditCorrelationTrace','listDisputes','getDispute','getDealerFinanceSummary','getDealerStatement','getDealerStatementControl','exportDealerStatement','exportAccruals','listAccruals','listPayments','getPayment','getAccrualDetail','listRoyaltyRefunds','listServiceUsages','getServiceUsageDetail','exportServiceUsages','getRoyaltyRefundTrace','getFinancePeriod','getFinancePeriodReconciliations','getCurrentFranchiseContract','listContractVersions','listContractFeeRules','getContractFeeRule','getContractVersionComparison','simulateContractVersionImpact'].includes(parsed.operationId)) throw new FinanceReadError(403, 'OPERATION_DENIED', 'Finans okuma operasyonuna izin verilmiyor.');
+  if (!['getFinanceOperationalHealth','getHeadquartersFinanceSummary','exportHeadquartersFinanceSummary','listPassThroughExpenses','getPassThroughExpense','listFinanceExportPackages','getFinanceExportPackage','listIntegrationErrors','getIntegrationError','listApprovalWorkItems','getApprovalWorkItem','listAuditEvents','exportAuditEvents','getAuditCorrelationTrace','listDisputes','getDispute','getDealerFinanceSummary','getDealerStatement','getDealerStatementControl','exportDealerStatement','exportAccruals','listAccruals','listPayments','getPayment','getAccrualDetail','listRoyaltyRefunds','listServiceUsages','getServiceUsageDetail','exportServiceUsages','getRoyaltyRefundTrace','getFinancePeriod','getFinancePeriodReconciliations','getCurrentFranchiseContract','listContractVersions','listContractFeeRules','getContractFeeRule','getContractVersionComparison','simulateContractVersionImpact'].includes(parsed.operationId)) throw new FinanceReadError(403, 'OPERATION_DENIED', 'Finans okuma operasyonuna izin verilmiyor.');
   const scope = Object.freeze({
     legalEntityId: uuid(parsed.scope?.legalEntityId, 'legalEntityId'),
     dealerAccountId: uuid(parsed.scope?.dealerAccountId, 'dealerAccountId'),
     branchId: uuid(parsed.scope?.branchId, 'branchId'),
   });
   const pathKeys = parsed.pathParams && typeof parsed.pathParams === 'object' && !Array.isArray(parsed.pathParams) ? Object.keys(parsed.pathParams) : [];
-  const expectedPathKeys = ['getFinanceOperationalHealth','getHeadquartersFinanceSummary','listPassThroughExpenses','listFinanceExportPackages'].includes(parsed.operationId) ? [] : parsed.operationId==='getPassThroughExpense' ? ['expenseId'] : parsed.operationId==='getFinanceExportPackage' ? ['packageId'] : parsed.operationId==='getFinancePeriodReconciliations' ? ['dealerAccountId','periodId'] : parsed.operationId === 'getPayment'
+  const expectedPathKeys = ['getFinanceOperationalHealth','getHeadquartersFinanceSummary','exportHeadquartersFinanceSummary','listPassThroughExpenses','listFinanceExportPackages'].includes(parsed.operationId) ? [] : parsed.operationId==='getPassThroughExpense' ? ['expenseId'] : parsed.operationId==='getFinanceExportPackage' ? ['packageId'] : parsed.operationId==='getFinancePeriodReconciliations' ? ['dealerAccountId','periodId'] : parsed.operationId === 'getPayment'
     ? ['dealerAccountId','paymentId']
     : parsed.operationId === 'getApprovalWorkItem'
       ? ['dealerAccountId','requestId']
@@ -85,14 +85,14 @@ async function body(request, maxBytes) {
         ? ['dealerAccountId','contractVersionId']
       : ['dealerAccountId'];
   if (pathKeys.length !== expectedPathKeys.length || expectedPathKeys.some(key => !pathKeys.includes(key))) throw new FinanceReadError(400, 'INVALID_PATH_PARAMS', `${expectedPathKeys.join(', ')} path parametreleri zorunludur.`);
-  const dealerAccountId = ['getFinanceOperationalHealth','getHeadquartersFinanceSummary','listPassThroughExpenses','getPassThroughExpense','listFinanceExportPackages','getFinanceExportPackage'].includes(parsed.operationId) ? undefined : uuid(parsed.pathParams.dealerAccountId, 'dealerAccountId');
+  const dealerAccountId = ['getFinanceOperationalHealth','getHeadquartersFinanceSummary','exportHeadquartersFinanceSummary','listPassThroughExpenses','getPassThroughExpense','listFinanceExportPackages','getFinanceExportPackage'].includes(parsed.operationId) ? undefined : uuid(parsed.pathParams.dealerAccountId, 'dealerAccountId');
   if (dealerAccountId && dealerAccountId !== scope.dealerAccountId) throw new FinanceReadError(403, 'SCOPE_DENIED', 'Bayi hesabı finans kapsamıyla uyuşmuyor.');
   const query = parsed.query && typeof parsed.query === 'object' && !Array.isArray(parsed.query) ? parsed.query : {};
   if(parsed.operationId==='getFinanceOperationalHealth'){
     if(Object.keys(query).length) throw new FinanceReadError(400,'INVALID_QUERY','Operasyon sağlığı query parametresi kabul etmez.');
     return Object.freeze({operationId:parsed.operationId,scope});
   }
-  if(parsed.operationId==='getHeadquartersFinanceSummary'){
+  if(parsed.operationId==='getHeadquartersFinanceSummary'||parsed.operationId==='exportHeadquartersFinanceSummary'){
     if(Object.keys(query).some(key=>!['asOf','currency'].includes(key))) throw new FinanceReadError(400,'INVALID_QUERY','Genel merkez özeti yalnız asOf ve currency kabul eder.');
     const asOf=calendarDate(query.asOf);if(!asOf) throw new FinanceReadError(400,'INVALID_QUERY','Genel merkez özeti için asOf zorunludur.');
     if(typeof query.currency!=='string'||!/^[A-Z]{3}$/.test(query.currency)) throw new FinanceReadError(400,'INVALID_QUERY','Genel merkez özeti için para birimi zorunludur.');
@@ -272,12 +272,14 @@ async function body(request, maxBytes) {
 }
 
 export function createFinanceReadHandler({ allowedOrigins, authenticate, authorizeScope, authorizeHeadquartersScope, readOperationalHealth,readHeadquartersSummary,readExpenses,readExpense,readExportPackages,readExportPackage,readIntegrationErrors,readIntegrationError,readApprovalWorkItems,readApprovalWorkItem,readAuditEvents,exportAuditEvents,readAuditCorrelationTrace,readDisputes,readDispute, readSummary, readStatement,readStatementControl,exportDealerStatement,exportAccruals,readAccruals, readPayments, readPayment, readAccrualDetail, readRoyaltyRefunds, readServiceUsages,readServiceUsageDetail,exportServiceUsages, readRefundTrace, readCurrentPeriod,readPeriodReconciliations, readCurrentContract,readContractVersions, readContractFeeRules,readContractFeeRule,readContractVersionComparison,simulateContractVersionImpact, correlationFactory = () => crypto.randomUUID(), maxBodyBytes = 32768 } = {}) {
+  const exportHeadquartersSummary=arguments[0]?.exportHeadquartersSummary||readHeadquartersSummary;
   const origins = new Set(allowedOrigins || []);
   const invalidOrigin = value => {
     try { const url = new URL(value); return value === '*' || url.origin !== value || (url.protocol !== 'https:' && !(url.protocol === 'http:' && ['localhost', '127.0.0.1'].includes(url.hostname))); } catch { return true; }
   };
   if (!origins.size || [...origins].some(invalidOrigin)) throw new Error('HTTPS veya local HTTP açık origin allowlist zorunludur.');
   if (![authenticate, authorizeScope, authorizeHeadquartersScope, readOperationalHealth,readHeadquartersSummary,readExpenses,readExpense,readExportPackages,readExportPackage,readIntegrationErrors,readIntegrationError,readApprovalWorkItems,readApprovalWorkItem,readAuditEvents,exportAuditEvents,readAuditCorrelationTrace,readDisputes,readDispute, readSummary, readStatement,readStatementControl,exportDealerStatement,exportAccruals,readAccruals, readPayments, readPayment, readAccrualDetail, readRoyaltyRefunds, readServiceUsages,readServiceUsageDetail,exportServiceUsages, readRefundTrace, readCurrentPeriod,readPeriodReconciliations, readCurrentContract,readContractVersions, readContractFeeRules,readContractFeeRule,readContractVersionComparison,simulateContractVersionImpact].every(fn => typeof fn === 'function')) throw new Error('Finans sunucu portları zorunludur.');
+  if(typeof exportHeadquartersSummary!=='function')throw new Error('Genel merkez export portu zorunludur.');
   if (!Number.isInteger(maxBodyBytes) || maxBodyBytes < 1024 || maxBodyBytes > 65536) throw new Error('maxBodyBytes 1024–65536 arasında olmalıdır.');
   return async request => {
     const correlationId = correlation(request.headers.get('correlation-id'), correlationFactory);
@@ -291,7 +293,7 @@ export function createFinanceReadHandler({ allowedOrigins, authenticate, authori
       const actor = await authenticate(match[1]);
       if (!actor?.id) throw new FinanceReadError(401, 'AUTH_REQUIRED', 'Kullanıcı doğrulanamadı.');
       const input = await body(request, maxBodyBytes);
-      const allowed=['getFinanceOperationalHealth','getHeadquartersFinanceSummary','listPassThroughExpenses','getPassThroughExpense','listFinanceExportPackages','getFinanceExportPackage'].includes(input.operationId)
+      const allowed=['getFinanceOperationalHealth','getHeadquartersFinanceSummary','exportHeadquartersFinanceSummary','listPassThroughExpenses','getPassThroughExpense','listFinanceExportPackages','getFinanceExportPackage'].includes(input.operationId)
         ? await authorizeHeadquartersScope({actor,legalEntityId:input.scope.legalEntityId,operationId:input.operationId})
         : await authorizeScope({ actor, scope: input.scope, operationId: input.operationId });
       if (allowed !== true) throw new FinanceReadError(403, 'SCOPE_DENIED', 'Finans kapsamına erişim reddedildi.');
@@ -299,6 +301,8 @@ export function createFinanceReadHandler({ allowedOrigins, authenticate, authori
         ? await readOperationalHealth({actor,...input})
         : input.operationId === 'getHeadquartersFinanceSummary'
         ? await readHeadquartersSummary({actor,...input})
+        : input.operationId === 'exportHeadquartersFinanceSummary'
+        ? await exportHeadquartersSummary({actor,...input})
         : input.operationId==='listPassThroughExpenses'
           ? await readExpenses({actor,...input})
           : input.operationId==='getPassThroughExpense'

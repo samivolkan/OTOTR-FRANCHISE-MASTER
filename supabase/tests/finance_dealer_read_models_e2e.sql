@@ -14,7 +14,7 @@ $$;
 create or replace function finance_private.current_actor_can_read_headquarters(
   p_actor_id uuid,p_legal_entity_id uuid,p_operation_id text
 ) returns boolean language sql stable security definer set search_path=pg_catalog as $$
-  select p_operation_id='getHeadquartersFinanceSummary'
+  select p_operation_id in ('getHeadquartersFinanceSummary','exportHeadquartersFinanceSummary')
 $$;
 
 do $test$
@@ -42,7 +42,7 @@ declare
   allocation_id constant uuid := '88000000-0000-4000-8000-000000000008';
   payment_id_2 constant uuid := '88000000-0000-4000-8000-000000000009';
   corr constant uuid := '98000000-0000-4000-8000-000000000001';
-  totals jsonb; result jsonb; replay jsonb; page_1 jsonb; page_2 jsonb; filtered jsonb; hq_result jsonb; control_result jsonb; export_result jsonb; accrual_result jsonb;
+  totals jsonb; result jsonb; replay jsonb; page_1 jsonb; page_2 jsonb; filtered jsonb; hq_result jsonb; hq_export jsonb; control_result jsonb; export_result jsonb; accrual_result jsonb;
   cursor_value text; denied boolean:=false;
 begin
   insert into finance.legal_entities(id,entity_code,legal_name,status,created_by,correlation_id)
@@ -169,6 +169,14 @@ begin
      or hq_result#>>'{feeFamilies,0,feeFamily}'<>'EXTERNAL_SERVICE'
      or hq_result#>>'{feeFamilies,0,grossAmount}'<>'300.00000000' then
     raise exception 'headquarters finance aggregation mismatch: %',hq_result;
+  end if;
+  hq_export:=finance_api.export_headquarters_finance_summary(hq,date '2026-11-30','TRY');
+  if hq_export->>'documentType'<>'OTOTR_FINANCE_HEADQUARTERS_SUMMARY_EXPORT'
+     or hq_export->>'hasData'<>'true' or hq_export->>'rawRecordsExposed'<>'false'
+     or hq_export#>>'{summary,accrued,grossAmount}'<>'480.00000000'
+     or hq_export#>>'{summary,dealerRanking,0,dealerCode}'<>'READ-DEALER-A'
+     or hq_export ? 'rawRecords' then
+    raise exception 'headquarters finance export mismatch: %',hq_export;
   end if;
 
   page_1:=finance_api.get_dealer_statement(hq,account_a,branch_a,date '2026-11-01',date '2026-11-30',null,null,1);
