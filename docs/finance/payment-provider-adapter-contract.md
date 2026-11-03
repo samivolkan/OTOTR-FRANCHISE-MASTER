@@ -17,6 +17,8 @@ ERP geçidi checkout orkestratörüne tutar, para birimi, bayi veya şube kapsam
 
 Statik bayi portalı `finance-payment-checkout` Edge Function'ını doğrudan çağıramaz; gateway token tarayıcıya konamaz. ERP server/BFF rotası `finance-payment-checkout-bff-client.mjs` istemcisini server-only token ile kullanır. BFF istemcisi yalnız aktör, harici fatura ve HTTPS dönüş adresini gönderir; `200` dışındaki, süresi geçmiş, HTTP yönlendirmeli veya sözleşme dışı yanıtları fail-closed reddeder.
 
+Referans `finance-payment-checkout-route.mjs` handler'ı aktör kimliğini istek gövdesinden kabul etmez; ERP server oturum çözücüsünden alır. Tarayıcı gövdesi yalnız `externalInvoiceId` ve `returnUrl` içerebilir. Dönüş adresinin origin'i BFF istemcisindeki açık izin listesinde bulunmalıdır. Başarısız Edge/BFF sonucu tarayıcıya yönlendirme üretmez ve `503 CHECKOUT_UNAVAILABLE` döner.
+
 ## Kanonik checkout yanıtı
 
 Adaptör yalnız `providerPaymentToken`, HTTPS `redirectUrl` ve gelecekteki `expiresAtUtc` döndürebilir. Ortak katman bunlara `providerCode` ve sabit `cardDataStored: false` ekler. Bilinmeyen alanlar ve kart verisi çağrışımlı alanlar fail-closed reddedilir.
@@ -36,4 +38,4 @@ FIN-G05 ve UAT-FIN-10 tamamlanmadan önce seçilen kuruluş için şu kanıtlar 
 5. Tam ödeme sonrası otomatik açılma; eksik/başarısız ödeme sonrası kilidin korunması.
 6. Sağlayıcı sözleşmesi, komisyon, valör, iade/chargeback ve mutabakat sahiplerinin onayı.
 
-Yerel uyumluluk testleri `scripts/Test-FinancePaymentProviderAdapter.ps1`, `scripts/Test-FinancePaymentCheckoutOrchestrator.ps1`, `scripts/Test-FinancePaymentCheckoutWorker.ps1` ve `scripts/Test-FinancePaymentCheckoutBffClient.ps1` ile çalıştırılır. Bu testler gerçek sağlayıcı veya PCI sertifikasyonu yerine geçmez.
+Yerel uyumluluk testleri `scripts/Test-FinancePaymentProviderAdapter.ps1`, `scripts/Test-FinancePaymentCheckoutOrchestrator.ps1`, `scripts/Test-FinancePaymentCheckoutWorker.ps1`, `scripts/Test-FinancePaymentCheckoutBffClient.ps1` ve `scripts/Test-FinancePaymentCheckoutRoute.ps1` ile çalıştırılır. Bu testler gerçek sağlayıcı veya PCI sertifikasyonu yerine geçmez.

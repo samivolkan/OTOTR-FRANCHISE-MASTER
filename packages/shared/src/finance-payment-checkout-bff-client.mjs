@@ -18,10 +18,13 @@ export function createFinancePaymentCheckoutBffClient({
   fetchImpl = fetch,
   correlationFactory = () => crypto.randomUUID(),
   timeoutMs = 5000,
+  allowedReturnOrigins,
 } = {}) {
   const target = validHttpsUrl(endpoint, 'finance checkout endpoint');
   if (typeof gatewayToken !== 'string' || gatewayToken.length < 40) throw new Error('server-only checkout gateway token is required');
   if (!Number.isInteger(timeoutMs) || timeoutMs < 500 || timeoutMs > 15000) throw new Error('finance checkout timeout must be 500-15000 ms');
+  if (!Array.isArray(allowedReturnOrigins) || !allowedReturnOrigins.length) throw new Error('checkout return origin allowlist is required');
+  const origins = new Set(allowedReturnOrigins.map(value => new URL(validHttpsUrl(value, 'allowed checkout return origin')).origin));
   return Object.freeze({
     async createCheckout(input = {}) {
       if (!input || typeof input !== 'object' || Array.isArray(input)
@@ -31,6 +34,7 @@ export function createFinancePaymentCheckoutBffClient({
       const { actorId, externalInvoiceId, returnUrl } = input;
       if (!UUID.test(actorId || '') || !UUID.test(externalInvoiceId || '')) throw new Error('invalid checkout identity');
       const safeReturnUrl = validHttpsUrl(returnUrl, 'finance checkout returnUrl');
+      if (!origins.has(new URL(safeReturnUrl).origin)) throw new Error('finance checkout returnUrl origin is not allowed');
       const correlationId = correlationFactory();
       if (!UUID.test(correlationId || '')) return unavailable(null);
       const controller = new AbortController();

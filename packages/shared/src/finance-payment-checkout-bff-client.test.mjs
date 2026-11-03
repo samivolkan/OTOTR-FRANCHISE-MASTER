@@ -8,6 +8,7 @@ let captured;
 const client = createFinancePaymentCheckoutBffClient({
   endpoint: 'https://project.test/functions/v1/finance-payment-checkout',
   gatewayToken,
+  allowedReturnOrigins: ['https://erp.ototr.com'],
   correlationFactory: () => id(9),
   fetchImpl: async (url, options) => {
     captured = { url, options };
@@ -28,6 +29,7 @@ assert.deepEqual(JSON.parse(captured.options.body), input);
 
 const serverError = createFinancePaymentCheckoutBffClient({
   endpoint: 'https://project.test/functions/v1/finance-payment-checkout', gatewayToken,
+  allowedReturnOrigins: ['https://erp.ototr.com'],
   correlationFactory: () => id(9),
   fetchImpl: async () => new Response(JSON.stringify({ data: {
     outcome: 'CREATED', checkoutSessionId: id(3), redirectUrl: 'https://secure.provider.test/3ds/token',
@@ -40,6 +42,7 @@ assert.equal(result.redirectUrl, null);
 
 const unsafeRedirect = createFinancePaymentCheckoutBffClient({
   endpoint: 'https://project.test/functions/v1/finance-payment-checkout', gatewayToken,
+  allowedReturnOrigins: ['https://erp.ototr.com'],
   correlationFactory: () => id(9),
   fetchImpl: async () => new Response(JSON.stringify({ data: {
     outcome: 'CREATED', checkoutSessionId: id(3), redirectUrl: 'http://provider.test/checkout',
@@ -51,10 +54,13 @@ assert.equal(result.outcome, 'UNAVAILABLE');
 
 assert.throws(() => createFinancePaymentCheckoutBffClient({
   endpoint: 'http://project.test/checkout', gatewayToken,
+  allowedReturnOrigins: ['https://erp.ototr.com'],
 }), /HTTPS/);
 assert.throws(() => createFinancePaymentCheckoutBffClient({
   endpoint: 'https://project.test/checkout', gatewayToken: 'public',
+  allowedReturnOrigins: ['https://erp.ototr.com'],
 }), /server-only/);
 await assert.rejects(client.createCheckout({ ...input, amount: '1.00' }), /invalid checkout request/);
+await assert.rejects(client.createCheckout({ ...input, returnUrl: 'https://evil.example/payment-result' }), /origin is not allowed/);
 
 console.log('PASS finance payment checkout BFF client: server-only token, exact request, HTTPS redirects and fail-closed response validation');
