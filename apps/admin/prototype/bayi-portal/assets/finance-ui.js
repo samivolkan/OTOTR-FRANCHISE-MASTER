@@ -51,6 +51,7 @@
   const statementAging = root.querySelector('[data-finance-statement-aging]');
   const statementRefreshButton = root.querySelector('[data-finance-statement-refresh]');
   const statementExportButton = root.querySelector('[data-finance-statement-export]');
+  const statementPdfButton = root.querySelector('[data-finance-statement-pdf]');
   const statementMoreButton = root.querySelector('[data-finance-statement-more]');
   const statementState = root.querySelector('[data-finance-statement-state]');
   const statementTable = root.querySelector('[data-finance-statement-table]');
@@ -277,6 +278,7 @@
     statementState.hidden = next === 'READY' && statementRowCount > 0;
     statementRefreshButton.disabled = !scopeReady || next === 'LOADING';
     statementExportButton.disabled = !scopeReady || next === 'LOADING';
+    statementPdfButton.disabled = !scopeReady || next === 'LOADING';
     statementStatus.disabled = !scopeReady || next === 'LOADING';
     statementCurrency.disabled = !scopeReady || next === 'LOADING';
     statementFrom.disabled = !scopeReady || next === 'LOADING';
@@ -342,6 +344,17 @@
     const headers=['recordId','recordType','businessDate','dueDate','feeCode','sourceReference','netAmount','taxAmount','grossAmount','allocatedAmount','openAmount','currency','status','externalInvoiceNumber','reversalReferenceId'];
     const csv='\ufeff'+[headers,...payload.items.map(item=>headers.map(key=>item[key]??''))].map(row=>row.map(csvValue).join(',')).join('\r\n');
     const href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'})),anchor=document.createElement('a');anchor.href=href;anchor.download=`ototr-bayi-ekstresi-${payload.filters.from}-${payload.filters.to}.csv`;anchor.click();setTimeout(()=>URL.revokeObjectURL(href),0);
+  };
+  const downloadStatementPdf=payload=>{
+    if(!payload||payload.documentType!=='OTOTR_FINANCE_DEALER_STATEMENT_EXPORT'||payload.rawRecordsExposed!==false||!Array.isArray(payload.items)||payload.rowCount!==payload.items.length)throw new Error('INVALID_STATEMENT_PDF');
+    const ascii=value=>String(value??'').replaceAll('ı','i').replaceAll('İ','I').replaceAll('ş','s').replaceAll('Ş','S').replaceAll('ğ','g').replaceAll('Ğ','G').replaceAll('ü','u').replaceAll('Ü','U').replaceAll('ö','o').replaceAll('Ö','O').replaceAll('ç','c').replaceAll('Ç','C').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^\x20-\x7E]/g,'?');
+    const esc=value=>ascii(value).replaceAll('\\','\\\\').replaceAll('(','\\(').replaceAll(')','\\)').slice(0,110);
+    const lines=[`OTOTR GM FINANS - BAYI EKSTRESI`,`Tarih araligi: ${payload.filters.from} / ${payload.filters.to}   Para birimi: ${payload.filters.currency}   Durum: ${payload.filters.status||'TUMU'}`,`Bayi hesabi: ${payload.scope.dealerAccountId}   Sube: ${payload.scope.branchId}`,`Kayit: ${payload.rowCount}/${payload.totalMatchingCount}${payload.truncated?' (LIMITLI)':''}`,`Olusturma: ${payload.generatedAtUtc}`,'', 'TARIH | VADE | BEDEL | BRUT | TAHSIS | ACIK | DURUM | KAYNAK',...payload.items.map(item=>`${item.businessDate} | ${item.dueDate||'-'} | ${item.feeCode} | ${item.grossAmount} | ${item.allocatedAmount} | ${item.openAmount} | ${item.status} | ${item.sourceReference||'-'}`)];
+    const chunks=[];for(let i=0;i<lines.length;i+=54)chunks.push(lines.slice(i,i+54));
+    const objects=[null,'<< /Type /Catalog /Pages 2 0 R >>','', '<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>'];const kids=[];
+    chunks.forEach((pageLines,index)=>{const pageId=4+index*2,contentId=pageId+1;kids.push(`${pageId} 0 R`);const content=`BT /F1 9 Tf 36 806 Td 13 TL ${pageLines.map(line=>`(${esc(line)}) Tj T*`).join(' ')} ET`;objects[pageId]=`<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 3 0 R >> >> /Contents ${contentId} 0 R >>`;objects[contentId]=`<< /Length ${content.length} >>\nstream\n${content}\nendstream`;});objects[2]=`<< /Type /Pages /Kids [${kids.join(' ')}] /Count ${kids.length} >>`;
+    let pdf='%PDF-1.4\n',offsets=[0];for(let i=1;i<objects.length;i++){offsets[i]=pdf.length;pdf+=`${i} 0 obj\n${objects[i]}\nendobj\n`;}const xref=pdf.length;pdf+=`xref\n0 ${objects.length}\n0000000000 65535 f \n`;for(let i=1;i<objects.length;i++)pdf+=`${String(offsets[i]).padStart(10,'0')} 00000 n \n`;pdf+=`trailer\n<< /Size ${objects.length} /Root 1 0 R >>\nstartxref\n${xref}\n%%EOF`;
+    const href=URL.createObjectURL(new Blob([pdf],{type:'application/pdf'})),anchor=document.createElement('a');anchor.href=href;anchor.download=`ototr-bayi-ekstresi-${payload.filters.from}-${payload.filters.to}.pdf`;anchor.click();setTimeout(()=>URL.revokeObjectURL(href),0);
   };
   const getStatementFilters = () => Object.freeze({from:statementFrom.value||undefined,to:statementTo.value||undefined,currency:statementCurrency.value||'TRY',status: statementStatus.value || undefined, limit: 25});
 
@@ -778,5 +791,5 @@
   window.OTOTRFinanceComparisonUI=Object.freeze({setContractComparisonState,renderContractVersionComparison,resetContractComparison,getContractImpactScenario,setContractImpactState,renderContractImpactSimulation,contractImpactForm});
   window.OTOTRFinanceTimelineUI=Object.freeze({resetContractTimeline,setContractTimelineState,renderContractTimelinePage,contractTimelineMore});
   window.OTOTRFinanceUI = Object.freeze({setConnectionState, setScopeContext, renderSummary,renderHeadquartersSummary,resetHeadquartersSummary,setServiceUsagesState,renderServiceUsagesPage,resetServiceUsages,getServiceUsageFilters,setExpensesState,renderExpensesPage,resetExpenses,getExpenseFilters,setExpenseState,renderExpenseDetail,resetExpense,setDisputesState,renderDisputesPage,resetDisputes,getDisputeFilters,setDisputeState,renderDisputeDetail,resetDispute,setExportPackagesState,renderExportPackagesPage,resetExportPackages,getExportPackageFilters,setExportPackageState,renderExportPackageDetail,resetExportPackage,setIntegrationErrorsState,renderIntegrationErrorsPage,resetIntegrationErrors,getIntegrationErrorFilters,setIntegrationErrorState,renderIntegrationErrorDetail,resetIntegrationError,setApprovalsState,renderApprovalsPage,resetApprovals,getApprovalFilters,setApprovalState,renderApprovalDetail,resetApproval,setAuditState,renderAuditPage,resetAudit,getAuditFilters,downloadAuditExport,setAuditTraceState,renderAuditTrace,resetAuditTrace, setStatementState, renderStatementPage, resetStatement, getStatementFilters, setContractState, renderCurrentContract, resetContract, setContractRulesState, renderContractRulesPage, resetContractRules, setContractRulesVersion, getContractRulesVersion, getContractRuleFilters, setPaymentsState, renderPaymentsPage, resetPayments, getPaymentFilters, setRefundsState,renderRefundsPage,resetRefunds,getRefundFilters,setPaymentState, renderPaymentDetail, resetPayment, setAccrualState, renderAccrualDetail, resetAccrual, setRefundState, renderRefundTrace, resetRefund, renderCurrentPeriod, resetCurrentPeriod, connectButton, statementRefreshButton, statementMoreButton, statementStatus, contractRefreshButton, contractMoreButton, contractRuleStatus, paymentsRefreshButton, paymentsMoreButton, paymentsStatus,refundsRefreshButton,refundsMoreButton,serviceUsagesRefreshButton,serviceUsagesMoreButton,serviceUsagesFamily,serviceUsagesChargeStatus,expensesRefreshButton,expensesMoreButton,expensesStatus,disputesRefreshButton,disputesMoreButton,disputesStatus,exportPackagesRefreshButton,exportPackagesMoreButton,exportPackagesType,exportPackagesStatus,integrationErrorsRefreshButton,integrationErrorsMoreButton,integrationErrorsStatus,integrationErrorsSource,approvalsRefreshButton,approvalsMoreButton,approvalsStatus,auditRefreshButton,auditExportButton,auditMoreButton});
-  window.OTOTRFinanceUI = Object.freeze({...window.OTOTRFinanceUI, renderStatementControl, downloadStatementExport, statementCurrency, statementExportButton});
+  window.OTOTRFinanceUI = Object.freeze({...window.OTOTRFinanceUI, renderStatementControl, downloadStatementExport, downloadStatementPdf, statementCurrency, statementExportButton, statementPdfButton});
 })();

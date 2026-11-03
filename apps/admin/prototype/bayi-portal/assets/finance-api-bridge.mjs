@@ -441,6 +441,7 @@ if (auth && ui) {
       }
     },
     async exportDealerStatement(){ui.setStatementState?.('LOADING','Yetkili ekstre dışa aktarımı hazırlanıyor…');try{const result=await api.requestDealerStatementExport({...ui.getStatementFilters?.(),limit:10000});ui.downloadStatementExport?.(result.data);ui.setStatementState?.('READY',`${result.data.rowCount} ekstre kaydı CSV olarak hazırlandı.`);return result;}catch(error){ui.setStatementState?.('ERROR',error instanceof FinanceBridgeError?error.message:'Ekstre dışa aktarımı hazırlanamadı.');throw error;}},
+    async exportDealerStatementPdf(){ui.setStatementState?.('LOADING','Yetkili PDF ekstre hazırlanıyor…');try{const result=await api.requestDealerStatementExport({...ui.getStatementFilters?.(),limit:10000});ui.downloadStatementPdf?.(result.data);ui.setStatementState?.('READY',`${result.data.rowCount} kayıtlı PDF ekstre hazırlandı.`);return result;}catch(error){ui.setStatementState?.('ERROR',error instanceof FinanceBridgeError?error.message:'PDF ekstre hazırlanamadı.');throw error;}},
   };
   globalThis.OTOTRFinance = Object.freeze(api);
   refreshContext();
@@ -448,6 +449,7 @@ if (auth && ui) {
   ui.statementRefreshButton?.addEventListener('click', () => { void api.loadDealerStatement().catch(() => {}); });
   ui.statementMoreButton?.addEventListener('click', () => { void api.loadDealerStatement({append:true}).catch(() => {}); });
   ui.statementExportButton?.addEventListener('click',()=>{void api.exportDealerStatement().catch(()=>{});});
+  ui.statementPdfButton?.addEventListener('click',()=>{void api.exportDealerStatementPdf().catch(()=>{});});
   ui.statementStatus?.addEventListener('change', () => { ui.resetStatement?.('Filtre değişti. Güncel ekstreyi getirin.'); });
   ui.paymentsRefreshButton?.addEventListener('click', () => { void api.loadPayments().catch(() => {}); });
   ui.paymentsMoreButton?.addEventListener('click', () => { void api.loadPayments({append:true}).catch(() => {}); });
