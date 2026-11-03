@@ -167,6 +167,7 @@
   const contractRulesBody = root.querySelector('[data-finance-contract-rules-body]');
   const contractRulesCount = root.querySelector('[data-finance-contract-rules-count]');
   const contractMoreButton = root.querySelector('[data-finance-contract-more]');
+  const contractRuleDetail=root.querySelector('[data-finance-contract-rule-detail]');const contractRuleDetailClose=root.querySelector('[data-finance-contract-rule-detail-close]');const contractRuleDetailState=root.querySelector('[data-finance-contract-rule-detail-state]');const contractRuleDetailContent=root.querySelector('[data-finance-contract-rule-detail-content]');const contractRuleDetailTitle=root.querySelector('[data-finance-contract-rule-detail-title]');const contractRuleTrigger=root.querySelector('[data-finance-contract-rule-trigger]');const contractRulePriority=root.querySelector('[data-finance-contract-rule-priority]');const contractRuleBasis=root.querySelector('[data-finance-contract-rule-basis]');const contractRuleTax=root.querySelector('[data-finance-contract-rule-tax]');const contractRuleCalculation=root.querySelector('[data-finance-contract-rule-calculation]');const contractRuleRounding=root.querySelector('[data-finance-contract-rule-rounding]');const contractRuleProvenance=root.querySelector('[data-finance-contract-rule-provenance]');
   let scopeReady = false;
   let statementRowCount = 0;
   let paymentRowCount = 0;
@@ -178,6 +179,7 @@
   let integrationErrorRowCount=0;
   let approvalRowCount=0;let auditRowCount=0;
   let contractRuleRowCount = 0;
+  const contractRuleItems=new Map();
   const bindDateRange=(fromInput,toInput)=>{const sync=()=>{fromInput.max=toInput.value||'';toInput.min=fromInput.value||'';};fromInput.addEventListener('change',sync);toInput.addEventListener('change',sync);sync();};
   [[statementFrom,statementTo],[paymentsFrom,paymentsTo],[refundsFrom,refundsTo],[serviceUsagesFrom,serviceUsagesTo],[expensesFrom,expensesTo]].forEach(pair=>bindDateRange(...pair));
   let contractRulesVersionId = null;
@@ -322,8 +324,10 @@
     contractRulesState.hidden=next==='READY'&&contractRuleRowCount>0; contractRulesState.textContent=message||({EMPTY:'Kural bulunamadı.',LOADING:'Yetkili kurallar yükleniyor…',READY:'Kurallar yüklendi.',ERROR:'Kurallar yüklenemedi.'})[next];
     contractRuleStatus.disabled=!scopeReady||next==='LOADING'; if(next==='LOADING') contractMoreButton.disabled=true;
   };
+  const resetContractRuleDetail=()=>{contractRuleDetail.hidden=true;contractRuleDetailState.hidden=false;contractRuleDetailState.textContent='Listeden bir kural seçin.';contractRuleDetailContent.hidden=true;contractRuleProvenance.replaceChildren();};
+  const renderContractRuleDetail=item=>{if(!item||!uuidPattern.test(item.feeRuleId||''))throw new Error('INVALID_FINANCE_CONTRACT_RULE_DETAIL');const calculation=item.calculation||{},basis=item.basis||{};const parameter=calculation.rate??calculation.percentage??calculation.amount??calculation.value;contractRuleDetail.hidden=false;contractRuleDetailState.hidden=true;contractRuleDetailContent.hidden=false;contractRuleDetailTitle.textContent=`${item.feeCode} · ${item.name}`;contractRuleTrigger.textContent=item.triggerEventType||'Tetikleyici tanımlı değil';contractRulePriority.textContent=`Öncelik: ${Number.isInteger(item.priority)?item.priority:'—'}`;contractRuleBasis.textContent=basis.kind||basis.type||'Matrah tanımlı değil';contractRuleTax.textContent=calculation.priceIncludesTax===true?'KDV dahil matrah':calculation.priceIncludesTax===false?'KDV hariç matrah':'Vergi yaklaşımı tanımlı değil';contractRuleCalculation.textContent=calculation.method?`${calculation.method}${parameter!==undefined?` · ${parameter}`:''}`:'Yapılandırılmadı';contractRuleRounding.textContent=[calculation.currency,calculation.roundingMode,calculation.decimalScale!=null?`${calculation.decimalScale} hane`:null].filter(Boolean).join(' · ')||'Yuvarlama politikası tanımlı değil';const provenance=[`Kural: ${item.ruleCode}`,`Kural kimliği: ${item.feeRuleId}`,`Sürüm: ${contractRulesVersionId||'—'}`,`Yapılandırma: ${item.configurationStatus}`,`Durum: ${item.status}`];contractRuleProvenance.replaceChildren(...provenance.map(value=>{const span=document.createElement('span');span.textContent=value;return span;}));};
   const resetContractRules=message=>{
-    contractRulesBody.replaceChildren();contractRuleRowCount=0;contractRulesTable.hidden=true;contractMoreButton.hidden=true;contractMoreButton.disabled=true;contractRulesCount.textContent='0 kural';setContractRulesState('EMPTY',message||'Sözleşme sürümü bekleniyor.');
+    contractRulesBody.replaceChildren();contractRuleItems.clear();contractRuleRowCount=0;contractRulesTable.hidden=true;contractMoreButton.hidden=true;contractMoreButton.disabled=true;contractRulesCount.textContent='0 kural';resetContractRuleDetail();setContractRulesState('EMPTY',message||'Sözleşme sürümü bekleniyor.');
   };
   const resetContract=message=>{
     contractRulesVersionId=null;contractContent.hidden=true;resetContractRules();setContractState('EMPTY',message||'Henüz yetkili sözleşme isteği yapılmadı.');
@@ -344,12 +348,13 @@
   const renderContractRulesPage=(payload,{append=false}={})=>{
     if(payload===null){resetContractRules('Seçili sürüm bu şube kapsamında bulunamadı.');return;}
     if(!payload||!Array.isArray(payload.items)||typeof payload.hasMore!=='boolean'||!(payload.nextCursor==null||uuidPattern.test(payload.nextCursor))) throw new Error('INVALID_FINANCE_CONTRACT_RULES');
+    if(!append){contractRuleItems.clear();resetContractRuleDetail();}
     const rows=payload.items.map(item=>{
       if(!item||!uuidPattern.test(item.feeRuleId||'')||typeof item.feeCode!=='string'||typeof item.category!=='string'||typeof item.status!=='string'||typeof item.configurationStatus!=='string') throw new Error('INVALID_FINANCE_CONTRACT_RULE');
       const descriptor=document.createElement('td');const fee=document.createElement('div');fee.className='finance-statement-fee';fee.textContent=item.feeCode;const rule=document.createElement('small');rule.textContent=`${item.ruleCode} · ${item.name}`;descriptor.append(fee,rule);
       const calculation=item.calculation;let calculationText='Yapılandırılmadı';if(calculation){const parameter=calculation.rate??calculation.percentage??calculation.amount??calculation.value;calculationText=`${calculation.method}${parameter!==undefined?` · ${parameter}`:''}`;}
-      const badge=document.createElement('span');badge.className=`finance-statement-status is-${item.status.toLowerCase()}`;badge.textContent=item.status;
-      const tr=document.createElement('tr');tr.append(descriptor,cell(item.category),cell(item.triggerEventType||'—'),cell(calculationText),cell(calculation?.priceIncludesTax===true?'Evet':calculation?.priceIncludesTax===false?'Hayır':'—'),(()=>{const td=document.createElement('td');td.append(badge);return td;})());return tr;
+      contractRuleItems.set(item.feeRuleId,Object.freeze({...item}));const badge=document.createElement('span');badge.className=`finance-statement-status is-${item.status.toLowerCase()}`;badge.textContent=item.status;const detailButton=document.createElement('button');detailButton.type='button';detailButton.className='finance-inline-action';detailButton.dataset.financeContractRuleId=item.feeRuleId;detailButton.textContent='Detayı aç';
+      const tr=document.createElement('tr');tr.append(descriptor,cell(item.category),cell(item.triggerEventType||'—'),cell(calculationText),cell(calculation?.priceIncludesTax===true?'Evet':calculation?.priceIncludesTax===false?'Hayır':'—'),(()=>{const td=document.createElement('td');td.append(badge,detailButton);return td;})());return tr;
     });
     if(!append){contractRulesBody.replaceChildren();contractRuleRowCount=0;}contractRulesBody.append(...rows);contractRuleRowCount+=rows.length;contractRulesCount.textContent=`${contractRuleRowCount} kural`;contractRulesTable.hidden=contractRuleRowCount===0;contractMoreButton.hidden=!payload.hasMore;contractMoreButton.disabled=!payload.hasMore;contractMoreButton.dataset.cursor=payload.nextCursor||'';setContractRulesState(contractRuleRowCount?'READY':'EMPTY',contractRuleRowCount?'Kurallar yüklendi.':'Seçili filtrelerde kural bulunamadı.');
   };
@@ -661,6 +666,8 @@
     button.addEventListener('click', () => selectScreen(screen));
     nav.appendChild(button);
   });
+  contractRulesBody.addEventListener('click',event=>{const button=event.target.closest('[data-finance-contract-rule-id]');if(!button)return;const item=contractRuleItems.get(button.dataset.financeContractRuleId);if(item)renderContractRuleDetail(item);});
+  contractRuleDetailClose.addEventListener('click',resetContractRuleDetail);
   statementBody.addEventListener('click', event => {
     const button = event.target.closest('[data-finance-payment-id]');
     if (button) {

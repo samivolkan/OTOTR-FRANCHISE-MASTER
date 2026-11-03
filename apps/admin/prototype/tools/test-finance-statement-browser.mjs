@@ -227,6 +227,15 @@ try {
   assert.match(await page.locator('[data-finance-contract-rules-body]').innerText(),/PERCENTAGE/);
   assert.match(await page.locator('[data-finance-contract-rules-body]').innerText(),/Evet/);
   assert.equal(requests.at(-1).operationId,'listContractFeeRules');
+  await page.click('[data-finance-contract-rule-id="23232323-2323-4323-8323-232323232323"]');
+  assert.equal(await page.locator('[data-finance-contract-rule-detail]').isVisible(),true);
+  assert.match(await page.locator('[data-finance-contract-rule-detail]').innerText(),/ROYALTY · ROYALTY Bedeli/);
+  assert.match(await page.locator('[data-finance-contract-rule-detail]').innerText(),/payment\.settled/);
+  assert.match(await page.locator('[data-finance-contract-rule-detail]').innerText(),/COLLECTED_GROSS/);
+  assert.match(await page.locator('[data-finance-contract-rule-detail]').innerText(),/KDV dahil matrah/);
+  assert.match(await page.locator('[data-finance-contract-rule-detail]').innerText(),/PERCENTAGE · 0\.10/);
+  await page.click('[data-finance-contract-rule-detail-close]');
+  assert.equal(await page.locator('[data-finance-contract-rule-detail]').isVisible(),false);
   await page.click('[data-finance-contract-more]');
   await page.waitForFunction(()=>document.querySelectorAll('[data-finance-contract-rules-body] tr').length===3);
   assert.match(await page.locator('[data-finance-contract-rules-body]').innerText(),/QUERY/);
