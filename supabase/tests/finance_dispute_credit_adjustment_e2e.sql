@@ -11,6 +11,8 @@ create or replace function finance_private.current_dispute_decision_worker_is_tr
 returns boolean language sql stable security definer set search_path=pg_catalog as $$select true$$;
 create or replace function finance_private.current_dispute_evidence_request_committer_is_trusted()
 returns boolean language sql stable security definer set search_path=pg_catalog as $$select true$$;
+create or replace function finance_private.current_dispute_evidence_finalize_committer_is_trusted()
+returns boolean language sql stable security definer set search_path=pg_catalog as $$select true$$;
 create or replace function finance_private.current_actor_can_read_scope(p_actor_id uuid,p_legal_entity_id uuid,p_dealer_account_id uuid,p_branch_id uuid,p_operation_id text)
 returns boolean language sql stable security definer set search_path=pg_catalog as $$select p_operation_id in('listDisputes','getDispute','getAccrualDetail')$$;
 
@@ -31,7 +33,7 @@ declare
   document_id constant uuid := '83000000-0000-4000-8000-000000000004';
   external_document_id constant uuid := '83000000-0000-4000-8000-000000000005';
   corr constant uuid := '93000000-0000-4000-8000-000000000001';
-  result jsonb; replay jsonb; dispute_id uuid; version_no bigint; correction_journal uuid; dispute_list jsonb; dispute_detail jsonb;evidence_requests jsonb;
+  result jsonb; replay jsonb; dispute_id uuid; version_no bigint; correction_journal uuid; dispute_list jsonb; dispute_detail jsonb;evidence_requests jsonb;evidence_request_id uuid;uploaded_external uuid:='84000000-0000-4000-8000-000000000001';uploaded_object_key text;
   credit_count integer; credit_total numeric(24,8); correction_accrual uuid;
 begin
   insert into public.app_users(id,auth_user_id,branch_id,full_name,role,is_active) values
@@ -103,10 +105,18 @@ begin
 
   result:=finance_api.commit_dispute_evidence_request(maker,dispute_id,'SERVICE_PROOF',repeat('6',64),'dispute-evidence-request-demo',repeat('7',64),corr);
   if result->>'outcome'<>'CREATED' or result->>'status'<>'OPEN' then raise exception 'evidence request failed: %',result;end if;
+  evidence_request_id:=(result->>'requestId')::uuid;
   evidence_requests:=finance_api.list_dispute_evidence_requests(hq,account,branch,dispute_id);
   if jsonb_array_length(evidence_requests->'items')<>1 or evidence_requests#>>'{items,0,requestType}'<>'SERVICE_PROOF' or evidence_requests#>>'{items,0,status}'<>'OPEN' then raise exception 'evidence request read mismatch: %',evidence_requests;end if;
   replay:=finance_api.commit_dispute_evidence_request(maker,dispute_id,'SERVICE_PROOF',repeat('6',64),'dispute-evidence-request-demo',repeat('7',64),corr);
   if replay->>'outcome'<>'REPLAY' then raise exception 'evidence request replay failed: %',replay;end if;
+  uploaded_object_key:='finance-disputes/'||hq::text||'/'||branch::text||'/'||dispute_id::text||'/'||evidence_request_id::text||'/'||uploaded_external::text||'.pdf';
+  insert into storage.objects(bucket_id,name,metadata) values('ototr-evidence',uploaded_object_key,jsonb_build_object('size',512,'mimetype','application/pdf'));
+  result:=finance_api.commit_dispute_evidence_finalize(maker,evidence_request_id,uploaded_external,uploaded_object_key,'application/pdf',512,repeat('8',64),'dispute-evidence-finalize-demo',repeat('9',64),corr);
+  if result->>'outcome'<>'FULFILLED' or result->>'status'<>'FULFILLED' then raise exception 'evidence finalize failed: %',result;end if;
+  if not exists(select 1 from finance.document_links dl join finance.document_references dr on dr.id=dl.document_reference_id where dl.subject_type='DISPUTE' and dl.subject_id=dispute_id and dr.external_document_id=uploaded_external and dr.object_key='ototr-evidence/'||uploaded_object_key) then raise exception 'finalized evidence link missing';end if;
+  replay:=finance_api.commit_dispute_evidence_finalize(maker,evidence_request_id,uploaded_external,uploaded_object_key,'application/pdf',512,repeat('8',64),'dispute-evidence-finalize-demo',repeat('9',64),corr);
+  if replay->>'outcome'<>'REPLAY' then raise exception 'evidence finalize replay failed: %',replay;end if;
 
   result:=finance_api.commit_dispute_review_decision(
     checker,dispute_id,'PARTIALLY_ACCEPTED',70,date '2026-11-06',version_no,'PARTIAL_SUPPORT',repeat('4',64),
@@ -146,14 +156,14 @@ begin
   if pg_catalog.jsonb_array_length(dispute_list->'items')<>1
      or dispute_list#>>'{items,0,disputeId}'<>dispute_id::text
      or dispute_list#>>'{items,0,acceptedAmount}'<>'70.00000000'
-     or dispute_list#>>'{items,0,documentCount}'<>'1' then
+     or dispute_list#>>'{items,0,documentCount}'<>'2' then
     raise exception 'dispute list projection mismatch: %',dispute_list;
   end if;
   dispute_detail:=finance_api.get_dispute(hq,account,branch,dispute_id);
   if dispute_detail->>'caseNo' not like 'DSP-%'
      or dispute_detail#>>'{amounts,disputedAmount}'<>'100.00000000'
      or dispute_detail#>>'{amounts,acceptedAmount}'<>'70.00000000'
-     or pg_catalog.jsonb_array_length(dispute_detail->'documents')<>1
+     or pg_catalog.jsonb_array_length(dispute_detail->'documents')<>2
      or dispute_detail#>>'{approval,status}'<>'APPROVED'
      or dispute_detail#>>'{correctionJournal,journalEntryId}'<>correction_journal::text then
     raise exception 'dispute detail projection mismatch: %',dispute_detail;
