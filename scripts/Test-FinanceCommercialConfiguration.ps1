@@ -14,6 +14,8 @@ $codes = @($d.feeFamilies | ForEach-Object code)
 if ($codes.Count -ne 7 -or @($codes | Sort-Object -Unique).Count -ne 7 -or @($expected | Where-Object { $_ -notin $codes }).Count) { throw 'Commercial configuration fee family inventory is incomplete.' }
 $royalty = $d.feeFamilies | Where-Object code -eq 'ROYALTY'
 if ($royalty.trigger -ne 'SETTLED_COLLECTION_PIECE' -or $royalty.calculationMethod -ne 'PERCENTAGE' -or $royalty.basisIncludesTax -ne $true -or $royalty.refundPolicy.mode -ne 'PROPORTIONAL_REVERSAL' -or -not $royalty.refundPolicy.onEachConfirmedRefund -or -not $royalty.refundPolicy.preserveOriginalPeriodReference -or -not $royalty.refundPolicy.preserveOriginalAccrualReference -or -not $royalty.refundPolicy.postToOpenPeriodWhenOriginalLocked) { throw 'Confirmed royalty/refund invariants were changed.' }
+if ($null -ne $royalty.ratePercent -or $royalty.rateDecisionStatus -ne 'CONFIRMED_SECURE_VALUE' -or $royalty.rateSource -ne 'SECRET_MANAGER' -or $royalty.rateSecretName -ne 'FINANCE_ROYALTY_DEFAULT_RATE_PERCENT' -or $royalty.scopeVariability -ne 'DEALER' -or $royalty.chargeTaxTreatment -ne 'VAT_ADDED_TO_CALCULATED_ROYALTY') { throw 'Confirmed plus VAT, dealer-variable and secret-backed royalty policy was changed.' }
+if ($royalty.waiverPolicy.scope -ne 'DEALER' -or @($royalty.waiverPolicy.allowedTypes) -notcontains 'NEW_DEALER_INTRODUCTORY' -or @($royalty.waiverPolicy.allowedTypes) -notcontains 'FINANCIAL_HARDSHIP' -or (@($royalty.waiverPolicy.introductoryDurationsMonths) -join ',') -ne '6,12' -or -not $royalty.waiverPolicy.requiresEffectiveDateRange -or -not $royalty.waiverPolicy.requiresMakerCheckerApproval -or -not $royalty.waiverPolicy.financialHardshipReviewRequired -or $royalty.waiverPolicy.shiftSystemDependency -ne $false) { throw 'Confirmed dealer waiver policy was changed.' }
 $deduction = $d.feeFamilies | Where-Object code -eq 'DEDUCTION_CREDIT'
 if ($deduction.directBalanceEditAllowed -ne $false) { throw 'Direct balance editing must remain forbidden.' }
 $publicRaw = Get-Content -Raw -LiteralPath (Resolve-Path $PublicProjectionFile)
@@ -39,7 +41,7 @@ $approved = $d.status -eq 'APPROVED'
 if ($approved) {
  if ($d.currencyCode -notmatch '^[A-Z]{3}$' -or $d.roundingMode -notin @('HALF_UP','HALF_EVEN','DOWN','UP')) { throw 'Approved general commercial values are incomplete.' }
  foreach ($f in $d.feeFamilies) { if ($f.decisionStatus -ne 'APPROVED' -or [string]::IsNullOrWhiteSpace($f.effectiveFrom) -or [string]::IsNullOrWhiteSpace($f.taxCode) -or [string]::IsNullOrWhiteSpace($f.invoiceLineCode)) { throw "Approved fee family is incomplete: $($f.code)" }; [void][datetime]::ParseExact($f.effectiveFrom,'yyyy-MM-dd',[Globalization.CultureInfo]::InvariantCulture) }
- if ($null -eq $royalty.ratePercent -or [decimal]$royalty.ratePercent -le 0 -or [decimal]$royalty.ratePercent -gt 100 -or $royalty.scopeVariability -notin @('FIXED_GLOBAL','CONTRACT','DEALER','BRANCH')) { throw 'Approved royalty rate or scope policy is invalid.' }
+ if ($royalty.rateDecisionStatus -ne 'CONFIRMED_SECURE_VALUE' -or $royalty.rateSource -ne 'SECRET_MANAGER' -or $royalty.rateSecretName -notmatch '^FINANCE_[A-Z0-9_]{3,80}$' -or $royalty.scopeVariability -notin @('FIXED_GLOBAL','CONTRACT','DEALER','BRANCH')) { throw 'Approved royalty rate source or scope policy is invalid.' }
  foreach ($name in @('financeDirector','financialAdvisor','franchiseManagement','legal')) { if ([string]::IsNullOrWhiteSpace($d.approval.$name)) { throw "Commercial approval missing: $name" } }
  if ($d.approval.evidencePath -match '^[A-Za-z]:|^\\|^/' -or $d.approval.evidenceSha256 -notmatch '^[a-fA-F0-9]{64}$') { throw 'Commercial evidence identity is invalid.' }
  $e = [IO.Path]::GetFullPath((Join-Path $root $d.approval.evidencePath))
@@ -49,5 +51,5 @@ if ($approved) {
 }
 $decision=if($approved){'APPROVED'}else{'PENDING_DECISIONS'}
 Write-Host "FINANCE COMMERCIAL CONFIGURATION: $decision" -ForegroundColor $(if($approved){'Green'}else{'Yellow'})
-Write-Host ("Fee families: 7; confirmed royalty invariants: 5; production values inferred: false")
+Write-Host ("Fee families: 7; royalty rate: confirmed secret-backed value plus VAT; dealer waiver policy: confirmed; production values exposed: false")
 if ($RequireApproved -and -not $approved) { throw 'Commercial configuration is not approved.' }

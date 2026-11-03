@@ -8,7 +8,7 @@ $source = Get-Content -Raw -LiteralPath (Resolve-Path $ConfigurationFile) | Conv
 if ($source.schemaVersion -ne 1 -or $source.module -ne 'OTOTR_FRANCHISE_FINANCE' -or $source.environment -ne 'PREPRODUCTION_CANDIDATE') { throw 'Invalid commercial configuration identity.' }
 $codes = @('ROYALTY','ENTRY_FRANCHISE','QUERY','EXTERNAL_SERVICE','OPTIONAL_PRODUCT_SERVICE','PASS_THROUGH_EXPENSE','DEDUCTION_CREDIT')
 $behaviors = [ordered]@{
-  ROYALTY = 'Tahsilat parçası üzerinden KDV dahil oran; iade oranında ters kayıt ve orijinal referans korunur.'
+  ROYALTY = 'Varsayılan oran güvenli backend yapılandırmasında onaylıdır; hesaplanan bedele ayrıca KDV. Bayi bazında oran esnetme, 6/12 ay yeni bayi ve onaylı mali zorluk muafiyeti desteklenir.'
   ENTRY_FRANCHISE = 'Şube veya sözleşme aktivasyonu tetikleyicisi tanımlı.'
   QUERY = 'Başarılı ve ücretlendirilebilir sorgu tetikleyicisi tanımlı.'
   EXTERNAL_SERVICE = 'Başarılı hizmet teslimi tetikleyicisi tanımlı.'
@@ -17,7 +17,7 @@ $behaviors = [ordered]@{
   DEDUCTION_CREDIT = 'Onaylı karar üzerinden kredi; doğrudan bakiye düzenleme yasak.'
 }
 $decisionFields = [ordered]@{
-  ROYALTY = @('ratePercent','scopeVariability','deductionsFromBasis','effectiveFrom','retroactiveRecalculation','dueRule','taxCode','invoiceLineCode')
+  ROYALTY = @('deductionsFromBasis','effectiveFrom','retroactiveRecalculation','dueRule','taxCode','invoiceLineCode')
   ENTRY_FRANCHISE = @('calculationMethod','amountOrRate','effectiveFrom','dueRule','taxCode','invoiceLineCode')
   QUERY = @('calculationMethod','amountOrRate','freeEntitlementPolicy','technicalRepeatPolicy','effectiveFrom','dueRule','taxCode','invoiceLineCode')
   EXTERNAL_SERVICE = @('calculationMethod','amountOrRate','providerMarginPolicy','effectiveFrom','dueRule','taxCode','invoiceLineCode')
@@ -36,5 +36,5 @@ $projection = [ordered]@{schemaVersion=1;module='OTOTR_FRANCHISE_FINANCE';projec
 $target = [IO.Path]::GetFullPath($OutputFile)
 $parent = Split-Path -Parent $target
 if (-not (Test-Path -LiteralPath $parent)) { throw 'Projection output directory does not exist.' }
-($projection | ConvertTo-Json -Depth 10) + [Environment]::NewLine | Set-Content -LiteralPath $target -Encoding utf8NoBOM
+$projection | ConvertTo-Json -Depth 10 | Set-Content -LiteralPath $target -Encoding utf8NoBOM
 Write-Host "FINANCE COMMERCIAL PUBLIC PROJECTION: GENERATED ($($families.Count) families)"
