@@ -7,6 +7,13 @@ $migrationRoot = Join-Path $supabaseRoot 'migrations'
 $manifestPath = Join-Path $supabaseRoot 'finance-migration-promotion.json'
 $manifest = Get-Content -LiteralPath $manifestPath -Raw | ConvertFrom-Json -Depth 10
 
+function Get-PortableSha256([string]$Path) {
+  $content = [System.IO.File]::ReadAllText($Path).Replace("`r`n", "`n")
+  $bytes = [System.Text.UTF8Encoding]::new($false).GetBytes($content)
+  $hash = [System.Security.Cryptography.SHA256]::HashData($bytes)
+  return [System.Convert]::ToHexString($hash)
+}
+
 if ($manifest.manifestId -ne 'OTOTR-FINANCE-LOCAL-MIGRATION-PROMOTION-V1') {
   throw 'Unexpected finance migration manifest id.'
 }
@@ -24,7 +31,7 @@ foreach ($entry in $manifest.migrations) {
     $failures.Add("Missing migration: $($entry.migration)")
     continue
   }
-  $actualHash = (Get-FileHash -LiteralPath $path -Algorithm SHA256).Hash
+  $actualHash = Get-PortableSha256 $path
   if ($actualHash -ne $entry.migrationSha256) {
     $failures.Add("Hash mismatch: $($entry.migration)")
   }

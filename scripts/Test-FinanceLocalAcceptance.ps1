@@ -23,6 +23,7 @@ $results = foreach ($check in $checks) {
   if (-not (Test-Path -LiteralPath $path -PathType Leaf)) { throw "Finance acceptance check not found: $path" }
   $checkStartedAt = [DateTimeOffset]::UtcNow
   & $path
+  if ($null -ne $LASTEXITCODE -and $LASTEXITCODE -ne 0) { throw "Finance acceptance check failed: $check (exit $LASTEXITCODE)" }
   [pscustomobject]@{
     check = $check
     status = 'PASSED'

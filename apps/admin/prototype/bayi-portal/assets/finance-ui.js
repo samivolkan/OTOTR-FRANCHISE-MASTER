@@ -539,7 +539,9 @@
     };
     if (!states[next]) throw new Error('INVALID_FINANCE_UI_STATE');
     [environment.textContent, state.textContent] = states[next];
-    description.textContent = message || (next === 'READY' ? 'Yetkili finans projectionı yüklendi.' : 'Yetkili finans API bağlantısı bekleniyor; demo veya tahmini tutar gösterilmiyor.');
+    const syntheticDemo=document.documentElement.dataset.financeDemo==='synthetic';
+    if(syntheticDemo){environment.textContent='SENTETİK DEMO · CANLI VERİ DEĞİL';state.textContent=`${next} · SYNTHETIC TEST DATA`;}
+    description.textContent = syntheticDemo ? (next==='READY'?'Sentetik finans verileri yüklendi; canlı sisteme yazılmaz.':'Sentetik test servisi bekleniyor.') : (message || (next === 'READY' ? 'Yetkili finans projectionı yüklendi.' : 'Yetkili finans API bağlantısı bekleniyor; demo veya tahmini tutar gösterilmiyor.'));
     if (next !== 'READY') resetAmounts();
   };
 
