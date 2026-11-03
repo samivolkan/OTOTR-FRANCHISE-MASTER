@@ -31,9 +31,13 @@ $results = foreach ($gate in $document.gates) {
       if (-not $evidencePath.StartsWith($root, [StringComparison]::OrdinalIgnoreCase) -or -not (Test-Path -LiteralPath $evidencePath -PathType Leaf)) { throw "Evidence file missing or outside repository for $($gate.id): $($evidence.path)" }
       $actualHash = (Get-FileHash -LiteralPath $evidencePath -Algorithm SHA256).Hash.ToLowerInvariant()
       if ($evidence.sha256 -notmatch '^[0-9a-fA-F]{64}$' -or $actualHash -ne $evidence.sha256.ToLowerInvariant()) { throw "Evidence hash mismatch for $($gate.id): $($evidence.path)" }
-      if ([string]::IsNullOrWhiteSpace($evidence.signedBy) -or [string]::IsNullOrWhiteSpace($evidence.signedAtUtc)) { throw "Evidence signoff missing for $($gate.id): $($evidence.path)" }
+      if ([string]::IsNullOrWhiteSpace($evidence.signedBy) -or [string]::IsNullOrWhiteSpace($evidence.signedRole) -or [string]::IsNullOrWhiteSpace($evidence.signedAtUtc)) { throw "Evidence signoff missing for $($gate.id): $($evidence.path)" }
       [void][DateTimeOffset]::Parse($evidence.signedAtUtc, [Globalization.CultureInfo]::InvariantCulture)
     }
+    $requiredRoles = @($gate.owner) + @($gate.approvers)
+    $signedRoles = @($gate.evidence | ForEach-Object signedRole | Sort-Object -Unique)
+    $missingRoles = @($requiredRoles | Where-Object { $_ -notin $signedRoles })
+    if ($missingRoles.Count -gt 0) { throw "PASSED gate is missing required role signoff for $($gate.id): $($missingRoles -join ', ')" }
   } elseif ([string]::IsNullOrWhiteSpace($gate.blockingReason)) {
     throw "Non-passed gate requires blockingReason: $($gate.id)"
   }

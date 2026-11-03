@@ -84,7 +84,17 @@ CI/CD veya release sırasında eksik kapıda işlemi durdurmak:
 pwsh -NoProfile -File scripts/Test-FinancePreproductionReadiness.ps1 -RequireGo
 ```
 
-Bir kapı yalnız kanıt dosyası mevcutken; SHA-256, imzalayan ve UTC imza zamanı girildiğinde `PASSED` yapılabilir. FIN-G12, FIN-G01…FIN-G11 tamamlanmadan onaylanamaz.
+Bir kapı yalnız kanıt dosyası mevcutken; SHA-256, imzalayan kişi, yetkili rol ve UTC imza zamanı girildiğinde `PASSED` yapılabilir. Kapı sahibi ile `approvers` listesindeki rollerin tamamı imzalamadan durum `PENDING` kalır. Kayıtlar JSON elle değiştirilerek değil aşağıdaki komutla eklenir:
+
+```powershell
+pwsh -NoProfile -File scripts/Set-FinancePreproductionGateEvidence.ps1 `
+  -GateId FIN-G01 `
+  -EvidencePath docs/finance/evidence/imzali-ticari-karar.pdf `
+  -SignedBy "Ad Soyad" `
+  -SignedRole "Finans Direktörü"
+```
+
+Komut kanıtın SHA-256 değerini kendisi üretir. Aynı dosya/rol imzasının tekrarı ve yetkisiz rol reddedilir. FIN-G12, FIN-G01…FIN-G11 tamamlanmadan onaylanamaz.
 
 ## Bugünkü doğrulanmış durum
 

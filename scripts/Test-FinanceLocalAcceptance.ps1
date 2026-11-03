@@ -38,6 +38,7 @@ $checks = @(
   'Test-GMFinanceDemoEnvironment.ps1',
   'Test-FinanceUATCoverage.ps1',
   'Test-FinanceCommercialConfiguration.ps1',
+  'Test-FinancePreproductionGateEvidence.ps1',
   'Test-FinancePreproductionReadiness.ps1'
 )
 
