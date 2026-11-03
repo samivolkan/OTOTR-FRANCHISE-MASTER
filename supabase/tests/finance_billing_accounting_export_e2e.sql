@@ -29,7 +29,7 @@ declare
   accounting_journal constant uuid := '85000000-0000-4000-8000-000000000003';
   corr constant uuid := '95000000-0000-4000-8000-000000000001';
   result jsonb; replay jsonb; batch_id uuid; batch_item_id uuid; external_invoice_row_id uuid;
-  export_accounting_batch_id uuid; invoice jsonb; callback jsonb; transition jsonb; package_list jsonb; package_detail jsonb;
+  export_accounting_batch_id uuid; invoice jsonb; callback jsonb; transition jsonb; package_list jsonb; package_detail jsonb;delivery jsonb;
 begin
   insert into finance.legal_entities(id,entity_code,legal_name,status,created_by,correlation_id)
   values(hq,'OTOTR-HQ-EXPORT-DEMO','OTOTR Sentetik Aktarım Merkezi','ACTIVE',maker,corr);
@@ -172,6 +172,8 @@ begin
   if result->>'outcome'<>'QUEUED' then raise exception 'accounting export queue failed: %',result;end if;
   replay:=finance_api.queue_accounting_export(checker,export_accounting_batch_id,'SYNTHETIC_ERP','SYNTHETIC-ERP-MAP-V1',1,'accounting-export-demo',repeat('3',64),corr);
   if replay->>'outcome'<>'REPLAY' then raise exception 'accounting export replay failed: %',replay;end if;
+  delivery:=finance_api.get_accounting_export_delivery(export_accounting_batch_id,'SYNTHETIC_ERP');
+  if delivery->>'batchId'<>export_accounting_batch_id::text or delivery->>'providerId'<>'SYNTHETIC_ERP'or delivery->>'rawCustomerDataExposed'<>'false'or pg_catalog.jsonb_array_length(delivery->'packages')<>1 or pg_catalog.jsonb_array_length(delivery#>'{packages,0,entries}')<>1 or pg_catalog.jsonb_array_length(delivery#>'{packages,0,entries,0,lines}')<>3 then raise exception 'accounting delivery projection mismatch: %',delivery;end if;
 
   package_list:=finance_api.list_finance_export_packages(hq,null,null,null,25);
   if pg_catalog.jsonb_array_length(package_list->'items')<>2
