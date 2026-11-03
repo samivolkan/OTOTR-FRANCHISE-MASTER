@@ -29,6 +29,12 @@ The customer PDF is only an output. The database record is the real source.
 
 ## Core Entity Groups
 
+### GM HR private domain
+
+The reviewed GM HR foundation uses the non-exposed `hr` schema and public RPC contracts. It includes employer/branch mappings, departments, positions, HR role assignments, candidates, employees/employments, assignments, lifecycle workflows, leave, shifts/timesheets, certifications/assets, performance, private document metadata, shadow payroll, SGK evidence, approvals, idempotency and immutable audit events.
+
+Direct `anon`/`authenticated` table grants are prohibited. The browser must never use the private schema directly. Until a later reviewed privacy/KVKK migration is approved, real-person rows and identity/health/disciplinary documents are rejected and the production gate remains blocked.
+
 ### Identity and Access
 
 - `app_users`
@@ -137,5 +143,7 @@ Review required before running any migration:
 - staging validation.
 
 Manual-only files must not be placed in automatic production migration flow.
+
+GM HR acceptance and rollout instructions: `docs/hr/GM_HR_ACCEPTANCE_RUNBOOK_2026-11-03.md`.
 
 Current classification output: `database-migration-inventory.md`.
