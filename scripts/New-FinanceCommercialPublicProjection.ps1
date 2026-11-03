@@ -8,7 +8,7 @@ $source = Get-Content -Raw -LiteralPath (Resolve-Path $ConfigurationFile) | Conv
 if ($source.schemaVersion -ne 1 -or $source.module -ne 'OTOTR_FRANCHISE_FINANCE' -or $source.environment -ne 'PREPRODUCTION_CANDIDATE') { throw 'Invalid commercial configuration identity.' }
 $codes = @('ROYALTY','ENTRY_FRANCHISE','QUERY','EXTERNAL_SERVICE','OPTIONAL_PRODUCT_SERVICE','PASS_THROUGH_EXPENSE','DEDUCTION_CREDIT')
 $behaviors = [ordered]@{
-  ROYALTY = 'Varsayılan oran güvenli backend yapılandırmasında onaylıdır; hesaplanan bedele ayrıca KDV. Bayi bazında oran esnetme, 6/12 ay yeni bayi ve onaylı mali zorluk muafiyeti desteklenir.'
+  ROYALTY = 'Varsayılan oran güvenli backend yapılandırmasında onaylıdır; matrah müşteriden tahsil edilen KDV dahil brüt tutarın tamamıdır ve gider/kart komisyonu düşülmez; hesaplanan bedele ayrıca KDV. Bayi bazında oran esnetme, 6/12 ay yeni bayi ve onaylı mali zorluk muafiyeti desteklenir.'
   ENTRY_FRANCHISE = 'Şube veya sözleşme aktivasyonu tetikleyicisi tanımlı.'
   QUERY = 'Başarılı ve ücretlendirilebilir sorgu tetikleyicisi tanımlı.'
   EXTERNAL_SERVICE = 'Başarılı hizmet teslimi tetikleyicisi tanımlı.'
@@ -17,7 +17,7 @@ $behaviors = [ordered]@{
   DEDUCTION_CREDIT = 'Onaylı karar üzerinden kredi; doğrudan bakiye düzenleme yasak.'
 }
 $decisionFields = [ordered]@{
-  ROYALTY = @('deductionsFromBasis','effectiveFrom','retroactiveRecalculation','dueRule','taxCode','invoiceLineCode')
+  ROYALTY = @('effectiveFrom','retroactiveRecalculation','dueRule','taxCode','invoiceLineCode')
   ENTRY_FRANCHISE = @('calculationMethod','amountOrRate','effectiveFrom','dueRule','taxCode','invoiceLineCode')
   QUERY = @('calculationMethod','amountOrRate','freeEntitlementPolicy','technicalRepeatPolicy','effectiveFrom','dueRule','taxCode','invoiceLineCode')
   EXTERNAL_SERVICE = @('calculationMethod','amountOrRate','providerMarginPolicy','effectiveFrom','dueRule','taxCode','invoiceLineCode')

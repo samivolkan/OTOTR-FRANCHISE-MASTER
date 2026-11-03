@@ -33,7 +33,7 @@ Her satır için `UYGULANMAZ` veya açık değer girilmelidir.
 
 1. Varsayılan royalty oranı nedir; bayi/şube/sözleşme bazında değişebilir mi? **Karar alındı; oran değeri public repoya yazılmaz, `FINANCE_ROYALTY_DEFAULT_RATE_PERCENT` secret'ından server-side okunur; bayi bazında esnetilebilir.**
 2. Oran değişikliği hangi tarihten itibaren uygulanır; geçmiş işlemler yeniden hesaplanır mı?
-3. Kredi kartı komisyonu veya başka kesintiler royalty matrahından düşer mi?
+3. Kredi kartı komisyonu veya başka kesintiler royalty matrahından düşer mi? **Hayır. Royalty her durumda müşteriden tahsil edilen KDV dahil brüt tutarın tamamı üzerinden hesaplanır.**
 4. Tahsilat iptali ile müşteri iadesi aynı finansal davranışı mı izler?
 5. Fazla iade girişimi reddedilecek mi; istisna için kim onay verebilir?
 6. Royalty tahakkukunun şubeye fatura edilme periyodu nedir?
