@@ -137,7 +137,10 @@ begin
 
   result:=finance_api.get_dealer_finance_summary(hq,account_a,branch_a,date '2026-11-30');
   if result#>>'{accrued,grossAmount}'<>'300.00000000' or result#>>'{collected,grossAmount}'<>'40.00000000'
-     or result#>>'{open,grossAmount}'<>'260.00000000' or result#>>'{unallocated,amount}'<>'60.00000000' then
+     or result#>>'{open,grossAmount}'<>'260.00000000' or result#>>'{unallocated,amount}'<>'60.00000000'
+     or jsonb_array_length(result->'feeFamilies')<>1 or result#>>'{feeFamilies,0,feeFamily}'<>'EXTERNAL_SERVICE'
+     or jsonb_array_length(result->'branchBreakdown')<>1 or result#>>'{branchBreakdown,0,branchCode}'<>'READ-BRANCH-A'
+     or result#>>'{operationalContribution,status}'<>'SOURCE_NOT_CONNECTED' then
     raise exception 'dealer finance summary totals mismatch: %',result;
   end if;
 

@@ -76,6 +76,7 @@
   const headquartersRankingTable = root.querySelector('[data-finance-headquarters-ranking-table]');
   const headquartersRanking = root.querySelector('[data-finance-headquarters-ranking]');
   const headquartersEmpty = root.querySelector('[data-finance-headquarters-empty]');
+  const dealerBreakdown=root.querySelector('[data-finance-dealer-breakdown]');const dealerBreakdownState=root.querySelector('[data-finance-dealer-breakdown-state]');const dealerFamiliesTable=root.querySelector('[data-finance-dealer-families-table]');const dealerFamilies=root.querySelector('[data-finance-dealer-families]');const dealerBranchesTable=root.querySelector('[data-finance-dealer-branches-table]');const dealerBranches=root.querySelector('[data-finance-dealer-branches]');const dealerBreakdownEmpty=root.querySelector('[data-finance-dealer-breakdown-empty]');const operationalContribution=root.querySelector('[data-finance-operational-contribution]');
   const operationalHealth=root.querySelector('[data-finance-operational-health]');const healthStatus=root.querySelector('[data-finance-health-status]');const healthGenerated=root.querySelector('[data-finance-health-generated]');const healthPending=root.querySelector('[data-finance-health-pending]');const healthAge=root.querySelector('[data-finance-health-age]');const healthDead=root.querySelector('[data-finance-health-dead]');const healthErrors=root.querySelector('[data-finance-health-errors]');const healthAudit=root.querySelector('[data-finance-health-audit]');const healthAuditCount=root.querySelector('[data-finance-health-audit-count]');
   const refunds = root.querySelector('[data-finance-refunds]');
   const refundsFrom = root.querySelector('[data-finance-refunds-from]');
@@ -221,6 +222,7 @@
       : 'Yalnız seçili tüzel kişi, bayi hesabı ve şube kapsamındaki doğrulanmış hareketler.';
     payments.hidden = id !== 'SCR-08';
     headquarters.hidden = id !== 'SCR-01';
+    dealerBreakdown.hidden=id!=='SCR-02';
     refunds.hidden = id !== 'SCR-17';
     serviceUsages.hidden=id!=='SCR-09';
     expenses.hidden=id!=='SCR-10';
@@ -614,6 +616,10 @@
     const calculatedAt = summary.calculatedAtUtc ? new Date(summary.calculatedAtUtc) : null;
     if (calculatedAt && Number.isNaN(calculatedAt.getTime())) throw new Error('INVALID_FINANCE_TIMESTAMP');
     freshness.textContent = calculatedAt ? calculatedAt.toLocaleString('tr-TR') : 'Bilinmiyor';
+    if(!Array.isArray(summary.feeFamilies)||!Array.isArray(summary.branchBreakdown)||!summary.operationalContribution||summary.operationalContribution.status!=='SOURCE_NOT_CONNECTED')throw new Error('INVALID_FINANCE_DEALER_BREAKDOWN');
+    const familyRows=summary.feeFamilies.map(item=>{if(!item||typeof item.feeFamily!=='string'||item.currency!==summary.currencyCode)throw new Error('INVALID_FINANCE_DEALER_FAMILY');const tr=document.createElement('tr');tr.append(cell(item.feeFamily),cell(amount(item.netAmount,item.currency)),cell(amount(item.taxAmount,item.currency)),cell(amount(item.grossAmount,item.currency)));return tr;});
+    const branchRows=summary.branchBreakdown.map(item=>{if(!item||!uuidPattern.test(item.branchId||'')||typeof item.branchCode!=='string'||item.currency!==summary.currencyCode)throw new Error('INVALID_FINANCE_DEALER_BRANCH');const tr=document.createElement('tr');tr.append(cell(item.branchCode),cell(amount(item.accruedGrossAmount,item.currency)),cell(amount(item.collectedGrossAmount,item.currency)),cell(amount(item.openGrossAmount,item.currency)),cell(amount(item.overdueGrossAmount,item.currency)));return tr;});
+    dealerFamilies.replaceChildren(...familyRows);dealerBranches.replaceChildren(...branchRows);dealerFamiliesTable.hidden=!familyRows.length;dealerBranchesTable.hidden=!branchRows.length;dealerBreakdownEmpty.hidden=familyRows.length>0||branchRows.length>0;dealerBreakdownState.textContent='READY · BRANCH-SCOPED PROJECTION';operationalContribution.textContent='Operasyonel katkı hesaplanmadı: ERP müşteri cirosu adaptörü bağlı değil; tahmini kazanç üretilmez.';
     if(activeScreenId!=='SCR-01') applySummaryKpis(summary);
     setConnectionState('READY');
   };

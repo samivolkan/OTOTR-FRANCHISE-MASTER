@@ -54,7 +54,7 @@ try {
     await new Promise(resolve => setTimeout(resolve, 75));
     if(body.operationId==='getDealerFinanceSummary'){
       const money={netAmount:'100.00000000',taxAmount:'20.00000000',grossAmount:'120.00000000',currency:'TRY'};
-      const data={...scope,asOf:'2026-11-03',accrued:money,invoiced:money,collected:money,open:money,overdue:{netAmount:'0',taxAmount:'0',grossAmount:'0',currency:'TRY'},calculatedAtUtc:'2026-11-03T10:00:00Z'};
+      const data={...scope,asOf:'2026-11-03',currencyCode:'TRY',accrued:money,invoiced:money,collected:money,open:money,overdue:{netAmount:'0',taxAmount:'0',grossAmount:'0',currency:'TRY'},feeFamilies:[{feeFamily:'ROYALTY',netAmount:'100.00000000',taxAmount:'20.00000000',grossAmount:'120.00000000',currency:'TRY'}],branchBreakdown:[{branchId:scope.branchId,branchCode:'NILUFER',accruedGrossAmount:'120.00000000',collectedGrossAmount:'120.00000000',openGrossAmount:'120.00000000',overdueGrossAmount:'0.00000000',currency:'TRY'}],operationalContribution:{status:'SOURCE_NOT_CONNECTED',reasonCode:'CUSTOMER_REVENUE_ADAPTER_REQUIRED',amount:null,currency:'TRY'},calculatedAtUtc:'2026-11-03T10:00:00Z'};
       await route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({data})});return;
     }
     if(body.operationId==='getHeadquartersFinanceSummary'){
