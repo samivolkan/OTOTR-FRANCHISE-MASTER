@@ -10,7 +10,7 @@
     {
       "code": "ROYALTY",
       "decisionStatus": "PARTIALLY_CONFIRMED",
-      "confirmedBehavior": "Varsayılan oran güvenli backend yapılandırmasında onaylıdır; matrah müşteriden tahsil edilen KDV dahil brüt tutarın tamamıdır ve gider/kart komisyonu düşülmez; hesaplanan bedele ayrıca KDV. Şube açılışında ticari değer ve süre manuel seçilir, yalnız ileriye uygulanır; 6/12 ay yeni şube ve onaylı mali zorluk muafiyeti desteklenir.",
+      "confirmedBehavior": "Varsayılan oran güvenli backend yapılandırmasında onaylıdır; matrah müşteriden tahsil edilen KDV dahil brüt tutarın tamamıdır ve gider/kart komisyonu düşülmez; hesaplanan bedele ayrıca KDV. Şube açılışında ticari değer, süre ve günlük/haftalık/aylık fatura periyodu manuel seçilir; değişiklikler yalnız ileriye uygulanır. 6/12 ay yeni şube ve onaylı mali zorluk muafiyeti desteklenir.",
       "pendingFields": [
         "dueRule",
         "taxCode",

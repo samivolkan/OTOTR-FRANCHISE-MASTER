@@ -36,7 +36,7 @@ Her satır için `UYGULANMAZ` veya açık değer girilmelidir.
 3. Kredi kartı komisyonu veya başka kesintiler royalty matrahından düşer mi? **Hayır. Royalty her durumda müşteriden tahsil edilen KDV dahil brüt tutarın tamamı üzerinden hesaplanır.**
 4. Tahsilat iptali ile müşteri iadesi aynı finansal davranışı mı izler?
 5. Fazla iade girişimi reddedilecek mi; istisna için kim onay verebilir?
-6. Royalty tahakkukunun şubeye fatura edilme periyodu nedir?
+6. Royalty tahakkukunun şubeye fatura edilme periyodu nedir? **Şube açılışında günlük, haftalık veya aylık seçeneklerinden biri manuel seçilir. Tahakkuk her kesinleşen tahsilatta anlık oluşur; periyot yalnız fatura paketlemesini belirler ve geçmiş tahakkukları yeniden paketlemez.**
 
 ### Onaylanan royalty muafiyet politikası
 
