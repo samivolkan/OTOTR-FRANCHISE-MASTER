@@ -130,6 +130,14 @@ try {
       const data=body.query.cursor?{items:[usage('29292929-2929-4929-8929-292929292929','QUERY-FREE-001',false)],nextCursor:null,hasMore:false}:{items:[usage('28282828-2828-4828-8828-282828282828','QUERY-001',true)],nextCursor:'usage-page-2',hasMore:true};
       await route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({data})});return;
     }
+    if(body.operationId==='getServiceUsageDetail'){
+      const data={sourceEventId:body.pathParams.sourceEventId,usageId:'28282828-2828-4828-8828-282828282828',businessDate:'2026-11-03',sourceSystem:'ERP',feeFamily:'QUERY',serviceCode:'TRAMER_QUERY',providerCode:'PROVIDER-A',externalReference:'QUERY-001',freeEntitlement:{applied:false,policyCode:null,sequence:null},technicalRepeatEvidence:{isTechnicalRepeat:true,repeatOfUsageId:'29292929-2929-4929-8929-292929292929',reasonCode:'PROVIDER_TIMEOUT',evidenceHash:'d'.repeat(64)},providerCost:{amount:'50.00000000',currency:'TRY'},charge:{status:'CHARGED',dealerPriceAmount:'120.00000000',currency:'TRY',accrualId:'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa'},calculation:{calculationRunId:'30303030-3030-4030-8030-303030303030',status:'SUCCEEDED'},sourcePayloadHash:'e'.repeat(64),correlationId:'31313131-3131-4131-8131-313131313131',rawPayloadExposed:false};
+      await route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({data})});return;
+    }
+    if(body.operationId==='exportServiceUsages'){
+      const data={schemaVersion:1,documentType:'OTOTR_FINANCE_SERVICE_USAGE_EXPORT',rowCount:1,totalMatchingCount:1,truncated:false,rawPayloadExposed:false,items:[{sourceEventId:'28282828-2828-4828-8828-282828282828',usageId:'28282828-2828-4828-8828-282828282828',businessDate:'2026-11-03',occurredAtUtc:'2026-11-03T09:00:00Z',sourceSystem:'ERP',feeFamily:'QUERY',serviceCode:'TRAMER_QUERY',providerCode:'PROVIDER-A',externalReference:'=QUERY-001',chargeStatus:'CHARGED',freeEntitlementApplied:false,technicalRepeat:true,technicalRepeatEvidenceHash:'d'.repeat(64),providerCostAmount:'50.00000000',dealerPriceAmount:'120.00000000',currency:'TRY',accrualId:'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',sourcePayloadHash:'e'.repeat(64)}]};
+      await route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({data})});return;
+    }
     if(body.operationId==='listPassThroughExpenses'){
       const expense=(id,reference,status='POSTED')=>({expenseId:id,expenseDate:'2026-11-03',supplierReference:reference,contractualBasisReference:'OTOTR-MASRAF-2026',feeCode:'PASS_THROUGH',feeName:'Ortak hizmet masrafı',status,sourceAmount:'1200.00000000',distributableAmount:'1200.00000000',currency:'TRY',allocationMethod:'EQUAL',shareCount:2,documentCount:1,journalEntryId:'34343434-3434-4434-8434-343434343434',reversalJournalEntryId:null,version:1});
       const data=body.query.cursor?{items:[expense('32323232-3232-4232-8232-323232323232','SUPPLIER-002','APPROVED')],nextCursor:null,hasMore:false}:{items:[expense('30303030-3030-4030-8030-303030303030','SUPPLIER-001')],nextCursor:'expense-page-2',hasMore:true};
@@ -404,6 +412,12 @@ try {
   assert.equal(requests.at(-1).operationId,'listServiceUsages');
   assert.equal(requests.at(-1).query.from,'2026-11-01');
   assert.equal(requests.at(-1).query.to,'2026-11-30');
+  await page.click('[data-finance-service-usages-body] [data-finance-service-usage-id]');
+  await page.waitForFunction(()=>document.querySelector('[data-finance-service-usage-detail]')?.hidden===false&&document.querySelector('[data-finance-service-usage-content]')?.hidden===false);
+  assert.equal(requests.at(-1).operationId,'getServiceUsageDetail');
+  const usageDetailText=await page.locator('[data-finance-service-usage-detail]').innerText();assert.match(usageDetailText,/PROVIDER_TIMEOUT/);assert.match(usageDetailText,/dddddddddddddddd/);assert.doesNotMatch(usageDetailText,/payload|secret/i);
+  await page.click('[data-finance-service-usage-close]');
+  const usageDownloadPromise=page.waitForEvent('download');await page.click('[data-finance-service-usages-export]');const usageDownload=await usageDownloadPromise;assert.match(usageDownload.suggestedFilename(),/^ototr-hizmet-kullanimlari-.*\.csv$/);const usageStream=await usageDownload.createReadStream();let usageCsv='';for await(const chunk of usageStream)usageCsv+=chunk.toString('utf8');assert.match(usageCsv,/TRAMER_QUERY/);assert.match(usageCsv,/"'=QUERY-001"/);assert.doesNotMatch(usageCsv,/rawPayloadExposed|"payload"|secret/i);assert.equal(requests.at(-1).operationId,'exportServiceUsages');assert.equal(requests.at(-1).query.limit,10000);
   await page.click('[data-finance-screen="SCR-10"]');
   await page.fill('[data-finance-expenses-from]','2026-11-01');
   await page.fill('[data-finance-expenses-to]','2026-11-30');

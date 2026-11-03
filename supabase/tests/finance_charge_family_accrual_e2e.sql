@@ -204,6 +204,22 @@ begin
      or usage_page#>>'{items,0,accrualId}' is null then
     raise exception 'charged service usage projection mismatch: %',usage_page;
   end if;
+  usage_page:=finance_api.get_service_usage_detail(hq,account,branch,(usage_page#>>'{items,0,sourceEventId}')::uuid);
+  if usage_page->>'externalReference'<>'QUERY-001'
+     or usage_page#>>'{charge,status}'<>'CHARGED'
+     or usage_page#>>'{charge,dealerPriceAmount}'<>'120.00000000'
+     or usage_page->>'sourcePayloadHash'<>repeat('2',64)
+     or (usage_page->>'rawPayloadExposed')::boolean then
+    raise exception 'service usage detail projection mismatch: %',usage_page;
+  end if;
+  usage_page:=finance_api.export_service_usages(hq,account,branch,date '2026-11-01',date '2026-11-30','QUERY','CHARGED',10000);
+  if usage_page->>'documentType'<>'OTOTR_FINANCE_SERVICE_USAGE_EXPORT'
+     or (usage_page->>'rowCount')::integer<>1
+     or usage_page#>>'{items,0,externalReference}'<>'QUERY-001'
+     or usage_page#>>'{items,0,sourcePayloadHash}'<>repeat('2',64)
+     or (usage_page->>'rawPayloadExposed')::boolean then
+    raise exception 'service usage export projection mismatch: %',usage_page;
+  end if;
   usage_page:=finance_api.list_service_usages(hq,account,branch,null,null,'EXTERNAL_SERVICE','CHARGED',null,50);
   if jsonb_array_length(usage_page->'items')<>1 or usage_page#>>'{items,0,externalReference}'<>'SERVICE-001' or usage_page#>>'{items,0,providerCostAmount}'<>'200.00000000' or usage_page#>>'{items,0,dealerPriceAmount}'<>'300.00000000' or usage_page#>>'{items,0,marginAmount}'<>'100.00000000' then raise exception 'external service margin mismatch: %',usage_page;end if;
   usage_page:=finance_api.list_service_usages(hq,account,branch,null,null,'EXTERNAL_SERVICE','FAILED',null,50);
