@@ -21,7 +21,7 @@ Her satır için `UYGULANMAZ` veya açık değer girilmelidir.
 
 | Bedel ailesi | Tetikleyici | Hesaplama | KDV dahil mi? | KDV oranı/kodu | Vade | İade/iptal davranışı | Fatura satır kodu |
 |---|---|---|---|---|---|---|---|
-| ROYALTY | Kesinleşmiş tahsilat parçası | Varsayılan oran kararı alındı; değer yalnız secret manager'da tutulacak; şube bazında esnetilebilir | Evet, tahsil edilen KDV dahil brüt matrah; hesaplanan royalty bedeline ayrıca %20 KDV | Oran %20 onaylandı; muhasebe vergi kodu eşlemesi bekliyor | Ertesi takvim günü | İade oranında ters kayıt; orijinal dönem/tahakkuk korunur | Bekleniyor |
+| ROYALTY | Kesinleşmiş tahsilat parçası | Varsayılan oran kararı alındı; değer yalnız secret manager'da tutulacak; şube bazında esnetilebilir | Evet, tahsil edilen KDV dahil brüt matrah; hesaplanan royalty bedeline ayrıca %20 KDV | Oran %20 onaylandı; muhasebe vergi kodu eşlemesi bekliyor | Ertesi takvim günü | İade oranında ters kayıt; orijinal dönem/tahakkuk korunur | ROYALTY_SERVICE_FEE — Royalty Hizmet Bedeli |
 | ENTRY_FRANCHISE | Sözleşme/şube aktivasyonu | Sabit/kademeli tutar bekleniyor | Bekleniyor | Bekleniyor | Bekleniyor | Bekleniyor | Bekleniyor |
 | QUERY | Başarılı ücretli sorgu | Hizmet bazlı fiyat bekleniyor | Bekleniyor | Bekleniyor | Bekleniyor | Teknik tekrar/ücretsiz hak kararı bekleniyor | Bekleniyor |
 | EXTERNAL_SERVICE | Başarılı hizmet kullanımı | Hizmet bazlı fiyat/marj bekleniyor | Bekleniyor | Bekleniyor | Bekleniyor | Sağlayıcı iptal/iade kuralı bekleniyor | Bekleniyor |
@@ -45,6 +45,7 @@ Her satır için `UYGULANMAZ` veya açık değer girilmelidir.
 - Vade geldiğinde tam ödeme doğrulanmadıysa şubenin operasyon ekranları fail-closed kilitlenir.
 - Kilitliyken ödeme, fatura/ekstre görüntüleme, destek ve güvenli çıkış açık kalır; diğer şube operasyonları kapalıdır.
 - Erişim yalnız ödeme kuruluşundan doğrulanmış tam ödeme callback'i geldikten sonra açılır; kart formunun gönderilmesi yeterli değildir.
+- Seçilen fatura dönemindeki royalty tahakkukları faturada `Royalty Hizmet Bedeli` adıyla tek satırda toplanır; satırın alt tahakkuk ve ekstre izleri korunur.
 
 ### Onaylanan royalty muafiyet politikası
 
