@@ -293,14 +293,14 @@ if (auth && ui) {
       return client.listContractFeeRules(scope,contractVersionId,options);
     },
     async getContractFeeRule(contractVersionId,feeRuleId){const scope=configuredScope||refreshContext();if(!scope)throw new FinanceBridgeError('FINANCE_SCOPE_UNAVAILABLE','ERP finans kapsamı henüz sağlanmadı.');return client.getContractFeeRule(scope,contractVersionId,feeRuleId);},
-    async loadContractFeeRule(contractVersionId,feeRuleId){ruleDetailUi?.setContractRuleDetailState?.('LOADING');try{const result=await api.getContractFeeRule(contractVersionId,feeRuleId);const detail=result.data?{...result.data,feeCode:result.data.code,ruleCode:result.data.code,triggerEventType:result.data.trigger?.eventType,calculation:result.data.calculation?{...result.data.calculation,priceIncludesTax:result.data.tax?.priceIncludesTax}:null}:null;ruleDetailUi?.renderContractRuleDetail?.(detail);return result;}catch(error){ruleDetailUi?.setContractRuleDetailState?.('ERROR',error instanceof FinanceBridgeError?error.message:'Kural detayı alınamadı.');throw error;}},
+    async loadContractFeeRule(contractVersionId,feeRuleId){ruleDetailUi?.setContractRuleDetailState?.('LOADING');try{const result=await api.getContractFeeRule(contractVersionId,feeRuleId);const detail=result.data?{...result.data,feeCode:result.data.code,ruleCode:result.data.code,triggerEventType:result.data.trigger?.eventType,calculation:result.data.calculation?{...result.data.calculation,priceIncludesTax:result.data.tax?.priceIncludesTax}:null}:null;ruleDetailUi?.renderContractRuleDetail?.(detail);globalThis.dispatchEvent?.(new CustomEvent('ototr:finance-contract-rule-loaded',{detail:result.data}));return result;}catch(error){ruleDetailUi?.setContractRuleDetailState?.('ERROR',error instanceof FinanceBridgeError?error.message:'Kural detayı alınamadı.');throw error;}},
     async loadContractWorkspace({append=false}={}) {
       try {
         if(!append){
           ui.setContractState?.('LOADING','Aktif sözleşme ve sürüm bilgisi yükleniyor…');
           const contractResult=await api.getCurrentFranchiseContract();
           ui.renderCurrentContract?.(contractResult.data);
-          const versionId=contractResult.data?.activeVersion?.versionId || contractResult.data?.pendingVersion?.versionId;
+          const versionId=contractResult.data?.pendingVersion?.versionId || contractResult.data?.activeVersion?.versionId;
           if(!versionId) return contractResult;
           ui.setContractRulesVersion?.(versionId);
         }

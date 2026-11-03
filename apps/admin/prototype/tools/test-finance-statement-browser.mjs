@@ -39,6 +39,7 @@ const paymentItem=(id,status='PARTIALLY_ALLOCATED',received='200.00000000',verif
 
 let browser;
 const requests = [];
+const commands = [];
 try {
   browser = await chromium.launch({headless:true, executablePath:process.env.PLAYWRIGHT_CHROME_PATH || 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe'});
   const page = await browser.newPage({viewport:{width:1440,height:1000}});
@@ -81,7 +82,7 @@ try {
       await route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({data})});return;
     }
     if(body.operationId==='getContractFeeRule'){
-      const data={feeRuleId:body.pathParams.feeRuleId,feeDefinitionId:'32323232-2323-4323-8323-232323232323',feeDefinitionCode:'ROYALTY',feeDefinitionVersion:1,contractVersionId:body.pathParams.contractVersionId,version:1,code:'RULE-ROYALTY',name:'ROYALTY Bedeli',category:'ROYALTY',status:'ACTIVE',configurationStatus:'CONFIGURED',priority:100,validity:{validFrom:'2026-11-01',validTo:null},trigger:{eventType:'payment.settled',conditions:[]},basis:{kind:'COLLECTED_GROSS'},calculation:{method:'PERCENTAGE',rate:'0.10',currency:'TRY',decimalScale:2,roundingMode:'HALF_UP'},tax:{taxCodeVersionId:'27272727-2727-4727-8727-272727272727',priceIncludesTax:true},due:{type:'IMMEDIATE'},cancellationPolicy:{type:'PROPORTIONAL_REVERSAL'},exceptions:[{exceptionId:'26262626-2626-4626-8626-262626262627',exceptionCode:'FIRST_MONTH_EXEMPTION',scopeType:'BRANCH',conditionType:'CONTRACT_AGE',overrideType:'RATE_OVERRIDE',priority:200,effectiveFrom:'2026-11-01',effectiveTo:null,status:'ACTIVE',version:1}],exceptionCount:1,createdAtUtc:'2026-11-01T09:00:00Z'};
+      const data={feeRuleId:body.pathParams.feeRuleId,feeDefinitionId:'32323232-2323-4323-8323-232323232323',feeDefinitionCode:'ROYALTY',feeDefinitionVersion:1,contractVersionId:body.pathParams.contractVersionId,version:1,code:'RULE-ROYALTY',name:'ROYALTY Bedeli',category:'ROYALTY',status:'DRAFT',configurationStatus:'CONFIGURED',priority:100,validity:{validFrom:'2026-11-01',validTo:null},trigger:{eventType:'payment.settled',conditions:[]},basis:{kind:'COLLECTED_GROSS'},calculation:{method:'PERCENTAGE',rate:'0.10',currency:'TRY',decimalScale:2,roundingMode:'HALF_UP'},tax:{taxCodeVersionId:'27272727-2727-4727-8727-272727272727',priceIncludesTax:true},due:{type:'IMMEDIATE'},cancellationPolicy:{type:'PROPORTIONAL_REVERSAL'},exceptions:[{exceptionId:'26262626-2626-4626-8626-262626262627',exceptionCode:'FIRST_MONTH_EXEMPTION',scopeType:'BRANCH',conditionType:'CONTRACT_AGE',overrideType:'RATE_OVERRIDE',priority:200,effectiveFrom:'2026-11-01',effectiveTo:null,status:'ACTIVE',version:1}],exceptionCount:1,createdAtUtc:'2026-11-01T09:00:00Z'};
       await route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({data})});return;
     }
     if(body.operationId==='listPayments'){
@@ -200,6 +201,7 @@ try {
         : {items:[item('aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa','ENTRY_FRANCHISE','1200.00000000','200.00000000','1000.00000000')],nextCursor:'page-2',hasMore:true};
     await route.fulfill({status:200,contentType:'application/json',headers:{'correlation-id':'44444444-4444-4444-8444-444444444444'},body:JSON.stringify({data})});
   });
+  await page.route('**/functions/v1/finance-command',async route=>{const body=route.request().postDataJSON();commands.push(body);await route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({data:{outcome:'UPDATED',resource:{feeRuleId:body.command.feeRuleId,version:2},correlationId:'77777777-7777-4777-8777-777777777777'}})});});
 
   await page.goto(`${origin}/index.html`, {waitUntil:'networkidle'});
   await page.click('#navFinance');
@@ -244,6 +246,12 @@ try {
   assert.match(await page.locator('[data-finance-contract-rule-exceptions]').innerText(),/BRANCH \/ CONTRACT_AGE/);
   assert.match(await page.locator('[data-finance-contract-rule-exceptions]').innerText(),/RATE_OVERRIDE/);
   assert.doesNotMatch(await page.locator('[data-finance-contract-rule-detail]').innerText(),/must-not-leak|scope_definition|override_definition/i);
+  await page.waitForFunction(()=>document.querySelector('[data-finance-contract-rule-edit]')?.hidden===false);
+  await page.fill('[data-finance-contract-rule-edit] [name="code"]','ROYALTY_UPDATED');
+  page.once('dialog',dialog=>dialog.accept());
+  await page.click('[data-finance-contract-rule-edit-submit]');
+  await page.waitForTimeout(100);
+  assert.equal(commands.length,1);assert.equal(commands[0].operationId,'updateContractFeeRule');assert.equal(commands[0].command.rule.code,'ROYALTY_UPDATED');assert.deepEqual(commands[0].command.rule.exceptions,[]);assert.equal(commands[0].command.rule.tax.priceIncludesTax,true);assert.equal(commands[0].command.contractVersionId,'22222222-2222-4222-8222-222222222223');
   await page.click('[data-finance-contract-rule-detail-close]');
   assert.equal(await page.locator('[data-finance-contract-rule-detail]').isVisible(),false);
   await page.click('[data-finance-contract-more]');
