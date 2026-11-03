@@ -2,6 +2,8 @@
 
 Bu belge FIN-G01 ve FIN-G02 için karar toplama formudur. Boş alanlardan oran, KDV, vade veya muhasebe hesabı tahmin edilmez. Her kuralın başlangıç tarihi ve onay sahibi bulunmalıdır.
 
+Makinece doğrulanan ana kayıt `docs/finance/commercial-configuration.json` dosyasıdır. Bu formdaki kararlar o kayda işlenmeden, `Test-FinanceCommercialConfiguration.ps1 -RequireApproved` geçmeden ve imzalı kanıt hash'i eklenmeden FIN-G01/FIN-G02 kapatılamaz.
+
 ## 1. Genel kararlar
 
 | Alan | Karar | Onaylayan | Geçerlilik başlangıcı |

@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 1,
+  "module": "OTOTR_FRANCHISE_FINANCE",
+  "environment": "PREPRODUCTION_CANDIDATE",
+  "status": "PENDING_DECISIONS",
+  "currencyCode": null,
+  "storageDecimalScale": 8,
+  "documentDecimalScale": 2,
+  "roundingMode": null,
+  "feeFamilies": [
+    {"code":"ROYALTY","decisionStatus":"PARTIALLY_CONFIRMED","trigger":"SETTLED_COLLECTION_PIECE","calculationMethod":"PERCENTAGE","ratePercent":null,"scopeVariability":null,"basisIncludesTax":true,"deductionsFromBasis":null,"effectiveFrom":null,"retroactiveRecalculation":null,"dueRule":null,"taxCode":null,"invoiceLineCode":null,"refundPolicy":{"mode":"PROPORTIONAL_REVERSAL","onEachConfirmedRefund":true,"preserveOriginalPeriodReference":true,"preserveOriginalAccrualReference":true,"postToOpenPeriodWhenOriginalLocked":true}},
+    {"code":"ENTRY_FRANCHISE","decisionStatus":"PENDING","trigger":"BRANCH_OR_CONTRACT_ACTIVATION","calculationMethod":null,"amountOrRate":null,"effectiveFrom":null,"dueRule":null,"taxCode":null,"invoiceLineCode":null},
+    {"code":"QUERY","decisionStatus":"PENDING","trigger":"SUCCESSFUL_CHARGEABLE_QUERY","calculationMethod":null,"amountOrRate":null,"freeEntitlementPolicy":null,"technicalRepeatPolicy":null,"effectiveFrom":null,"dueRule":null,"taxCode":null,"invoiceLineCode":null},
+    {"code":"EXTERNAL_SERVICE","decisionStatus":"PENDING","trigger":"SUCCESSFUL_SERVICE_DELIVERY","calculationMethod":null,"amountOrRate":null,"providerMarginPolicy":null,"effectiveFrom":null,"dueRule":null,"taxCode":null,"invoiceLineCode":null},
+    {"code":"OPTIONAL_PRODUCT_SERVICE","decisionStatus":"PENDING","trigger":"PRODUCT_OR_SERVICE_ACTIVATION","calculationMethod":null,"amountOrRate":null,"effectiveFrom":null,"dueRule":null,"taxCode":null,"invoiceLineCode":null},
+    {"code":"PASS_THROUGH_EXPENSE","decisionStatus":"PENDING","trigger":"APPROVED_SOURCE_EXPENSE","calculationMethod":null,"allocationPolicy":null,"effectiveFrom":null,"dueRule":null,"taxCode":null,"invoiceLineCode":null},
+    {"code":"DEDUCTION_CREDIT","decisionStatus":"PENDING","trigger":"APPROVED_DISPUTE_OR_DECISION","calculationMethod":null,"amountOrRate":null,"directBalanceEditAllowed":false,"effectiveFrom":null,"taxCode":null,"invoiceLineCode":null}
+  ],
+  "approval": {"financeDirector":null,"financialAdvisor":null,"franchiseManagement":null,"legal":null,"evidencePath":null,"evidenceSha256":null,"signedAtUtc":null}
+}
