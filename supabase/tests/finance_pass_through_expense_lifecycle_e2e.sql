@@ -20,6 +20,8 @@ create or replace function finance_private.current_actor_can_read_headquarters(p
 returns boolean language sql stable security definer set search_path=pg_catalog as $$select p_operation_id in('listPassThroughExpenses','getPassThroughExpense')$$;
 create or replace function finance_private.current_actor_can_upload_expense_evidence(p_actor_id uuid,p_legal_entity_id uuid,p_dealer_account_id uuid,p_branch_id uuid)
 returns boolean language sql stable security definer set search_path=pg_catalog as $$select true$$;
+create or replace function finance_private.current_actor_can_manage_expense(p_actor_id uuid,p_expense_id uuid,p_action text)
+returns boolean language sql stable security definer set search_path=pg_catalog as $$select true$$;
 
 create or replace function finance_private.resolve_approved_expense_allocation_context(
   p_expense_id uuid,p_distribution_method text,p_distribution_rule_reference text
@@ -137,8 +139,11 @@ begin
   if result->>'bucketId'<>'ototr-evidence' or result->>'objectKey'<>uploaded_object_key or result->>'expiresIn'<>'120' then raise exception 'expense evidence locator mismatch: %',result;end if;
   perform pg_catalog.set_config('request.jwt.claim.role','service_role',true);
 
-  result:=finance_api.commit_expense_share_calculation(
-    maker,expense_id,'EQUAL','SYNTHETIC-EQUAL-V1',version_no,'expense-share-demo',repeat('d',64),corr
+  result:=finance_api.commit_expense_share_calculation_with_basis(
+    maker,expense_id,'EQUAL','SYNTHETIC-EQUAL-V1',jsonb_build_array(
+      jsonb_build_object('branchId',branch_a,'dealerAccountId',account_a,'basisValue','1.00000000'),
+      jsonb_build_object('branchId',branch_b,'dealerAccountId',account_b,'basisValue','1.00000000')
+    ),version_no,'expense-share-demo',repeat('d',64),corr
   );
   if result->>'outcome'<>'CALCULATED' then raise exception 'expense share calculation failed: %',result;end if;
   version_no:=(result->>'version')::bigint;
