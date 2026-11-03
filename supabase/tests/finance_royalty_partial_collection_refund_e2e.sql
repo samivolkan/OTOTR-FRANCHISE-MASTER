@@ -311,7 +311,13 @@ begin
     raise exception 'royalty refund trace projection mismatch: %',v_trace;
   end if;
   v_trace_by_accrual:=finance_api.get_royalty_refund_trace_by_accrual(v_hq,v_account,v_branch,v_reversal_accrual);
-  if v_trace_by_accrual is distinct from v_trace then
+  if (v_trace_by_accrual-'creditCarryForward') is distinct from v_trace
+     or v_trace_by_accrual#>>'{creditCarryForward,originalCreditAmount}'<>'59.00000000'
+     or v_trace_by_accrual#>>'{creditCarryForward,appliedAmount}'<>'0.00000000'
+     or v_trace_by_accrual#>>'{creditCarryForward,remainingCreditAmount}'<>'59.00000000'
+     or v_trace_by_accrual#>>'{creditCarryForward,status}'<>'OPEN'
+     or pg_catalog.jsonb_array_length(v_trace_by_accrual#>'{creditCarryForward,applications}')<>0
+     or v_trace_by_accrual#>>'{creditCarryForward,rawAccountingDataExposed}'<>'false' then
     raise exception 'refund trace by reversal accrual mismatch: %',v_trace_by_accrual;
   end if;
 

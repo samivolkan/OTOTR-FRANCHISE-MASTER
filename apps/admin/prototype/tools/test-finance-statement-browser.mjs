@@ -230,7 +230,8 @@ try {
         originalCollection:{collectionId:'13131313-1313-4313-8313-131313131313',collectedGrossAmount:'1180.00000000',currency:'TRY'},
         originalRoyaltyAccrual:{accrualId:'14141414-1414-4414-8414-141414141414',grossAmount:'118.00000000',currency:'TRY'},
         reversalAccrual:{accrualId:reversalAccrualId,grossAmount:'59.00000000',currency:'TRY',status:'POSTED'},
-        creditOpenItem:{openItemId:'15151515-1515-4515-8515-151515151515',itemType:'CREDIT',originalAmount:'59.00000000',openAmount:'59.00000000',currency:'TRY'},
+        creditOpenItem:{openItemId:'15151515-1515-4515-8515-151515151515',itemType:'CREDIT',originalAmount:'59.00000000',openAmount:'19.00000000',currency:'TRY'},
+        creditCarryForward:{creditOpenItemId:'15151515-1515-4515-8515-151515151515',status:'PARTIALLY_ALLOCATED',currency:'TRY',originalCreditAmount:'59.00000000',appliedAmount:'40.00000000',remainingCreditAmount:'19.00000000',applications:[{applicationId:'18181818-1818-4818-8818-181818181818',debitOpenItemId:'19191919-1919-4919-8919-191919191919',debitAccrualId:'20202020-2020-4020-8020-202020202020',billingBatchId:'21212121-2121-4121-8121-212121212121',appliedAmount:'40.00000000',appliedAtUtc:'2026-11-05T08:00:00Z'}],cashPayoutConfigured:false,rawAccountingDataExposed:false},
         periodProvenance:{originalPeriodId:'16161616-1616-4616-8616-161616161616',postingPeriodId:'17171717-1717-4717-8717-171717171717',refundBusinessDate:'2026-11-03'}
       };
       await route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({data})}); return;
@@ -574,6 +575,9 @@ try {
   assert.equal(requests.at(-1).operationId,'getRoyaltyRefundTrace');
   assert.match(await page.locator('[data-finance-refund-provenance]').innerText(),/Tahsilat ve ilk tahakkuku aç/);
   assert.match(await page.locator('[data-finance-refund-provenance]').innerText(),/Ters tahakkuku aç/);
+  assert.match(await page.locator('[data-finance-refund-provenance]').innerText(),/Mahsup: 40,00000000 TRY/);
+  assert.match(await page.locator('[data-finance-refund-provenance]').innerText(),/Devreden: 19,00000000 TRY/);
+  assert.match(await page.locator('[data-finance-refund-provenance]').innerText(),/fatura batch 21212121-2121-4121-8121-212121212121/);
   assert.match(await page.locator('[data-finance-refund-provenance]').innerText(),/Ters kayda itiraz et/);
   await page.click('[data-finance-refund-original-accrual]');
   await page.waitForFunction(()=>document.querySelector('[data-finance-accrual-detail]')?.dataset.state==='READY');

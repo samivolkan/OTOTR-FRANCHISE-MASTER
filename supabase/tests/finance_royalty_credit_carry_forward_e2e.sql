@@ -87,6 +87,12 @@ begin
      or not exists(select 1 from finance.royalty_credit_applications where credit_open_item_id=credit_item and debit_open_item_id=debit2_item and applied_amount=60 and billing_batch_id=batch)
      or not exists(select 1 from finance.billing_batch_items where billing_batch_id=batch and accrual_id=debit2_accrual and net_amount=32 and tax_amount=8 and gross_amount=40)
   then raise exception 'carried credit trace or billing item mismatch';end if;
+  result:=finance_private.get_royalty_credit_carry_forward_projection(credit_item);
+  if result->>'originalCreditAmount'<>'180.00000000' or result->>'appliedAmount'<>'180.00000000'
+     or result->>'remainingCreditAmount'<>'0.00000000' or result->>'status'<>'CLOSED'
+     or pg_catalog.jsonb_array_length(result->'applications')<>2
+     or result#>>'{applications,1,billingBatchId}'<>batch::text
+     or result->>'rawAccountingDataExposed'<>'false' then raise exception 'credit carry-forward read projection mismatch: %',result;end if;
   if exists(select 1 from finance.royalty_credit_applications where branch_id<>branch or dealer_account_id<>account) then raise exception 'credit crossed branch scope';end if;
   raise notice 'ROYALTY CREDIT CARRY FORWARD E2E PASSED: 180 credit -> 120 settled -> 60 carried -> next invoice 40';
 end
