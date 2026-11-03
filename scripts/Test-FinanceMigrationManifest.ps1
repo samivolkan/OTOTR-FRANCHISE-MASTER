@@ -20,8 +20,8 @@ if ($manifest.manifestId -ne 'OTOTR-FINANCE-LOCAL-MIGRATION-PROMOTION-V1') {
 if ($manifest.applyTarget -ne 'LOCAL_ONLY' -or $manifest.stagingApplied -or $manifest.productionApplied) {
   throw 'Finance migration manifest has an unsafe apply target or promotion state.'
 }
-if ($manifest.migrationCount -ne 95 -or @($manifest.migrations).Count -ne 95) {
-  throw 'Finance migration manifest must contain exactly 95 migrations.'
+if ($manifest.migrationCount -ne 96 -or @($manifest.migrations).Count -ne 96) {
+  throw 'Finance migration manifest must contain exactly 96 migrations.'
 }
 
 $failures = [System.Collections.Generic.List[string]]::new()
@@ -41,8 +41,8 @@ $ordered = @($manifest.migrations | Sort-Object { [long]$_.version })
 if ($ordered[0].kind -ne 'SCHEMA') {
   $failures.Add('Migration order must start with SCHEMA.')
 }
-if (@($ordered | Where-Object kind -eq 'RPC').Count -ne 72) {
-  $failures.Add('Migration order must contain exactly 72 RPC entries.')
+if (@($ordered | Where-Object kind -eq 'RPC').Count -ne 73) {
+  $failures.Add('Migration order must contain exactly 73 RPC entries.')
 }
 if (@($ordered | Where-Object kind -eq 'SECURITY').Count -ne 22) {
   $failures.Add('Migration order must contain exactly 22 SECURITY entries.')
@@ -55,4 +55,4 @@ if ($failures.Count -gt 0) {
 }
 
 Write-Host 'FINANCE MIGRATION MANIFEST: PASSED' -ForegroundColor Green
-Write-Host 'Migrations: 95; schema: 1; RPC: 72; security: 22; target: LOCAL_ONLY'
+Write-Host 'Migrations: 96; schema: 1; RPC: 73; security: 22; target: LOCAL_ONLY'

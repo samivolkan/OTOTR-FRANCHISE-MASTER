@@ -9,28 +9,8 @@ create or replace function finance_private.current_dispute_submit_committer_is_t
 returns boolean language sql stable security definer set search_path='' as $$select true$$;
 create or replace function finance_private.current_dispute_decision_worker_is_trusted()
 returns boolean language sql stable security definer set search_path=pg_catalog as $$select true$$;
-create or replace function finance_private.current_actor_can_decide_dispute(p_actor_id uuid,p_dispute_id uuid)
-returns boolean language sql stable security definer set search_path=pg_catalog as $$select true$$;
 create or replace function finance_private.current_actor_can_read_scope(p_actor_id uuid,p_legal_entity_id uuid,p_dealer_account_id uuid,p_branch_id uuid,p_operation_id text)
 returns boolean language sql stable security definer set search_path=pg_catalog as $$select p_operation_id in('listDisputes','getDispute','getAccrualDetail')$$;
-create or replace function finance_private.resolve_dispute_decision_context(
-  p_dispute_id uuid,p_decision_date date,p_accepted_amount numeric
-) returns jsonb language sql stable security definer set search_path=pg_catalog,finance as $$
-  select pg_catalog.jsonb_build_object(
-    'scopeValid',true,'financePeriodId',fp.id,'originalFinancePeriodId',je.finance_period_id,
-    'netAmount','50.00000000','taxAmount','20.00000000','grossAmount',p_accepted_amount::text,
-    'netDebitAccountCode','610.DUZELTME','taxDebitAccountCode','191.KDV-DUZELTME',
-    'receivableCreditAccountCode','120.BAYI'
-  )
-  from finance.disputes d
-  join finance.open_items oi on oi.id=d.open_item_id
-  join finance.accruals a on a.id=oi.accrual_id
-  join finance.journal_entries je on je.id=a.journal_entry_id
-  join finance.finance_periods fp on fp.legal_entity_id=d.legal_entity_id and fp.scope_type='HEADQUARTERS'
-    and fp.mode='LIVE' and fp.status='OPEN' and p_decision_date between fp.period_start and fp.period_end
-  where d.id=p_dispute_id
-  limit 1
-$$;
 
 do $test$
 declare
@@ -52,7 +32,9 @@ declare
   result jsonb; replay jsonb; dispute_id uuid; version_no bigint; correction_journal uuid; dispute_list jsonb; dispute_detail jsonb;
   credit_count integer; credit_total numeric(24,8); correction_accrual uuid;
 begin
-  insert into public.app_users(id,auth_user_id,branch_id,full_name,role,is_active) values(maker,maker,null,'Sentetik Finans Maker','FINANCE',true);
+  insert into public.app_users(id,auth_user_id,branch_id,full_name,role,is_active) values
+    (maker,maker,null,'Sentetik Finans Maker','FINANCE',true),
+    (checker,checker,null,'Sentetik Finans Checker','FINANCE',true);
   insert into finance.legal_entities(id,entity_code,legal_name,status,created_by,correlation_id)
   values(hq,'OTOTR-HQ-DISPUTE-DEMO','OTOTR Sentetik Düzeltme Merkezi','ACTIVE',maker,corr);
   insert into finance.dealer_legal_entities(id,legal_entity_id,dealer_code,legal_name,status,created_by,correlation_id)
@@ -117,17 +99,7 @@ begin
   if result->>'outcome'<>'SUBMITTED' then raise exception 'dispute submit failed: %',result; end if;
   version_no:=(result->>'version')::bigint;
 
-  insert into finance.approval_requests(
-    legal_entity_id,subject_type,subject_id,approval_policy_version,prepared_by,subject_snapshot,
-    subject_snapshot_hash,status,created_by,correlation_id
-  ) values(hq,'DISPUTE_DECISION',dispute_id,'SYNTHETIC-MAKER-CHECKER-V1',maker,
-    jsonb_build_object('disputeId',dispute_id,'acceptedAmount','70.00000000'),repeat('3',64),'APPROVED',maker,corr);
-  insert into finance.approval_steps(
-    approval_request_id,step_no,required_role,decision,decided_by,decided_at_utc,evidence_ref,created_by,correlation_id
-  ) select id,1,'FINANCE_CHECKER','APPROVE',checker,now(),'synthetic://approval/dispute',maker,corr
-      from finance.approval_requests where subject_type='DISPUTE_DECISION' and subject_id=dispute_id;
-
-  result:=finance_api.commit_dispute_decision(
+  result:=finance_api.commit_dispute_review_decision(
     checker,dispute_id,'PARTIALLY_ACCEPTED',70,date '2026-11-06',version_no,'PARTIAL_SUPPORT',repeat('4',64),
     'dispute-decision-demo',repeat('5',64),corr
   );
@@ -142,7 +114,7 @@ begin
   if credit_count<>1 or credit_total<>70 then raise exception 'credit correction mismatch'; end if;
   if not exists(
     select 1 from finance.accruals where id=correction_accrual and reversal_of_id=original_accrual
-      and net_amount=-50 and tax_amount=-20 and gross_amount=-70
+      and net_amount=-60 and tax_amount=-10 and gross_amount=-70
   ) then raise exception 'correction accrual provenance or breakdown mismatch'; end if;
   if (select sum(debit_amount) from finance.journal_lines where journal_entry_id=correction_journal)<>
      (select sum(credit_amount) from finance.journal_lines where journal_entry_id=correction_journal) then
@@ -152,7 +124,7 @@ begin
     raise exception 'maker-checker invariant failed';
   end if;
 
-  replay:=finance_api.commit_dispute_decision(
+  replay:=finance_api.commit_dispute_review_decision(
     checker,dispute_id,'PARTIALLY_ACCEPTED',70,date '2026-11-06',version_no,'PARTIAL_SUPPORT',repeat('4',64),
     'dispute-decision-demo',repeat('5',64),corr
   );
