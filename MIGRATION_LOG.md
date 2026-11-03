@@ -390,3 +390,11 @@ Karar ve geri alma: docs/decisions/2026-09-08-kaporta-360-studio.md; migration i
 - Added the independent **GM İK Sistemi** / **İK Yönetim Merkezi** ERP navigation bridge while preserving the existing `hr` route.
 - Published the static pilot through `samivolkan/Ototr` commit `c53b5225a8b4d696acbec4ac3930c2017fbaa90d`; GitHub Pages run `41551471430` completed successfully and injected the shared ERP access gate into the direct module entry.
 - No database migration, Supabase schema/RLS change, production HR integration or real employee/candidate record was created. Production activation remains blocked by the acceptance gates in `docs/hr/GM_HR_SYSTEM_ANALYSIS_2026-11-03.md`.
+
+## 2026-11-03 — GM İK production foundation prepared (not remotely applied)
+
+- Created `20261103003922_gm_hr_production_foundation.sql` with the pinned Supabase CLI migration generator.
+- Added private `hr`/`hr_private` schemas, 28 RLS tables, 31 explicit authenticated RPC contracts, transactional leave balance reservation, four-eyes controls, private Storage policies, immutable chained audit, synthetic payroll/SGK evidence and readiness gates.
+- Privacy/KVKK item 2 is explicitly excluded. Real-person rows, sensitive documents and production approval remain database-blocked.
+- Added a PGlite PostgreSQL 17 acceptance suite and public-browser read-only bridge. No staging/production migration, remote schema mutation, real HR record or private credential was used.
+- Rollout/rollback procedure: `docs/hr/GM_HR_ACCEPTANCE_RUNBOOK_2026-11-03.md`.

@@ -1317,3 +1317,17 @@ Sınırlar: otomatik fotogrametri, üretici model kütüphanesi, buluttan ses/vi
 - Live HTTP checks returned 200 for ERP root, `gm-ik/` and the navigation bridge. Root contained the integration tag; module contained `OTOTR_AUTH_GATE_V1`, the pilot warning and exact CSP allowlist; bridge contained the heading and mutation observer.
 - Fresh-session browser security smoke redirected direct `gm-ik/` access to `Giriş yap · OTOTR V3` with the original module path preserved in `returnTo`, confirming fail-closed unauthenticated behavior.
 - Limits: no authenticated production role matrix, real employee data, payroll/SGK operation, legal approval, physical mobile device or production write was exercised.
+
+## 2026-11-03 — GM İK production-foundation acceptance
+
+- `npm run test:gm-hr`: PASS.
+- Database acceptance: 28 HR tables, RLS enabled on all 28, 0 direct authenticated table grants, 31 public HR RPC contracts and four private Storage object policies.
+- Functional acceptance: employer/branch scope, independent role grants, organization/candidate conversion, verified SGK onboarding, transactional annual-leave reservation/overlap/balance, manager + HR approval, cross-branch denial, assignment-bound target-branch shift, strict timesheet submit/approve/independent lock, asset, certification, contract metadata/storage, performance and evidence-bound offboarding.
+- Payroll acceptance: two synthetic shadow periods prepared, independently approved and independently reconciled; self-approval/reconciliation rejected.
+- Security acceptance: anonymous RPC denial, direct HR table denial, real-person row denial, sensitive-document denial, privacy-gate override denial, idempotent replay, audit update/delete denial and contiguous SHA-256 audit chain.
+- Recovery acceptance: synthetic PGlite database dump loaded into a fresh PostgreSQL 17 runtime; audit count, two reconciled periods and blocked privacy/production gates matched.
+- Browser bridge acceptance: publishable-key-only validation, stored ERP access-token lookup, allowlisted read-only RPC path, `credentials: omit`, forbidden RPC rejection, no service-role/secret pattern.
+- PostgreSQL best-practice review: every HR foreign-key column has a full leftmost index; hot status/date paths keep composite/partial indexes; atomic upserts and transaction-scoped advisory audit locking are covered by the acceptance run.
+- Browser security smoke: a stored candidate payload containing `<img ... onerror>` produced 0 injected images and 0 scripts; the UI displayed the idempotently sanitized text instead. Browser console warning/error list was empty.
+- Responsive browser acceptance: desktop 1440×1050 visually reviewed. CDP mobile emulation measured `innerWidth/clientWidth/scrollWidth = 390/390/390`, banner width 390, status width 358 and readiness card width 324; only the navigation rail has its intended internal horizontal scroll.
+- Limits: Docker/local Supabase stack unavailable; no staging/production migration or hosted backup restore was run. All records were synthetic.

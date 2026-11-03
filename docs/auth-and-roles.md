@@ -52,6 +52,21 @@ Important compatibility note:
 - Technician users can see assigned work orders/tasks.
 - Customer/public users can see only verified report outputs.
 
+## GM HR task roles
+
+The GM HR module keeps workflow responsibility separate from the user's broad ERP database role. Approved, scoped assignments use:
+
+- `HR_ADMIN`
+- `HR_SPECIALIST`
+- `BRANCH_HR_MANAGER`
+- `PAYROLL_OPERATOR`
+- `EMPLOYEE_SELF_SERVICE`
+- `AUDITOR`
+
+An assignment starts `PENDING` and requires an independent CEO/General Manager decision before becoming `ACTIVE`; self-elevation is rejected. Employer and optional branch scope are evaluated by server-side helpers. CEO/General Manager retain reviewed HQ authority, while Finance may operate shadow payroll but cannot bypass preparation/approval/reconciliation separation.
+
+The module exposes no direct HR table grants. Authenticated clients use explicit `public.hr_*` RPC grants, and unauthenticated/public execution is revoked. Real-person data remains blocked while the privacy gate is excluded.
+
 ## Role Matrix Draft
 
 This matrix is the working target for production RLS and app-side permissions. SQL constraints and app contracts must be updated intentionally before any role name outside `OTOTR_DB_ROLES` is used directly in production database rows.

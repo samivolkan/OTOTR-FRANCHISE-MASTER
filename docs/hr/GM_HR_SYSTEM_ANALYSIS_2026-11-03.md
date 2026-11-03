@@ -23,6 +23,26 @@ Bu teslimatta prototip:
 
 Bu yayın bir tasarım/iş akışı pilotudur; üretim aktivasyonu değildir.
 
+## 2026-11-03 uygulama kapanış durumu
+
+Kullanıcı kararıyla önceki sıralamadaki **2. madde (KVKK/veri sınıflandırması ve hukuki politika)** bu çalışmanın dışında bırakıldı. Bu istisna bir risk kabulü veya canlı onayı değildir. Veritabanı `PRIVACY_POLICY_APPROVED=EXCLUDED_BY_SCOPE` ve `PRODUCTION_APPROVED=BLOCKED` durumunu zorunlu tutar; gerçek kişi kaydı ile kimlik, sağlık ve disiplin belgesi yazımı tetikleyici seviyesinde reddedilir.
+
+Diğer zorunlu teknik alanlar `supabase/migrations/20261103003922_gm_hr_production_foundation.sql` içinde uygulanmıştır:
+
+- 28 tablodan oluşan özel `hr` şeması ve doğrudan Data API tablo erişimi yasağı,
+- `app_users.auth_user_id = auth.uid()` tabanlı aktör çözümleme, şirket/şube kapsamı ve RLS,
+- işveren, organizasyon, aday, çalışan, işe giriş/çıkış ve geçici görevlendirme,
+- izin, vardiya, puantaj, zimmet, sertifika ve performans,
+- dört-göz rol/izin/puantaj/görevlendirme/bordro onayları,
+- ödeme üretmeyen, sentetik ve iki dönem mutabakatlı gölge bordro,
+- SGK işlemi yaptığı iddiası yerine harici referans hash'i ve bağımsız doğrulayan kaydı,
+- private Storage bucket metadata sınırı ve dört işlem politikası,
+- SHA-256 zincirli, güncellenemeyen/silinemeyen audit kaydı,
+- idempotent komut anahtarları, sürüm alanları ve üretim hazırlık kapıları,
+- yalnızca allowlist'teki salt-okunur RPC'leri kullanan tarayıcı bağlantı katmanı.
+
+`npm run test:gm-hr` sentetik PostgreSQL 17/PGlite kabul paketinde 28/28 RLS tablosunu, 31 RPC'yi, 43 zincirli audit olayını, izin bakiyesi rezervasyonunu, şube izolasyonunu, yetki reddini, iki dönem gölge bordroyu ve yedek/geri yüklemeyi doğrulamıştır. Docker bulunmadığı ve uzak migration geçmişinde önceden bilinen drift olduğu için bu migration staging veya production'a uygulanmamıştır. Kodun push edilmesi canlı veritabanı aktivasyonu anlamına gelmez.
+
 ## Mevcut ERP ile çakışma analizi
 
 Mevcut ERP’de hâlihazırda `hr` route’u altında İnsan Kaynakları odası, çalışan dizini, personel talebi, işe alım/onay zinciri, Academy bağlantısı ve merkezi görev motoru bulunuyor. Claude prototipi şu alanlarda ek derinlik getiriyor:

@@ -7,34 +7,35 @@ It is separate from `packages/database/raw-migrations`, which contains imported 
 ## Current Status
 
 - `config.toml` is local-development only.
-- `migrations` currently has no approved executable SQL migration.
+- `migrations` contains reviewed additive migration files, including the GM İK production foundation. Presence in this folder is not remote deployment approval.
 - `schemas` is reserved for a future declarative schema workflow if the project adopts it.
 - `seed.sql` is intentionally empty except for safety notes.
 
 ## Blocked Local Commands
 
-The current machine does not have Supabase CLI or Docker available. Until both exist, these commands cannot be validated:
+The current machine does not have Docker available. Supabase CLI is run as the pinned one-shot package `npx supabase@3.0.0`; Docker-dependent local stack commands cannot be validated:
 
 ```powershell
-supabase start
-supabase db reset
-supabase migration list
+npx supabase@3.0.0 start
+npx supabase@3.0.0 db reset
 ```
 
 ## Install/Verify
 
 ```powershell
-supabase --version
+npx supabase@3.0.0 --version
 docker --version
 ```
 
-If Supabase CLI is missing:
+Docker Desktop must be installed and running before local Supabase can start.
+
+The GM İK migration has a Docker-independent PostgreSQL 17/PGlite acceptance suite:
 
 ```powershell
-npm install -g supabase
+npm run test:gm-hr
 ```
 
-Docker Desktop must be installed and running before local Supabase can start.
+This test is evidence for SQL behavior and does not replace a staging Supabase Auth/Storage/backup rehearsal.
 
 ## Hard Rules
 

@@ -198,3 +198,12 @@ Each topic conversation must end with:
 - The published module is a synthetic-data workflow pilot, not a production HR system. Real employee, candidate, payroll, health, disciplinary or identity data must not be entered.
 - Production activation remains blocked on server-side Auth/RLS scope, private document storage, special-category data separation, immutable audit, retention/deletion approval, payroll/SGK integration, backup/recovery and legal/KVKK acceptance.
 - GitHub Pages injects the shared ERP session gate into direct HTML entries. The pilot CSP allowlists only the existing OTOTR Supabase HTTPS/WSS origin needed by that gate; no new third-party service was added.
+
+## GM İK Production Foundation — 2026-11-03
+
+- User approved implementing every ordered remediation except item 2 (KVKK/data classification). This exclusion must never be interpreted as permission to use real HR data.
+- Reviewed migration `20261103003922_gm_hr_production_foundation.sql` provides the private HR domain, Auth/RLS/RPC boundary, four-eyes workflows, shadow payroll, SGK evidence, private Storage policies, immutable audit and readiness gates.
+- `PRIVACY_POLICY_APPROVED=EXCLUDED_BY_SCOPE` and `PRODUCTION_APPROVED=BLOCKED` are intentional. Real-person and identity/health/disciplinary writes fail closed until a later reviewed legal/privacy migration.
+- Browser integration is read-only and allowlisted; local demo records are never auto-imported. Source runtime config is blank and permits only a public Supabase publishable key.
+- `npm run test:gm-hr` is the canonical synthetic acceptance command. It uses pinned `@electric-sql/pglite@0.5.14`; this does not replace staging Supabase/hosted restore acceptance.
+- No remote database migration was applied because Docker was absent and staging migration-history drift must be reconciled first. Follow `docs/hr/GM_HR_ACCEPTANCE_RUNBOOK_2026-11-03.md`.
