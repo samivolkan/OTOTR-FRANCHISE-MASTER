@@ -11,6 +11,7 @@ $checks = @(
   'Test-FinanceRoyaltyE2E.ps1',
   'Test-FinanceRoyaltyRefundIdentityBridgeE2E.ps1',
   'Test-FinanceRoyaltyCreditCarryForwardE2E.ps1',
+  'Test-FinanceBranchOverdueAccessE2E.ps1',
   'Test-FinanceRefundWorker.ps1',
   'Test-FinanceChargeFamiliesE2E.ps1',
   'Test-FinanceServiceUsageWorker.ps1',

@@ -2,7 +2,7 @@
   "manifestId": "OTOTR-FINANCE-LOCAL-MIGRATION-PROMOTION-V1",
   "generatedAtUtc": "2026-11-03T08:30:00.0000000+00:00",
   "sourceRoot": "ototr-finans-modulu/database/supabase",
-  "migrationCount": 132,
+  "migrationCount": 134,
   "applyTarget": "LOCAL_ONLY",
   "stagingApplied": false,
   "productionApplied": false,
@@ -1062,6 +1062,22 @@
       "sourceSha256": "9169456031761E6FB9893FDA042D22648034541AF3091A2840455E96A7C01DA4",
       "migration": "20261103010131_finance_royalty_credit_read_projection.sql",
       "migrationSha256": "9169456031761E6FB9893FDA042D22648034541AF3091A2840455E96A7C01DA4"
+    },
+    {
+      "version": "20261103010132",
+      "kind": "RPC",
+      "source": "internal-review-branch-overdue-access",
+      "sourceSha256": "338176A048D85CF42F225AAC649FA40BE804049A66EB9D8B104CA4A64E195A80",
+      "migration": "20261103010132_finance_branch_overdue_access.sql",
+      "migrationSha256": "338176A048D85CF42F225AAC649FA40BE804049A66EB9D8B104CA4A64E195A80"
+    },
+    {
+      "version": "20261103010133",
+      "kind": "RPC",
+      "source": "approved-decision-disable-royalty-credit-cash-payout",
+      "sourceSha256": "1FC23BED101F7C17F8F0E5659F1B955EEDF8909954098FA4889A81AFC831DAD6",
+      "migration": "20261103010133_finance_disable_royalty_credit_cash_payout.sql",
+      "migrationSha256": "1FC23BED101F7C17F8F0E5659F1B955EEDF8909954098FA4889A81AFC831DAD6"
     }
   ]
 }

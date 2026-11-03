@@ -98,7 +98,7 @@
         "crossBranchTransferAllowed": false,
         "preserveSourceTrace": true
       },
-      "refundCashPayoutPolicy": null,
+      "refundCashPayoutPolicy": "DISABLED_CARRY_FORWARD_ONLY",
       "refundPolicy": {
         "mode": "PROPORTIONAL_REVERSAL",
         "onEachConfirmedRefund": true,

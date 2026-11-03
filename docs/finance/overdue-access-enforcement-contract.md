@@ -4,7 +4,7 @@
 
 Bu sözleşme, GM tarafından şube adına oluşturulan royalty faturasının vadesinde tam ödenmemesi halinde şube operasyon ekranlarının sunucu tarafında kilitlenmesini tanımlar. Tarayıcıdaki menü gizleme tek başına güvenlik kontrolü değildir. Kokpit veya şubenin kullandığı muhasebe programı karar kaynağı değildir; karar GM Finans kanonik kayıtlarından üretilir.
 
-Bu sözleşme nakit royalty kredi iadesi politikasını belirlemez. O karar `PENDING_DECISION` olarak kalır.
+Royalty kredi bakiyesi nakit ödenmez; yalnız aynı şubenin sonraki uygun royalty borçlarına mahsup edilir.
 
 ## Kanonik karar girdileri
 
