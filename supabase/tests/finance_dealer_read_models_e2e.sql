@@ -8,7 +8,7 @@ returns boolean language sql stable security definer set search_path='' as $$sel
 create or replace function finance_private.current_actor_can_read_scope(
   p_actor_id uuid,p_legal_entity_id uuid,p_dealer_account_id uuid,p_branch_id uuid,p_operation_id text
 ) returns boolean language sql stable security definer set search_path=pg_catalog as $$
-  select p_operation_id in ('getDealerFinanceSummary','getDealerStatement','getDealerStatementControl','exportDealerStatement','listPayments')
+  select p_operation_id in ('getDealerFinanceSummary','getDealerStatement','getDealerStatementControl','exportDealerStatement','listAccruals','listPayments')
     and p_branch_id='38000000-0000-4000-8000-000000000001'::uuid
 $$;
 create or replace function finance_private.current_actor_can_read_headquarters(
@@ -42,7 +42,7 @@ declare
   allocation_id constant uuid := '88000000-0000-4000-8000-000000000008';
   payment_id_2 constant uuid := '88000000-0000-4000-8000-000000000009';
   corr constant uuid := '98000000-0000-4000-8000-000000000001';
-  totals jsonb; result jsonb; replay jsonb; page_1 jsonb; page_2 jsonb; filtered jsonb; hq_result jsonb; control_result jsonb; export_result jsonb;
+  totals jsonb; result jsonb; replay jsonb; page_1 jsonb; page_2 jsonb; filtered jsonb; hq_result jsonb; control_result jsonb; export_result jsonb; accrual_result jsonb;
   cursor_value text; denied boolean:=false;
 begin
   insert into finance.legal_entities(id,entity_code,legal_name,status,created_by,correlation_id)
@@ -195,6 +195,12 @@ begin
   if export_result->>'documentType'<>'OTOTR_FINANCE_DEALER_STATEMENT_EXPORT' or export_result->>'rowCount'<>'2' or export_result->>'truncated'<>'false' or export_result->>'rawRecordsExposed'<>'false' then
     raise exception 'statement export mismatch: %',export_result;
   end if;
+  accrual_result:=finance_api.list_accruals(hq,account_a,branch_a,date '2026-11-01',date '2026-11-30','POSTED','EXTERNAL_SERVICE','OPEN',null,50);
+  if jsonb_array_length(accrual_result->'items')<>2 or accrual_result#>>'{items,0,feeFamily}'<>'EXTERNAL_SERVICE' or accrual_result#>>'{items,0,financePeriod,status}'<>'OPEN' then
+    raise exception 'accrual list filter mismatch: %',accrual_result;
+  end if;
+  accrual_result:=finance_api.list_accruals(hq,account_a,branch_a,null,null,null,'ROYALTY',null,null,50);
+  if jsonb_array_length(accrual_result->'items')<>0 then raise exception 'accrual fee-family filter leaked rows: %',accrual_result;end if;
 
   page_1:=finance_api.list_payments(hq,account_a,branch_a,date '2026-11-01',date '2026-11-30',null,null,1);
   if (page_1->>'hasMore')::boolean is distinct from true or jsonb_array_length(page_1->'items')<>1

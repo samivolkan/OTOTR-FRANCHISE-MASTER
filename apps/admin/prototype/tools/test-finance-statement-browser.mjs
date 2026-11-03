@@ -214,6 +214,10 @@ try {
       };
       await route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({data})}); return;
     }
+    if(body.operationId==='listAccruals'){
+      const row={...item('aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa','ROYALTY','120.00000000','20.00000000','100.00000000'),feeFamily:'ROYALTY',accrualStatus:'POSTED',financePeriod:{periodId:'18181818-1818-4818-8818-181818181818',status:'LOCKED',periodStart:'2026-11-01',periodEnd:'2026-11-30'}};
+      await route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({data:{items:[row],nextCursor:null,hasMore:false,filtersApplied:{feeFamily:body.query.feeFamily||null,periodStatus:body.query.periodStatus||null}}})});return;
+    }
     if (body.query.status === 'DISPUTED') {
       await route.fulfill({status:503,contentType:'application/json',body:JSON.stringify({error:{code:'READ_MODEL_UNAVAILABLE',message:'Ekstre projectionı geçici olarak kullanılamıyor.'}})});
       return;
@@ -326,12 +330,13 @@ try {
   await page.fill('[data-finance-statement-to]','2026-11-30');
   await page.click('[data-finance-statement-refresh]');
   await page.waitForFunction(()=>document.querySelectorAll('[data-finance-statement-body] tr').length===1);
-  assert.match(await page.locator('[data-finance-statement-body]').innerText(),/ENTRY_FRANCHISE/);
+  assert.match(await page.locator('[data-finance-statement-body]').innerText(),/ROYALTY/);
+  await page.click('[data-finance-screen="SCR-05"]');await page.selectOption('[data-finance-accrual-family]','ROYALTY');await page.selectOption('[data-finance-accrual-period-status]','LOCKED');await page.click('[data-finance-statement-refresh]');await page.waitForFunction(()=>document.querySelectorAll('[data-finance-statement-body] tr').length===1);assert.equal(requests.at(-1).operationId,'listAccruals');assert.equal(requests.at(-1).query.feeFamily,'ROYALTY');assert.equal(requests.at(-1).query.periodStatus,'LOCKED');assert.match(await page.locator('[data-finance-statement-body]').innerText(),/Dönem: LOCKED/);
   await page.click('[data-finance-screen="SCR-07"]');
   assert.equal(await page.locator('[data-finance-statement-title]').innerText(),'Bayi Ekstresi');
   await assert.doesNotReject(() => page.waitForSelector('[data-finance-statement]:not([hidden])'));
   assert.equal(await page.locator('[data-finance-statement-refresh]').isEnabled(), true);
-  assert.equal(await page.locator('[data-finance-statement-body] tr').count(), 1);
+  assert.equal(await page.locator('[data-finance-statement-body] tr').count(), 0);
 
   await page.click('[data-finance-statement-refresh]');
   assert.equal(await page.locator('[data-finance-statement]').getAttribute('data-state'), 'LOADING');

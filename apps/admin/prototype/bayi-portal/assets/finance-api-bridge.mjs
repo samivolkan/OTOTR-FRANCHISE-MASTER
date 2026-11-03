@@ -18,6 +18,7 @@ const DISPUTE_OPERATION='getDispute';
 const STATEMENT_OPERATION = 'getDealerStatement';
 const STATEMENT_CONTROL_OPERATION = 'getDealerStatementControl';
 const STATEMENT_EXPORT_OPERATION = 'exportDealerStatement';
+const ACCRUALS_OPERATION='listAccruals';
 const PAYMENTS_OPERATION = 'listPayments';
 const PAYMENT_OPERATION = 'getPayment';
 const ACCRUAL_OPERATION = 'getAccrualDetail';
@@ -148,6 +149,7 @@ export function createFinanceSummaryClient({getConfig, getAccessToken, fetchImpl
       if(status!==undefined&&!['OPEN','PARTIALLY_ALLOCATED','CLOSED','DISPUTED','REVERSED'].includes(status))throw new FinanceBridgeError('VALIDATION_ERROR','Ekstre durumu geçersiz.');
       return execute(rawScope,STATEMENT_EXPORT_OPERATION,{from,to,currency,status,limit});
     },
+    async listAccruals(rawScope,{from,to,status,feeFamily,periodStatus,cursor,limit}={}){for(const[field,value]of[['from',from],['to',to]])if(value!==undefined&&!/^\d{4}-\d{2}-\d{2}$/.test(value))throw new FinanceBridgeError('VALIDATION_ERROR',`${field} geçersiz.`);if(from&&to&&from>to)throw new FinanceBridgeError('VALIDATION_ERROR','Tahakkuk tarih aralığı geçersiz.');if(feeFamily!==undefined&&!['ROYALTY','ENTRY_FRANCHISE','PERIODIC_FRANCHISE','QUERY','EXTERNAL_SERVICE','OPTIONAL_PRODUCT_SERVICE','PASS_THROUGH_EXPENSE','ADJUSTMENT'].includes(feeFamily))throw new FinanceBridgeError('VALIDATION_ERROR','Bedel ailesi geçersiz.');if(periodStatus!==undefined&&!['OPEN','SOURCE_FROZEN','CALCULATED','INTERNAL_REVIEW','SENT_TO_DEALER','DISPUTED','RECONCILED','APPROVED','LOCKED','REOPEN_PENDING','REOPENED'].includes(periodStatus))throw new FinanceBridgeError('VALIDATION_ERROR','Dönem durumu geçersiz.');return execute(rawScope,ACCRUALS_OPERATION,{from,to,status,feeFamily,periodStatus,cursor,limit});},
     async getPayment(rawScope, paymentId) {
       const normalizedPaymentId = requiredUuid(paymentId, 'paymentId', 'VALIDATION_ERROR');
       return execute(rawScope, PAYMENT_OPERATION, {}, {paymentId:normalizedPaymentId});
@@ -431,7 +433,8 @@ if (auth && ui) {
       const filters = ui.getStatementFilters?.() || {};
       ui.setStatementState?.('LOADING', append ? 'Ekstre devam sayfası yükleniyor…' : 'Yetkili ekstre yükleniyor…');
       try {
-        const [result, control] = await Promise.all([api.getDealerStatement({...filters, cursor}), append ? Promise.resolve(null) : api.getDealerStatementControl(filters)]);
+        const result = filters.mode==='ACCRUALS'?await client.listAccruals(configuredScope||refreshContext(),{...filters,cursor}):await api.getDealerStatement({...filters,cursor});
+        const control = !append&&filters.mode!=='ACCRUALS'?await api.getDealerStatementControl(filters):null;
         ui.renderStatementPage?.(result.data, {append});
         if (control) ui.renderStatementControl?.(control.data);
         return result;
@@ -451,6 +454,8 @@ if (auth && ui) {
   ui.statementExportButton?.addEventListener('click',()=>{void api.exportDealerStatement().catch(()=>{});});
   ui.statementPdfButton?.addEventListener('click',()=>{void api.exportDealerStatementPdf().catch(()=>{});});
   ui.statementStatus?.addEventListener('change', () => { ui.resetStatement?.('Filtre değişti. Güncel ekstreyi getirin.'); });
+  ui.accrualFamily?.addEventListener('change',()=>{ui.resetStatement?.('Bedel ailesi değişti. Tahakkukları yeniden getirin.');});
+  ui.accrualPeriodStatus?.addEventListener('change',()=>{ui.resetStatement?.('Dönem durumu değişti. Tahakkukları yeniden getirin.');});
   ui.paymentsRefreshButton?.addEventListener('click', () => { void api.loadPayments().catch(() => {}); });
   ui.paymentsMoreButton?.addEventListener('click', () => { void api.loadPayments({append:true}).catch(() => {}); });
   ui.paymentsStatus?.addEventListener('change', () => { ui.resetPayments?.('Filtre değişti. Güncel ödemeleri getirin.'); });
