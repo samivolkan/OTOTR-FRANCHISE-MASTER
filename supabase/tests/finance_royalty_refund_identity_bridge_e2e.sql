@@ -22,6 +22,12 @@ begin
   if v_acl not like '%authenticated=X%' or v_acl like '%anon=X%' then
     raise exception 'refund authorization ACL is invalid: %',v_acl;
   end if;
+
+  select coalesce(array_to_string(p.proacl,','),'') into v_acl
+    from pg_proc p where p.oid='finance_api.process_royalty_refund_reversal(uuid,uuid,uuid,uuid,uuid,uuid,uuid,text,uuid)'::regprocedure;
+  if v_acl not like '%service_role=X%' or v_acl like '%authenticated=X%' or v_acl like '%anon=X%' then
+    raise exception 'refund processor ACL is not service-role only: %',v_acl;
+  end if;
 end$$;
 
 select 'ROYALTY REFUND IDENTITY BRIDGE E2E PASSED' as result;

@@ -44,6 +44,10 @@ verify_jwt = true
 [functions.finance-command]
 verify_jwt = true
 
+[functions.finance-refund-worker]
+# Internal endpoint verifies the complete service-role secret itself.
+verify_jwt = false
+
 [analytics]
 enabled = true
 port = 55327

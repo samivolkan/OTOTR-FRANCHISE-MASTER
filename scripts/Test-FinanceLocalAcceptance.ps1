@@ -8,6 +8,7 @@ $checks = @(
   'Test-FinanceLocalReplay.ps1',
   'Test-FinanceRoyaltyE2E.ps1',
   'Test-FinanceRoyaltyRefundIdentityBridgeE2E.ps1',
+  'Test-FinanceRefundWorker.ps1',
   'Test-FinanceChargeFamiliesE2E.ps1',
   'Test-FinancePassThroughExpenseE2E.ps1',
   'Test-FinanceExpenseIdentityBridgeE2E.ps1',

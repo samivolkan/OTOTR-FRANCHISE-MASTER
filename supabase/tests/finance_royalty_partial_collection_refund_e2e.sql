@@ -240,21 +240,9 @@ begin
     raise exception 'current open posting period was not selected';
   end if;
 
-  v_refund_result := finance_api.commit_royalty_refund_reversal(
-    v_actor,
-    jsonb_build_object(
-      'legalEntityId',v_hq,'dealerLegalEntityId',v_dealer,'dealerAccountId',v_account,
-      'branchId',v_branch,'sourceEventId',v_refund_event,'refundId',v_refund_event,
-      'correlationId',v_refund_corr,'idempotencyKey','demo:royalty:refund:1'
-    ),
-    v_refund_context,
-    jsonb_build_object('originalRoyaltyAccrualId',v_original_accrual),
-    '{"status":"CALCULATED","basisAmount":"590.00000000","amounts":{"netAmount":"49.16666667","taxAmount":"9.83333333","grossAmount":"59.00000000","currency":"TRY"}}'::jsonb,
-    jsonb_build_object(
-      'originalPeriodId',v_oct_branch_period,'postingPeriodId',v_nov_branch_period,
-      'refundBusinessDate','2026-11-03'
-    ),
-    repeat('f',64),repeat('1',64)
+  v_refund_result := finance_api.process_royalty_refund_reversal(
+    v_actor,v_hq,v_dealer,v_account,v_branch,v_refund_event,v_refund_event,
+    'demo:royalty:refund:1',v_refund_corr
   );
   if v_refund_result->>'outcome' <> 'CREATED' then
     raise exception 'royalty refund reversal was not created: %',v_refund_result;
@@ -293,21 +281,9 @@ begin
      and ae.safe_context->>'postingPeriodId'=v_nov_branch_period::text;
   if v_count <> 1 then raise exception 'audit period provenance missing'; end if;
 
-  v_replay := finance_api.commit_royalty_refund_reversal(
-    v_actor,
-    jsonb_build_object(
-      'legalEntityId',v_hq,'dealerLegalEntityId',v_dealer,'dealerAccountId',v_account,
-      'branchId',v_branch,'sourceEventId',v_refund_event,'refundId',v_refund_event,
-      'correlationId',v_refund_corr,'idempotencyKey','demo:royalty:refund:1'
-    ),
-    v_refund_context,
-    jsonb_build_object('originalRoyaltyAccrualId',v_original_accrual),
-    '{"status":"CALCULATED","basisAmount":"590.00000000","amounts":{"netAmount":"49.16666667","taxAmount":"9.83333333","grossAmount":"59.00000000","currency":"TRY"}}'::jsonb,
-    jsonb_build_object(
-      'originalPeriodId',v_oct_branch_period,'postingPeriodId',v_nov_branch_period,
-      'refundBusinessDate','2026-11-03'
-    ),
-    repeat('f',64),repeat('1',64)
+  v_replay := finance_api.process_royalty_refund_reversal(
+    v_actor,v_hq,v_dealer,v_account,v_branch,v_refund_event,v_refund_event,
+    'demo:royalty:refund:1',v_refund_corr
   );
   if v_replay->>'outcome' <> 'REPLAY' then raise exception 'refund replay was not idempotent: %',v_replay; end if;
 
