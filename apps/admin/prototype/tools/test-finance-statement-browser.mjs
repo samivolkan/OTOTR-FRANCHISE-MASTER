@@ -121,6 +121,14 @@ try {
       const data={packageId:body.pathParams.packageId,packageType:'BILLING',batchNo:'BILL-202611-001',status:'INVOICED',financePeriodId:'52525252-5252-4252-8252-525252525252',dealerAccountId:scope.dealerAccountId,branchId:scope.branchId,groupingProfileCode:'BRANCH-MONTHLY',currency:'TRY',totals:{netAmount:'120.00000000',taxAmount:'20.00000000',grossAmount:'140.00000000'},contentHash:'a'.repeat(64),mappingVersion:'EINVOICE-V1',targetAdapterCode:'SYNTHETIC_EINVOICE',exportJobId:'54545454-5454-4454-8454-545454545454',exportQueuedAtUtc:'2026-11-04T10:00:00Z',items:[{itemId:'55555555-5555-4555-8555-555555555556',accrualId:'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',netAmount:'120.00000000',taxAmount:'20.00000000',grossAmount:'140.00000000',status:'ACTIVE'}],externalInvoice:{invoiceId:'56565656-5656-4656-8656-565656565656',externalSystem:'SYNTHETIC_EINVOICE',externalInvoiceId:'EXT-001',invoiceNumber:'OTOTR-2026-000001',invoiceDate:'2026-11-05',status:'ISSUED',netAmount:'120.00000000',taxAmount:'20.00000000',grossAmount:'140.00000000',currency:'TRY'},version:2,createdAtUtc:'2026-11-04T09:00:00Z',correlationId:'57575757-5757-4757-8757-575757575757'};
       await route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({data})});return;
     }
+    if(body.operationId==='listIntegrationErrors'){
+      const data={items:[{errorId:'58585858-5858-4858-8858-585858585858',sourceSystem:'ERP',errorClass:'OUTBOX',safeErrorCode:'ERP_TIMEOUT',status:'RETRYABLE',ownerUserId:null,retryCount:2,occurredAtUtc:'2026-11-06T09:00:00Z',correlationId:'59595959-5959-4959-8959-595959595959',version:1}],nextCursor:null,hasMore:false};
+      await route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({data})});return;
+    }
+    if(body.operationId==='getIntegrationError'){
+      const data={errorId:body.pathParams.errorId,sourceSystem:'ERP',errorClass:'OUTBOX',safeErrorCode:'ERP_TIMEOUT',status:'RETRYABLE',retryable:true,retryCount:2,safeDetail:{sourceSystem:'ERP',retryable:true,safeMessage:'ERP yanıt vermedi'},occurredAtUtc:'2026-11-06T09:00:00Z',correlationId:'59595959-5959-4959-8959-595959595959',trace:[{direction:'INBOX',messageId:'60606060-6060-4060-8060-606060606060',system:'ERP',eventType:'MESSAGE',status:'REJECTED',schemaVersion:2,occurredAtUtc:'2026-11-06T08:59:00Z'},{direction:'OUTBOX',messageId:'61616161-6161-4161-8161-616161616161',system:'finance.erp',eventType:'ERP_SYNC_FAILED',status:'DEAD_LETTER',attemptCount:3,safeErrorCode:'ERP_TIMEOUT',occurredAtUtc:'2026-11-06T09:00:00Z'}],version:1};
+      await route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({data})});return;
+    }
     if (body.operationId === 'getPayment') {
       const paymentId = body.pathParams.paymentId;
       const data = {
@@ -314,6 +322,23 @@ try {
   assert.match(await page.locator('[data-finance-export-package-detail]').innerText(),/EINVOICE-V1/);
   assert.match(await page.locator('[data-finance-export-package-provenance]').innerText(),/54545454-5454-4454-8454-545454545454/);
   await page.click('[data-finance-export-package-close]');
+  await page.click('[data-finance-screen="SCR-14"]');
+  await page.selectOption('[data-finance-integration-errors-status]','RETRYABLE');
+  await page.selectOption('[data-finance-integration-errors-source]','ERP');
+  await page.click('[data-finance-integration-errors-refresh]');
+  await page.waitForFunction(()=>document.querySelectorAll('[data-finance-integration-errors-body] tr').length===1);
+  assert.equal(requests.at(-1).operationId,'listIntegrationErrors');
+  assert.match(await page.locator('[data-finance-integration-errors-body]').innerText(),/ERP_TIMEOUT/);
+  assert.match(await page.locator('[data-finance-integration-errors-body]').innerText(),/Yeniden denenebilir/);
+  await page.click('[data-finance-integration-errors-body] [data-finance-integration-error-id]');
+  await page.waitForFunction(()=>document.querySelector('[data-finance-integration-error-detail]')?.dataset.state==='READY');
+  assert.equal(requests.at(-1).operationId,'getIntegrationError');
+  const integrationText=await page.locator('[data-finance-integration-error-detail]').innerText();
+  assert.match(integrationText,/ERP yanıt vermedi/);
+  assert.match(integrationText,/DEAD_LETTER/);
+  assert.match(integrationText,/Ham payload gösterilmez/);
+  assert.doesNotMatch(integrationText,/must-not-leak|dealerAccountId|branchId|secret/i);
+  await page.click('[data-finance-integration-error-close]');
   await page.click('[data-finance-screen="SCR-07"]');
   assert.equal(await page.locator('[data-finance-payment-detail]').isVisible(),false);
   await page.click('[data-finance-accrual-id]');
@@ -376,7 +401,7 @@ try {
   assert.match(await page.locator('[data-finance-statement-state]').innerText(), /geçici olarak kullanılamıyor/i);
   assert.equal(await page.locator('[data-finance-statement-refresh]').isEnabled(), true);
 
-console.log('PASS finance-statement-browser: export packages, scoped disputes, HQ expense allocation, contract/rules, period, statement, payment, accrual and refund flows');
+console.log('PASS finance-statement-browser: integration monitoring, export packages, scoped disputes, HQ expense allocation, contract/rules, period, statement, payment, accrual and refund flows');
 } finally {
   await browser?.close();
   await new Promise(resolve => server.close(resolve));
