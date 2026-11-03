@@ -74,6 +74,10 @@ try {
       const data={contractId:'20202020-2020-4020-8020-202020202020',contractCode:'OTOTR-FR-2026-001',status:'ACTIVE',version:2,activeVersion:{versionId:'21212121-2121-4121-8121-212121212121',versionNo:3,status:'ACTIVE',validFrom:'2026-11-01',validTo:null,currencyCode:'TRY',contentHash:'c'.repeat(64),version:1},pendingVersion:{versionId:'22222222-2222-4222-8222-222222222223',versionNo:4,status:'PENDING_APPROVAL',validFrom:'2027-01-01',validTo:null,currencyCode:'TRY',contentHash:'d'.repeat(64),version:1}};
       await route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({data})});return;
     }
+    if(body.operationId==='getContractVersionComparison'){
+      const data={contractId:'20202020-2020-4020-8020-202020202020',activeVersionId:body.pathParams.activeVersionId,activeVersionNo:3,candidateVersionId:body.pathParams.candidateVersionId,candidateVersionNo:4,summary:{added:1,removed:0,changed:1,unchanged:1,requiresReview:true},items:[{feeDefinitionId:'32323232-3232-4323-8323-323232323232',feeCode:'ROYALTY',feeName:'Royalty Bedeli',feeFamily:'ROYALTY',ruleCode:'RULE-ROYALTY',changeType:'CHANGED',activeRuleId:'23232323-2323-4323-8323-232323232323',candidateRuleId:'33333333-3333-4333-8333-333333333333',activeMethod:'PERCENTAGE',candidateMethod:'PERCENTAGE',activePriceIncludesTax:true,candidatePriceIncludesTax:true,activeCurrency:'TRY',candidateCurrency:'TRY',activeStatus:'ACTIVE',candidateStatus:'DRAFT',activeExceptionCount:0,candidateExceptionCount:1}],rawDefinitionsExposed:false};
+      await route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({data})});return;
+    }
     if(body.operationId==='listContractFeeRules'){
       const rule=(id,feeCode,category,method,parameter,includesTax)=>({feeRuleId:id,feeDefinitionId:id.replace(/^./,'3'),feeCode,name:`${feeCode} Bedeli`,category,ruleCode:`RULE-${feeCode}`,priority:100,status:'ACTIVE',configurationStatus:'CONFIGURED',triggerEventType:'payment.settled',basis:{kind:'COLLECTED_GROSS'},calculation:{method,currency:'TRY',priceIncludesTax:includesTax,rate:parameter,decimalScale:2,roundingMode:'HALF_UP'},exceptions:feeCode==='ROYALTY'?[{exceptionId:'26262626-2626-4626-8626-262626262627',exceptionCode:'FIRST_MONTH_EXEMPTION',scopeType:'BRANCH',conditionType:'CONTRACT_AGE',overrideType:'RATE_OVERRIDE',priority:200,effectiveFrom:'2026-11-01',effectiveTo:null,status:'ACTIVE',version:1}]:[],exceptionCount:feeCode==='ROYALTY'?1:0,version:1});
       const data=body.query.cursor
@@ -229,6 +233,10 @@ try {
   await page.waitForFunction(()=>document.querySelectorAll('[data-finance-contract-rules-body] tr').length===2);
   assert.match(await page.locator('[data-finance-contract-content]').innerText(),/OTOTR-FR-2026-001/);
   assert.match(await page.locator('[data-finance-contract-content]').innerText(),/v3/);
+  await page.waitForFunction(()=>document.querySelector('[data-finance-contract-comparison-content]')?.hidden===false);
+  assert.match(await page.locator('[data-finance-contract-comparison]').innerText(),/v3 → v4/);
+  assert.match(await page.locator('[data-finance-contract-comparison]').innerText(),/ROYALTY · Royalty Bedeli/);
+  assert.doesNotMatch(await page.locator('[data-finance-contract-comparison]').innerText(),/must-not-leak|calculationParameters|basis_definition/i);
   assert.match(await page.locator('[data-finance-contract-rules-body]').innerText(),/ROYALTY/);
   assert.match(await page.locator('[data-finance-contract-rules-body]').innerText(),/PERCENTAGE/);
   assert.match(await page.locator('[data-finance-contract-rules-body]').innerText(),/Evet/);

@@ -25,6 +25,7 @@ const PERIOD_OPERATION = 'getFinancePeriod';
 const CURRENT_CONTRACT_OPERATION = 'getCurrentFranchiseContract';
 const CONTRACT_RULES_OPERATION = 'listContractFeeRules';
 const CONTRACT_RULE_OPERATION = 'getContractFeeRule';
+const CONTRACT_COMPARISON_OPERATION = 'getContractVersionComparison';
 
 export class FinanceBridgeError extends Error {
   constructor(code, message, status = 0) {
@@ -175,6 +176,9 @@ export function createFinanceSummaryClient({getConfig, getAccessToken, fetchImpl
     },
     async getContractFeeRule(rawScope,contractVersionId,feeRuleId){
       return execute(rawScope,CONTRACT_RULE_OPERATION,{},{contractVersionId:requiredUuid(contractVersionId,'contractVersionId','VALIDATION_ERROR'),feeRuleId:requiredUuid(feeRuleId,'feeRuleId','VALIDATION_ERROR')},true);
+    },
+    async getContractVersionComparison(rawScope,activeVersionId,candidateVersionId){
+      return execute(rawScope,CONTRACT_COMPARISON_OPERATION,{},{activeVersionId:requiredUuid(activeVersionId,'activeVersionId','VALIDATION_ERROR'),candidateVersionId:requiredUuid(candidateVersionId,'candidateVersionId','VALIDATION_ERROR')},true);
     }
   });
 }
@@ -182,6 +186,7 @@ export function createFinanceSummaryClient({getConfig, getAccessToken, fetchImpl
 const auth = globalThis.OTOTRDealerFinanceAuth;
 const ui = globalThis.OTOTRFinanceUI;
 const ruleDetailUi=globalThis.OTOTRFinanceRuleDetailUI;
+const comparisonUi=globalThis.OTOTRFinanceComparisonUI;
 const operationalUi=globalThis.OTOTRFinanceOperationalUI;
 if (auth && ui) {
   const client = createFinanceSummaryClient({getConfig: () => auth.getConfig(), getAccessToken: () => auth.getAccessToken()});
@@ -293,6 +298,7 @@ if (auth && ui) {
       return client.listContractFeeRules(scope,contractVersionId,options);
     },
     async getContractFeeRule(contractVersionId,feeRuleId){const scope=configuredScope||refreshContext();if(!scope)throw new FinanceBridgeError('FINANCE_SCOPE_UNAVAILABLE','ERP finans kapsamı henüz sağlanmadı.');return client.getContractFeeRule(scope,contractVersionId,feeRuleId);},
+    async getContractVersionComparison(activeVersionId,candidateVersionId){const scope=configuredScope||refreshContext();if(!scope)throw new FinanceBridgeError('FINANCE_SCOPE_UNAVAILABLE','ERP finans kapsamı henüz sağlanmadı.');return client.getContractVersionComparison(scope,activeVersionId,candidateVersionId);},
     async loadContractFeeRule(contractVersionId,feeRuleId){ruleDetailUi?.setContractRuleDetailState?.('LOADING');try{const result=await api.getContractFeeRule(contractVersionId,feeRuleId);const detail=result.data?{...result.data,feeCode:result.data.code,ruleCode:result.data.code,triggerEventType:result.data.trigger?.eventType,calculation:result.data.calculation?{...result.data.calculation,priceIncludesTax:result.data.tax?.priceIncludesTax}:null}:null;ruleDetailUi?.renderContractRuleDetail?.(detail);globalThis.dispatchEvent?.(new CustomEvent('ototr:finance-contract-rule-loaded',{detail:result.data}));return result;}catch(error){ruleDetailUi?.setContractRuleDetailState?.('ERROR',error instanceof FinanceBridgeError?error.message:'Kural detayı alınamadı.');throw error;}},
     async loadContractWorkspace({append=false}={}) {
       try {
@@ -301,6 +307,8 @@ if (auth && ui) {
           const contractResult=await api.getCurrentFranchiseContract();
           ui.renderCurrentContract?.(contractResult.data);
           globalThis.dispatchEvent?.(new CustomEvent('ototr:finance-current-contract-loaded',{detail:contractResult.data}));
+          const activeVersionId=contractResult.data?.activeVersion?.versionId;const candidateVersionId=contractResult.data?.pendingVersion?.versionId;
+          if(activeVersionId&&candidateVersionId){comparisonUi?.setContractComparisonState?.('LOADING');const comparisonResult=await api.getContractVersionComparison(activeVersionId,candidateVersionId);comparisonUi?.renderContractVersionComparison?.(comparisonResult.data);}else comparisonUi?.resetContractComparison?.('Karşılaştırma için aktif ve bekleyen sürüm birlikte gereklidir.');
           const versionId=contractResult.data?.pendingVersion?.versionId || contractResult.data?.activeVersion?.versionId;
           if(!versionId) return contractResult;
           ui.setContractRulesVersion?.(versionId);

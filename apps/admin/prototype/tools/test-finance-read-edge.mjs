@@ -43,6 +43,7 @@ const handler = createFinanceReadHandler({
   readCurrentContract:async value=>{calls.push(['contract',value]);return {contractId:'99999999-9999-4999-8999-999999999999'};},
   readContractFeeRules:async value=>{calls.push(['rules',value]);return {items:[],nextCursor:null,hasMore:false};},
   readContractFeeRule:async value=>{calls.push(['rule',value]);return {feeRuleId:value.feeRuleId,exceptions:[],exceptionCount:0};},
+  readContractVersionComparison:async value=>{calls.push(['comparison',value]);return {activeVersionId:value.activeVersionId,candidateVersionId:value.candidateVersionId,items:[]};},
 });
 const makeRequest = (body = requestBody, extras = {}) => new Request('https://project.supabase.co/functions/v1/finance-read', {
   method: extras.method || 'POST',
@@ -143,6 +144,7 @@ const rulesResponse=await handler(makeRequest(rulesRequest));assert.equal(rulesR
 const feeRuleId='89898989-8989-4989-8989-898989898989';
 const ruleRequest={operationId:'getContractFeeRule',scope:ids,pathParams:{dealerAccountId:ids.dealerAccountId,contractVersionId,feeRuleId},query:{}};
 const ruleResponse=await handler(makeRequest(ruleRequest));assert.equal(ruleResponse.status,200);assert.equal((await ruleResponse.json()).data.feeRuleId,feeRuleId);assert.equal(calls.at(-1)[0],'rule');
+const candidateVersionId='87878787-8787-4787-8787-878787878787';const comparisonRequest={operationId:'getContractVersionComparison',scope:ids,pathParams:{dealerAccountId:ids.dealerAccountId,activeVersionId:contractVersionId,candidateVersionId},query:{}};const comparisonResponse=await handler(makeRequest(comparisonRequest));assert.equal(comparisonResponse.status,200);assert.equal((await comparisonResponse.json()).data.candidateVersionId,candidateVersionId);assert.equal(calls.at(-1)[0],'comparison');
 
 assert.equal((await handler(makeRequest(requestBody, { origin: 'https://evil.test' }))).status, 403);
 assert.equal((await handler(makeRequest(requestBody, { authorization: 'Bearer short' }))).status, 401);
@@ -167,12 +169,12 @@ assert.equal((await handler(makeRequest({...exportPackagesRequest,query:{package
 assert.equal((await handler(makeRequest({...exportPackageRequest,query:{}}))).status,400);
 assert.equal((await handler(makeRequest({...disputesRequest,query:{status:'INVALID'}}))).status,400);
 assert.equal((await handler(makeRequest({...disputeRequest,pathParams:{dealerAccountId:ids.dealerAccountId,disputeId:'bad'}}))).status,400);
-const requiredPorts={authenticate(){},authorizeScope(){},authorizeHeadquartersScope(){},readOperationalHealth(){},readHeadquartersSummary(){},readExpenses(){},readExpense(){},readExportPackages(){},readExportPackage(){},readIntegrationErrors(){},readIntegrationError(){},readApprovalWorkItems(){},readApprovalWorkItem(){},readAuditEvents(){},readAuditCorrelationTrace(){},readDisputes(){},readDispute(){},readSummary(){},readStatement(){},readPayments(){},readPayment(){},readAccrualDetail(){},readRoyaltyRefunds(){},readServiceUsages(){},readRefundTrace(){},readCurrentPeriod(){},readCurrentContract(){},readContractFeeRules(){},readContractFeeRule(){}};
+const requiredPorts={authenticate(){},authorizeScope(){},authorizeHeadquartersScope(){},readOperationalHealth(){},readHeadquartersSummary(){},readExpenses(){},readExpense(){},readExportPackages(){},readExportPackage(){},readIntegrationErrors(){},readIntegrationError(){},readApprovalWorkItems(){},readApprovalWorkItem(){},readAuditEvents(){},readAuditCorrelationTrace(){},readDisputes(){},readDispute(){},readSummary(){},readStatement(){},readPayments(){},readPayment(){},readAccrualDetail(){},readRoyaltyRefunds(){},readServiceUsages(){},readRefundTrace(){},readCurrentPeriod(){},readCurrentContract(){},readContractFeeRules(){},readContractFeeRule(){},readContractVersionComparison(){}};
 assert.throws(() => createFinanceReadHandler({ allowedOrigins: ['*'],...requiredPorts }), /allowlist/);
 assert.throws(() => createFinanceReadHandler({ allowedOrigins: ['http://erp.ototr.test'],...requiredPorts }), /allowlist/);
 assert.throws(() => createFinanceReadHandler({ allowedOrigins: [origin],...requiredPorts,maxBodyBytes:100 }), /maxBodyBytes/);
 
-const safeHandler = createFinanceReadHandler({ allowedOrigins: [origin], correlationFactory: () => correlationId, authenticate: async () => { throw new Error('database password leaked'); }, authorizeScope: async () => true,authorizeHeadquartersScope:async()=>true,readOperationalHealth:async()=>({}),readHeadquartersSummary:async()=>({}),readExpenses:async()=>({}),readExpense:async()=>({}),readExportPackages:async()=>({}),readExportPackage:async()=>({}),readIntegrationErrors:async()=>({}),readIntegrationError:async()=>({}),readApprovalWorkItems:async()=>({}),readApprovalWorkItem:async()=>({}),readAuditEvents:async()=>({}),readAuditCorrelationTrace:async()=>({}),readDisputes:async()=>({}),readDispute:async()=>({}), readSummary: async () => ({}), readStatement: async () => ({}), readPayments:async()=>({}), readPayment: async () => ({}), readAccrualDetail: async () => ({}),readRoyaltyRefunds:async()=>({}),readServiceUsages:async()=>({}), readRefundTrace:async()=>({}),readCurrentPeriod:async()=>({}),readCurrentContract:async()=>({}),readContractFeeRules:async()=>({}),readContractFeeRule:async()=>({}) });
+const safeHandler = createFinanceReadHandler({ allowedOrigins: [origin], correlationFactory: () => correlationId, authenticate: async () => { throw new Error('database password leaked'); }, authorizeScope: async () => true,authorizeHeadquartersScope:async()=>true,readOperationalHealth:async()=>({}),readHeadquartersSummary:async()=>({}),readExpenses:async()=>({}),readExpense:async()=>({}),readExportPackages:async()=>({}),readExportPackage:async()=>({}),readIntegrationErrors:async()=>({}),readIntegrationError:async()=>({}),readApprovalWorkItems:async()=>({}),readApprovalWorkItem:async()=>({}),readAuditEvents:async()=>({}),readAuditCorrelationTrace:async()=>({}),readDisputes:async()=>({}),readDispute:async()=>({}), readSummary: async () => ({}), readStatement: async () => ({}), readPayments:async()=>({}), readPayment: async () => ({}), readAccrualDetail: async () => ({}),readRoyaltyRefunds:async()=>({}),readServiceUsages:async()=>({}), readRefundTrace:async()=>({}),readCurrentPeriod:async()=>({}),readCurrentContract:async()=>({}),readContractFeeRules:async()=>({}),readContractFeeRule:async()=>({}),readContractVersionComparison:async()=>({}) });
 const safeResponse = await safeHandler(makeRequest());
 assert.equal(safeResponse.status, 500);
 assert.doesNotMatch(JSON.stringify(await safeResponse.json()), /password|leaked/);
@@ -208,7 +210,8 @@ await adapter.readExportPackage({actor,scope:ids,packageType:'BILLING',packageId
 await adapter.readIntegrationErrors({actor,scope:ids,dealerAccountId:ids.dealerAccountId,status:'RETRYABLE',sourceSystem:'ERP',cursor:'error-cursor',limit:25});
 await adapter.readIntegrationError({actor,scope:ids,dealerAccountId:ids.dealerAccountId,errorId});
 await adapter.readContractFeeRule({actor,scope:ids,dealerAccountId:ids.dealerAccountId,contractVersionId,feeRuleId});
-assert.equal(fetchCalls.length, 24);
+await adapter.readContractVersionComparison({actor,scope:ids,dealerAccountId:ids.dealerAccountId,activeVersionId:contractVersionId,candidateVersionId});
+assert.equal(fetchCalls.length, 25);
 assert.equal(fetchCalls[0].options.headers.Authorization, `Bearer ${token}`);
 assert.equal(fetchCalls[1].options.headers['Accept-Profile'], 'finance_api');
 assert.deepEqual(JSON.parse(fetchCalls[2].options.body), { p_legal_entity_id: ids.legalEntityId, p_dealer_account_id: ids.dealerAccountId, p_branch_id: ids.branchId, p_as_of: '2026-11-03' });
