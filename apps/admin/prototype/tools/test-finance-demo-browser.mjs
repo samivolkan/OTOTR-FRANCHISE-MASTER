@@ -6,6 +6,7 @@ const port=42731;
 const server=await createFinanceDemoServer({port});
 let browser;
 try{
+  const healthResponse=await fetch(`http://127.0.0.1:${port}/health`);const health=await healthResponse.json();assert.equal(healthResponse.status,200);assert.deepEqual(health,{status:'READY',environment:'SYNTHETIC_DEMO',module:'OTOTR_FRANCHISE_FINANCE',schemaVersion:1,productionDataUsed:false,writesPersisted:false,bindAddress:'127.0.0.1'});
   browser=await chromium.launch({headless:true,executablePath:process.env.PLAYWRIGHT_CHROME_PATH||'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe'});
   const page=await browser.newPage({viewport:{width:1440,height:1000}});
   await page.goto(`http://127.0.0.1:${port}/index.html?financeDemo=1`,{waitUntil:'networkidle'});
@@ -27,7 +28,7 @@ try{
   await page.click('[data-finance-screen="SCR-15"]');await page.click('[data-finance-approvals-refresh]');await page.waitForFunction(()=>document.querySelectorAll('[data-finance-approvals-body] tr').length===1);assert.match(await page.locator('[data-finance-approvals-body]').innerText(),/EXPENSE_APPROVAL_V1/);await page.click('[data-finance-approvals-body] [data-finance-approval-id]');await page.waitForFunction(()=>document.querySelector('[data-finance-approval-content]')?.hidden===false);assert.match(await page.locator('[data-finance-approval-detail]').innerText(),/finance-expense-approver/);assert.doesNotMatch(await page.locator('[data-finance-approval-detail]').innerText(),/subject_snapshot|evidenceRef|secret/i);
   await page.click('[data-finance-screen="SCR-16"]');await page.click('[data-finance-audit-refresh]');await page.waitForFunction(()=>document.querySelectorAll('[data-finance-audit-body] tr').length===1);assert.match(await page.locator('[data-finance-audit-body]').innerText(),/PASS_THROUGH_EXPENSE_SUBMITTED/);await page.click('[data-finance-audit-body] [data-finance-audit-correlation]');await page.waitForFunction(()=>document.querySelector('[data-finance-audit-trace-content]')?.hidden===false);assert.match(await page.locator('[data-finance-audit-trace]').innerText(),/SHA-256 V2 doğrulandı/);assert.doesNotMatch(await page.locator('[data-finance-audit-trace]').innerText(),/safe_context|payload|secret/i);
   assert.doesNotMatch(await page.locator('[data-finance-environment]').innerText(),/^LIVE/);
-  console.log('PASS finance-demo-browser: GM Finans menu, explicit synthetic label, KPI, approval and audit projections verified');
+  console.log('PASS finance-demo-browser: health contract, GM Finans menu, explicit synthetic label, KPI, approval and audit projections verified');
 }finally{
   await browser?.close();
   await new Promise(resolve=>server.close(resolve));

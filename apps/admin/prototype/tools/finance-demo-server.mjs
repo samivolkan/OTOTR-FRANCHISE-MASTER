@@ -18,12 +18,16 @@ const approvalDetail={...approvalList.items[0],snapshotHash:'a'.repeat(64),steps
 const auditEvent={eventId:'16161616-1616-4616-8616-161616161616',actorId:'15151515-1515-4515-8515-151515151515',actorType:'USER',actionCode:'PASS_THROUGH_EXPENSE_SUBMITTED',subjectType:'PASS_THROUGH_EXPENSE',subjectId:approvalSubjectId,decision:'ALLOW',reasonCode:'SUBMIT',createdAtUtc:'2026-11-03T06:10:00Z',correlationId:governanceCorrelationId,integrityHash:'c'.repeat(64),previousIntegrityHash:'b'.repeat(64)};
 const auditList={items:[auditEvent],nextCursor:null,hasMore:false};
 const auditTrace={correlationId:governanceCorrelationId,items:[auditEvent],eventCount:1,chainProjection:'SHA256_V2_VERIFIED',chainVerification:{version:'AUDIT_SHA256_V2',checkedEventCount:1,invalidEventCount:0,legacyEventCount:0,valid:true},rawContextExposed:false};
+const health=Object.freeze({status:'READY',environment:'SYNTHETIC_DEMO',module:'OTOTR_FRANCHISE_FINANCE',schemaVersion:1,productionDataUsed:false,writesPersisted:false,bindAddress:'127.0.0.1'});
 const mime={'.html':'text/html; charset=utf-8','.js':'text/javascript; charset=utf-8','.mjs':'text/javascript; charset=utf-8','.css':'text/css; charset=utf-8','.svg':'image/svg+xml'};
 
 const api=body=>({getDealerFinanceSummary:summary,getHeadquartersFinanceSummary:headquarters,getFinanceOperationalHealth:operationalHealth,getFinancePeriod:period,listIntegrationErrors:integrationList,getIntegrationError:integrationDetail,listApprovalWorkItems:approvalList,getApprovalWorkItem:approvalDetail,listAuditEvents:auditList,getAuditCorrelationTrace:auditTrace}[body.operationId]??{items:[],nextCursor:null,hasMore:false});
 export function createFinanceDemoServer({port=4173}={}){
 const server=createServer(async(req,res)=>{
   try{
+    if(req.method==='GET'&&req.url==='/health'){
+      res.writeHead(200,{'content-type':'application/json; charset=utf-8','cache-control':'no-store'});res.end(JSON.stringify(health));return;
+    }
     if(req.method==='POST'&&req.url==='/functions/v1/finance-command'){
       let raw='';for await(const chunk of req)raw+=chunk;if(raw.length>16384)throw new Error('PAYLOAD_TOO_LARGE');const body=JSON.parse(raw);if(body.operationId!=='retryIntegrationError')throw new Error('INVALID_COMMAND');const data={outcome:'QUEUED',errorId:body.command.errorId,jobId:'20202020-2020-4020-8020-202020202020',status:'QUEUED',version:2,correlationId:'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa'};res.writeHead(200,{'content-type':'application/json; charset=utf-8','cache-control':'no-store','correlation-id':data.correlationId});res.end(JSON.stringify({data}));return;
     }
@@ -43,4 +47,5 @@ if(process.argv[1]&&fileURLToPath(import.meta.url)===process.argv[1]){
   const port=Number(process.env.OTOTR_FINANCE_DEMO_PORT||4173);
   await createFinanceDemoServer({port});
   console.log(`OTOTR GM Finans sentetik demo: http://127.0.0.1:${port}/index.html?financeDemo=1#finance`);
+  console.log(`Sağlık kontrolü: http://127.0.0.1:${port}/health · productionDataUsed=false · writesPersisted=false`);
 }

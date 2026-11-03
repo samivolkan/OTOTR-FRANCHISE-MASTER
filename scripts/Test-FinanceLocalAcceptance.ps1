@@ -30,6 +30,7 @@ $checks = @(
   'Test-FinanceOperationalPerformanceE2E.ps1',
   'Test-FinanceOperationalHealthE2E.ps1',
   'Test-FinanceLocalBackupRestore.ps1',
+  'Test-GMFinanceDemoEnvironment.ps1',
   'Test-FinanceUATCoverage.ps1'
 )
 
