@@ -325,6 +325,10 @@ if (auth && ui) {
     async loadExportPackageDetail(packageType,packageId){ui.setExportPackageState?.('LOADING','Kontrol toplamları ve harici durum yükleniyor…');try{const result=await api.getFinanceExportPackage(packageType,packageId);ui.renderExportPackageDetail?.(result.data);return result;}catch(error){ui.setExportPackageState?.('ERROR',error instanceof FinanceBridgeError?error.message:'Export paketi detayı alınamadı.');throw error;}},
     async loadIntegrationErrors({append=false}={}){const cursor=append?ui.integrationErrorsMoreButton?.dataset?.cursor:undefined;ui.setIntegrationErrorsState?.('LOADING',append?'Hata devam sayfası yükleniyor…':'Şube kapsamlı entegrasyon kuyruğu yükleniyor…');try{const result=await api.listIntegrationErrors({...ui.getIntegrationErrorFilters?.(),cursor});ui.renderIntegrationErrorsPage?.(result.data,{append});return result;}catch(error){ui.setIntegrationErrorsState?.('ERROR',error instanceof FinanceBridgeError?error.message:'Entegrasyon hata kuyruğu alınamadı.');throw error;}},
     async loadIntegrationErrorDetail(errorId){ui.setIntegrationErrorState?.('LOADING','Güvenli detay ve korelasyon izi yükleniyor…');try{const result=await api.getIntegrationError(errorId);ui.renderIntegrationErrorDetail?.(result.data);return result;}catch(error){ui.setIntegrationErrorState?.('ERROR',error instanceof FinanceBridgeError?error.message:'Entegrasyon hata detayı alınamadı.');throw error;}},
+    async loadApprovalWorkItems({append=false}={}){const cursor=append?ui.approvalsMoreButton?.dataset?.cursor:undefined;ui.setApprovalsState?.('LOADING',append?'Onay devam sayfası yükleniyor…':'Onay iş listesi yükleniyor…');try{const result=await api.listApprovalWorkItems({...ui.getApprovalFilters?.(),cursor});ui.renderApprovalsPage?.(result.data,{append});return result;}catch(error){ui.setApprovalsState?.('ERROR',error instanceof FinanceBridgeError?error.message:'Onay iş listesi alınamadı.');throw error;}},
+    async loadApprovalWorkItem(requestId){ui.setApprovalState?.('LOADING','Güvenli karar adımları yükleniyor…');try{const result=await api.getApprovalWorkItem(requestId);ui.renderApprovalDetail?.(result.data);return result;}catch(error){ui.setApprovalState?.('ERROR',error instanceof FinanceBridgeError?error.message:'Onay detayı alınamadı.');throw error;}},
+    async loadAuditEvents({append=false}={}){const cursor=append?ui.auditMoreButton?.dataset?.cursor:undefined;ui.setAuditState?.('LOADING',append?'Audit devam sayfası yükleniyor…':'Audit kayıtları yükleniyor…');try{const result=await api.listAuditEvents({...ui.getAuditFilters?.(),cursor});ui.renderAuditPage?.(result.data,{append});return result;}catch(error){ui.setAuditState?.('ERROR',error instanceof FinanceBridgeError?error.message:'Audit kayıtları alınamadı.');throw error;}},
+    async loadAuditCorrelationTrace(correlationId){ui.setAuditTraceState?.('LOADING','Correlation ve bütünlük izi yükleniyor…');try{const result=await api.getAuditCorrelationTrace(correlationId);ui.renderAuditTrace?.(result.data);return result;}catch(error){ui.setAuditTraceState?.('ERROR',error instanceof FinanceBridgeError?error.message:'Audit correlation izi alınamadı.');throw error;}},
     async loadAccrualDetail(accrualId) {
       ui.setAccrualState?.('LOADING', 'Kaynak olay, hesaplama ve çift taraflı fiş yükleniyor…');
       try {
@@ -403,6 +407,11 @@ if (auth && ui) {
   ui.integrationErrorsMoreButton?.addEventListener('click',()=>{void api.loadIntegrationErrors({append:true}).catch(()=>{});});
   ui.integrationErrorsStatus?.addEventListener('change',()=>{ui.resetIntegrationErrors?.('Filtre değişti. Hata kuyruğunu yeniden getirin.');});
   ui.integrationErrorsSource?.addEventListener('change',()=>{ui.resetIntegrationErrors?.('Filtre değişti. Hata kuyruğunu yeniden getirin.');});
+  ui.approvalsRefreshButton?.addEventListener('click',()=>{void api.loadApprovalWorkItems().catch(()=>{});});
+  ui.approvalsMoreButton?.addEventListener('click',()=>{void api.loadApprovalWorkItems({append:true}).catch(()=>{});});
+  ui.approvalsStatus?.addEventListener('change',()=>{ui.resetApprovals?.('Filtre değişti. Onayları yeniden getirin.');});
+  ui.auditRefreshButton?.addEventListener('click',()=>{void api.loadAuditEvents().catch(()=>{});});
+  ui.auditMoreButton?.addEventListener('click',()=>{void api.loadAuditEvents({append:true}).catch(()=>{});});
   ui.contractRefreshButton?.addEventListener('click',()=>{void api.loadContractWorkspace().catch(()=>{});});
   ui.contractMoreButton?.addEventListener('click',()=>{void api.loadContractWorkspace({append:true}).catch(()=>{});});
   ui.contractRuleStatus?.addEventListener('change',()=>{ui.resetContractRules?.('Filtre değişti. Kuralları yeniden getirin.');});
@@ -413,4 +422,6 @@ if (auth && ui) {
   globalThis.addEventListener?.('ototr:finance-dispute-requested',event=>{void api.loadDisputeDetail(event.detail?.disputeId).catch(()=>{});});
   globalThis.addEventListener?.('ototr:finance-export-package-requested',event=>{void api.loadExportPackageDetail(event.detail?.packageType,event.detail?.packageId).catch(()=>{});});
   globalThis.addEventListener?.('ototr:finance-integration-error-requested',event=>{void api.loadIntegrationErrorDetail(event.detail?.errorId).catch(()=>{});});
+  globalThis.addEventListener?.('ototr:finance-approval-requested',event=>{void api.loadApprovalWorkItem(event.detail?.requestId).catch(()=>{});});
+  globalThis.addEventListener?.('ototr:finance-audit-trace-requested',event=>{void api.loadAuditCorrelationTrace(event.detail?.correlationId).catch(()=>{});});
 }

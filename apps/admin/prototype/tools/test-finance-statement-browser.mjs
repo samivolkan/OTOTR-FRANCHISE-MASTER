@@ -129,6 +129,18 @@ try {
       const data={errorId:body.pathParams.errorId,sourceSystem:'ERP',errorClass:'OUTBOX',safeErrorCode:'ERP_TIMEOUT',status:'RETRYABLE',retryable:true,retryCount:2,safeDetail:{sourceSystem:'ERP',retryable:true,safeMessage:'ERP yanıt vermedi'},occurredAtUtc:'2026-11-06T09:00:00Z',correlationId:'59595959-5959-4959-8959-595959595959',trace:[{direction:'INBOX',messageId:'60606060-6060-4060-8060-606060606060',system:'ERP',eventType:'MESSAGE',status:'REJECTED',schemaVersion:2,occurredAtUtc:'2026-11-06T08:59:00Z'},{direction:'OUTBOX',messageId:'61616161-6161-4161-8161-616161616161',system:'finance.erp',eventType:'ERP_SYNC_FAILED',status:'DEAD_LETTER',attemptCount:3,safeErrorCode:'ERP_TIMEOUT',occurredAtUtc:'2026-11-06T09:00:00Z'}],version:1};
       await route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({data})});return;
     }
+    if(body.operationId==='listApprovalWorkItems'){
+      const data={items:[{requestId:'62626262-6262-4262-8262-626262626262',subjectType:'PASS_THROUGH_EXPENSE',subjectId:'63636363-6363-4363-8363-636363636363',policyVersion:'EXPENSE_APPROVAL_V1',status:'PENDING',preparedBy:'64646464-6464-4464-8464-646464646464',createdAtUtc:'2026-11-06T10:00:00Z',correlationId:'65656565-6565-4565-8565-656565656565',version:1}],nextCursor:null,hasMore:false};await route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({data})});return;
+    }
+    if(body.operationId==='getApprovalWorkItem'){
+      const data={requestId:body.pathParams.requestId,subjectType:'PASS_THROUGH_EXPENSE',subjectId:'63636363-6363-4363-8363-636363636363',policyVersion:'EXPENSE_APPROVAL_V1',status:'PENDING',preparedBy:'64646464-6464-4464-8464-646464646464',createdAtUtc:'2026-11-06T10:00:00Z',correlationId:'65656565-6565-4565-8565-656565656565',version:1,snapshotHash:'a'.repeat(64),steps:[{stepNo:1,requiredRole:'finance-expense-approver',decision:null,decidedBy:null,decidedAtUtc:null}]};await route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({data})});return;
+    }
+    if(body.operationId==='listAuditEvents'){
+      const data={items:[{eventId:'66666666-6666-4666-8666-666666666667',actorId:'64646464-6464-4464-8464-646464646464',actorType:'USER',actionCode:'PASS_THROUGH_EXPENSE_SUBMITTED',subjectType:'PASS_THROUGH_EXPENSE',subjectId:'63636363-6363-4363-8363-636363636363',decision:'ALLOW',reasonCode:'SUBMIT',createdAtUtc:'2026-11-06T10:01:00Z',correlationId:'65656565-6565-4565-8565-656565656565',integrityHash:'b'.repeat(64),previousIntegrityHash:'a'.repeat(64)}],nextCursor:null,hasMore:false};await route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({data})});return;
+    }
+    if(body.operationId==='getAuditCorrelationTrace'){
+      const data={correlationId:body.pathParams.correlationId,eventCount:1,chainProjection:'HASH_REFERENCES_ONLY',rawContextExposed:false,items:[{eventId:'66666666-6666-4666-8666-666666666667',actorId:'64646464-6464-4464-8464-646464646464',actorType:'USER',actionCode:'PASS_THROUGH_EXPENSE_SUBMITTED',subjectType:'PASS_THROUGH_EXPENSE',subjectId:'63636363-6363-4363-8363-636363636363',decision:'ALLOW',reasonCode:'SUBMIT',createdAtUtc:'2026-11-06T10:01:00Z',integrityHash:'b'.repeat(64),previousIntegrityHash:'a'.repeat(64)}]};await route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({data})});return;
+    }
     if (body.operationId === 'getPayment') {
       const paymentId = body.pathParams.paymentId;
       const data = {
@@ -339,6 +351,8 @@ try {
   assert.match(integrationText,/Ham payload gösterilmez/);
   assert.doesNotMatch(integrationText,/must-not-leak|dealerAccountId|branchId|secret/i);
   await page.click('[data-finance-integration-error-close]');
+  await page.click('[data-finance-screen="SCR-15"]');await page.click('[data-finance-approvals-refresh]');await page.waitForFunction(()=>document.querySelectorAll('[data-finance-approvals-body] tr').length===1);assert.equal(requests.at(-1).operationId,'listApprovalWorkItems');assert.match(await page.locator('[data-finance-approvals-body]').innerText(),/EXPENSE_APPROVAL_V1/);await page.click('[data-finance-approvals-body] [data-finance-approval-id]');await page.waitForFunction(()=>document.querySelector('[data-finance-approval-detail]')?.querySelector('[data-finance-approval-content]')?.hidden===false);assert.equal(requests.at(-1).operationId,'getApprovalWorkItem');const approvalText=await page.locator('[data-finance-approval-detail]').innerText();assert.match(approvalText,/finance-expense-approver/);assert.doesNotMatch(approvalText,/subject_snapshot|evidenceRef|secret/i);
+  await page.click('[data-finance-screen="SCR-16"]');await page.click('[data-finance-audit-refresh]');await page.waitForFunction(()=>document.querySelectorAll('[data-finance-audit-body] tr').length===1);assert.equal(requests.at(-1).operationId,'listAuditEvents');assert.match(await page.locator('[data-finance-audit-body]').innerText(),/PASS_THROUGH_EXPENSE_SUBMITTED/);await page.click('[data-finance-audit-body] [data-finance-audit-correlation]');await page.waitForFunction(()=>document.querySelector('[data-finance-audit-trace-content]')?.hidden===false);assert.equal(requests.at(-1).operationId,'getAuditCorrelationTrace');const auditText=await page.locator('[data-finance-audit-trace]').innerText();assert.match(auditText,/HASH_REFERENCES_ONLY/);assert.doesNotMatch(auditText,/safe_context|payload|secret/i);
   await page.click('[data-finance-screen="SCR-07"]');
   assert.equal(await page.locator('[data-finance-payment-detail]').isVisible(),false);
   await page.click('[data-finance-accrual-id]');
@@ -401,7 +415,7 @@ try {
   assert.match(await page.locator('[data-finance-statement-state]').innerText(), /geçici olarak kullanılamıyor/i);
   assert.equal(await page.locator('[data-finance-statement-refresh]').isEnabled(), true);
 
-console.log('PASS finance-statement-browser: integration monitoring, export packages, scoped disputes, HQ expense allocation, contract/rules, period, statement, payment, accrual and refund flows');
+console.log('PASS finance-statement-browser: governance approvals/audit, integration monitoring, export packages, disputes, expenses, statement and payment flows');
 } finally {
   await browser?.close();
   await new Promise(resolve => server.close(resolve));

@@ -79,6 +79,11 @@ const integrationErrorsRequest={operationId:'listIntegrationErrors',scope:ids,pa
 const integrationErrorsResponse=await handler(makeRequest(integrationErrorsRequest));assert.equal(integrationErrorsResponse.status,200);assert.equal(calls.at(-1)[0],'integration-errors');assert.equal(calls.at(-2)[0],'authorize');
 const integrationErrorRequest={operationId:'getIntegrationError',scope:ids,pathParams:{dealerAccountId:ids.dealerAccountId,errorId},query:{}};
 const integrationErrorResponse=await handler(makeRequest(integrationErrorRequest));assert.equal(integrationErrorResponse.status,200);assert.equal((await integrationErrorResponse.json()).data.errorId,errorId);assert.equal(calls.at(-1)[0],'integration-error');
+const approvalRequestId='62626262-6262-4262-8262-626262626262',auditCorrelationId='65656565-6565-4565-8565-656565656565';
+let governanceResponse=await handler(makeRequest({operationId:'listApprovalWorkItems',scope:ids,pathParams:{dealerAccountId:ids.dealerAccountId},query:{status:'PENDING',limit:25}}));assert.equal(governanceResponse.status,200);assert.equal(calls.at(-1)[0],'approval-items');
+governanceResponse=await handler(makeRequest({operationId:'getApprovalWorkItem',scope:ids,pathParams:{dealerAccountId:ids.dealerAccountId,requestId:approvalRequestId},query:{}}));assert.equal(governanceResponse.status,200);assert.equal(calls.at(-1)[0],'approval-item');
+governanceResponse=await handler(makeRequest({operationId:'listAuditEvents',scope:ids,pathParams:{dealerAccountId:ids.dealerAccountId},query:{limit:25}}));assert.equal(governanceResponse.status,200);assert.equal(calls.at(-1)[0],'audit-events');
+governanceResponse=await handler(makeRequest({operationId:'getAuditCorrelationTrace',scope:ids,pathParams:{dealerAccountId:ids.dealerAccountId,correlationId:auditCorrelationId},query:{}}));assert.equal(governanceResponse.status,200);assert.equal(calls.at(-1)[0],'audit-trace');
 const disputeId='abababab-abab-4bab-8bab-abababababab';
 const disputesRequest={operationId:'listDisputes',scope:ids,pathParams:{dealerAccountId:ids.dealerAccountId},query:{status:'UNDER_REVIEW',limit:25}};
 const disputesResponse=await handler(makeRequest(disputesRequest));assert.equal(disputesResponse.status,200);assert.equal(calls.at(-1)[0],'disputes');assert.equal(calls.at(-2)[0],'authorize');

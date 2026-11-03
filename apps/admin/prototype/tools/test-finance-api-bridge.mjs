@@ -44,6 +44,11 @@ await client.listIntegrationErrors(scope,{status:'RETRYABLE',sourceSystem:'ERP',
 assert.deepEqual(JSON.parse(captured.options.body),{operationId:'listIntegrationErrors',scope,pathParams:{dealerAccountId:scope.dealerAccountId},query:{status:'RETRYABLE',sourceSystem:'ERP',cursor:'error-cursor',limit:25}});
 await client.getIntegrationError(scope,errorId);
 assert.deepEqual(JSON.parse(captured.options.body),{operationId:'getIntegrationError',scope,pathParams:{dealerAccountId:scope.dealerAccountId,errorId},query:{}});
+const requestId='62626262-6262-4262-8262-626262626262',auditCorrelationId='65656565-6565-4565-8565-656565656565';
+await client.listApprovalWorkItems(scope,{status:'PENDING',subjectType:'PASS_THROUGH_EXPENSE',limit:25});assert.deepEqual(JSON.parse(captured.options.body),{operationId:'listApprovalWorkItems',scope,pathParams:{dealerAccountId:scope.dealerAccountId},query:{status:'PENDING',subjectType:'PASS_THROUGH_EXPENSE',limit:25}});
+await client.getApprovalWorkItem(scope,requestId);assert.deepEqual(JSON.parse(captured.options.body),{operationId:'getApprovalWorkItem',scope,pathParams:{dealerAccountId:scope.dealerAccountId,requestId},query:{}});
+await client.listAuditEvents(scope,{actionCode:'EXPENSE_SUBMITTED',limit:25});assert.equal(JSON.parse(captured.options.body).operationId,'listAuditEvents');
+await client.getAuditCorrelationTrace(scope,auditCorrelationId);assert.deepEqual(JSON.parse(captured.options.body),{operationId:'getAuditCorrelationTrace',scope,pathParams:{dealerAccountId:scope.dealerAccountId,correlationId:auditCorrelationId},query:{}});
 await client.listDisputes(scope,{status:'UNDER_REVIEW',cursor:'dispute-cursor',limit:25});
 assert.deepEqual(JSON.parse(captured.options.body),{operationId:'listDisputes',scope,pathParams:{dealerAccountId:scope.dealerAccountId},query:{status:'UNDER_REVIEW',cursor:'dispute-cursor',limit:25}});
 const disputeId='abababab-abab-4bab-8bab-abababababab';
@@ -96,6 +101,7 @@ await rejectsWithCode(()=>client.getFinanceExportPackage(scope,'INVALID',package
 await rejectsWithCode(()=>client.listIntegrationErrors(scope,{status:'INVALID'}),'VALIDATION_ERROR');
 await rejectsWithCode(()=>client.listIntegrationErrors(scope,{sourceSystem:'bad source'}),'VALIDATION_ERROR');
 await rejectsWithCode(()=>client.getIntegrationError(scope,'invalid'),'VALIDATION_ERROR');
+await rejectsWithCode(()=>client.listApprovalWorkItems(scope,{status:'INVALID'}),'VALIDATION_ERROR');await rejectsWithCode(()=>client.getApprovalWorkItem(scope,'invalid'),'VALIDATION_ERROR');await rejectsWithCode(()=>client.listAuditEvents(scope,{actionCode:'bad action'}),'VALIDATION_ERROR');await rejectsWithCode(()=>client.getAuditCorrelationTrace(scope,'invalid'),'VALIDATION_ERROR');
 await rejectsWithCode(()=>client.listDisputes(scope,{status:'INVALID'}),'VALIDATION_ERROR');
 await rejectsWithCode(()=>client.getDispute(scope,'invalid'),'VALIDATION_ERROR');
 await rejectsWithCode(() => client.getDealerStatement(scope, { status: 'INVALID' }), 'VALIDATION_ERROR');
@@ -143,6 +149,7 @@ assert.equal(typeof globalThis.OTOTRFinance.listFinanceExportPackages,'function'
 assert.equal(typeof globalThis.OTOTRFinance.getFinanceExportPackage,'function');
 assert.equal(typeof globalThis.OTOTRFinance.listIntegrationErrors,'function');
 assert.equal(typeof globalThis.OTOTRFinance.getIntegrationError,'function');
+assert.equal(typeof globalThis.OTOTRFinance.listApprovalWorkItems,'function');assert.equal(typeof globalThis.OTOTRFinance.getApprovalWorkItem,'function');assert.equal(typeof globalThis.OTOTRFinance.listAuditEvents,'function');assert.equal(typeof globalThis.OTOTRFinance.getAuditCorrelationTrace,'function');
 assert.equal(typeof globalThis.OTOTRFinance.listDisputes,'function');
 assert.equal(typeof globalThis.OTOTRFinance.getDispute,'function');
 assert.equal(typeof globalThis.OTOTRFinance.listPayments, 'function');
@@ -163,4 +170,4 @@ delete globalThis.OTOTRFinanceUI;
 delete globalThis.OTOTR_FINANCE_CONTEXT;
 delete globalThis.OTOTRFinance;
 
-console.log('PASS finance-api-bridge: HQ expenses, scoped summary, contract/rules, statement, payment, accrual, refund and period POST; safe failures');
+console.log('PASS finance-api-bridge: governance, integrations, HQ expenses, summary, contracts, statements and payment POSTs; safe failures');
