@@ -10,6 +10,10 @@ create or replace function finance_private.current_period_reopen_worker_is_trust
 returns boolean language sql stable security definer set search_path='' as $$select true$$;
 create or replace function finance_api.authorize_scope(p_legal_entity_id uuid,p_dealer_account_id uuid,p_branch_id uuid,p_operation_id text)
 returns boolean language sql stable security definer set search_path='' as $$select true$$;
+create or replace function finance_private.current_actor_can_read_scope(p_actor_id uuid,p_legal_entity_id uuid,p_dealer_account_id uuid,p_branch_id uuid,p_operation_id text)
+returns boolean language sql stable security definer set search_path='' as $$select true$$;
+select pg_catalog.set_config('request.jwt.claim.sub','00000000-0000-4000-8000-000000000061',true);
+select pg_catalog.set_config('request.jwt.claim.role','authenticated',true);
 
 do $test$
 declare
@@ -56,6 +60,12 @@ begin
     r.ledger_total::text||':'||r.snapshot_hash||':'||r.status,'|' order by r.reconciliation_type,r.run_no
   ),'UTF8'),'sha256'),'hex') into check_hash
   from finance.reconciliations r where r.finance_period_id=branch_period;
+  result:=finance_api.get_finance_period_reconciliations(hq,account,branch,branch_period);
+  if result->>'periodId'<>branch_period::text or result->>'totalCount'<>'1' or result->>'blockingCount'<>'0'
+     or result->>'closeReady'<>'true' or result->>'checkSnapshotHash'<>check_hash
+     or result->>'rawRecordsExposed'<>'false' or result#>>'{items,0,status}'<>'MATCHED' then
+    raise exception 'safe reconciliation projection mismatch: %',result;
+  end if;
 
   insert into finance.approval_requests(
     id,legal_entity_id,subject_type,subject_id,approval_policy_version,prepared_by,subject_snapshot,

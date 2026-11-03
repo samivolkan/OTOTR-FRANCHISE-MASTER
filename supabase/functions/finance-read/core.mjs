@@ -52,14 +52,14 @@ async function body(request, maxBytes) {
   try { parsed = JSON.parse(raw); } catch { throw new FinanceReadError(400, 'INVALID_JSON', 'Geçerli JSON zorunludur.'); }
   if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) throw new FinanceReadError(400, 'INVALID_REQUEST', 'İstek nesne olmalıdır.');
   if (Object.keys(parsed).some(key => !KEYS.has(key))) throw new FinanceReadError(400, 'UNKNOWN_FIELD', 'İstek bilinmeyen alan içeriyor.');
-  if (!['getFinanceOperationalHealth','getHeadquartersFinanceSummary','listPassThroughExpenses','getPassThroughExpense','listFinanceExportPackages','getFinanceExportPackage','listIntegrationErrors','getIntegrationError','listApprovalWorkItems','getApprovalWorkItem','listAuditEvents','exportAuditEvents','getAuditCorrelationTrace','listDisputes','getDispute','getDealerFinanceSummary','getDealerStatement','listPayments','getPayment','getAccrualDetail','listRoyaltyRefunds','listServiceUsages','getRoyaltyRefundTrace','getFinancePeriod','getCurrentFranchiseContract','listContractVersions','listContractFeeRules','getContractFeeRule','getContractVersionComparison','simulateContractVersionImpact'].includes(parsed.operationId)) throw new FinanceReadError(403, 'OPERATION_DENIED', 'Finans okuma operasyonuna izin verilmiyor.');
+  if (!['getFinanceOperationalHealth','getHeadquartersFinanceSummary','listPassThroughExpenses','getPassThroughExpense','listFinanceExportPackages','getFinanceExportPackage','listIntegrationErrors','getIntegrationError','listApprovalWorkItems','getApprovalWorkItem','listAuditEvents','exportAuditEvents','getAuditCorrelationTrace','listDisputes','getDispute','getDealerFinanceSummary','getDealerStatement','listPayments','getPayment','getAccrualDetail','listRoyaltyRefunds','listServiceUsages','getRoyaltyRefundTrace','getFinancePeriod','getFinancePeriodReconciliations','getCurrentFranchiseContract','listContractVersions','listContractFeeRules','getContractFeeRule','getContractVersionComparison','simulateContractVersionImpact'].includes(parsed.operationId)) throw new FinanceReadError(403, 'OPERATION_DENIED', 'Finans okuma operasyonuna izin verilmiyor.');
   const scope = Object.freeze({
     legalEntityId: uuid(parsed.scope?.legalEntityId, 'legalEntityId'),
     dealerAccountId: uuid(parsed.scope?.dealerAccountId, 'dealerAccountId'),
     branchId: uuid(parsed.scope?.branchId, 'branchId'),
   });
   const pathKeys = parsed.pathParams && typeof parsed.pathParams === 'object' && !Array.isArray(parsed.pathParams) ? Object.keys(parsed.pathParams) : [];
-  const expectedPathKeys = ['getFinanceOperationalHealth','getHeadquartersFinanceSummary','listPassThroughExpenses','listFinanceExportPackages'].includes(parsed.operationId) ? [] : parsed.operationId==='getPassThroughExpense' ? ['expenseId'] : parsed.operationId==='getFinanceExportPackage' ? ['packageId'] : parsed.operationId === 'getPayment'
+  const expectedPathKeys = ['getFinanceOperationalHealth','getHeadquartersFinanceSummary','listPassThroughExpenses','listFinanceExportPackages'].includes(parsed.operationId) ? [] : parsed.operationId==='getPassThroughExpense' ? ['expenseId'] : parsed.operationId==='getFinanceExportPackage' ? ['packageId'] : parsed.operationId==='getFinancePeriodReconciliations' ? ['dealerAccountId','periodId'] : parsed.operationId === 'getPayment'
     ? ['dealerAccountId','paymentId']
     : parsed.operationId === 'getApprovalWorkItem'
       ? ['dealerAccountId','requestId']
@@ -164,6 +164,10 @@ async function body(request, maxBytes) {
     if (!asOf) throw new FinanceReadError(400,'INVALID_QUERY','getFinancePeriod için asOf zorunludur.');
     return Object.freeze({operationId:parsed.operationId,scope,dealerAccountId,asOf});
   }
+  if(parsed.operationId==='getFinancePeriodReconciliations'){
+    if(Object.keys(query).length)throw new FinanceReadError(400,'INVALID_QUERY','Dönem mutabakatı query parametresi kabul etmez.');
+    return Object.freeze({operationId:parsed.operationId,scope,dealerAccountId,periodId:uuid(parsed.pathParams.periodId,'periodId')});
+  }
   if (parsed.operationId === 'getCurrentFranchiseContract') {
     if (Object.keys(query).some(key=>key!=='asOf')) throw new FinanceReadError(400,'INVALID_QUERY','getCurrentFranchiseContract yalnız asOf kabul eder.');
     const asOf=calendarDate(query.asOf);
@@ -233,13 +237,13 @@ async function body(request, maxBytes) {
   return Object.freeze({ operationId: parsed.operationId, scope, dealerAccountId, from, to, status: query.status, cursor: query.cursor, limit: query.limit });
 }
 
-export function createFinanceReadHandler({ allowedOrigins, authenticate, authorizeScope, authorizeHeadquartersScope, readOperationalHealth,readHeadquartersSummary,readExpenses,readExpense,readExportPackages,readExportPackage,readIntegrationErrors,readIntegrationError,readApprovalWorkItems,readApprovalWorkItem,readAuditEvents,exportAuditEvents,readAuditCorrelationTrace,readDisputes,readDispute, readSummary, readStatement, readPayments, readPayment, readAccrualDetail, readRoyaltyRefunds, readServiceUsages, readRefundTrace, readCurrentPeriod, readCurrentContract,readContractVersions, readContractFeeRules,readContractFeeRule,readContractVersionComparison,simulateContractVersionImpact, correlationFactory = () => crypto.randomUUID(), maxBodyBytes = 32768 } = {}) {
+export function createFinanceReadHandler({ allowedOrigins, authenticate, authorizeScope, authorizeHeadquartersScope, readOperationalHealth,readHeadquartersSummary,readExpenses,readExpense,readExportPackages,readExportPackage,readIntegrationErrors,readIntegrationError,readApprovalWorkItems,readApprovalWorkItem,readAuditEvents,exportAuditEvents,readAuditCorrelationTrace,readDisputes,readDispute, readSummary, readStatement, readPayments, readPayment, readAccrualDetail, readRoyaltyRefunds, readServiceUsages, readRefundTrace, readCurrentPeriod,readPeriodReconciliations, readCurrentContract,readContractVersions, readContractFeeRules,readContractFeeRule,readContractVersionComparison,simulateContractVersionImpact, correlationFactory = () => crypto.randomUUID(), maxBodyBytes = 32768 } = {}) {
   const origins = new Set(allowedOrigins || []);
   const invalidOrigin = value => {
     try { const url = new URL(value); return value === '*' || url.origin !== value || (url.protocol !== 'https:' && !(url.protocol === 'http:' && ['localhost', '127.0.0.1'].includes(url.hostname))); } catch { return true; }
   };
   if (!origins.size || [...origins].some(invalidOrigin)) throw new Error('HTTPS veya local HTTP açık origin allowlist zorunludur.');
-  if (![authenticate, authorizeScope, authorizeHeadquartersScope, readOperationalHealth,readHeadquartersSummary,readExpenses,readExpense,readExportPackages,readExportPackage,readIntegrationErrors,readIntegrationError,readApprovalWorkItems,readApprovalWorkItem,readAuditEvents,exportAuditEvents,readAuditCorrelationTrace,readDisputes,readDispute, readSummary, readStatement, readPayments, readPayment, readAccrualDetail, readRoyaltyRefunds, readServiceUsages, readRefundTrace, readCurrentPeriod, readCurrentContract,readContractVersions, readContractFeeRules,readContractFeeRule,readContractVersionComparison,simulateContractVersionImpact].every(fn => typeof fn === 'function')) throw new Error('Finans sunucu portları zorunludur.');
+  if (![authenticate, authorizeScope, authorizeHeadquartersScope, readOperationalHealth,readHeadquartersSummary,readExpenses,readExpense,readExportPackages,readExportPackage,readIntegrationErrors,readIntegrationError,readApprovalWorkItems,readApprovalWorkItem,readAuditEvents,exportAuditEvents,readAuditCorrelationTrace,readDisputes,readDispute, readSummary, readStatement, readPayments, readPayment, readAccrualDetail, readRoyaltyRefunds, readServiceUsages, readRefundTrace, readCurrentPeriod,readPeriodReconciliations, readCurrentContract,readContractVersions, readContractFeeRules,readContractFeeRule,readContractVersionComparison,simulateContractVersionImpact].every(fn => typeof fn === 'function')) throw new Error('Finans sunucu portları zorunludur.');
   if (!Number.isInteger(maxBodyBytes) || maxBodyBytes < 1024 || maxBodyBytes > 65536) throw new Error('maxBodyBytes 1024–65536 arasında olmalıdır.');
   return async request => {
     const correlationId = correlation(request.headers.get('correlation-id'), correlationFactory);
@@ -305,6 +309,8 @@ export function createFinanceReadHandler({ allowedOrigins, authenticate, authori
                 ? await readRefundTrace({ actor, ...input })
                 : input.operationId === 'getFinancePeriod'
                   ? await readCurrentPeriod({ actor, ...input })
+                  : input.operationId === 'getFinancePeriodReconciliations'
+                    ? await readPeriodReconciliations({actor,...input})
                   : input.operationId === 'getCurrentFranchiseContract'
                     ? await readCurrentContract({actor,...input})
                     : input.operationId === 'listContractVersions'

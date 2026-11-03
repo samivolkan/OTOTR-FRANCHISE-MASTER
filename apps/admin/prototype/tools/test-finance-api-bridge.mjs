@@ -75,6 +75,7 @@ await client.listServiceUsages(scope,{family:'QUERY',chargeStatus:'CHARGED',curs
 assert.deepEqual(JSON.parse(captured.options.body),{operationId:'listServiceUsages',scope,pathParams:{dealerAccountId:scope.dealerAccountId},query:{family:'QUERY',chargeStatus:'CHARGED',cursor:'usage-cursor',limit:25}});
 await client.getCurrentFinancePeriod(scope,{asOf:'2026-11-03'});
 assert.deepEqual(JSON.parse(captured.options.body),{operationId:'getFinancePeriod',scope,pathParams:{dealerAccountId:scope.dealerAccountId},query:{asOf:'2026-11-03'}});
+const periodId='87878787-8787-4787-8787-878787878787';await client.getFinancePeriodReconciliations(scope,periodId);assert.deepEqual(JSON.parse(captured.options.body),{operationId:'getFinancePeriodReconciliations',scope,pathParams:{dealerAccountId:scope.dealerAccountId,periodId},query:{}});
 await client.getCurrentFranchiseContract(scope,{asOf:'2026-11-03'});
 assert.deepEqual(JSON.parse(captured.options.body),{operationId:'getCurrentFranchiseContract',scope,pathParams:{dealerAccountId:scope.dealerAccountId},query:{asOf:'2026-11-03'}});
 const contractId='adadadad-adad-4dad-8dad-adadadadadad';await client.listContractVersions(scope,contractId,{limit:25});assert.deepEqual(JSON.parse(captured.options.body),{operationId:'listContractVersions',scope,pathParams:{dealerAccountId:scope.dealerAccountId,contractId},query:{limit:25}});

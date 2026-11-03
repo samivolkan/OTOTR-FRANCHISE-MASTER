@@ -23,6 +23,7 @@ const REFUNDS_OPERATION = 'listRoyaltyRefunds';
 const SERVICE_USAGES_OPERATION='listServiceUsages';
 const REFUND_TRACE_OPERATION = 'getRoyaltyRefundTrace';
 const PERIOD_OPERATION = 'getFinancePeriod';
+const PERIOD_RECONCILIATIONS_OPERATION='getFinancePeriodReconciliations';
 const CURRENT_CONTRACT_OPERATION = 'getCurrentFranchiseContract';
 const CONTRACT_VERSIONS_OPERATION = 'listContractVersions';
 const CONTRACT_RULES_OPERATION = 'listContractFeeRules';
@@ -167,6 +168,7 @@ export function createFinanceSummaryClient({getConfig, getAccessToken, fetchImpl
       if (typeof asOf!=='string' || !/^\d{4}-\d{2}-\d{2}$/.test(asOf)) throw new FinanceBridgeError('VALIDATION_ERROR','asOf YYYY-MM-DD biçiminde zorunludur.');
       return execute(rawScope,PERIOD_OPERATION,{asOf},{},true);
     },
+    async getFinancePeriodReconciliations(rawScope,periodId){return execute(rawScope,PERIOD_RECONCILIATIONS_OPERATION,{},{periodId:requiredUuid(periodId,'periodId','VALIDATION_ERROR')},true);},
     async getCurrentFranchiseContract(rawScope,{asOf}={}) {
       if(typeof asOf!=='string'||!/^\d{4}-\d{2}-\d{2}$/.test(asOf)) throw new FinanceBridgeError('VALIDATION_ERROR','asOf YYYY-MM-DD biçiminde zorunludur.');
       return execute(rawScope,CURRENT_CONTRACT_OPERATION,{asOf},{},true);
@@ -299,6 +301,7 @@ if (auth && ui) {
       if(!scope) throw new FinanceBridgeError('FINANCE_SCOPE_UNAVAILABLE','ERP finans kapsamı henüz sağlanmadı.');
       return client.getCurrentFinancePeriod(scope,options);
     },
+    async getFinancePeriodReconciliations(periodId){const scope=configuredScope||refreshContext();if(!scope)throw new FinanceBridgeError('FINANCE_SCOPE_UNAVAILABLE','ERP finans kapsamı henüz sağlanmadı.');return client.getFinancePeriodReconciliations(scope,periodId);},
     async getCurrentFranchiseContract(options={}) {
       const scope=configuredScope||refreshContext();
       if(!scope) throw new FinanceBridgeError('FINANCE_SCOPE_UNAVAILABLE','ERP finans kapsamı henüz sağlanmadı.');
@@ -468,6 +471,7 @@ if (auth && ui) {
   globalThis.addEventListener?.('ototr:finance-contract-rule-requested',event=>{void api.loadContractFeeRule(event.detail?.contractVersionId,event.detail?.feeRuleId).catch(()=>{});});
   globalThis.addEventListener?.('ototr:finance-contract-lifecycle-completed',()=>{void api.loadContractWorkspace().catch(()=>{});void api.loadApprovalWorkItems().catch(()=>{});});
   globalThis.addEventListener?.('ototr:finance-period-refresh-requested',()=>{void api.getCurrentFinancePeriod({asOf:connectedAsOf}).then(result=>ui.renderCurrentPeriod?.(result.data)).catch(()=>{});});
+  globalThis.addEventListener?.('ototr:finance-period-rendered',event=>{const periodId=event.detail?.periodId;if(periodId)void api.getFinancePeriodReconciliations(periodId).then(result=>globalThis.dispatchEvent(new CustomEvent('ototr:finance-period-reconciliations-rendered',{detail:result.data}))).catch(error=>globalThis.dispatchEvent(new CustomEvent('ototr:finance-period-reconciliations-error',{detail:{message:error instanceof FinanceBridgeError?error.message:'Mutabakat satırları alınamadı.'}})));});
   globalThis.addEventListener?.('ototr:finance-approvals-refresh-requested',()=>{void api.loadApprovalWorkItems().catch(()=>{});});
   comparisonUi?.contractImpactForm?.addEventListener('submit',event=>{event.preventDefault();if(!contractImpactVersionPair)return;comparisonUi.setContractImpactState?.('LOADING');void api.simulateContractVersionImpact(contractImpactVersionPair.activeVersionId,contractImpactVersionPair.candidateVersionId,comparisonUi.getContractImpactScenario?.()).then(result=>comparisonUi.renderContractImpactSimulation?.(result.data)).catch(error=>comparisonUi.setContractImpactState?.('ERROR',error instanceof FinanceBridgeError?error.message:'Parasal etki simülasyonu tamamlanamadı.'));});
   timelineUi?.contractTimelineMore?.addEventListener('click',()=>{if(currentContractId)void api.loadContractTimeline(currentContractId,{append:true}).catch(()=>{});});

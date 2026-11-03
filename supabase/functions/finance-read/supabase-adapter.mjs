@@ -119,6 +119,7 @@ export function createFinanceSupabaseAdapter({ supabaseUrl, publishableKey, fetc
       p_legal_entity_id:scope.legalEntityId,p_dealer_account_id:dealerAccountId,p_branch_id:scope.branchId,p_as_of:asOf,
     },'finance_api');
   }
+  async function readPeriodReconciliations({actor,scope,dealerAccountId,periodId}){return post('/rest/v1/rpc/get_finance_period_reconciliations',actor.token,{p_legal_entity_id:scope.legalEntityId,p_dealer_account_id:dealerAccountId,p_branch_id:scope.branchId,p_period_id:periodId},'finance_api');}
   async function readCurrentContract({actor,scope,dealerAccountId,asOf}) {
     return post('/rest/v1/rpc/get_current_franchise_contract',actor.token,{p_legal_entity_id:scope.legalEntityId,p_dealer_account_id:dealerAccountId,p_branch_id:scope.branchId,p_as_of:asOf},'finance_api');
   }
@@ -133,5 +134,5 @@ export function createFinanceSupabaseAdapter({ supabaseUrl, publishableKey, fetc
     return post('/rest/v1/rpc/get_contract_version_comparison',actor.token,{p_legal_entity_id:scope.legalEntityId,p_dealer_account_id:dealerAccountId,p_branch_id:scope.branchId,p_active_version_id:activeVersionId,p_candidate_version_id:candidateVersionId},'finance_api');
   }
   async function simulateContractVersionImpact({actor,scope,dealerAccountId,activeVersionId,candidateVersionId,scenario}) {return post('/rest/v1/rpc/simulate_contract_version_impact',actor.token,{p_legal_entity_id:scope.legalEntityId,p_dealer_account_id:dealerAccountId,p_branch_id:scope.branchId,p_active_version_id:activeVersionId,p_candidate_version_id:candidateVersionId,p_scenario:scenario},'finance_api');}
-  return Object.freeze({ authenticate, authorizeScope, authorizeHeadquartersScope, readOperationalHealth,readHeadquartersSummary,readExpenses,readExpense,readExportPackages,readExportPackage,readIntegrationErrors,readIntegrationError,readApprovalWorkItems,readApprovalWorkItem,readAuditEvents,exportAuditEvents,readAuditCorrelationTrace,readDisputes,readDispute, readSummary, readStatement, readPayments, readPayment, readAccrualDetail, readRoyaltyRefunds,readServiceUsages, readRefundTrace, readCurrentPeriod, readCurrentContract,readContractVersions, readContractFeeRules,readContractFeeRule,readContractVersionComparison,simulateContractVersionImpact });
+  return Object.freeze({ authenticate, authorizeScope, authorizeHeadquartersScope, readOperationalHealth,readHeadquartersSummary,readExpenses,readExpense,readExportPackages,readExportPackage,readIntegrationErrors,readIntegrationError,readApprovalWorkItems,readApprovalWorkItem,readAuditEvents,exportAuditEvents,readAuditCorrelationTrace,readDisputes,readDispute, readSummary, readStatement, readPayments, readPayment, readAccrualDetail, readRoyaltyRefunds,readServiceUsages, readRefundTrace, readCurrentPeriod,readPeriodReconciliations, readCurrentContract,readContractVersions, readContractFeeRules,readContractFeeRule,readContractVersionComparison,simulateContractVersionImpact });
 }

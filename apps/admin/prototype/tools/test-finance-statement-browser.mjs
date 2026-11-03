@@ -71,6 +71,10 @@ try {
       const data={periodId:'18181818-1818-4818-8818-181818181818',parentPeriodId:'19191919-1919-4919-8919-191919191919',dealerAccountId:scope.dealerAccountId,branchId:scope.branchId,periodStart:'2026-11-01',periodEnd:'2026-11-30',currencyCode:'TRY',status:'LOCKED',sourceSnapshotHash:'a'.repeat(64),checkSnapshotHash:'b'.repeat(64),lockedAtUtc:'2026-11-30T20:00:00Z',version:3};
       await route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({data})});return;
     }
+    if(body.operationId==='getFinancePeriodReconciliations'){
+      const data={periodId:body.pathParams.periodId,periodStatus:'LOCKED',version:3,totalCount:1,blockingCount:0,closeReady:true,checkSnapshotHash:'b'.repeat(64),rawRecordsExposed:false,items:[{reconciliationId:'20202020-2020-4020-8020-202020202029',type:'ACCRUAL_TO_LEDGER',runNo:1,currency:'TRY',sourceTotal:'140.00000000',ledgerTotal:'140.00000000',differenceAmount:'0.00000000',status:'LOCKED',snapshotHash:'c'.repeat(64),createdAtUtc:'2026-11-30T19:00:00Z',correlationId:'21212121-2121-4121-8121-212121212129'}]};
+      await route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({data})});return;
+    }
     if(body.operationId==='getCurrentFranchiseContract'){
       const data={contractId:'20202020-2020-4020-8020-202020202020',contractCode:'OTOTR-FR-2026-001',status:'ACTIVE',version:2,activeVersion:{versionId:'21212121-2121-4121-8121-212121212121',versionNo:3,status:'ACTIVE',validFrom:'2026-11-01',validTo:null,currencyCode:'TRY',contentHash:'c'.repeat(64),version:1},pendingVersion:{versionId:'22222222-2222-4222-8222-222222222223',versionNo:4,status:'PENDING_APPROVAL',validFrom:'2027-01-01',validTo:null,currencyCode:'TRY',contentHash:'d'.repeat(64),version:1}};
       await route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({data})});return;
@@ -249,6 +253,8 @@ try {
   assert.match(await page.locator('[data-finance-period-detail]').innerText(),/aaaaaaaaaaaa/);
   assert.equal(await page.locator('[data-finance-period-command]').isVisible(),true);
   assert.deepEqual(await page.locator('[data-finance-period-command] select[name="operation"] option').allTextContents(),['Kapanış onayı iste','Kapanışı bağımsız onayla','Onaylı dönemi kilitle','Yeniden açma onayı iste','Yeniden açmayı bağımsız onayla']);
+  await page.waitForFunction(()=>document.querySelectorAll('[data-finance-period-reconciliations-body] tr').length===1);
+  assert.match(await page.locator('[data-finance-period-reconciliations]').innerText(),/ACCRUAL_TO_LEDGER/);assert.match(await page.locator('[data-finance-period-close-readiness]').innerText(),/HAZIR/);assert.equal(await page.locator('[data-finance-period-command] input[name="checkSnapshotHash"]').inputValue(),'b'.repeat(64));
   await page.click('[data-finance-screen="SCR-03"]');
   assert.equal(await page.locator('[data-finance-contract-workspace]').isVisible(),true);
   await page.click('[data-finance-contract-refresh]');
