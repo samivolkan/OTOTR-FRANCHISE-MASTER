@@ -9,6 +9,8 @@ create or replace function finance_private.current_dispute_submit_committer_is_t
 returns boolean language sql stable security definer set search_path='' as $$select true$$;
 create or replace function finance_private.current_dispute_decision_worker_is_trusted()
 returns boolean language sql stable security definer set search_path=pg_catalog as $$select true$$;
+create or replace function finance_private.current_dispute_evidence_request_committer_is_trusted()
+returns boolean language sql stable security definer set search_path=pg_catalog as $$select true$$;
 create or replace function finance_private.current_actor_can_read_scope(p_actor_id uuid,p_legal_entity_id uuid,p_dealer_account_id uuid,p_branch_id uuid,p_operation_id text)
 returns boolean language sql stable security definer set search_path=pg_catalog as $$select p_operation_id in('listDisputes','getDispute','getAccrualDetail')$$;
 
@@ -29,7 +31,7 @@ declare
   document_id constant uuid := '83000000-0000-4000-8000-000000000004';
   external_document_id constant uuid := '83000000-0000-4000-8000-000000000005';
   corr constant uuid := '93000000-0000-4000-8000-000000000001';
-  result jsonb; replay jsonb; dispute_id uuid; version_no bigint; correction_journal uuid; dispute_list jsonb; dispute_detail jsonb;
+  result jsonb; replay jsonb; dispute_id uuid; version_no bigint; correction_journal uuid; dispute_list jsonb; dispute_detail jsonb;evidence_requests jsonb;
   credit_count integer; credit_total numeric(24,8); correction_accrual uuid;
 begin
   insert into public.app_users(id,auth_user_id,branch_id,full_name,role,is_active) values
@@ -98,6 +100,13 @@ begin
   );
   if result->>'outcome'<>'SUBMITTED' then raise exception 'dispute submit failed: %',result; end if;
   version_no:=(result->>'version')::bigint;
+
+  result:=finance_api.commit_dispute_evidence_request(maker,dispute_id,'SERVICE_PROOF',repeat('6',64),'dispute-evidence-request-demo',repeat('7',64),corr);
+  if result->>'outcome'<>'CREATED' or result->>'status'<>'OPEN' then raise exception 'evidence request failed: %',result;end if;
+  evidence_requests:=finance_api.list_dispute_evidence_requests(hq,account,branch,dispute_id);
+  if jsonb_array_length(evidence_requests->'items')<>1 or evidence_requests#>>'{items,0,requestType}'<>'SERVICE_PROOF' or evidence_requests#>>'{items,0,status}'<>'OPEN' then raise exception 'evidence request read mismatch: %',evidence_requests;end if;
+  replay:=finance_api.commit_dispute_evidence_request(maker,dispute_id,'SERVICE_PROOF',repeat('6',64),'dispute-evidence-request-demo',repeat('7',64),corr);
+  if replay->>'outcome'<>'REPLAY' then raise exception 'evidence request replay failed: %',replay;end if;
 
   result:=finance_api.commit_dispute_review_decision(
     checker,dispute_id,'PARTIALLY_ACCEPTED',70,date '2026-11-06',version_no,'PARTIAL_SUPPORT',repeat('4',64),

@@ -18,6 +18,8 @@ const ports={
   commitDisputeSubmit:async value=>{commitInput=value;return {outcome:'SUBMITTED',disputeId,status:'SUBMITTED',version:2};},
   authorizeDisputeDecision:async()=>({allowed:true,...ids,status:'SUBMITTED',version:2,disputedAmount:'100.00',currencyCode:'TRY'}),
   commitDisputeDecision:async value=>{commitInput=value;return {outcome:'COMMITTED',disputeId,status:value.decision,version:3,correctionResourceIds:[]};},
+  authorizeDisputeEvidenceRequest:async()=>({allowed:true,...ids,status:'SUBMITTED',version:2}),
+  commitDisputeEvidenceRequest:async value=>{commitInput=value;return {outcome:'CREATED',requestId:jobId,requestNo:'EVR-20261103-001',status:'OPEN',version:1};},
   authorizeFeeRuleUpdate:async()=>({allowed:true,...ids,dealerLegalEntityId}),
   commitFeeRuleUpdate:async value=>({outcome:'UPDATED',resource:{feeRuleId:value.feeRuleId,version:value.expectedVersion+1}}),
   authorizeContractVersionSubmit:async()=>({allowed:true,...ids,dealerLegalEntityId,status:'DRAFT'}),
@@ -37,6 +39,7 @@ response=await handler(request(disputeSubmit));assert.equal(response.status,200)
 const disputeDecision={operationId:'decideDispute',scope:ids,command:{disputeId,decision:'PARTIALLY_ACCEPTED',acceptedAmount:'70.00',decisionDate:'2026-11-03',expectedVersion:2,reasonCode:'PARTIAL_SUPPORT',note:'Yetkili checker kanıtı inceledi.',idempotencyKey:'dispute:decision:001'}};
 response=await handler(request(disputeDecision));assert.equal(response.status,200);payload=await response.json();assert.equal(payload.data.outcome,'COMMITTED');assert.equal(commitInput.acceptedAmount,'70.00');assert.match(commitInput.noteHash,/^[a-f0-9]{64}$/);assert.doesNotMatch(JSON.stringify(commitInput),/checker kanıtı/);
 assert.equal((await handler(request({...disputeDecision,command:{...disputeDecision.command,decision:'REJECTED',acceptedAmount:'1.00'}}))).status,400);
+const evidenceRequest={operationId:'requestDisputeEvidence',scope:ids,command:{disputeId,requestType:'SERVICE_PROOF',message:'Hizmet teslim kanıtını ekleyin.',idempotencyKey:'dispute:evidence:001'}};response=await handler(request(evidenceRequest));assert.equal(response.status,200);payload=await response.json();assert.equal(payload.data.outcome,'CREATED');assert.match(commitInput.messageHash,/^[a-f0-9]{64}$/);assert.doesNotMatch(JSON.stringify(commitInput),/teslim kanıtını/i);
 const conflictHandler=createFinanceCommandHandler({allowedOrigins:[origin],correlationFactory:()=>correlationId,...ports,commitRetry:async()=>({outcome:'CONFLICT',errorId})});response=await conflictHandler(request());assert.equal(response.status,409);assert.equal((await response.json()).data.outcome,'CONFLICT');
 const deniedHandler=createFinanceCommandHandler({allowedOrigins:[origin],correlationFactory:()=>correlationId,...ports,authorizeRetry:async()=>({allowed:true,...ids,branchId:'88888888-8888-4888-8888-888888888888'})});response=await deniedHandler(request());assert.equal(response.status,403);assert.equal((await response.json()).error.code,'SCOPE_DENIED');
 assert.equal((await handler(request({...command,operationId:'rawRpc'}))).status,403);
