@@ -1,0 +1,9 @@
+# ERP Şube Finans Erişim Middleware Sözleşmesi
+
+ERP backend içindeki her şube operasyon rotası, işleyiciden önce `createBranchFinanceRouteGuard` ile sarılmalıdır. Bağlam `actorId`, `legalEntityId`, `dealerAccountId`, `branchId`, `capability` ve İstanbul iş tarihini içerir. Kapsam kullanıcı girdisinden değil, doğrulanmış ERP oturumu ve sunucu eşlemelerinden türetilir.
+
+Karar servisi yanıt vermediğinde, zaman aşımında veya sözleşme dışı yanıt verdiğinde middleware fail-closed davranır ve `ACCESS_DECISION_UNAVAILABLE` üretir. `LOCKED_OVERDUE` durumunda yalnız `PAYMENT`, `INVOICE_READ`, `STATEMENT_READ`, `SUPPORT` ve `LOGOUT` yetenekleri karar motoru tarafından açık bırakılır. Middleware bu listeyi kendi içinde tekrar tanımlamaz; sunucu kararını uygular.
+
+`SUPABASE_SERVICE_ROLE_KEY` veya servis erişim tokenı browser/mobil pakete konulamaz. Middleware yalnız ERP server/BFF katmanında çalışır. Her rota eşlemesi staging’de en az izin, ret, başka şube/IDOR, servis kesintisi ve ödeme istisnası senaryolarıyla doğrulanmalıdır.
+
+Referans uygulama entegrasyon kanıtıdır fakat mevcut statik ERP sayfalarını tek başına güvenli hale getirmez. FIN-G05 ancak gerçek ERP server rotaları bu guard ile sarılıp staging kanıtı üretildiğinde kapanır.
