@@ -14,6 +14,7 @@ $checks = @(
   'Test-FinanceExpenseIdentityBridgeE2E.ps1',
   'Test-FinanceDisputeAdjustmentE2E.ps1',
   'Test-FinancePaymentLifecycleE2E.ps1',
+  'Test-FinancePaymentIngestionWorker.ps1',
   'Test-FinanceBillingAccountingE2E.ps1',
   'Test-FinanceIntegrationErrorReadE2E.ps1',
   'Test-FinanceIntegrationRetryIdentityE2E.ps1',
