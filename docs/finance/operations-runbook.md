@@ -17,6 +17,8 @@ Bu doküman yerel ve pre-production tatbikatı içindir. Üretim ortamında çal
 
 Eşikler adaydır; staging ölçümü ve sahip onayı olmadan üretim SLO’su değildir.
 
+Staging performans kaydı `docs/finance/staging-performance-evidence.json` dosyasıdır. Hedef hacim, eşzamanlılık, istek sayısı, P95/P99, hata oranı ve timeout bütçesi Platform Lideri tarafından kanıtla onaylanmadan değerler tahmin edilmez. Dört iş yükünün tamamı için `Test-FinanceStagingPerformance.ps1 -RequirePassed` geçmeden FIN-G09 kapatılamaz.
+
 ## Olay akışı
 
 1. Alarmı alan görevli correlation ID, tüzel kişi, bayi/şube test kimliği ve UTC zamanı kaydeder; ham payload veya kişisel veri destek kaydına kopyalanmaz.
