@@ -16,13 +16,15 @@ begin
          fp.status period_status,cs.snapshot_hash,cs.rule_version_snapshot,
          cs.tax_version_snapshot,cs.result_snapshot,cfr.basis_definition,
          cfr.calculation_method,cfr.calculation_parameters,cfr.minimum_amount,
-         cfr.maximum_amount,cfr.price_includes_tax,cfr.rounding_mode,cfr.decimal_scale
+         cfr.maximum_amount,cfr.price_includes_tax,cfr.rounding_mode,cfr.decimal_scale,
+         oi.open_amount dispute_open_amount,oi.currency_code dispute_currency,oi.status open_item_status
     into v from finance.accruals a
     join finance.calculation_runs cr on cr.id=a.calculation_run_id
     join finance.calculation_snapshots cs on cs.calculation_run_id=cr.id
     join finance.contract_fee_rules cfr on cfr.id=cr.contract_fee_rule_id
     join finance.fee_definitions fd on fd.id=a.fee_definition_id
     join finance.finance_periods fp on fp.id=cr.finance_period_id
+    left join finance.open_items oi on oi.accrual_id=a.id and oi.item_type in('DEBIT','CREDIT')
    where a.id=p_accrual_id and a.legal_entity_id=p_legal_entity_id
      and a.dealer_account_id=p_dealer_account_id and a.branch_id=p_branch_id
      and cr.legal_entity_id=p_legal_entity_id and cr.branch_id=p_branch_id
@@ -58,6 +60,10 @@ begin
       'calculationRunId',v.calculation_run_id,'runType',v.run_type,
       'calculationStatus',v.calculation_status,'inputHash',v.input_hash,
       'resultHash',v.result_hash,'snapshotHash',v.snapshot_hash
+    ),
+    'dispute',jsonb_build_object(
+      'eligible',coalesce(v.dispute_open_amount>0 and v.open_item_status in('OPEN','PARTIALLY_ALLOCATED','DISPUTED'),false),
+      'maximumAmount',v.dispute_open_amount::text,'currency',v.dispute_currency,'openItemStatus',v.open_item_status
     ),
     'rawInputExposed',false
   );

@@ -129,6 +129,7 @@
   const accrualRule = root.querySelector('[data-finance-accrual-rule]');
   const accrualLines = root.querySelector('[data-finance-accrual-lines]');
   const accrualFee=root.querySelector('[data-finance-accrual-fee]'),accrualBasis=root.querySelector('[data-finance-accrual-basis]'),accrualMethod=root.querySelector('[data-finance-accrual-method]'),accrualParameters=root.querySelector('[data-finance-accrual-parameters]'),accrualTax=root.querySelector('[data-finance-accrual-tax]'),accrualTaxPolicy=root.querySelector('[data-finance-accrual-tax-policy]'),accrualRounding=root.querySelector('[data-finance-accrual-rounding]'),accrualPeriod=root.querySelector('[data-finance-accrual-period]'),accrualProvenance=root.querySelector('[data-finance-accrual-provenance]');
+  const accrualRuleOpen=root.querySelector('[data-finance-accrual-rule-open]'),accrualSourceOpen=root.querySelector('[data-finance-accrual-source-open]'),accrualExplanationDownload=root.querySelector('[data-finance-accrual-explanation-download]'),accrualDispute=root.querySelector('[data-finance-accrual-dispute]');let selectedAccrualDetail=null;
   const refundDetail = root.querySelector('[data-finance-refund-detail]');
   const refundCloseButton = root.querySelector('[data-finance-refund-close]');
   const refundState = root.querySelector('[data-finance-refund-state]');
@@ -532,6 +533,7 @@
     accrualContent.hidden = next !== 'READY';
   };
   const resetAccrual = () => {
+    selectedAccrualDetail=null;
     accrualDetail.dataset.state = 'EMPTY';
     accrualDetail.hidden = activeScreenId !== 'SCR-06';
     accrualState.hidden = false;
@@ -546,7 +548,7 @@
     const amounts = calculation?.amounts;
     const lines = journal?.lines;
     const trace=payload?.calculationTrace;
-    if (!uuidPattern.test(payload?.accrualId || '') || typeof payload.status !== 'string' || !amounts || typeof amounts.grossAmount !== 'string' || !/^[A-Z]{3}$/.test(amounts.currency || '') || !journal || !uuidPattern.test(journal.journalEntryId || '') || journal.currency !== amounts.currency || !Array.isArray(lines) || lines.length < 2||!trace||trace.rawInputExposed!==false||!trace.fee||!trace.basis||!trace.calculation||!trace.tax||!trace.rounding||!trace.period||!trace.provenance) throw new Error('INVALID_FINANCE_ACCRUAL');
+    if (!uuidPattern.test(payload?.accrualId || '') || typeof payload.status !== 'string' || !amounts || typeof amounts.grossAmount !== 'string' || !/^[A-Z]{3}$/.test(amounts.currency || '') || !journal || !uuidPattern.test(journal.journalEntryId || '') || journal.currency !== amounts.currency || !Array.isArray(lines) || lines.length < 2||!trace||trace.rawInputExposed!==false||!trace.fee||!trace.basis||!trace.calculation||!trace.tax||!trace.rounding||!trace.period||!trace.provenance||!trace.dispute) throw new Error('INVALID_FINANCE_ACCRUAL');
     const rows = lines.map(line => {
       if (!line || typeof line.accountCode !== 'string' || !['DEBIT','CREDIT'].includes(line.direction) || typeof line.amount !== 'string') throw new Error('INVALID_FINANCE_JOURNAL_LINE');
       const tr=document.createElement('tr'); tr.append(cell(line.accountCode),cell(line.direction === 'DEBIT' ? 'Borç' : 'Alacak'),cell(amount(line.amount,journal.currency)),cell(line.description || line.accountCode)); return tr;
@@ -563,9 +565,14 @@
     accrualTax.textContent=trace.tax.rate==null?'KDV oranı yok':`%${trace.tax.rate}`;accrualTaxPolicy.textContent=trace.tax.priceIncludesTax?'KDV dahil matrah':'KDV hariç matrah';
     accrualRounding.textContent=[trace.rounding.mode,trace.rounding.decimalScale!=null?`${trace.rounding.decimalScale} hane`:null,trace.rounding.currency].filter(Boolean).join(' · ')||'Yuvarlama belirtilmedi';accrualPeriod.textContent=`${trace.period.status} · ${trace.period.businessDate}`;
     const short=value=>typeof value==='string'&&value.length>20?`${value.slice(0,12)}…${value.slice(-8)}`:value||'—';accrualProvenance.replaceChildren(...[`Hesaplama: ${trace.provenance.calculationRunId}`,`Girdi hash: ${short(trace.provenance.inputHash)}`,`Sonuç hash: ${short(trace.provenance.resultHash)}`,`Snapshot hash: ${short(trace.provenance.snapshotHash)}`].map(value=>{const span=document.createElement('span');span.textContent=value;return span;}));
+    selectedAccrualDetail=payload;accrualRuleOpen.disabled=!uuidPattern.test(payload.contractVersionId||'')||!uuidPattern.test(payload.feeRuleId||'');accrualSourceOpen.disabled=!uuidPattern.test(journal.trace?.correlationId||'');accrualDispute.disabled=trace.dispute.eligible!==true||!/^\d+(\.\d{1,8})?$/.test(trace.dispute.maximumAmount||'')||!/^([A-Z]{3})$/.test(trace.dispute.currency||'');accrualDispute.textContent=accrualDispute.disabled?'İtiraz Edilebilir Açık Tutar Yok':'Bu Tahakkuka İtiraz Et';
     accrualLines.replaceChildren(...rows);
     setAccrualState('READY');
   };
+  accrualRuleOpen.addEventListener('click',()=>{if(!selectedAccrualDetail||accrualRuleOpen.disabled)return;selectScreen(screens.find(screen=>screen[0]==='SCR-04'));window.dispatchEvent(new CustomEvent('ototr:finance-contract-rule-requested',{detail:{contractVersionId:selectedAccrualDetail.contractVersionId,feeRuleId:selectedAccrualDetail.feeRuleId}}));});
+  accrualSourceOpen.addEventListener('click',()=>{const correlationId=selectedAccrualDetail?.journalEntry?.trace?.correlationId;if(!uuidPattern.test(correlationId||'')||accrualSourceOpen.disabled)return;selectScreen(screens.find(screen=>screen[0]==='SCR-16'));window.dispatchEvent(new CustomEvent('ototr:finance-audit-trace-requested',{detail:{correlationId}}));});
+  accrualDispute.addEventListener('click',()=>{const dispute=selectedAccrualDetail?.calculationTrace?.dispute;if(!selectedAccrualDetail||accrualDispute.disabled||dispute?.eligible!==true)return;selectScreen(screens.find(screen=>screen[0]==='SCR-11'));window.dispatchEvent(new CustomEvent('ototr:finance-dispute-create-requested',{detail:{targetRecordType:'ACCRUAL',targetRecordId:selectedAccrualDetail.accrualId,maximumAmount:dispute.maximumAmount,currencyCode:dispute.currency}}));});
+  accrualExplanationDownload.addEventListener('click',()=>{if(!selectedAccrualDetail)return;const payload={schemaVersion:1,documentType:'OTOTR_FINANCE_CALCULATION_EXPLANATION',generatedAtUtc:new Date().toISOString(),accrualId:selectedAccrualDetail.accrualId,contractVersionId:selectedAccrualDetail.contractVersionId,feeRuleId:selectedAccrualDetail.feeRuleId,status:selectedAccrualDetail.status,calculationTrace:selectedAccrualDetail.calculationTrace,journalEntry:{journalEntryId:selectedAccrualDetail.journalEntry.journalEntryId,entryNumber:selectedAccrualDetail.journalEntry.entryNumber,postingDate:selectedAccrualDetail.journalEntry.postingDate,currency:selectedAccrualDetail.journalEntry.currency,source:selectedAccrualDetail.journalEntry.source,trace:selectedAccrualDetail.journalEntry.trace,lines:selectedAccrualDetail.journalEntry.lines},rawInputExposed:false};const href=URL.createObjectURL(new Blob([JSON.stringify(payload,null,2)],{type:'application/json'})),anchor=document.createElement('a');anchor.href=href;anchor.download=`ototr-finans-hesaplama-${selectedAccrualDetail.accrualId}.json`;anchor.click();setTimeout(()=>URL.revokeObjectURL(href),0);});
   const setRefundState = (next,message) => {
     if (!['EMPTY','LOADING','READY','ERROR'].includes(next)) throw new Error('INVALID_FINANCE_REFUND_STATE');
     refundDetail.hidden=false; refundDetail.dataset.state=next; refundState.hidden=next==='READY'; refundContent.hidden=next!=='READY';

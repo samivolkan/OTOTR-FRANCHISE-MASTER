@@ -212,6 +212,8 @@ begin
      or v_calculation_trace#>>'{calculation,method}'<>'PERCENTAGE'
      or v_calculation_trace#>>'{calculation,parameters,rate}'<>'0.10'
      or v_calculation_trace#>>'{tax,rate}'<>'0.20000000'
+     or v_calculation_trace#>>'{dispute,maximumAmount}'<>'118.00000000'
+     or not (v_calculation_trace#>>'{dispute,eligible}')::boolean
      or (v_calculation_trace->>'rawInputExposed')::boolean then
     raise exception 'safe calculation trace mismatch: %',v_calculation_trace;
   end if;
