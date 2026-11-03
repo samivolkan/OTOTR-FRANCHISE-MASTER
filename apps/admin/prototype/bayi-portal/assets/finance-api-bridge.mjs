@@ -17,6 +17,7 @@ const DISPUTES_OPERATION='listDisputes';
 const DISPUTE_OPERATION='getDispute';
 const STATEMENT_OPERATION = 'getDealerStatement';
 const STATEMENT_CONTROL_OPERATION = 'getDealerStatementControl';
+const STATEMENT_EXPORT_OPERATION = 'exportDealerStatement';
 const PAYMENTS_OPERATION = 'listPayments';
 const PAYMENT_OPERATION = 'getPayment';
 const ACCRUAL_OPERATION = 'getAccrualDetail';
@@ -141,6 +142,12 @@ export function createFinanceSummaryClient({getConfig, getAccessToken, fetchImpl
       if (!/^[A-Z]{3}$/.test(currency)) throw new FinanceBridgeError('VALIDATION_ERROR', 'Para birimi geçersiz.');
       return execute(rawScope, STATEMENT_CONTROL_OPERATION, {from,to,currency});
     },
+    async exportDealerStatement(rawScope,{from,to,currency='TRY',status,limit=10000}={}) {
+      for(const [field,value] of [['from',from],['to',to]])if(!/^\d{4}-\d{2}-\d{2}$/.test(value||''))throw new FinanceBridgeError('VALIDATION_ERROR',`${field} YYYY-MM-DD biçiminde olmalıdır.`);
+      if(from>to||!/^[A-Z]{3}$/.test(currency)||!Number.isInteger(limit)||limit<1||limit>10000)throw new FinanceBridgeError('VALIDATION_ERROR','Ekstre export filtresi geçersiz.');
+      if(status!==undefined&&!['OPEN','PARTIALLY_ALLOCATED','CLOSED','DISPUTED','REVERSED'].includes(status))throw new FinanceBridgeError('VALIDATION_ERROR','Ekstre durumu geçersiz.');
+      return execute(rawScope,STATEMENT_EXPORT_OPERATION,{from,to,currency,status,limit});
+    },
     async getPayment(rawScope, paymentId) {
       const normalizedPaymentId = requiredUuid(paymentId, 'paymentId', 'VALIDATION_ERROR');
       return execute(rawScope, PAYMENT_OPERATION, {}, {paymentId:normalizedPaymentId});
@@ -263,6 +270,7 @@ if (auth && ui) {
       if (!scope) throw new FinanceBridgeError('FINANCE_SCOPE_UNAVAILABLE', 'ERP finans kapsamı henüz sağlanmadı.');
       return client.getDealerStatementControl(scope, options);
     },
+    async requestDealerStatementExport(options={}) {const scope=configuredScope||refreshContext();if(!scope)throw new FinanceBridgeError('FINANCE_SCOPE_UNAVAILABLE','ERP finans kapsamı henüz sağlanmadı.');return client.exportDealerStatement(scope,options);},
     async getHeadquartersFinanceSummary(options={}) {
       const scope=configuredScope||refreshContext();
       if(!scope) throw new FinanceBridgeError('FINANCE_SCOPE_UNAVAILABLE','ERP finans kapsamı henüz sağlanmadı.');
@@ -432,12 +440,14 @@ if (auth && ui) {
         throw error;
       }
     },
+    async exportDealerStatement(){ui.setStatementState?.('LOADING','Yetkili ekstre dışa aktarımı hazırlanıyor…');try{const result=await api.requestDealerStatementExport({...ui.getStatementFilters?.(),limit:10000});ui.downloadStatementExport?.(result.data);ui.setStatementState?.('READY',`${result.data.rowCount} ekstre kaydı CSV olarak hazırlandı.`);return result;}catch(error){ui.setStatementState?.('ERROR',error instanceof FinanceBridgeError?error.message:'Ekstre dışa aktarımı hazırlanamadı.');throw error;}},
   };
   globalThis.OTOTRFinance = Object.freeze(api);
   refreshContext();
   ui.connectButton?.addEventListener('click', () => { void api.connectConfiguredScope().catch(() => {}); });
   ui.statementRefreshButton?.addEventListener('click', () => { void api.loadDealerStatement().catch(() => {}); });
   ui.statementMoreButton?.addEventListener('click', () => { void api.loadDealerStatement({append:true}).catch(() => {}); });
+  ui.statementExportButton?.addEventListener('click',()=>{void api.exportDealerStatement().catch(()=>{});});
   ui.statementStatus?.addEventListener('change', () => { ui.resetStatement?.('Filtre değişti. Güncel ekstreyi getirin.'); });
   ui.paymentsRefreshButton?.addEventListener('click', () => { void api.loadPayments().catch(() => {}); });
   ui.paymentsMoreButton?.addEventListener('click', () => { void api.loadPayments({append:true}).catch(() => {}); });

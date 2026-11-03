@@ -8,7 +8,8 @@ returns boolean language sql stable security definer set search_path='' as $$sel
 create or replace function finance_private.current_actor_can_read_scope(
   p_actor_id uuid,p_legal_entity_id uuid,p_dealer_account_id uuid,p_branch_id uuid,p_operation_id text
 ) returns boolean language sql stable security definer set search_path=pg_catalog as $$
-  select p_operation_id in ('getDealerFinanceSummary','getDealerStatement','listPayments')
+  select p_operation_id in ('getDealerFinanceSummary','getDealerStatement','getDealerStatementControl','exportDealerStatement','listPayments')
+    and p_branch_id='38000000-0000-4000-8000-000000000001'::uuid
 $$;
 create or replace function finance_private.current_actor_can_read_headquarters(
   p_actor_id uuid,p_legal_entity_id uuid,p_operation_id text
@@ -41,7 +42,7 @@ declare
   allocation_id constant uuid := '88000000-0000-4000-8000-000000000008';
   payment_id_2 constant uuid := '88000000-0000-4000-8000-000000000009';
   corr constant uuid := '98000000-0000-4000-8000-000000000001';
-  totals jsonb; result jsonb; replay jsonb; page_1 jsonb; page_2 jsonb; filtered jsonb; hq_result jsonb;
+  totals jsonb; result jsonb; replay jsonb; page_1 jsonb; page_2 jsonb; filtered jsonb; hq_result jsonb; control_result jsonb; export_result jsonb;
   cursor_value text; denied boolean:=false;
 begin
   insert into finance.legal_entities(id,entity_code,legal_name,status,created_by,correlation_id)
@@ -186,6 +187,14 @@ begin
   if jsonb_array_length(filtered->'items')<>1 or filtered#>>'{items,0,openAmount}'<>'180.00000000' then
     raise exception 'statement status filter mismatch: %',filtered;
   end if;
+  control_result:=finance_api.get_dealer_statement_control(hq,account_a,branch_a,date '2026-11-01',date '2026-11-30','TRY');
+  if control_result->>'historicalReconstruction'<>'true' or control_result->>'rawRecordsExposed'<>'false' or control_result->>'closingBalance'<>'260.00000000' then
+    raise exception 'statement control mismatch: %',control_result;
+  end if;
+  export_result:=finance_api.export_dealer_statement(hq,account_a,branch_a,date '2026-11-01',date '2026-11-30','TRY',null,10000);
+  if export_result->>'documentType'<>'OTOTR_FINANCE_DEALER_STATEMENT_EXPORT' or export_result->>'rowCount'<>'2' or export_result->>'truncated'<>'false' or export_result->>'rawRecordsExposed'<>'false' then
+    raise exception 'statement export mismatch: %',export_result;
+  end if;
 
   page_1:=finance_api.list_payments(hq,account_a,branch_a,date '2026-11-01',date '2026-11-30',null,null,1);
   if (page_1->>'hasMore')::boolean is distinct from true or jsonb_array_length(page_1->'items')<>1
@@ -210,6 +219,13 @@ begin
   exception when insufficient_privilege then denied:=true;
   end;
   if not denied then raise exception 'cross-dealer branch read was not denied'; end if;
+
+  denied:=false;
+  begin
+    perform finance_api.export_dealer_statement(hq,account_a,branch_b,date '2026-11-01',date '2026-11-30','TRY',null,10000);
+  exception when insufficient_privilege then denied:=true;
+  end;
+  if not denied then raise exception 'cross-dealer statement export was not denied'; end if;
 
   denied:=false;
   begin

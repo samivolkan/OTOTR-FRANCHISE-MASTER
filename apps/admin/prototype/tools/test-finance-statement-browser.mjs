@@ -112,6 +112,10 @@ try {
       const data={from:body.query.from,to:body.query.to,currency:body.query.currency,openingBalance:'100.00000000',periodDebits:'120.00000000',periodCredits:'0.00000000',periodAllocations:'20.00000000',allocationReversals:'0.00000000',closingBalance:'200.00000000',aging:{current:'50.00000000',days1To30:'150.00000000',days31To60:'0.00000000',days61To90:'0.00000000',days91Plus:'0.00000000'},historicalReconstruction:true,rawRecordsExposed:false};
       await route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({data})});return;
     }
+    if(body.operationId==='exportDealerStatement'){
+      const data={schemaVersion:1,documentType:'OTOTR_FINANCE_DEALER_STATEMENT_EXPORT',generatedAtUtc:'2026-11-03T10:00:00Z',scope,filters:{from:body.query.from,to:body.query.to,currency:body.query.currency,status:body.query.status||null},rowCount:1,totalMatchingCount:1,truncated:false,rawRecordsExposed:false,items:[{recordId:'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',recordType:'ACCRUAL',businessDate:'2026-11-03',dueDate:'2026-11-10',feeCode:'ROYALTY',sourceReference:'=FORMULA',netAmount:'100.00000000',taxAmount:'20.00000000',grossAmount:'120.00000000',allocatedAmount:'20.00000000',openAmount:'100.00000000',currency:'TRY',status:'OPEN'}]};
+      await route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({data})});return;
+    }
     if(body.operationId==='listRoyaltyRefunds'){
       const refund=(id,refundId,amount)=>({reversalAccrualId:id,refundId,refundBusinessDate:'2026-11-03',originalCollectionId:'13131313-1313-4313-8313-131313131313',refundedGrossAmount:amount,originalRoyaltyAccrualId:'14141414-1414-4414-8414-141414141414',originalRoyaltyAmount:'118.00000000',royaltyReversalAmount:'59.00000000',currency:'TRY',status:'POSTED',originalPeriodId:'16161616-1616-4616-8616-161616161616',postingPeriodId:'17171717-1717-4717-8717-171717171717'});
       const data=body.query.cursor?{items:[refund('26262626-2626-4626-8626-262626262626','27272727-2727-4727-8727-272727272727','100.00000000')],nextCursor:null,hasMore:false}:{items:[refund('bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb','12121212-1212-4212-8212-121212121212','590.00000000')],nextCursor:'refund-page-2',hasMore:true};
@@ -553,6 +557,7 @@ try {
   assert.equal(statementRequest.scope.branchId, scope.branchId);
   assert.match(await page.locator('[data-finance-statement-control]').innerText(),/100,00000000 TRY/);
   assert.match(await page.locator('[data-finance-statement-aging]').innerText(),/150,00000000 TRY/);
+  const statementDownloadPromise=page.waitForEvent('download');await page.click('[data-finance-statement-export]');const statementDownload=await statementDownloadPromise;assert.match(statementDownload.suggestedFilename(),/^ototr-bayi-ekstresi-/);const statementStream=await statementDownload.createReadStream();let statementCsv='';for await(const chunk of statementStream)statementCsv+=chunk.toString('utf8');assert.match(statementCsv,/ROYALTY/);assert.match(statementCsv,/"'=FORMULA"/);assert.equal(requests.at(-1).operationId,'exportDealerStatement');
 
   await page.selectOption('[data-finance-statement-status]', 'REVERSED');
   await page.click('[data-finance-statement-refresh]');
