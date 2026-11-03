@@ -90,6 +90,7 @@ begin
   result:=finance_private.get_royalty_credit_carry_forward_projection(credit_item);
   if result->>'originalCreditAmount'<>'180.00000000' or result->>'appliedAmount'<>'180.00000000'
      or result->>'remainingCreditAmount'<>'0.00000000' or result->>'status'<>'CLOSED'
+     or result->>'cashPayoutDecision'<>'PENDING_DECISION'
      or pg_catalog.jsonb_array_length(result->'applications')<>2
      or result#>>'{applications,1,billingBatchId}'<>batch::text
      or result->>'rawAccountingDataExposed'<>'false' then raise exception 'credit carry-forward read projection mismatch: %',result;end if;

@@ -23,7 +23,7 @@ language sql stable security definer set search_path='' as $$
       from finance.royalty_credit_applications a
       where a.credit_open_item_id=oi.id
     ),'[]'::jsonb),
-    'cashPayoutConfigured',false,
+    'cashPayoutDecision','PENDING_DECISION',
     'rawAccountingDataExposed',false
   )
   from finance.open_items oi
