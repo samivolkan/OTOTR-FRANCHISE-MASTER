@@ -178,6 +178,9 @@ begin
   if result#>>'{payment,status}'<>'VERIFIED'
      or result#>>'{unallocatedAmount,amount}'<>'100.00000000'
      or jsonb_array_length(result->'allocations')<>2
+     or exists(select 1 from jsonb_array_elements(result->'allocations') x where (x->>'allocationVersion')::bigint<1 or (x->>'openItemVersion')::bigint<1)
+     or jsonb_array_length(result->'allocatableOpenItems')<>1
+     or result#>>'{allocatableOpenItems,0,version}'<>'3'
      or jsonb_array_length(result#>'{payment,documents}')<>1 then
     raise exception 'payment read projection mismatch: %',result;
   end if;

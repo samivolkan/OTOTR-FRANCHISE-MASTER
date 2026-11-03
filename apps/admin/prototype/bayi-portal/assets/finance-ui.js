@@ -520,6 +520,7 @@
     paymentAllocations.replaceChildren(...rows);
     if (!rows.length) { const tr=document.createElement('tr'); const td=cell('Henüz tahsis yok'); td.colSpan=4; tr.appendChild(td); paymentAllocations.appendChild(tr); }
     setPaymentState('READY');
+    window.dispatchEvent(new CustomEvent('ototr:finance-payment-rendered',{detail:payload}));
   };
   const setAccrualState = (next, message) => {
     if (!['EMPTY','LOADING','READY','ERROR'].includes(next)) throw new Error('INVALID_FINANCE_ACCRUAL_STATE');
