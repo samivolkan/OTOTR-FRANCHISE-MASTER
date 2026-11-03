@@ -80,6 +80,10 @@ try {
         : {items:[rule('23232323-2323-4323-8323-232323232323','ROYALTY','ROYALTY','PERCENTAGE','0.10',true),rule('24242424-2424-4424-8424-242424242424','ENTRY_FRANCHISE','ENTRY_FRANCHISE','FIXED','1000.00',false)],nextCursor:'24242424-2424-4424-8424-242424242424',hasMore:true};
       await route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({data})});return;
     }
+    if(body.operationId==='getContractFeeRule'){
+      const data={feeRuleId:body.pathParams.feeRuleId,feeDefinitionId:'32323232-2323-4323-8323-232323232323',feeDefinitionCode:'ROYALTY',feeDefinitionVersion:1,contractVersionId:body.pathParams.contractVersionId,version:1,code:'RULE-ROYALTY',name:'ROYALTY Bedeli',category:'ROYALTY',status:'ACTIVE',configurationStatus:'CONFIGURED',priority:100,validity:{validFrom:'2026-11-01',validTo:null},trigger:{eventType:'payment.settled',conditions:[]},basis:{kind:'COLLECTED_GROSS'},calculation:{method:'PERCENTAGE',rate:'0.10',currency:'TRY',decimalScale:2,roundingMode:'HALF_UP'},tax:{taxCodeVersionId:'27272727-2727-4727-8727-272727272727',priceIncludesTax:true},due:{type:'IMMEDIATE'},cancellationPolicy:{type:'PROPORTIONAL_REVERSAL'},exceptions:[{exceptionId:'26262626-2626-4626-8626-262626262627',exceptionCode:'FIRST_MONTH_EXEMPTION',scopeType:'BRANCH',conditionType:'CONTRACT_AGE',overrideType:'RATE_OVERRIDE',priority:200,effectiveFrom:'2026-11-01',effectiveTo:null,status:'ACTIVE',version:1}],exceptionCount:1,createdAtUtc:'2026-11-01T09:00:00Z'};
+      await route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({data})});return;
+    }
     if(body.operationId==='listPayments'){
       const data=body.query.cursor==='payment-page-2'
         ? {items:[paymentItem('56565656-5656-4656-8656-565656565656','VERIFIED','50.00000000','50.00000000','0','50.00000000')],nextCursor:null,hasMore:false}
@@ -228,6 +232,8 @@ try {
   assert.match(await page.locator('[data-finance-contract-rules-body]').innerText(),/Evet/);
   assert.equal(requests.at(-1).operationId,'listContractFeeRules');
   await page.click('[data-finance-contract-rule-id="23232323-2323-4323-8323-232323232323"]');
+  await page.waitForFunction(()=>window.OTOTRFinance&&document.querySelector('[data-finance-contract-rule-detail-content]')?.hidden===false);
+  assert.equal(requests.at(-1).operationId,'getContractFeeRule');
   assert.equal(await page.locator('[data-finance-contract-rule-detail]').isVisible(),true);
   assert.match(await page.locator('[data-finance-contract-rule-detail]').innerText(),/ROYALTY · ROYALTY Bedeli/);
   assert.match(await page.locator('[data-finance-contract-rule-detail]').innerText(),/payment\.settled/);

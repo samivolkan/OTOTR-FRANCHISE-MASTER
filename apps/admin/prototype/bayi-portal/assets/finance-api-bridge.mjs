@@ -24,6 +24,7 @@ const REFUND_TRACE_OPERATION = 'getRoyaltyRefundTrace';
 const PERIOD_OPERATION = 'getFinancePeriod';
 const CURRENT_CONTRACT_OPERATION = 'getCurrentFranchiseContract';
 const CONTRACT_RULES_OPERATION = 'listContractFeeRules';
+const CONTRACT_RULE_OPERATION = 'getContractFeeRule';
 
 export class FinanceBridgeError extends Error {
   constructor(code, message, status = 0) {
@@ -171,12 +172,16 @@ export function createFinanceSummaryClient({getConfig, getAccessToken, fetchImpl
       if(cursor!==undefined) requiredUuid(cursor,'cursor','VALIDATION_ERROR');
       if(limit!==undefined&&(!Number.isInteger(limit)||limit<1||limit>200)) throw new FinanceBridgeError('VALIDATION_ERROR','Kural limit değeri 1–200 arasında olmalıdır.');
       return execute(rawScope,CONTRACT_RULES_OPERATION,{status,cursor,limit},{contractVersionId:normalizedVersionId},true);
+    },
+    async getContractFeeRule(rawScope,contractVersionId,feeRuleId){
+      return execute(rawScope,CONTRACT_RULE_OPERATION,{},{contractVersionId:requiredUuid(contractVersionId,'contractVersionId','VALIDATION_ERROR'),feeRuleId:requiredUuid(feeRuleId,'feeRuleId','VALIDATION_ERROR')},true);
     }
   });
 }
 
 const auth = globalThis.OTOTRDealerFinanceAuth;
 const ui = globalThis.OTOTRFinanceUI;
+const ruleDetailUi=globalThis.OTOTRFinanceRuleDetailUI;
 const operationalUi=globalThis.OTOTRFinanceOperationalUI;
 if (auth && ui) {
   const client = createFinanceSummaryClient({getConfig: () => auth.getConfig(), getAccessToken: () => auth.getAccessToken()});
@@ -287,6 +292,8 @@ if (auth && ui) {
       if(!scope) throw new FinanceBridgeError('FINANCE_SCOPE_UNAVAILABLE','ERP finans kapsamı henüz sağlanmadı.');
       return client.listContractFeeRules(scope,contractVersionId,options);
     },
+    async getContractFeeRule(contractVersionId,feeRuleId){const scope=configuredScope||refreshContext();if(!scope)throw new FinanceBridgeError('FINANCE_SCOPE_UNAVAILABLE','ERP finans kapsamı henüz sağlanmadı.');return client.getContractFeeRule(scope,contractVersionId,feeRuleId);},
+    async loadContractFeeRule(contractVersionId,feeRuleId){ruleDetailUi?.setContractRuleDetailState?.('LOADING');try{const result=await api.getContractFeeRule(contractVersionId,feeRuleId);const detail=result.data?{...result.data,feeCode:result.data.code,ruleCode:result.data.code,triggerEventType:result.data.trigger?.eventType,calculation:result.data.calculation?{...result.data.calculation,priceIncludesTax:result.data.tax?.priceIncludesTax}:null}:null;ruleDetailUi?.renderContractRuleDetail?.(detail);return result;}catch(error){ruleDetailUi?.setContractRuleDetailState?.('ERROR',error instanceof FinanceBridgeError?error.message:'Kural detayı alınamadı.');throw error;}},
     async loadContractWorkspace({append=false}={}) {
       try {
         if(!append){
@@ -430,4 +437,5 @@ if (auth && ui) {
   globalThis.addEventListener?.('ototr:finance-integration-error-requested',event=>{void api.loadIntegrationErrorDetail(event.detail?.errorId).catch(()=>{});});
   globalThis.addEventListener?.('ototr:finance-approval-requested',event=>{void api.loadApprovalWorkItem(event.detail?.requestId).catch(()=>{});});
   globalThis.addEventListener?.('ototr:finance-audit-trace-requested',event=>{void api.loadAuditCorrelationTrace(event.detail?.correlationId).catch(()=>{});});
+  globalThis.addEventListener?.('ototr:finance-contract-rule-requested',event=>{void api.loadContractFeeRule(event.detail?.contractVersionId,event.detail?.feeRuleId).catch(()=>{});});
 }

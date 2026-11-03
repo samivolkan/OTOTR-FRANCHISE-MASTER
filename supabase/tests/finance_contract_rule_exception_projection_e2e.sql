@@ -6,12 +6,12 @@ set local request.jwt.claim.sub = '00000000-0000-4000-8000-000000000092';
 create or replace function finance_private.current_actor_can_read_scope(
   p_actor_id uuid,p_legal_entity_id uuid,p_dealer_account_id uuid,p_branch_id uuid,p_operation_id text
 ) returns boolean language sql stable security definer set search_path=pg_catalog as $$
-  select p_operation_id='listContractFeeRules'
+  select p_operation_id in('listContractFeeRules','getContractFeeRule')
 $$;
 create or replace function finance_api.authorize_scope(
   p_legal_entity_id uuid,p_dealer_account_id uuid,p_branch_id uuid,p_operation_id text
 ) returns boolean language sql stable security definer set search_path=pg_catalog as $$
-  select p_operation_id='listContractFeeRules'
+  select p_operation_id in('listContractFeeRules','getContractFeeRule')
 $$;
 
 do $test$
@@ -28,7 +28,7 @@ declare
   rule_id constant uuid := '89000000-0000-4000-8000-000000000001';
   exception_id constant uuid := '99000000-0000-4000-8000-000000000001';
   corr constant uuid := '99000000-0000-4000-8000-000000000002';
-  result jsonb; denied_result jsonb;
+  result jsonb;detail jsonb;denied_result jsonb;
 begin
   if auth.uid() is distinct from reader then raise exception 'synthetic auth context mismatch: %',auth.uid();end if;
   if not finance_private.current_actor_can_read_scope(reader,hq,account,branch,'listContractFeeRules') then raise exception 'synthetic scope hook mismatch';end if;
@@ -62,6 +62,9 @@ begin
   if result::text like '%must-not-leak%' or result::text like '%branchSecret%' or result::text like '%privateNote%' or result::text like '%"rate"%' then
     raise exception 'raw exception definition leaked: %',result;
   end if;
+  detail:=finance_api.get_contract_fee_rule_projection(hq,account,branch,contract_version,rule_id);
+  if detail->>'feeRuleId'<>rule_id::text or detail->>'exceptionCount'<>'1' or detail#>>'{exceptions,0,exceptionCode}'<>'FIRST_MONTH_EXEMPTION' then raise exception 'rule detail projection mismatch: %',detail;end if;
+  if detail::text like '%must-not-leak%' or detail::text like '%branchSecret%' or detail::text like '%privateNote%' or detail::text like '%"rate"%' then raise exception 'raw exception detail leaked: %',detail;end if;
   denied_result:=finance_api.list_contract_fee_rules(hq,'49000000-0000-4000-8000-000000000099'::uuid,branch,contract_version,null,null,25);
   if denied_result is not null then raise exception 'cross-account contract projection was not isolated: %',denied_result;end if;
 end $test$;
