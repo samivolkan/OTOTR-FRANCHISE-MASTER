@@ -467,6 +467,8 @@ if (auth && ui) {
   globalThis.addEventListener?.('ototr:finance-audit-trace-requested',event=>{void api.loadAuditCorrelationTrace(event.detail?.correlationId).catch(()=>{});});
   globalThis.addEventListener?.('ototr:finance-contract-rule-requested',event=>{void api.loadContractFeeRule(event.detail?.contractVersionId,event.detail?.feeRuleId).catch(()=>{});});
   globalThis.addEventListener?.('ototr:finance-contract-lifecycle-completed',()=>{void api.loadContractWorkspace().catch(()=>{});void api.loadApprovalWorkItems().catch(()=>{});});
+  globalThis.addEventListener?.('ototr:finance-period-refresh-requested',()=>{void api.getCurrentFinancePeriod({asOf:connectedAsOf}).then(result=>ui.renderCurrentPeriod?.(result.data)).catch(()=>{});});
+  globalThis.addEventListener?.('ototr:finance-approvals-refresh-requested',()=>{void api.loadApprovalWorkItems().catch(()=>{});});
   comparisonUi?.contractImpactForm?.addEventListener('submit',event=>{event.preventDefault();if(!contractImpactVersionPair)return;comparisonUi.setContractImpactState?.('LOADING');void api.simulateContractVersionImpact(contractImpactVersionPair.activeVersionId,contractImpactVersionPair.candidateVersionId,comparisonUi.getContractImpactScenario?.()).then(result=>comparisonUi.renderContractImpactSimulation?.(result.data)).catch(error=>comparisonUi.setContractImpactState?.('ERROR',error instanceof FinanceBridgeError?error.message:'Parasal etki simülasyonu tamamlanamadı.'));});
   timelineUi?.contractTimelineMore?.addEventListener('click',()=>{if(currentContractId)void api.loadContractTimeline(currentContractId,{append:true}).catch(()=>{});});
 }

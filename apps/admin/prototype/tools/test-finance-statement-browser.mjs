@@ -247,6 +247,8 @@ try {
   assert.match(await page.locator('[data-finance-period-detail]').innerText(),/LOCKED/);
   assert.match(await page.locator('[data-finance-period-detail]').innerText(),/v3/);
   assert.match(await page.locator('[data-finance-period-detail]').innerText(),/aaaaaaaaaaaa/);
+  assert.equal(await page.locator('[data-finance-period-command]').isVisible(),true);
+  assert.deepEqual(await page.locator('[data-finance-period-command] select[name="operation"] option').allTextContents(),['Kapanış onayı iste','Kapanışı bağımsız onayla','Onaylı dönemi kilitle','Yeniden açma onayı iste','Yeniden açmayı bağımsız onayla']);
   await page.click('[data-finance-screen="SCR-03"]');
   assert.equal(await page.locator('[data-finance-contract-workspace]').isVisible(),true);
   await page.click('[data-finance-contract-refresh]');

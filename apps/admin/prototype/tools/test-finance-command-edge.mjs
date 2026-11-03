@@ -8,6 +8,7 @@ const actorId='44444444-4444-4444-8444-444444444444',errorId='55555555-5555-4555
 const contractVersionId='88888888-8888-4888-8888-888888888888',feeRuleId='99999999-9999-4999-8999-999999999999',dealerLegalEntityId='aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',feeDefinitionId='bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb';
 const disputeTargetId='dddddddd-dddd-4ddd-8ddd-dddddddddddd',disputeId='eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee';
 const paymentId='12121212-1212-4212-8212-121212121212',allocationId='13131313-1313-4313-8313-131313131313',openItemId='14141414-1414-4414-8414-141414141414',expenseId='15151515-1515-4515-8515-151515151515';
+const periodId='16161616-1616-4616-8616-161616161616',requestId='17171717-1717-4717-8717-171717171717';
 const token=`user-token-${'x'.repeat(32)}`;let commitInput;
 const ports={
   authenticate:async value=>({id:actorId,token:value}),
@@ -51,6 +52,11 @@ const ports={
   commitContractVersionApprove:async value=>({outcome:'APPROVED',versionId:value.contractVersionId,status:'APPROVED',version:value.expectedVersion+1,approvalRequestId:jobId}),
   authorizeContractVersionPublish:async()=>({allowed:true,...ids,dealerLegalEntityId,status:'APPROVED'}),
   commitContractVersionPublish:async value=>({outcome:'CREATED',contractVersionId:value.contractVersionId,version:value.expectedVersion+1,outboxMessageId:jobId}),
+  authorizePeriodCloseRequest:async()=>({allowed:true,...ids,status:'APPROVED',version:4}),commitPeriodCloseRequest:async value=>{commitInput=value;return {outcome:'CREATED',periodId,requestId,status:'PENDING',version:1};},
+  authorizePeriodCloseApproval:async()=>({allowed:true,...ids,periodId,status:'PENDING',version:1}),commitPeriodCloseApproval:async value=>{commitInput=value;return {outcome:'APPROVED',periodId,requestId,status:'APPROVED',version:2};},
+  authorizePeriodLock:async()=>({allowed:true,...ids,status:'APPROVED',version:4}),commitPeriodLock:async value=>{commitInput=value;return {outcome:'LOCKED',periodId,status:'LOCKED',version:5};},
+  authorizePeriodReopenRequest:async()=>({allowed:true,...ids,status:'LOCKED',version:5}),commitPeriodReopenRequest:async value=>{commitInput=value;return {outcome:'CREATED',periodId,requestId,status:'PENDING',version:1};},
+  authorizePeriodReopenApproval:async()=>({allowed:true,...ids,periodId,status:'PENDING',version:1}),commitPeriodReopenApproval:async value=>{commitInput=value;return {outcome:'REOPENED',periodId,requestId,status:'REOPENED',version:7};},
 };
 const handler=createFinanceCommandHandler({allowedOrigins:[origin],correlationFactory:()=>correlationId,...ports});
 const command={operationId:'retryIntegrationError',scope:ids,command:{errorId,reasonCode:'TIMEOUT_RETRY',resolutionNote:'  ERP bağlantısı doğrulandı; tekrar kuyruğa alınsın.  ',expectedVersion:1,idempotencyKey:'retry:erp:001'}};
@@ -88,6 +94,8 @@ const updateCommand={operationId:'updateContractFeeRule',scope:ids,command:{cont
 response=await handler(request(updateCommand));assert.equal(response.status,200);payload=await response.json();assert.equal(payload.data.outcome,'UPDATED');assert.equal(payload.data.resource.feeRuleId,feeRuleId);
 assert.equal((await handler(request({...updateCommand,command:{...updateCommand.command,rule:{...rule,exceptions:[{}]}}}))).status,400);
 for(const [operationId,outcome] of [['submitContractVersion','SUBMITTED'],['approveContractVersion','APPROVED'],['publishContractVersion','CREATED']]){const lifecycle={operationId,scope:ids,command:{contractVersionId,expectedVersion:2,reasonCode:'CONFIGURATION_REVIEWED',note:'Sözleşme kural ve kanıtları incelendi.',idempotencyKey:`contract:${operationId}:001`}};response=await handler(request(lifecycle));assert.equal(response.status,200);assert.equal((await response.json()).data.outcome,outcome);}
+const closeRequest={operationId:'requestFinancePeriodClose',scope:ids,command:{periodId,expectedVersion:4,reasonCode:'PERIOD_RECONCILED',note:'Mutabakat ve zorunlu kontroller tamamlandı.',idempotencyKey:'period:close:request:001'}};response=await handler(request(closeRequest));assert.equal(response.status,200);assert.equal((await response.json()).data.outcome,'CREATED');assert.match(commitInput.noteHash,/^[a-f0-9]{64}$/);assert.doesNotMatch(JSON.stringify(commitInput),/zorunlu kontroller/);
+const reopenApproval={operationId:'approveFinancePeriodReopen',scope:ids,command:{requestId,expectedVersion:1,reasonCode:'CORRECTION_REQUIRED',note:'Bağımsız checker kanıtı onayladı.',idempotencyKey:'period:reopen:approve:001'}};response=await handler(request(reopenApproval));assert.equal(response.status,200);assert.equal((await response.json()).data.outcome,'REOPENED');
 
 const fetchCalls=[];const jsonResponse=(status,data)=>new Response(JSON.stringify(data),{status,headers:{'content-type':'application/json'}});
 const publishableKey=`sb_publishable_${'p'.repeat(32)}`,serviceRoleKey=`service-role-${'s'.repeat(64)}`;
