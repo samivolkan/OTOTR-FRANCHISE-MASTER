@@ -13,9 +13,13 @@ Sunucu/BFF yalnız aşağıdaki alanları adaptöre verir:
 
 PAN, kart numarası, CVV/CVC, son kullanma tarihi veya kart sahibi bilgisi OTOTR uygulamasına, loglarına ya da veritabanına giremez. Kart bilgisi yalnız ödeme kuruluşunun PCI uyumlu sayfasında alınır.
 
+ERP geçidi checkout orkestratörüne tutar, para birimi, bayi veya şube kapsamı gönderemez. Yalnız aktör, harici fatura kimliği ve HTTPS dönüş adresi kabul edilir. `finance-payment-checkout-orchestrator` fatura durumunu, açık tutarı, para birimini ve üç boyutlu kapsamı sunucu tarafı portundan yeniden türetir. Böylece tarayıcıdan tutar düşürme veya farklı şubeye ödeme başlatma engellenir.
+
 ## Kanonik checkout yanıtı
 
 Adaptör yalnız `providerPaymentToken`, HTTPS `redirectUrl` ve gelecekteki `expiresAtUtc` döndürebilir. Ortak katman bunlara `providerCode` ve sabit `cardDataStored: false` ekler. Bilinmeyen alanlar ve kart verisi çağrışımlı alanlar fail-closed reddedilir.
+
+Orkestratör sağlayıcı tokenının yalnız SHA-256 özetini kayıt portuna verir; ham tokenı ERP yanıtına veya kalıcı finans kaydına taşımaz. Tarayıcıya checkout oturum kimliği, yönlendirme adresi, son kullanım zamanı ve sunucudan türetilen tutar döner.
 
 Başarılı checkout ödeme sayılmaz. Finansal kapatma ve şube erişiminin açılması yalnız imzası doğrulanmış `SETTLED` callback'inin `finance-payment-callback-worker` üzerinden atomik kaydıyla gerçekleşir.
 
@@ -30,4 +34,4 @@ FIN-G05 ve UAT-FIN-10 tamamlanmadan önce seçilen kuruluş için şu kanıtlar 
 5. Tam ödeme sonrası otomatik açılma; eksik/başarısız ödeme sonrası kilidin korunması.
 6. Sağlayıcı sözleşmesi, komisyon, valör, iade/chargeback ve mutabakat sahiplerinin onayı.
 
-Yerel uyumluluk testi `scripts/Test-FinancePaymentProviderAdapter.ps1` ile çalıştırılır. Bu test gerçek sağlayıcı veya PCI sertifikasyonu yerine geçmez.
+Yerel uyumluluk testleri `scripts/Test-FinancePaymentProviderAdapter.ps1` ve `scripts/Test-FinancePaymentCheckoutOrchestrator.ps1` ile çalıştırılır. Bu testler gerçek sağlayıcı veya PCI sertifikasyonu yerine geçmez.
