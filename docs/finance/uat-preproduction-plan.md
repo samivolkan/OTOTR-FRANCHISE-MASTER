@@ -89,8 +89,10 @@ Bir kapı yalnız kanıt dosyası mevcutken; SHA-256, imzalayan ve UTC imza zama
 ## Bugünkü doğrulanmış durum
 
 - Yerel veritabanı kabul kapısı sentetik verilerle geçiyor.
-- Bayi özeti ve ekstre read-model çekirdeği yerelde doğrulandı.
-- ERP ekstre arayüzü izole Chrome testinde loading/ready/empty/error, filtre ve cursor sayfalamasıyla doğrulandı.
+- 17 GM Finans ekranının tamamı en az canlı okuma seviyesinde; shell ekran kalmadı.
+- Onay iş listesi ve audit/correlation projectionları şube izolasyonu ve veri minimizasyonuyla doğrulandı.
+- ERP arayüzü izole Chrome testinde yönetişim, entegrasyon, export, masraf, itiraz, ekstre ve ödeme akışlarıyla doğrulandı.
+- Ticari/mali karar girişi için `commercial-configuration-intake.md`, ERP staging eşlemesi için `erp-staging-mapping-intake.md` hazırlandı.
 - Staging adaptörleri, gerçek kullanıcı UAT’si, ticari/vergi imzaları, performans, restore ve operasyon tatbikatı henüz yoktur.
 
 Sonuç: **NO-GO**. Bu, bir hata değil; eksik kurumsal kanıtları görünür tutan fail-closed karardır.
