@@ -19,6 +19,7 @@ const STATEMENT_OPERATION = 'getDealerStatement';
 const STATEMENT_CONTROL_OPERATION = 'getDealerStatementControl';
 const STATEMENT_EXPORT_OPERATION = 'exportDealerStatement';
 const ACCRUALS_OPERATION='listAccruals';
+const ACCRUAL_EXPORT_OPERATION='exportAccruals';
 const PAYMENTS_OPERATION = 'listPayments';
 const PAYMENT_OPERATION = 'getPayment';
 const ACCRUAL_OPERATION = 'getAccrualDetail';
@@ -150,6 +151,7 @@ export function createFinanceSummaryClient({getConfig, getAccessToken, fetchImpl
       return execute(rawScope,STATEMENT_EXPORT_OPERATION,{from,to,currency,status,limit});
     },
     async listAccruals(rawScope,{from,to,status,feeFamily,periodStatus,cursor,limit}={}){for(const[field,value]of[['from',from],['to',to]])if(value!==undefined&&!/^\d{4}-\d{2}-\d{2}$/.test(value))throw new FinanceBridgeError('VALIDATION_ERROR',`${field} geçersiz.`);if(from&&to&&from>to)throw new FinanceBridgeError('VALIDATION_ERROR','Tahakkuk tarih aralığı geçersiz.');if(feeFamily!==undefined&&!['ROYALTY','ENTRY_FRANCHISE','PERIODIC_FRANCHISE','QUERY','EXTERNAL_SERVICE','OPTIONAL_PRODUCT_SERVICE','PASS_THROUGH_EXPENSE','ADJUSTMENT'].includes(feeFamily))throw new FinanceBridgeError('VALIDATION_ERROR','Bedel ailesi geçersiz.');if(periodStatus!==undefined&&!['OPEN','SOURCE_FROZEN','CALCULATED','INTERNAL_REVIEW','SENT_TO_DEALER','DISPUTED','RECONCILED','APPROVED','LOCKED','REOPEN_PENDING','REOPENED'].includes(periodStatus))throw new FinanceBridgeError('VALIDATION_ERROR','Dönem durumu geçersiz.');return execute(rawScope,ACCRUALS_OPERATION,{from,to,status,feeFamily,periodStatus,cursor,limit});},
+    async exportAccruals(rawScope,{from,to,currency='TRY',status,feeFamily,periodStatus,limit=10000}={}){for(const[field,value]of[['from',from],['to',to]])if(!/^\d{4}-\d{2}-\d{2}$/.test(value||''))throw new FinanceBridgeError('VALIDATION_ERROR',`${field} geçersiz.`);if(from>to||!/^[A-Z]{3}$/.test(currency)||!Number.isInteger(limit)||limit<1||limit>10000)throw new FinanceBridgeError('VALIDATION_ERROR','Tahakkuk export filtresi geçersiz.');return execute(rawScope,ACCRUAL_EXPORT_OPERATION,{from,to,currency,status,feeFamily,periodStatus,limit});},
     async getPayment(rawScope, paymentId) {
       const normalizedPaymentId = requiredUuid(paymentId, 'paymentId', 'VALIDATION_ERROR');
       return execute(rawScope, PAYMENT_OPERATION, {}, {paymentId:normalizedPaymentId});
@@ -272,7 +274,7 @@ if (auth && ui) {
       if (!scope) throw new FinanceBridgeError('FINANCE_SCOPE_UNAVAILABLE', 'ERP finans kapsamı henüz sağlanmadı.');
       return client.getDealerStatementControl(scope, options);
     },
-    async requestDealerStatementExport(options={}) {const scope=configuredScope||refreshContext();if(!scope)throw new FinanceBridgeError('FINANCE_SCOPE_UNAVAILABLE','ERP finans kapsamı henüz sağlanmadı.');return client.exportDealerStatement(scope,options);},
+    async requestDealerStatementExport(options={}) {const scope=configuredScope||refreshContext();if(!scope)throw new FinanceBridgeError('FINANCE_SCOPE_UNAVAILABLE','ERP finans kapsamı henüz sağlanmadı.');return options.mode==='ACCRUALS'?client.exportAccruals(scope,options):client.exportDealerStatement(scope,options);},
     async getHeadquartersFinanceSummary(options={}) {
       const scope=configuredScope||refreshContext();
       if(!scope) throw new FinanceBridgeError('FINANCE_SCOPE_UNAVAILABLE','ERP finans kapsamı henüz sağlanmadı.');

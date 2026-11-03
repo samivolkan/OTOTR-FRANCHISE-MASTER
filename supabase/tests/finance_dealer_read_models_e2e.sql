@@ -8,7 +8,7 @@ returns boolean language sql stable security definer set search_path='' as $$sel
 create or replace function finance_private.current_actor_can_read_scope(
   p_actor_id uuid,p_legal_entity_id uuid,p_dealer_account_id uuid,p_branch_id uuid,p_operation_id text
 ) returns boolean language sql stable security definer set search_path=pg_catalog as $$
-  select p_operation_id in ('getDealerFinanceSummary','getDealerStatement','getDealerStatementControl','exportDealerStatement','listAccruals','listPayments')
+  select p_operation_id in ('getDealerFinanceSummary','getDealerStatement','getDealerStatementControl','exportDealerStatement','listAccruals','exportAccruals','listPayments')
     and p_branch_id='38000000-0000-4000-8000-000000000001'::uuid
 $$;
 create or replace function finance_private.current_actor_can_read_headquarters(
@@ -201,6 +201,8 @@ begin
   end if;
   accrual_result:=finance_api.list_accruals(hq,account_a,branch_a,null,null,null,'ROYALTY',null,null,50);
   if jsonb_array_length(accrual_result->'items')<>0 then raise exception 'accrual fee-family filter leaked rows: %',accrual_result;end if;
+  export_result:=finance_api.export_accruals(hq,account_a,branch_a,date '2026-11-01',date '2026-11-30','TRY','POSTED','EXTERNAL_SERVICE','OPEN',10000);
+  if export_result->>'exportKind'<>'ACCRUALS' or export_result->>'rowCount'<>'2' or export_result#>>'{filters,feeFamily}'<>'EXTERNAL_SERVICE' or export_result#>>'{filters,periodStatus}'<>'OPEN' then raise exception 'accrual export mismatch: %',export_result;end if;
 
   page_1:=finance_api.list_payments(hq,account_a,branch_a,date '2026-11-01',date '2026-11-30',null,null,1);
   if (page_1->>'hasMore')::boolean is distinct from true or jsonb_array_length(page_1->'items')<>1
