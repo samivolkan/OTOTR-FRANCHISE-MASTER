@@ -11,7 +11,7 @@ Makinece doğrulanan ana kayıt `docs/finance/commercial-configuration.json` dos
 | Varsayılan para birimi | Bekleniyor | Finans Direktörü | Bekleniyor |
 | Tutar hassasiyeti | 8 ondalık saklama, 2 ondalık belge gösterimi önerisi | Mali Müşavir | Bekleniyor |
 | Yuvarlama yöntemi | Bekleniyor | Mali Müşavir | Bekleniyor |
-| Varsayılan vade başlangıcı | Bekleniyor | Finans Direktörü | Bekleniyor |
+| Varsayılan vade başlangıcı | Fatura tarihini izleyen takvim günü; Europe/Istanbul | Finans Direktörü | Şube kuralı aktivasyonu |
 | Tahsilat sıralama politikası | Bekleniyor | Finans Kontrol | Bekleniyor |
 | İtiraz süresi | Bekleniyor | Hukuk | Bekleniyor |
 
@@ -37,6 +37,14 @@ Her satır için `UYGULANMAZ` veya açık değer girilmelidir.
 4. Tahsilat iptali ile müşteri iadesi aynı finansal davranışı mı izler?
 5. Fazla iade girişimi reddedilecek mi; istisna için kim onay verebilir?
 6. Royalty tahakkukunun şubeye fatura edilme periyodu nedir? **Şube açılışında günlük, haftalık veya aylık seçeneklerinden biri manuel seçilir. Tahakkuk her kesinleşen tahsilatta anlık oluşur; periyot yalnız fatura paketlemesini belirler ve geçmiş tahakkukları yeniden paketlemez.**
+
+### Ödeme ve erişim kararı
+
+- Oluşan royalty faturası, fatura tarihini izleyen takvim günü şube ekranından kredi kartıyla ödenir.
+- Kart numarası, CVV veya ham kart verisi ERP'de saklanmaz; yalnız ödeme kuruluşu tokenı ve doğrulanmış callback sonucu işlenir.
+- Vade geldiğinde tam ödeme doğrulanmadıysa şubenin operasyon ekranları fail-closed kilitlenir.
+- Kilitliyken ödeme, fatura/ekstre görüntüleme, destek ve güvenli çıkış açık kalır; diğer şube operasyonları kapalıdır.
+- Erişim yalnız ödeme kuruluşundan doğrulanmış tam ödeme callback'i geldikten sonra açılır; kart formunun gönderilmesi yeterli değildir.
 
 ### Onaylanan royalty muafiyet politikası
 
