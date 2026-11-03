@@ -74,7 +74,7 @@ try {
       await route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({data})});return;
     }
     if(body.operationId==='listContractFeeRules'){
-      const rule=(id,feeCode,category,method,parameter,includesTax)=>({feeRuleId:id,feeDefinitionId:id.replace(/^./,'3'),feeCode,name:`${feeCode} Bedeli`,category,ruleCode:`RULE-${feeCode}`,priority:100,status:'ACTIVE',configurationStatus:'CONFIGURED',triggerEventType:'payment.settled',basis:{kind:'COLLECTED_GROSS'},calculation:{method,currency:'TRY',priceIncludesTax:includesTax,rate:parameter,decimalScale:2,roundingMode:'HALF_UP'},version:1});
+      const rule=(id,feeCode,category,method,parameter,includesTax)=>({feeRuleId:id,feeDefinitionId:id.replace(/^./,'3'),feeCode,name:`${feeCode} Bedeli`,category,ruleCode:`RULE-${feeCode}`,priority:100,status:'ACTIVE',configurationStatus:'CONFIGURED',triggerEventType:'payment.settled',basis:{kind:'COLLECTED_GROSS'},calculation:{method,currency:'TRY',priceIncludesTax:includesTax,rate:parameter,decimalScale:2,roundingMode:'HALF_UP'},exceptions:feeCode==='ROYALTY'?[{exceptionId:'26262626-2626-4626-8626-262626262627',exceptionCode:'FIRST_MONTH_EXEMPTION',scopeType:'BRANCH',conditionType:'CONTRACT_AGE',overrideType:'RATE_OVERRIDE',priority:200,effectiveFrom:'2026-11-01',effectiveTo:null,status:'ACTIVE',version:1}]:[],exceptionCount:feeCode==='ROYALTY'?1:0,version:1});
       const data=body.query.cursor
         ? {items:[rule('25252525-2525-4525-8525-252525252525','QUERY','QUERY','FIXED','25.00',false)],nextCursor:null,hasMore:false}
         : {items:[rule('23232323-2323-4323-8323-232323232323','ROYALTY','ROYALTY','PERCENTAGE','0.10',true),rule('24242424-2424-4424-8424-242424242424','ENTRY_FRANCHISE','ENTRY_FRANCHISE','FIXED','1000.00',false)],nextCursor:'24242424-2424-4424-8424-242424242424',hasMore:true};
@@ -234,6 +234,10 @@ try {
   assert.match(await page.locator('[data-finance-contract-rule-detail]').innerText(),/COLLECTED_GROSS/);
   assert.match(await page.locator('[data-finance-contract-rule-detail]').innerText(),/KDV dahil matrah/);
   assert.match(await page.locator('[data-finance-contract-rule-detail]').innerText(),/PERCENTAGE · 0\.10/);
+  assert.match(await page.locator('[data-finance-contract-rule-exceptions]').innerText(),/FIRST_MONTH_EXEMPTION/);
+  assert.match(await page.locator('[data-finance-contract-rule-exceptions]').innerText(),/BRANCH \/ CONTRACT_AGE/);
+  assert.match(await page.locator('[data-finance-contract-rule-exceptions]').innerText(),/RATE_OVERRIDE/);
+  assert.doesNotMatch(await page.locator('[data-finance-contract-rule-detail]').innerText(),/must-not-leak|scope_definition|override_definition/i);
   await page.click('[data-finance-contract-rule-detail-close]');
   assert.equal(await page.locator('[data-finance-contract-rule-detail]').isVisible(),false);
   await page.click('[data-finance-contract-more]');
