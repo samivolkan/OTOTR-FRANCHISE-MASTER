@@ -159,12 +159,13 @@ begin
     occurred_at_utc,received_at_utc,aggregate_type,aggregate_id,aggregate_version,payload,payload_hash,status,created_by,correlation_id
   ) values(hq,dealer,branch,'SYNTHETIC_ERP',gen_random_uuid(),'query.completed',1,date '2026-11-04',now(),now(),
     'service-usage','free-query-1',1,jsonb_build_object('serviceCode','TRAMER_QUERY','providerCode','PROVIDER-A','externalReference','QUERY-FREE-001','providerCostAmount','50.00000000','currency','TRY','freeEntitlementApplied',true,'technicalRepeat',false),repeat('5',64),'PROCESSED',maker,corr);
+  insert into finance.source_events(legal_entity_id,dealer_legal_entity_id,branch_id,source_system,event_id,event_type,schema_version,business_date,occurred_at_utc,received_at_utc,aggregate_type,aggregate_id,aggregate_version,payload,payload_hash,status,created_by,correlation_id)
+  values(hq,dealer,branch,'SYNTHETIC_ERP',gen_random_uuid(),'query.completed',1,date '2026-11-04',now(),now(),'service-usage','technical-repeat-query-1',1,jsonb_build_object('serviceCode','TRAMER_QUERY','providerCode','PROVIDER-A','externalReference','QUERY-REPEAT-001','providerCostAmount','0.00000000','currency','TRY','freeEntitlementApplied',false,'technicalRepeat',true),repeat('6',64),'PROCESSED',maker,corr),
+        (hq,dealer,branch,'SYNTHETIC_ERP',gen_random_uuid(),'external-service.delivered',1,date '2026-11-04',now(),now(),'service-usage','failed-service-1',1,jsonb_build_object('serviceCode','VALUATION_SERVICE','providerCode','PROVIDER-B','externalReference','SERVICE-FAILED-001','providerCostAmount','0.00000000','currency','TRY','freeEntitlementApplied',false,'technicalRepeat',false),repeat('7',64),'REJECTED',maker,corr);
   usage_page:=finance_api.list_service_usages(hq,account,branch,date '2026-11-01',date '2026-11-30','QUERY','NOT_CHARGED',null,50);
-  if jsonb_array_length(usage_page->'items')<>1
-     or usage_page#>>'{items,0,externalReference}'<>'QUERY-FREE-001'
-     or (usage_page#>>'{items,0,freeEntitlementApplied}')::boolean is distinct from true
-     or usage_page#>>'{items,0,dealerPriceAmount}' is not null
-     or usage_page#>>'{items,0,accrualId}' is not null then
+  if jsonb_array_length(usage_page->'items')<>2
+     or not exists(select 1 from jsonb_array_elements(usage_page->'items') x where x->>'externalReference'='QUERY-FREE-001' and (x->>'freeEntitlementApplied')::boolean and x->>'dealerPriceAmount' is null and x->>'accrualId' is null)
+     or not exists(select 1 from jsonb_array_elements(usage_page->'items') x where x->>'externalReference'='QUERY-REPEAT-001' and (x->>'technicalRepeat')::boolean and x->>'dealerPriceAmount' is null and x->>'accrualId' is null) then
     raise exception 'free service usage projection mismatch: %',usage_page;
   end if;
   usage_page:=finance_api.list_service_usages(hq,account,branch,null,null,'QUERY','CHARGED',null,50);
@@ -176,6 +177,10 @@ begin
      or usage_page#>>'{items,0,accrualId}' is null then
     raise exception 'charged service usage projection mismatch: %',usage_page;
   end if;
+  usage_page:=finance_api.list_service_usages(hq,account,branch,null,null,'EXTERNAL_SERVICE','CHARGED',null,50);
+  if jsonb_array_length(usage_page->'items')<>1 or usage_page#>>'{items,0,externalReference}'<>'SERVICE-001' or usage_page#>>'{items,0,providerCostAmount}'<>'200.00000000' or usage_page#>>'{items,0,dealerPriceAmount}'<>'300.00000000' or usage_page#>>'{items,0,marginAmount}'<>'100.00000000' then raise exception 'external service margin mismatch: %',usage_page;end if;
+  usage_page:=finance_api.list_service_usages(hq,account,branch,null,null,'EXTERNAL_SERVICE','FAILED',null,50);
+  if jsonb_array_length(usage_page->'items')<>1 or usage_page#>>'{items,0,externalReference}'<>'SERVICE-FAILED-001' or usage_page#>>'{items,0,accrualId}' is not null then raise exception 'failed external service mismatch: %',usage_page;end if;
   contract_projection:=finance_api.get_current_franchise_contract(hq,account,branch,date '2026-11-03');
   if contract_projection->>'contractId'<>contract_id::text
      or contract_projection#>>'{activeVersion,versionId}'<>contract_version::text
