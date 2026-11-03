@@ -28,6 +28,7 @@ $checks = @(
   'Test-FinancePaymentCheckoutWorker.ps1',
   'Test-FinancePaymentCheckoutBffClient.ps1',
   'Test-FinancePaymentCheckoutRoute.ps1',
+  'Test-FinancePaymentCheckoutBrowser.ps1',
   'Test-FinanceProviderCardPaymentCallbackE2E.ps1',
   'Test-FinanceBillingAccountingE2E.ps1',
   'Test-FinanceAccountingExportWorker.ps1',

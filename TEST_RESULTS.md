@@ -1320,7 +1320,7 @@ Sınırlar: otomatik fotogrametri, üretici model kütüphanesi, buluttan ses/vi
 
 ## 2026-11-03 — GM Finans local acceptance and payment callback validation
 
-- `scripts/Test-FinanceLocalAcceptance.ps1`: PASS, 55/55 checks, `LOCAL_ONLY`, `productionDataUsed: false`.
+- `scripts/Test-FinanceLocalAcceptance.ps1`: PASS, 56/56 checks, `LOCAL_ONLY`, `productionDataUsed: false`.
 - `scripts/Test-FinanceProviderCardPaymentCallbackE2E.ps1`: PASS. Verified ERP branch-manager scoped checkout context, server-derived open amount, token-hash-only idempotent checkout audit, issued royalty invoice callback commit, balanced payment verification journal, full open-item allocation, automatic `LOCKED_OVERDUE -> OPEN`, and replay without duplicate financial records.
 - `scripts/Test-FinancePaymentCallbackWorker.ps1`: PASS. Verified invalid signature denial, strict `SETTLED` payload, deterministic intent hash, safe error masking and absence of raw card fields.
 - `scripts/Test-FinanceBranchOverdueAccessE2E.ps1` and `scripts/Test-FinanceBranchAccessWorker.ps1`: PASS. Verified overdue lock, partial-payment lock retention, full-payment unlock, cross-branch isolation, allowed locked capabilities and service-only ERP gateway contract.
@@ -1330,5 +1330,6 @@ Sınırlar: otomatik fotogrametri, üretici model kütüphanesi, buluttan ses/vi
 - `scripts/Test-FinancePaymentCheckoutWorker.ps1`: PASS. Verified deployable Edge route composition, service-role checkout RPC calls, canonical provider HTTPS delivery, secret-bearing headers, server-derived amount/scope and token-hash-only session recording.
 - `scripts/Test-FinancePaymentCheckoutBffClient.ps1`: PASS. Verified server-only ERP/BFF gateway credential, exact actor/invoice/return request, client amount rejection, HTTPS-only provider redirect and fail-closed HTTP/body/expiry validation.
 - `scripts/Test-FinancePaymentCheckoutRoute.ps1`: PASS. Verified actor derivation from the ERP server session, rejection of browser-supplied actor/amount fields, strict invoice/return payload and fail-closed unavailable handoff.
+- `scripts/Test-FinancePaymentCheckoutBrowser.ps1` and `scripts/Test-GMFinanceDemoEnvironment.ps1`: PASS. Verified visible SCR-08 branch card-checkout form, same-origin BFF request carrying only invoice/return data, no browser-supplied actor/amount/gateway secret, HTTPS-only redirect, and rendered payment button/state in a real headless browser.
 - Migration/deployment manifest, local replay, backup/restore, recovery contract, UAT inventory and `git diff --check`: PASS. Current verified local catalog is 164 total migrations, 136 finance migrations, 52 finance tables and 183 finance API functions.
 - Scope limit: tests used synthetic local data. A real provider is not selected or bound; provider sandbox checkout/3D Secure, staging delivery, real ERP middleware binding and human approvals were not exercised; pre-production remains `NO_GO`.
