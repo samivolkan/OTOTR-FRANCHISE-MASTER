@@ -111,11 +111,21 @@ begin
       'RECEIVED',maker,corr
     );
 
+    if i=1 then
+      insert into finance.rule_exceptions(contract_fee_rule_id,exception_code,scope_definition,condition_definition,override_definition,priority,effective_from,status,prepared_by,approved_by,approved_at_utc,created_by,correlation_id)
+      values
+        (rule_id,'GLOBAL_RATE','{"type":"GLOBAL"}'::jsonb,'{"type":"DATE_RANGE"}'::jsonb,'{"type":"RATE_OVERRIDE","rate":"0.15"}'::jsonb,200,date '2026-11-01','ACTIVE',maker,checker,now(),maker,corr),
+        (rule_id,'BRANCH_RATE',jsonb_build_object('type','BRANCH','branchId',branch),'{"type":"DATE_RANGE"}'::jsonb,'{"type":"RATE_OVERRIDE","rate":"0.20"}'::jsonb,200,date '2026-11-01','ACTIVE',maker,checker,now(),maker,corr);
+    end if;
+
     context:=finance_api.load_accrual_calculation_context(hq,dealer,account,branch,source_id,fee_id,'LIVE');
     if context is null then raise exception 'context missing for family %',families[i]; end if;
     rule:=context#>'{rules,0}';
     if rule->>'category'<>lower(families[i]) then
       raise exception 'family category mismatch for %: %',families[i],rule->>'category';
+    end if;
+    if i=1 and (rule#>>'{calculation,method}'<>'PERCENTAGE' or rule#>>'{calculation,parameters,rate}'<>'0.20' or rule#>>'{appliedException,exceptionCode}'<>'BRANCH_RATE' or rule#>'{appliedException,override}' is not null) then
+      raise exception 'deterministic branch exception was not safely applied: %',rule;
     end if;
     command:=jsonb_build_object(
       'legalEntityId',hq,'dealerLegalEntityId',dealer,'dealerAccountId',account,'branchId',branch,
@@ -138,6 +148,23 @@ begin
     );
     if replay->>'outcome'<>'REPLAY' then raise exception 'idempotent replay failed for family %',families[i]; end if;
   end loop;
+
+  insert into finance.rule_exceptions(contract_fee_rule_id,exception_code,scope_definition,condition_definition,override_definition,priority,effective_from,status,prepared_by,approved_by,approved_at_utc,created_by,correlation_id)
+  values
+    (rule_id,'AMBIGUOUS_A',jsonb_build_object('type','BRANCH','branchId',branch),'{"type":"DATE_RANGE"}'::jsonb,'{"type":"EXEMPT"}'::jsonb,900,date '2026-11-01','ACTIVE',maker,checker,now(),maker,corr),
+    (rule_id,'AMBIGUOUS_B',jsonb_build_object('type','BRANCH','branchId',branch),'{"type":"DATE_RANGE"}'::jsonb,'{"type":"EXEMPT"}'::jsonb,900,date '2026-11-01','ACTIVE',maker,checker,now(),maker,corr);
+  begin
+    perform finance_private.resolve_rule_exception(rule_id,hq,dealer,account,branch,contract_id,contract_version,date '2026-11-01',date '2026-11-03','{}'::jsonb);
+    raise exception 'ambiguous exception precedence was accepted';
+  exception when cardinality_violation then null;end;
+  update finance.rule_exceptions set status='DISABLED' where contract_fee_rule_id=rule_id and exception_code in('AMBIGUOUS_A','AMBIGUOUS_B');
+  insert into finance.rule_exceptions(contract_fee_rule_id,exception_code,scope_definition,condition_definition,override_definition,priority,effective_from,status,prepared_by,approved_by,approved_at_utc,created_by,correlation_id)
+  values(rule_id,'UNSUPPORTED_VOLUME',jsonb_build_object('type','BRANCH','branchId',branch),'{"type":"USAGE_VOLUME"}'::jsonb,'{"type":"EXEMPT"}'::jsonb,901,date '2026-11-01','ACTIVE',maker,checker,now(),maker,corr);
+  begin
+    perform finance_private.resolve_rule_exception(rule_id,hq,dealer,account,branch,contract_id,contract_version,date '2026-11-01',date '2026-11-03','{}'::jsonb);
+    raise exception 'unsupported exception condition was accepted';
+  exception when feature_not_supported then null;end;
+  update finance.rule_exceptions set status='DISABLED' where contract_fee_rule_id=rule_id and exception_code='UNSUPPORTED_VOLUME';
 
   select count(*),sum(gross_amount) into accrual_count,gross
     from finance.accruals where legal_entity_id=hq;

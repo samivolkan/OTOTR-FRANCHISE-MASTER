@@ -42,5 +42,5 @@ if ($LASTEXITCODE -ne 0 -or $residue.Count -ne 1 -or $residue[0] -ne '0') {
 }
 
 Write-Host 'FINANCE CHARGE FAMILY E2E: PASSED' -ForegroundColor Green
-Write-Host 'ENTRY_FRANCHISE, QUERY, EXTERNAL_SERVICE and OPTIONAL_PRODUCT_SERVICE posted through the shared accrual engine.'
+Write-Host 'ENTRY_FRANCHISE, QUERY, EXTERNAL_SERVICE and OPTIONAL_PRODUCT_SERVICE posted through the shared accrual engine; deterministic branch exception precedence verified.'
 Write-Host 'Four balanced journals and four branch debit open items total 1980.00 TRY; identical retries produced REPLAY.'
