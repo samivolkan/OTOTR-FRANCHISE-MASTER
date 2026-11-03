@@ -300,6 +300,7 @@ if (auth && ui) {
           ui.setContractState?.('LOADING','Aktif sözleşme ve sürüm bilgisi yükleniyor…');
           const contractResult=await api.getCurrentFranchiseContract();
           ui.renderCurrentContract?.(contractResult.data);
+          globalThis.dispatchEvent?.(new CustomEvent('ototr:finance-current-contract-loaded',{detail:contractResult.data}));
           const versionId=contractResult.data?.pendingVersion?.versionId || contractResult.data?.activeVersion?.versionId;
           if(!versionId) return contractResult;
           ui.setContractRulesVersion?.(versionId);
@@ -438,4 +439,5 @@ if (auth && ui) {
   globalThis.addEventListener?.('ototr:finance-approval-requested',event=>{void api.loadApprovalWorkItem(event.detail?.requestId).catch(()=>{});});
   globalThis.addEventListener?.('ototr:finance-audit-trace-requested',event=>{void api.loadAuditCorrelationTrace(event.detail?.correlationId).catch(()=>{});});
   globalThis.addEventListener?.('ototr:finance-contract-rule-requested',event=>{void api.loadContractFeeRule(event.detail?.contractVersionId,event.detail?.feeRuleId).catch(()=>{});});
+  globalThis.addEventListener?.('ototr:finance-contract-lifecycle-completed',()=>{void api.loadContractWorkspace().catch(()=>{});void api.loadApprovalWorkItems().catch(()=>{});});
 }

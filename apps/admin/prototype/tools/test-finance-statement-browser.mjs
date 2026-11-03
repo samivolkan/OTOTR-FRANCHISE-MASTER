@@ -201,7 +201,7 @@ try {
         : {items:[item('aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa','ENTRY_FRANCHISE','1200.00000000','200.00000000','1000.00000000')],nextCursor:'page-2',hasMore:true};
     await route.fulfill({status:200,contentType:'application/json',headers:{'correlation-id':'44444444-4444-4444-8444-444444444444'},body:JSON.stringify({data})});
   });
-  await page.route('**/functions/v1/finance-command',async route=>{const body=route.request().postDataJSON();commands.push(body);await route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({data:{outcome:'UPDATED',resource:{feeRuleId:body.command.feeRuleId,version:2},correlationId:'77777777-7777-4777-8777-777777777777'}})});});
+  await page.route('**/functions/v1/finance-command',async route=>{const body=route.request().postDataJSON();commands.push(body);const data=body.operationId==='updateContractFeeRule'?{outcome:'UPDATED',resource:{feeRuleId:body.command.feeRuleId,version:2}}:{outcome:body.operationId==='submitContractVersion'?'SUBMITTED':body.operationId==='approveContractVersion'?'APPROVED':'CREATED',versionId:body.command.contractVersionId,version:body.command.expectedVersion+1,status:body.operationId==='approveContractVersion'?'APPROVED':'ACTIVE'};await route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({data:{...data,correlationId:'77777777-7777-4777-8777-777777777777'}})});});
 
   await page.goto(`${origin}/index.html`, {waitUntil:'networkidle'});
   await page.click('#navFinance');
@@ -252,6 +252,8 @@ try {
   await page.click('[data-finance-contract-rule-edit-submit]');
   await page.waitForTimeout(100);
   assert.equal(commands.length,1);assert.equal(commands[0].operationId,'updateContractFeeRule');assert.equal(commands[0].command.rule.code,'ROYALTY_UPDATED');assert.deepEqual(commands[0].command.rule.exceptions,[]);assert.equal(commands[0].command.rule.tax.priceIncludesTax,true);assert.equal(commands[0].command.contractVersionId,'22222222-2222-4222-8222-222222222223');
+  assert.equal(await page.locator('[data-finance-contract-lifecycle]').isVisible(),true);assert.match(await page.locator('[data-finance-contract-lifecycle-title]').innerText(),/Onayla/);
+  await page.fill('[data-finance-contract-lifecycle] [name="note"]','Bağımsız finans kontrolü tamamlandı.');page.once('dialog',dialog=>dialog.accept());await page.click('[data-finance-contract-lifecycle-submit]');await page.waitForTimeout(100);assert.equal(commands.length,2);assert.equal(commands[1].operationId,'approveContractVersion');assert.equal(commands[1].command.contractVersionId,'22222222-2222-4222-8222-222222222223');assert.equal(commands[1].command.expectedVersion,1);assert.match(commands[1].command.note,/Bağımsız finans/);
   await page.click('[data-finance-contract-rule-detail-close]');
   assert.equal(await page.locator('[data-finance-contract-rule-detail]').isVisible(),false);
   await page.click('[data-finance-contract-more]');
