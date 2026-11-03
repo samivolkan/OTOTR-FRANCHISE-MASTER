@@ -33,6 +33,11 @@ begin
  if (finance_private.simulate_rule_gross('COST_PLUS','{"markupRate":"0.10","markupAmount":"5"}',0.20,false,100,1,null,null,2,'UP')->>'grossAmount')::numeric<>138.00 then raise exception 'cost plus contract mismatch';end if;
  if (finance_private.simulate_rule_gross('CONDITIONAL','{"operator":"GTE","threshold":"100","whenMatched":{"method":"PERCENTAGE","parameters":{"rate":"0.10"}},"whenNotMatched":{"method":"FIXED","parameters":{"amount":"3"}}}',0,true,150,1,null,null,2,'HALF_EVEN')->>'grossAmount')::numeric<>15.00 then raise exception 'conditional contract mismatch';end if;
  if finance_private.simulate_rule_gross('TIERED','{"tiers":[]}',0,true,100,1,null,null,2,'HALF_UP')->>'reasonCode'<>'TIERED_PARAMETERS_INVALID' then raise exception 'invalid tier contract did not fail closed';end if;
+ begin
+   update finance.contract_fee_rules set calculation_parameters='{"tiers":[]}' where contract_version_id=candidate_version and fee_definition_id=fee_unsupported;
+   raise exception 'invalid configured rule was persisted';
+ exception when check_violation then null;end;
+ if not finance_private.calculation_parameters_are_valid('CONDITIONAL','{"operator":"GTE","threshold":"100","whenMatched":{"method":"PERCENTAGE","parameters":{"rate":"0.10"}},"whenNotMatched":{"method":"FIXED","parameters":{"amount":"3"}}}',0) then raise exception 'valid conditional parameter contract rejected';end if;
  select count(*) into after_count from finance.accruals;if before_count<>after_count or exists(select 1 from finance.journal_entries where legal_entity_id=hq) or exists(select 1 from finance.open_items where legal_entity_id=hq) then raise exception 'simulation performed financial writes';end if;
 end $test$;
 rollback;
