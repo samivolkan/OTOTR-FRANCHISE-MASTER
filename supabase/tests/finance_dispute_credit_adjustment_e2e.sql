@@ -25,6 +25,7 @@ declare
   branch constant uuid := '33000000-0000-4000-8000-000000000001';
   account constant uuid := '43000000-0000-4000-8000-000000000001';
   fee constant uuid := '53000000-0000-4000-8000-000000000001';
+  sla_policy constant uuid := '54000000-0000-4000-8000-000000000001';
   period_id constant uuid := '73000000-0000-4000-8000-000000000001';
   expense_id constant uuid := '63000000-0000-4000-8000-000000000001';
   original_journal constant uuid := '83000000-0000-4000-8000-000000000001';
@@ -33,7 +34,7 @@ declare
   document_id constant uuid := '83000000-0000-4000-8000-000000000004';
   external_document_id constant uuid := '83000000-0000-4000-8000-000000000005';
   corr constant uuid := '93000000-0000-4000-8000-000000000001';
-  result jsonb; replay jsonb; dispute_id uuid; version_no bigint; correction_journal uuid; dispute_list jsonb; dispute_detail jsonb;evidence_requests jsonb;evidence_request_id uuid;uploaded_external uuid:='84000000-0000-4000-8000-000000000001';uploaded_object_key text;
+  result jsonb; replay jsonb; dispute_id uuid; version_no bigint; correction_journal uuid; dispute_list jsonb; dispute_detail jsonb;evidence_requests jsonb;evidence_request_id uuid;uploaded_external uuid:='84000000-0000-4000-8000-000000000001';uploaded_object_key text;sla_state jsonb;
   credit_count integer; credit_total numeric(24,8); correction_accrual uuid;
 begin
   insert into public.app_users(id,auth_user_id,branch_id,full_name,role,is_active) values
@@ -49,6 +50,8 @@ begin
   values(account,hq,dealer,'DISPUTE-ACCOUNT','TRY','ACTIVE',maker,corr);
   insert into finance.fee_definitions(id,legal_entity_id,code,version_no,fee_family,name,status,created_by,correlation_id)
   values(fee,hq,'SYNTHETIC-ADJUSTMENT',1,'ADJUSTMENT','Sentetik Düzeltme','PUBLISHED',maker,corr);
+  insert into finance.dispute_sla_policies(id,legal_entity_id,policy_code,version_no,clock_type,response_minutes,resolution_minutes,owner_role,effective_from,status,approved_by,approved_at_utc,created_by,correlation_id)
+  values(sla_policy,hq,'DISPUTE_REVIEW',1,'CALENDAR_MINUTES',60,240,'FINANCE',date '2026-01-01','PUBLISHED',checker,now(),maker,corr);
   insert into finance.finance_periods(id,legal_entity_id,scope_type,period_start,period_end,currency_code,mode,status,created_by,correlation_id)
   values(period_id,hq,'HEADQUARTERS',date '2026-11-01',date '2026-11-30','TRY','LIVE','OPEN',maker,corr);
   insert into finance.pass_through_expenses(
@@ -102,6 +105,8 @@ begin
   );
   if result->>'outcome'<>'SUBMITTED' then raise exception 'dispute submit failed: %',result; end if;
   version_no:=(result->>'version')::bigint;
+  sla_state:=finance_api.get_dispute_sla_state(hq,account,branch,dispute_id);
+  if not coalesce((sla_state->>'configured')::boolean,false) or sla_state->>'ownerRole'<>'FINANCE' or sla_state->>'status'<>'OPEN' then raise exception 'dispute SLA work item mismatch: %',sla_state;end if;
 
   result:=finance_api.commit_dispute_evidence_request(maker,dispute_id,'SERVICE_PROOF',repeat('6',64),'dispute-evidence-request-demo',repeat('7',64),corr);
   if result->>'outcome'<>'CREATED' or result->>'status'<>'OPEN' then raise exception 'evidence request failed: %',result;end if;
@@ -148,6 +153,7 @@ begin
     'dispute-decision-demo',repeat('5',64),corr
   );
   if replay->>'outcome'<>'REPLAY' then raise exception 'dispute decision replay failed: %',replay; end if;
+  sla_state:=finance_api.get_dispute_sla_state(hq,account,branch,dispute_id);if sla_state->>'status'<>'COMPLETED' or sla_state->>'completedAtUtc' is null then raise exception 'dispute SLA completion mismatch: %',sla_state;end if;
   if (select count(*) from finance.accruals where reversal_of_id=original_accrual)<>1 then
     raise exception 'replay created duplicate correction';
   end if;
