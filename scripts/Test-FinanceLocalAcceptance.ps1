@@ -23,6 +23,7 @@ $checks = @(
   'Test-FinancePaymentLifecycleE2E.ps1',
   'Test-FinancePaymentIngestionWorker.ps1',
   'Test-FinancePaymentCallbackWorker.ps1',
+  'Test-FinancePaymentProviderAdapter.ps1',
   'Test-FinanceProviderCardPaymentCallbackE2E.ps1',
   'Test-FinanceBillingAccountingE2E.ps1',
   'Test-FinanceAccountingExportWorker.ps1',

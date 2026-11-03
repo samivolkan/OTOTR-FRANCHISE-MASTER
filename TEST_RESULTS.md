@@ -1320,10 +1320,11 @@ Sınırlar: otomatik fotogrametri, üretici model kütüphanesi, buluttan ses/vi
 
 ## 2026-11-03 — GM Finans local acceptance and payment callback validation
 
-- `scripts/Test-FinanceLocalAcceptance.ps1`: PASS, 50/50 checks, `LOCAL_ONLY`, `productionDataUsed: false`.
+- `scripts/Test-FinanceLocalAcceptance.ps1`: PASS, 51/51 checks, `LOCAL_ONLY`, `productionDataUsed: false`.
 - `scripts/Test-FinanceProviderCardPaymentCallbackE2E.ps1`: PASS. Verified issued royalty invoice lookup, HMAC-canonical callback commit, balanced payment verification journal, full open-item allocation, automatic `LOCKED_OVERDUE -> OPEN`, and idempotent replay without duplicate payment/allocation.
 - `scripts/Test-FinancePaymentCallbackWorker.ps1`: PASS. Verified invalid signature denial, strict `SETTLED` payload, deterministic intent hash, safe error masking and absence of raw card fields.
 - `scripts/Test-FinanceBranchOverdueAccessE2E.ps1` and `scripts/Test-FinanceBranchAccessWorker.ps1`: PASS. Verified overdue lock, partial-payment lock retention, full-payment unlock, cross-branch isolation, allowed locked capabilities and service-only ERP gateway contract.
 - `scripts/Test-FinanceBranchAccessMiddleware.ps1`: PASS. Verified guarded-route denial, locked-state payment allowance, outage timeout fail-closed behavior, HTTP status/body mismatch fail-closed behavior, HTTPS-only endpoint and server-only credential requirements.
+- `scripts/Test-FinancePaymentProviderAdapter.ps1`: PASS. Verified provider-neutral canonical checkout, token-only response, raw-card field rejection on both request and response, HTTPS-only redirects, positive amount and future-expiry controls.
 - Migration/deployment manifest, local replay, backup/restore, recovery contract, UAT inventory and `git diff --check`: PASS. Current verified local catalog is 163 total migrations, 135 finance migrations, 52 finance tables and 181 finance API functions.
-- Scope limit: tests used synthetic local data. Real provider checkout/3D Secure, staging delivery, real ERP middleware binding and human approvals were not exercised; pre-production remains `NO_GO`.
+- Scope limit: tests used synthetic local data. A real provider is not selected or bound; provider sandbox checkout/3D Secure, staging delivery, real ERP middleware binding and human approvals were not exercised; pre-production remains `NO_GO`.
