@@ -10,6 +10,10 @@ create or replace function finance_private.current_payment_allocation_worker_is_
 returns boolean language sql stable security definer set search_path='' as $$select true$$;
 create or replace function finance_private.current_allocation_reversal_worker_is_trusted()
 returns boolean language sql stable security definer set search_path='' as $$select true$$;
+create or replace function finance_private.current_payment_evidence_committer_is_trusted()
+returns boolean language sql stable security definer set search_path='' as $$select true$$;
+create or replace function finance_private.current_actor_can_create_payment(p_actor_id uuid,p_legal_entity_id uuid,p_dealer_account_id uuid,p_branch_id uuid)
+returns boolean language sql stable security definer set search_path='' as $$select true$$;
 create or replace function finance_api.authorize_scope(p_legal_entity_id uuid,p_dealer_account_id uuid,p_branch_id uuid,p_operation_id text)
 returns boolean language sql stable security definer set search_path='' as $$select true$$;
 
@@ -33,6 +37,8 @@ declare
   original_open constant uuid := '84000000-0000-4000-8000-000000000003';
   document_id constant uuid := '84000000-0000-4000-8000-000000000004';
   external_document_id constant uuid := '84000000-0000-4000-8000-000000000005';
+  uploaded_external_id constant uuid := '84000000-0000-4000-8000-000000000006';
+  uploaded_object_key constant text := 'finance-payments/14000000-0000-4000-8000-000000000001/44000000-0000-4000-8000-000000000001/34000000-0000-4000-8000-000000000001/84000000-0000-4000-8000-000000000006.pdf';
   corr constant uuid := '94000000-0000-4000-8000-000000000001';
   result jsonb; replay jsonb; payment_id uuid; payment_version bigint; allocation_id uuid;
   verification_journal uuid; maker_checker_blocked boolean:=false;
@@ -98,6 +104,10 @@ begin
   insert into finance.document_references(
     id,legal_entity_id,external_document_id,document_type,storage_provider,object_key,content_hash,status,created_by,correlation_id
   ) values(document_id,hq,external_document_id,'PAYMENT_EVIDENCE','LOCAL_TEST','synthetic/payment/receipt.pdf',repeat('d',64),'ACTIVE',maker,corr);
+
+  insert into storage.objects(bucket_id,name,metadata) values('ototr-evidence',uploaded_object_key,jsonb_build_object('size',512,'mimetype','application/pdf'));
+  result:=finance_api.commit_payment_evidence_registration(maker,hq,account,branch,uploaded_external_id,'PAYMENT_EVIDENCE',uploaded_object_key,'application/pdf',512,repeat('a',64),'payment-evidence-demo',repeat('9',64),corr);
+  if result->>'outcome'<>'CREATED' or not exists(select 1 from finance.document_references dr where dr.external_document_id=uploaded_external_id and dr.storage_provider='SUPABASE_STORAGE') then raise exception 'payment evidence registration failed: %',result;end if;
 
   result:=finance_api.commit_payment_creation(
     maker,hq,account,branch,date '2026-11-03',date '2026-11-03',100,'TRY','BANK_TRANSFER',
