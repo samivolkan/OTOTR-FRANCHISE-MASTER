@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "module": "OTOTR_FRANCHISE_FINANCE",
+  "target": "STAGING",
+  "status": "NOT_RUN",
+  "productionDataUsed": false,
+  "pilotDataClassification": "SYNTHETIC_OR_ANONYMIZED",
+  "run": {"environmentId":null,"deployedCommit":null,"startedAtUtc":null,"completedAtUtc":null,"executedBy":null,"cutoffAtUtc":null},
+  "snapshots": {"sourceSha256":null,"targetSha256":null},
+  "identityMapping": {"sourceCount":null,"targetCount":null,"unmappedCount":null,"duplicateCount":null},
+  "controlTotals": [
+    {"metric":"SOURCE_EVENT_COUNT","currency":"N/A","sourceValue":null,"targetValue":null,"difference":null},
+    {"metric":"COLLECTED_GROSS","currency":"TRY","sourceValue":null,"targetValue":null,"difference":null},
+    {"metric":"REFUNDED_GROSS","currency":"TRY","sourceValue":null,"targetValue":null,"difference":null},
+    {"metric":"ACCRUAL_GROSS","currency":"TRY","sourceValue":null,"targetValue":null,"difference":null},
+    {"metric":"JOURNAL_DEBIT","currency":"TRY","sourceValue":null,"targetValue":null,"difference":null},
+    {"metric":"JOURNAL_CREDIT","currency":"TRY","sourceValue":null,"targetValue":null,"difference":null},
+    {"metric":"OPEN_ITEM_DEBIT","currency":"TRY","sourceValue":null,"targetValue":null,"difference":null},
+    {"metric":"OPEN_ITEM_CREDIT","currency":"TRY","sourceValue":null,"targetValue":null,"difference":null},
+    {"metric":"PAYMENT_TOTAL","currency":"TRY","sourceValue":null,"targetValue":null,"difference":null},
+    {"metric":"ALLOCATION_TOTAL","currency":"TRY","sourceValue":null,"targetValue":null,"difference":null},
+    {"metric":"BILLING_GROSS","currency":"TRY","sourceValue":null,"targetValue":null,"difference":null},
+    {"metric":"ACCOUNTING_EXPORT_BALANCE","currency":"TRY","sourceValue":null,"targetValue":null,"difference":null}
+  ],
+  "exceptions": [],
+  "productionDecision": "NO_GO"
+}

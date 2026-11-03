@@ -44,3 +44,5 @@ Dağıtılacak 130 migration ve sekiz finans Edge Function paketinin değişmez 
 
 Her staging yüklemesinde kaynak ve hedef için kayıt sayısı, net, KDV, brüt, açık bakiye ve tarih aralığı kaydedilir. Fark sıfır değilse yükleme kabul edilmez; istisna listesi imzalanmadan FIN-G03 veya FIN-G06 geçmez.
 
+Makinece doğrulanan çalışma kaydı `staging-reconciliation-evidence.json` dosyasıdır. Kimlik eşlemesinde eksik/mükerrer kayıt, on iki kontrol toplamından herhangi birinde sıfır dışı fark veya çözülmemiş istisna varken durum `MATCHED` olamaz. Gerçek çalıştırma sonrasında `Test-FinanceStagingReconciliation.ps1 -RequireMatched` geçmeli ve dosya FIN-G06 kanıt sürecinde Veri Lideri ile Finans Kontrol tarafından imzalanmalıdır.
+
