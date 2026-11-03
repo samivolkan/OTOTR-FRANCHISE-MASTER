@@ -19,6 +19,14 @@ create or replace function finance_private.current_service_usage_exception_commi
 returns boolean language sql stable security definer set search_path=''
 as $$select true$$;
 
+create or replace function finance_private.current_service_usage_ingest_worker_is_trusted()
+returns boolean language sql stable security definer set search_path=''
+as $$select true$$;
+
+create or replace function finance_private.current_actor_can_read_scope(p_actor_id uuid,p_legal_entity_id uuid,p_dealer_account_id uuid,p_branch_id uuid,p_operation_id text)
+returns boolean language sql stable security definer set search_path=''
+as $$select true$$;
+
 do $test$
 declare
   maker constant uuid := '00000000-0000-4000-8000-000000000021';
@@ -37,7 +45,7 @@ declare
   families text[] := array['ENTRY_FRANCHISE','QUERY','EXTERNAL_SERVICE','OPTIONAL_PRODUCT_SERVICE'];
   events text[] := array['franchise.entry.activated','query.completed','external-service.delivered','optional-service.activated'];
   nets numeric[] := array[1000.00,100.00,250.00,300.00];
-  fee_id uuid; rule_id uuid; mapping_id uuid; source_id uuid; event_id uuid; usage_exception_source uuid; usage_exception_rule uuid; usage_exception_request uuid;
+  fee_id uuid; rule_id uuid; mapping_id uuid; source_id uuid; event_id uuid; usage_exception_source uuid; usage_exception_rule uuid; usage_exception_request uuid; ingest_event uuid:=gen_random_uuid();ingest_source uuid;
   context jsonb; rule jsonb; command jsonb; calculation jsonb; result jsonb; replay jsonb; contract_projection jsonb; rule_page jsonb; usage_page jsonb;
   rule_cursor uuid;
   i integer; journal_count integer; accrual_count integer; open_count integer; test_accrual uuid;
@@ -51,6 +59,14 @@ begin
   values(branch,hq,dealer,'FAMILY-BRANCH','ACTIVE',maker,corr);
   insert into finance.dealer_accounts(id,legal_entity_id,dealer_legal_entity_id,account_code,currency_code,status,created_by,correlation_id)
   values(account,hq,dealer,'FAMILY-ACCOUNT','TRY','ACTIVE',maker,corr);
+
+  result:=finance_api.commit_service_usage_source_event(maker,hq,dealer,account,branch,'SYNTHETIC_ERP',ingest_event,'query.completed',date '2026-11-03',now(),'{"serviceCode":"TRAMER_QUERY","providerCode":"PROVIDER_A","externalReference":"INGEST-QUERY-001","providerCostAmount":"50.00","currency":"TRY","freeEntitlementApplied":false,"technicalRepeat":false}'::jsonb,repeat('d',64),corr);
+  if result->>'outcome'<>'ACCEPTED'or result->>'status'<>'RECEIVED'then raise exception 'service usage ingestion mismatch: %',result;end if;ingest_source:=(result->>'sourceEventId')::uuid;
+  replay:=finance_api.commit_service_usage_source_event(maker,hq,dealer,account,branch,'SYNTHETIC_ERP',ingest_event,'query.completed',date '2026-11-03',now(),'{"serviceCode":"TRAMER_QUERY","providerCode":"PROVIDER_A","externalReference":"INGEST-QUERY-001","providerCostAmount":"50.00","currency":"TRY","freeEntitlementApplied":false,"technicalRepeat":false}'::jsonb,repeat('d',64),corr);
+  if replay->>'outcome'<>'REPLAY'or(replay->>'sourceEventId')::uuid<>ingest_source then raise exception 'service usage replay mismatch: %',replay;end if;
+  replay:=finance_api.commit_service_usage_source_event(maker,hq,dealer,account,branch,'SYNTHETIC_ERP',ingest_event,'query.completed',date '2026-11-03',now(),'{"serviceCode":"TRAMER_QUERY","providerCode":"PROVIDER_A","externalReference":"INGEST-QUERY-001","providerCostAmount":"51.00","currency":"TRY","freeEntitlementApplied":false,"technicalRepeat":false}'::jsonb,repeat('e',64),corr);
+  if replay->>'outcome'<>'CONFLICT'then raise exception 'service usage conflict mismatch: %',replay;end if;
+  delete from finance.source_events where id=ingest_source;delete from finance.inbox_messages where source_system='SYNTHETIC_ERP'and message_id=ingest_event::text;
 
   insert into finance.franchise_contracts(id,legal_entity_id,dealer_legal_entity_id,contract_code,status,created_by,correlation_id)
   values(contract_id,hq,dealer,'SYNTHETIC-FAMILY-CONTRACT','ACTIVE',maker,corr);
