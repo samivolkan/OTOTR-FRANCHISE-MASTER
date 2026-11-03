@@ -23,6 +23,7 @@ const SERVICE_USAGES_OPERATION='listServiceUsages';
 const REFUND_TRACE_OPERATION = 'getRoyaltyRefundTrace';
 const PERIOD_OPERATION = 'getFinancePeriod';
 const CURRENT_CONTRACT_OPERATION = 'getCurrentFranchiseContract';
+const CONTRACT_VERSIONS_OPERATION = 'listContractVersions';
 const CONTRACT_RULES_OPERATION = 'listContractFeeRules';
 const CONTRACT_RULE_OPERATION = 'getContractFeeRule';
 const CONTRACT_COMPARISON_OPERATION = 'getContractVersionComparison';
@@ -168,6 +169,7 @@ export function createFinanceSummaryClient({getConfig, getAccessToken, fetchImpl
       if(typeof asOf!=='string'||!/^\d{4}-\d{2}-\d{2}$/.test(asOf)) throw new FinanceBridgeError('VALIDATION_ERROR','asOf YYYY-MM-DD biçiminde zorunludur.');
       return execute(rawScope,CURRENT_CONTRACT_OPERATION,{asOf},{},true);
     },
+    async listContractVersions(rawScope,contractId,{cursor,limit}={}){if(cursor!==undefined)requiredUuid(cursor,'cursor','VALIDATION_ERROR');if(limit!==undefined&&(!Number.isInteger(limit)||limit<1||limit>200))throw new FinanceBridgeError('VALIDATION_ERROR','Sürüm limit değeri geçersiz.');return execute(rawScope,CONTRACT_VERSIONS_OPERATION,{cursor,limit},{contractId:requiredUuid(contractId,'contractId','VALIDATION_ERROR')},true);},
     async listContractFeeRules(rawScope,contractVersionId,{status,cursor,limit}={}) {
       const normalizedVersionId=requiredUuid(contractVersionId,'contractVersionId','VALIDATION_ERROR');
       if(status!==undefined&&!['DRAFT','PENDING_APPROVAL','APPROVED','ACTIVE','SUPERSEDED','DISABLED'].includes(status)) throw new FinanceBridgeError('VALIDATION_ERROR','Kural durum filtresi geçersiz.');
@@ -191,12 +193,14 @@ const auth = globalThis.OTOTRDealerFinanceAuth;
 const ui = globalThis.OTOTRFinanceUI;
 const ruleDetailUi=globalThis.OTOTRFinanceRuleDetailUI;
 const comparisonUi=globalThis.OTOTRFinanceComparisonUI;
+const timelineUi=globalThis.OTOTRFinanceTimelineUI;
 const operationalUi=globalThis.OTOTRFinanceOperationalUI;
 if (auth && ui) {
   const client = createFinanceSummaryClient({getConfig: () => auth.getConfig(), getAccessToken: () => auth.getAccessToken()});
   let configuredScope = null;
   let connectedAsOf = null;
   let contractImpactVersionPair = null;
+  let currentContractId = null;
   const refreshContext = () => {
     try {
       configuredScope = validateFinanceScope(globalThis.OTOTR_FINANCE_CONTEXT);
@@ -297,6 +301,8 @@ if (auth && ui) {
       if(!scope) throw new FinanceBridgeError('FINANCE_SCOPE_UNAVAILABLE','ERP finans kapsamı henüz sağlanmadı.');
       return client.getCurrentFranchiseContract(scope,{asOf:options.asOf||connectedAsOf});
     },
+    async listContractVersions(contractId,options={}){const scope=configuredScope||refreshContext();if(!scope)throw new FinanceBridgeError('FINANCE_SCOPE_UNAVAILABLE','ERP finans kapsamı henüz sağlanmadı.');return client.listContractVersions(scope,contractId,options);},
+    async loadContractTimeline(contractId,{append=false}={}){timelineUi?.setContractTimelineState?.('LOADING',append?'Sürüm devam sayfası yükleniyor…':'Sözleşme sürümleri yükleniyor…');try{const cursor=append?timelineUi.contractTimelineMore?.dataset?.cursor:undefined;const result=await api.listContractVersions(contractId,{cursor,limit:25});timelineUi?.renderContractTimelinePage?.(result.data,{append});return result;}catch(error){timelineUi?.setContractTimelineState?.('ERROR',error instanceof FinanceBridgeError?error.message:'Sürüm zaman çizgisi alınamadı.');throw error;}},
     async listContractFeeRules(contractVersionId,options={}) {
       const scope=configuredScope||refreshContext();
       if(!scope) throw new FinanceBridgeError('FINANCE_SCOPE_UNAVAILABLE','ERP finans kapsamı henüz sağlanmadı.');
@@ -313,6 +319,7 @@ if (auth && ui) {
           const contractResult=await api.getCurrentFranchiseContract();
           ui.renderCurrentContract?.(contractResult.data);
           globalThis.dispatchEvent?.(new CustomEvent('ototr:finance-current-contract-loaded',{detail:contractResult.data}));
+          currentContractId=contractResult.data?.contractId||null;if(currentContractId)await api.loadContractTimeline(currentContractId);else timelineUi?.resetContractTimeline?.('Sözleşme bulunamadı.');
           const activeVersionId=contractResult.data?.activeVersion?.versionId;const candidateVersionId=contractResult.data?.pendingVersion?.versionId;
           if(activeVersionId&&candidateVersionId){contractImpactVersionPair=Object.freeze({activeVersionId,candidateVersionId});comparisonUi?.setContractComparisonState?.('LOADING');const comparisonResult=await api.getContractVersionComparison(activeVersionId,candidateVersionId);comparisonUi?.renderContractVersionComparison?.(comparisonResult.data);}else{contractImpactVersionPair=null;comparisonUi?.resetContractComparison?.('Karşılaştırma için aktif ve bekleyen sürüm birlikte gereklidir.');}
           const versionId=contractResult.data?.pendingVersion?.versionId || contractResult.data?.activeVersion?.versionId;
@@ -455,4 +462,5 @@ if (auth && ui) {
   globalThis.addEventListener?.('ototr:finance-contract-rule-requested',event=>{void api.loadContractFeeRule(event.detail?.contractVersionId,event.detail?.feeRuleId).catch(()=>{});});
   globalThis.addEventListener?.('ototr:finance-contract-lifecycle-completed',()=>{void api.loadContractWorkspace().catch(()=>{});void api.loadApprovalWorkItems().catch(()=>{});});
   comparisonUi?.contractImpactForm?.addEventListener('submit',event=>{event.preventDefault();if(!contractImpactVersionPair)return;comparisonUi.setContractImpactState?.('LOADING');void api.simulateContractVersionImpact(contractImpactVersionPair.activeVersionId,contractImpactVersionPair.candidateVersionId,comparisonUi.getContractImpactScenario?.()).then(result=>comparisonUi.renderContractImpactSimulation?.(result.data)).catch(error=>comparisonUi.setContractImpactState?.('ERROR',error instanceof FinanceBridgeError?error.message:'Parasal etki simülasyonu tamamlanamadı.'));});
+  timelineUi?.contractTimelineMore?.addEventListener('click',()=>{if(currentContractId)void api.loadContractTimeline(currentContractId,{append:true}).catch(()=>{});});
 }

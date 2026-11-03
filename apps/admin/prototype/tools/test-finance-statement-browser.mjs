@@ -74,6 +74,9 @@ try {
       const data={contractId:'20202020-2020-4020-8020-202020202020',contractCode:'OTOTR-FR-2026-001',status:'ACTIVE',version:2,activeVersion:{versionId:'21212121-2121-4121-8121-212121212121',versionNo:3,status:'ACTIVE',validFrom:'2026-11-01',validTo:null,currencyCode:'TRY',contentHash:'c'.repeat(64),version:1},pendingVersion:{versionId:'22222222-2222-4222-8222-222222222223',versionNo:4,status:'PENDING_APPROVAL',validFrom:'2027-01-01',validTo:null,currencyCode:'TRY',contentHash:'d'.repeat(64),version:1}};
       await route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({data})});return;
     }
+    if(body.operationId==='listContractVersions'){
+      const version=(versionId,versionNo,status,preparedBy,approvedBy,ruleCount)=>({versionId,contractId:body.pathParams.contractId,versionNo,status,validFrom:versionNo===4?'2027-01-01':'2026-11-01',validTo:null,currencyCode:'TRY',contentHash:(versionNo===4?'d':'c').repeat(64),preparedBy,approvedBy,approvedAtUtc:approvedBy?'2026-11-02T10:00:00Z':null,createdAtUtc:'2026-11-01T09:00:00Z',version:1,ruleCount,configuredRuleCount:ruleCount,exceptionCount:versionNo===4?1:0,rawEvidenceExposed:false});const data={contractId:body.pathParams.contractId,items:[version('22222222-2222-4222-8222-222222222223',4,'PENDING_APPROVAL','70707070-7070-4070-8070-707070707070',null,2),version('21212121-2121-4121-8121-212121212121',3,'ACTIVE','71717171-7171-4171-8171-717171717171','72727272-7272-4272-8272-727272727272',2)],nextCursor:null,hasMore:false,rawDefinitionsExposed:false};await route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({data})});return;
+    }
     if(body.operationId==='getContractVersionComparison'){
       const data={contractId:'20202020-2020-4020-8020-202020202020',activeVersionId:body.pathParams.activeVersionId,activeVersionNo:3,candidateVersionId:body.pathParams.candidateVersionId,candidateVersionNo:4,summary:{added:1,removed:0,changed:1,unchanged:1,requiresReview:true},items:[{feeDefinitionId:'32323232-3232-4323-8323-323232323232',feeCode:'ROYALTY',feeName:'Royalty Bedeli',feeFamily:'ROYALTY',ruleCode:'RULE-ROYALTY',changeType:'CHANGED',activeRuleId:'23232323-2323-4323-8323-232323232323',candidateRuleId:'33333333-3333-4333-8333-333333333333',activeMethod:'PERCENTAGE',candidateMethod:'PERCENTAGE',activePriceIncludesTax:true,candidatePriceIncludesTax:true,activeCurrency:'TRY',candidateCurrency:'TRY',activeStatus:'ACTIVE',candidateStatus:'DRAFT',activeExceptionCount:0,candidateExceptionCount:1}],rawDefinitionsExposed:false};
       await route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({data})});return;
@@ -237,6 +240,11 @@ try {
   assert.match(await page.locator('[data-finance-contract-content]').innerText(),/OTOTR-FR-2026-001/);
   assert.match(await page.locator('[data-finance-contract-content]').innerText(),/v3/);
   await page.waitForFunction(()=>document.querySelector('[data-finance-contract-comparison-content]')?.hidden===false);
+  await page.waitForFunction(()=>document.querySelectorAll('[data-finance-contract-timeline-body] tr').length===2);
+  assert.match(await page.locator('[data-finance-contract-timeline-body]').innerText(),/v4 · TRY/);
+  assert.match(await page.locator('[data-finance-contract-timeline-body]').innerText(),/PENDING_APPROVAL/);
+  assert.match(await page.locator('[data-finance-contract-timeline-body]').innerText(),/2\/2 yapılandırılmış · 1 istisna/);
+  assert.doesNotMatch(await page.locator('[data-finance-contract-timeline-body]').innerText(),/evidence_object_key|synthetic\/candidate/i);
   assert.match(await page.locator('[data-finance-contract-comparison]').innerText(),/v3 → v4/);
   assert.match(await page.locator('[data-finance-contract-comparison]').innerText(),/ROYALTY · Royalty Bedeli/);
   assert.doesNotMatch(await page.locator('[data-finance-contract-comparison]').innerText(),/must-not-leak|calculationParameters|basis_definition/i);
