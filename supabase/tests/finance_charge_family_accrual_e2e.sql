@@ -15,6 +15,10 @@ create or replace function finance_private.current_accrual_worker_is_trusted()
 returns boolean language sql stable security definer set search_path=''
 as $$select true$$;
 
+create or replace function finance_private.current_service_usage_exception_committer_is_trusted()
+returns boolean language sql stable security definer set search_path=''
+as $$select true$$;
+
 do $test$
 declare
   maker constant uuid := '00000000-0000-4000-8000-000000000021';
@@ -33,7 +37,7 @@ declare
   families text[] := array['ENTRY_FRANCHISE','QUERY','EXTERNAL_SERVICE','OPTIONAL_PRODUCT_SERVICE'];
   events text[] := array['franchise.entry.activated','query.completed','external-service.delivered','optional-service.activated'];
   nets numeric[] := array[1000.00,100.00,250.00,300.00];
-  fee_id uuid; rule_id uuid; mapping_id uuid; source_id uuid; event_id uuid;
+  fee_id uuid; rule_id uuid; mapping_id uuid; source_id uuid; event_id uuid; usage_exception_source uuid; usage_exception_rule uuid; usage_exception_request uuid;
   context jsonb; rule jsonb; command jsonb; calculation jsonb; result jsonb; replay jsonb; contract_projection jsonb; rule_page jsonb; usage_page jsonb;
   rule_cursor uuid;
   i integer; journal_count integer; accrual_count integer; open_count integer; test_accrual uuid;
@@ -189,6 +193,16 @@ begin
   insert into finance.source_events(legal_entity_id,dealer_legal_entity_id,branch_id,source_system,event_id,event_type,schema_version,business_date,occurred_at_utc,received_at_utc,aggregate_type,aggregate_id,aggregate_version,payload,payload_hash,status,created_by,correlation_id)
   values(hq,dealer,branch,'SYNTHETIC_ERP',gen_random_uuid(),'query.completed',1,date '2026-11-04',now(),now(),'service-usage','technical-repeat-query-1',1,jsonb_build_object('serviceCode','TRAMER_QUERY','providerCode','PROVIDER-A','externalReference','QUERY-REPEAT-001','providerCostAmount','0.00000000','currency','TRY','freeEntitlementApplied',false,'technicalRepeat',true),repeat('6',64),'PROCESSED',maker,corr),
         (hq,dealer,branch,'SYNTHETIC_ERP',gen_random_uuid(),'external-service.delivered',1,date '2026-11-04',now(),now(),'service-usage','failed-service-1',1,jsonb_build_object('serviceCode','VALUATION_SERVICE','providerCode','PROVIDER-B','externalReference','SERVICE-FAILED-001','providerCostAmount','0.00000000','currency','TRY','freeEntitlementApplied',false,'technicalRepeat',false),repeat('7',64),'REJECTED',maker,corr);
+  select id into usage_exception_source from finance.source_events where legal_entity_id=hq and aggregate_id='technical-repeat-query-1';
+  select cfr.id into usage_exception_rule from finance.contract_fee_rules cfr join finance.fee_definitions fd on fd.id=cfr.fee_definition_id where cfr.contract_version_id=contract_version and fd.fee_family='QUERY';
+  result:=finance_api.commit_service_usage_exception_request(maker,hq,dealer,account,branch,usage_exception_source,usage_exception_rule,'{"type":"EXEMPT"}'::jsonb,'TECHNICAL_REPEAT',repeat('8',64),repeat('9',64),'service-exception-request-001',repeat('a',64),corr);
+  if result->>'outcome'<>'SUBMITTED'or result->>'status'<>'PENDING_APPROVAL'then raise exception 'service usage exception request mismatch: %',result;end if;
+  usage_exception_request:=(result->>'approvalRequestId')::uuid;
+  result:=finance_api.commit_service_usage_exception_approval(checker,hq,dealer,account,branch,usage_exception_request,1,'EVIDENCE_APPROVED',repeat('b',64),'service-exception-approve-001',repeat('c',64),corr);
+  if result->>'outcome'<>'APPROVED'or result->>'status'<>'ACTIVE'or not exists(select 1 from finance.rule_exceptions where id=(result->>'exceptionId')::uuid and status='ACTIVE'and prepared_by=maker and approved_by=checker)then raise exception 'service usage exception approval mismatch: %',result;end if;
+  select finance_private.approval_work_item_projection(a) into usage_page from finance.approval_requests a where a.id=usage_exception_request;
+  if usage_page#>>'{action,screenId}'<>'SCR-09'or usage_page#>>'{action,operationId}'<>'approveServiceUsageException'or usage_page->>'sourceEventId'<>usage_exception_source::text or usage_page->>'feeRuleId'<>usage_exception_rule::text then raise exception 'service usage approval routing mismatch: %',usage_page;end if;
+  if finance_private.resolve_rule_exception(usage_exception_rule,hq,dealer,account,branch,contract_id,contract_version,date '2026-11-01',date '2026-11-04',jsonb_build_object('externalReference','QUERY-REPEAT-001'))#>>'{override,type}'<>'EXEMPT'then raise exception 'approved service usage exception did not resolve';end if;
   usage_page:=finance_api.list_service_usages(hq,account,branch,date '2026-11-01',date '2026-11-30','QUERY','NOT_CHARGED',null,50);
   if jsonb_array_length(usage_page->'items')<>2
      or not exists(select 1 from jsonb_array_elements(usage_page->'items') x where x->>'externalReference'='QUERY-FREE-001' and (x->>'freeEntitlementApplied')::boolean and x->>'dealerPriceAmount' is null and x->>'accrualId' is null)

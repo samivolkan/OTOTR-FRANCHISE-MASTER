@@ -28,9 +28,9 @@ try{
 
   $source=@(Invoke-ContainerCommand @('psql','-X','-At','-U','postgres','-d','postgres','-c',"select count(*)||'|'||(select count(*) from information_schema.routines where routine_schema='finance_api') from information_schema.tables where table_schema='finance' and table_type='BASE TABLE';") 'Source catalog verification failed.')
   $restored=@(Invoke-ContainerCommand @('psql','-X','-At','-U','postgres','-d',$restoreDatabase,'-c',"select count(*)||'|'||(select count(*) from information_schema.routines where routine_schema='finance_api') from information_schema.tables where table_schema='finance' and table_type='BASE TABLE';") 'Restored catalog verification failed.')
-  if($source.Count-ne 1-or$restored.Count-ne 1-or$source[0]-ne$restored[0]-or$source[0]-ne'48|163'){throw "Restored finance catalog mismatch: source=$($source-join',') restored=$($restored-join',')"}
+  if($source.Count-ne 1-or$restored.Count-ne 1-or$source[0]-ne$restored[0]-or$source[0]-ne'48|166'){throw "Restored finance catalog mismatch: source=$($source-join',') restored=$($restored-join',')"}
   Write-Host 'FINANCE LOCAL BACKUP RESTORE: PASSED' -ForegroundColor Green
-  Write-Host 'Separate restore target verified: 48 finance tables; 163 finance API functions; productionDataUsed: false.'
+  Write-Host 'Separate restore target verified: 48 finance tables; 166 finance API functions; productionDataUsed: false.'
 }finally{
   & $dockerPath exec $ContainerName dropdb -U postgres --if-exists $restoreDatabase 2>$null | Out-Null
   & $dockerPath exec $ContainerName rm -f $dependencyDumpPath $financeDumpPath 2>$null | Out-Null
