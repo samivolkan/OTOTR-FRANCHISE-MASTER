@@ -32,7 +32,8 @@ $checks = @(
   'Test-FinanceOperationalHealthE2E.ps1',
   'Test-FinanceLocalBackupRestore.ps1',
   'Test-GMFinanceDemoEnvironment.ps1',
-  'Test-FinanceUATCoverage.ps1'
+  'Test-FinanceUATCoverage.ps1',
+  'Test-FinancePreproductionReadiness.ps1'
 )
 
 $results = foreach ($check in $checks) {

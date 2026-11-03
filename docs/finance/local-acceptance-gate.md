@@ -24,4 +24,4 @@ pwsh -NoProfile -File scripts/Test-FinanceLocalAcceptance.ps1
 
 Kapı yalnızca tüm alt kontroller geçtiğinde başarılıdır. Bütün E2E testleri sentetik veri kullanır, PostgreSQL transaction içinde çalışır ve `ROLLBACK` sonrası kalıntı olmadığını ayrıca sorgular.
 
-Bu kapının geçmesi staging, UAT veya pre-production kabulü anlamına gelmez. Ticari oranlar, vergi kararları, vadeler, gerçek ERP adaptörleri, kullanıcı imzaları ve operasyon tatbikatları ayrıca tamamlanmalıdır.
+Bu kapının geçmesi staging, UAT veya pre-production kabulü anlamına gelmez. Kabul paketi pre-production kapı belgesini de her çalıştırmada doğrular ve eksik kurumsal kanıt varken kararı `NO_GO` tutar. Ticari oranlar, vergi kararları, vadeler, gerçek ERP adaptörleri, kullanıcı imzaları ve operasyon tatbikatları ayrıca tamamlanmalıdır.
