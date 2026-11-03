@@ -2,9 +2,7 @@
 
 begin;
 set local request.jwt.claim.sub = '00000000-0000-4000-8000-000000000052';
-
-create or replace function finance_private.current_billing_batch_worker_is_trusted()
-returns boolean language sql stable security definer set search_path='' as $$select true$$;
+set local request.jwt.claim.role = 'service_role';
 create or replace function finance_private.current_actor_can_dispatch_invoice(
   p_actor_id uuid,p_legal_entity_id uuid,p_branch_id uuid
 ) returns boolean language sql stable security definer set search_path='' as $$select true$$;
@@ -22,6 +20,7 @@ do $test$
 declare
   maker constant uuid := '00000000-0000-4000-8000-000000000051';
   checker constant uuid := '00000000-0000-4000-8000-000000000052';
+  finance_app_user constant uuid := '00000000-0000-4000-8000-000000000053';
   hq constant uuid := '15000000-0000-4000-8000-000000000001';
   dealer constant uuid := '25000000-0000-4000-8000-000000000001';
   branch constant uuid := '35000000-0000-4000-8000-000000000001';
@@ -45,6 +44,10 @@ begin
   values(branch,hq,dealer,'EXPORT-BRANCH','ACTIVE',maker,corr);
   insert into finance.dealer_accounts(id,legal_entity_id,dealer_legal_entity_id,account_code,currency_code,status,created_by,correlation_id)
   values(account,hq,dealer,'EXPORT-ACCOUNT','TRY','ACTIVE',maker,corr);
+  insert into public.app_users(id,auth_user_id,branch_id,full_name,role,is_active)
+  values(finance_app_user,checker,null,'Sentetik Faturalama Yetkilisi','FINANCE',true);
+  result:=finance_api.authorize_billing_batch_scope(account,branch,null,'finance.billing-batches.create');
+  if coalesce((result->>'allowed')::boolean,false) is not true or result->>'dealerAccountId'<>account::text or result->>'branchId'<>branch::text then raise exception 'billing create identity scope denied: %',result;end if;
   insert into finance.fee_definitions(id,legal_entity_id,code,version_no,fee_family,name,status,created_by,correlation_id)
   values(fee,hq,'SYNTHETIC-BILLING',1,'EXTERNAL_SERVICE','Sentetik Faturalama','PUBLISHED',maker,corr);
 
