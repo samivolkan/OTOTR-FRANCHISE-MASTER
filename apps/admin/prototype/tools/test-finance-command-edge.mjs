@@ -7,7 +7,7 @@ const ids={legalEntityId:'11111111-1111-4111-8111-111111111111',dealerAccountId:
 const actorId='44444444-4444-4444-8444-444444444444',errorId='55555555-5555-4555-8555-555555555555',jobId='66666666-6666-4666-8666-666666666666',correlationId='77777777-7777-4777-8777-777777777777';
 const contractVersionId='88888888-8888-4888-8888-888888888888',feeRuleId='99999999-9999-4999-8999-999999999999',dealerLegalEntityId='aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',feeDefinitionId='bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb';
 const disputeTargetId='dddddddd-dddd-4ddd-8ddd-dddddddddddd',disputeId='eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee';
-const paymentId='12121212-1212-4212-8212-121212121212',allocationId='13131313-1313-4313-8313-131313131313',openItemId='14141414-1414-4414-8414-141414141414';
+const paymentId='12121212-1212-4212-8212-121212121212',allocationId='13131313-1313-4313-8313-131313131313',openItemId='14141414-1414-4414-8414-141414141414',expenseId='15151515-1515-4515-8515-151515151515';
 const token=`user-token-${'x'.repeat(32)}`;let commitInput;
 const ports={
   authenticate:async value=>({id:actorId,token:value}),
@@ -23,6 +23,14 @@ const ports={
   commitPaymentAllocate:async value=>{commitInput=value;return {outcome:'CREATED',paymentId,paymentVersion:3,unallocatedAmount:'20.00',allocations:[{id:allocationId,openItemId}]};},
   authorizePaymentAllocationReverse:async()=>({allowed:true,...ids,paymentId,paymentVersion:3,allocationVersion:1,openItemId,openItemVersion:2}),
   commitPaymentAllocationReverse:async value=>{commitInput=value;return {outcome:'CREATED',originalAllocationId:allocationId,status:'REVERSED',paymentVersion:4};},
+  authorizeExpenseCreate:async()=>({allowed:true,...ids}),
+  commitExpenseCreate:async value=>{commitInput=value;return {outcome:'CREATED',expenseId,status:'DRAFT',version:1};},
+  authorizeExpenseAction:async()=>({allowed:true,...ids,expenseId,status:'DRAFT',version:1}),
+  commitExpenseShareCalculation:async value=>{commitInput=value;return {outcome:'CALCULATED',expenseId,status:'CALCULATED',version:2};},
+  commitExpenseSubmit:async value=>{commitInput=value;return {outcome:'SUBMITTED',expenseId,status:'PENDING_APPROVAL',version:3};},
+  commitExpenseApprove:async value=>{commitInput=value;return {outcome:'APPROVED',expenseId,status:'APPROVED',version:4};},
+  commitExpensePost:async value=>{commitInput=value;return {outcome:'POSTED',expenseId,status:'POSTED',version:5};},
+  commitExpenseReverse:async value=>{commitInput=value;return {outcome:'REVERSED',expenseId,status:'REVERSED',version:6};},
   authorizeDisputeCreate:async()=>({allowed:true,...ids}),
   commitDisputeCreate:async value=>{commitInput=value;return {outcome:'CREATED',disputeId,status:'DRAFT',version:1};},
   authorizeDisputeSubmit:async()=>({allowed:true,...ids,status:'DRAFT',version:1}),
@@ -53,6 +61,10 @@ const verifyPayment={operationId:'verifyPayment',scope:ids,command:{paymentId,ex
 const allocatePayment={operationId:'allocatePayment',scope:ids,command:{paymentId,allocationMethod:'MANUAL',items:[{openItemId,amount:{amount:'80.00',currency:'TRY'},expectedOpenItemVersion:1}],expectedPaymentVersion:2,idempotencyKey:'payment:allocate:001'}};response=await handler(request(allocatePayment));assert.equal(response.status,200);assert.equal((await response.json()).data.unallocatedAmount,'20.00');assert.equal(commitInput.items[0].openItemId,openItemId);
 const reversePayment={operationId:'reversePaymentAllocation',scope:ids,command:{allocationId,reasonCode:'WRONG_TARGET',expectedAllocationVersion:1,expectedPaymentVersion:3,expectedOpenItemVersion:2,documentIds:[],note:'Yanlış açık kaleme tahsis edildi.',idempotencyKey:'payment:reverse:001'}};response=await handler(request(reversePayment));assert.equal(response.status,200);assert.equal((await response.json()).data.status,'REVERSED');assert.match(commitInput.intentHash,/^[a-f0-9]{64}$/);
 assert.equal((await handler(request({...allocatePayment,command:{...allocatePayment.command,items:[...allocatePayment.command.items,...allocatePayment.command.items]}}))).status,400);
+const createExpense={operationId:'createPassThroughExpense',scope:ids,command:{supplierReference:'TED-2026-001',feeDefinitionId,expenseDate:'2026-11-03',currencyCode:'TRY',netAmount:'100.00',taxAmount:'20.00',grossAmount:'120.00',contractualBasisReference:'FRANCHISE-CONTRACT-V1',documentIds:[],targetScopes:[{dealerAccountId:ids.dealerAccountId,branchId:ids.branchId}],note:'Tedarikçi faturası kontrol edildi.',idempotencyKey:'expense:create:001'}};response=await handler(request(createExpense));assert.equal(response.status,200);assert.equal((await response.json()).data.status,'DRAFT');assert.equal(commitInput.supplierReferenceNormalized,'TED-2026-001');assert.match(commitInput.inputHash,/^[a-f0-9]{64}$/);assert.doesNotMatch(JSON.stringify(commitInput),/Tedarikçi faturası/);
+const calculateExpense={operationId:'calculateExpenseShares',scope:ids,command:{expenseId,distributionMethod:'EQUAL',distributionRuleReference:'EQUAL-ACTIVE-BRANCHES-V1',expectedVersion:1,idempotencyKey:'expense:calculate:001'}};response=await handler(request(calculateExpense));assert.equal(response.status,200);assert.equal((await response.json()).data.outcome,'CALCULATED');assert.match(commitInput.inputHash,/^[a-f0-9]{64}$/);
+for(const [operationId,outcome,extra] of [['submitExpenseApproval','SUBMITTED',{}],['approveExpense','APPROVED',{}],['postExpense','POSTED',{postingDate:'2026-11-03'}],['reverseExpense','REVERSED',{reversalDate:'2026-11-04',documentIds:[]}]] ){const expenseCommand={operationId,scope:ids,command:{expenseId,expectedVersion:2,reasonCode:'EXPENSE_REVIEWED',note:'Masraf yaşam döngüsü kararı doğrulandı.',idempotencyKey:`expense:${operationId}:001`,...extra}};response=await handler(request(expenseCommand));assert.equal(response.status,200);assert.equal((await response.json()).data.outcome,outcome);assert.match(commitInput.intentHash,/^[a-f0-9]{64}$/);assert.doesNotMatch(JSON.stringify(commitInput),/yaşam döngüsü kararı/);}
+assert.equal((await handler(request({...createExpense,command:{...createExpense.command,grossAmount:'121.00'}}))).status,400);
 const disputeSubmit={operationId:'submitDispute',scope:ids,command:{disputeId,expectedVersion:1,reasonCode:'EVIDENCE_REVIEWED',note:'Kanıt ve kapsam kontrol edildi.',idempotencyKey:'dispute:submit:001'}};
 response=await handler(request(disputeSubmit));assert.equal(response.status,200);payload=await response.json();assert.equal(payload.data.outcome,'SUBMITTED');assert.equal(commitInput.disputeId,disputeId);assert.match(commitInput.noteHash,/^[a-f0-9]{64}$/);assert.doesNotMatch(JSON.stringify(commitInput),/Kanıt ve kapsam/);
 const disputeDecision={operationId:'decideDispute',scope:ids,command:{disputeId,decision:'PARTIALLY_ACCEPTED',acceptedAmount:'70.00',decisionDate:'2026-11-03',expectedVersion:2,reasonCode:'PARTIAL_SUPPORT',note:'Yetkili checker kanıtı inceledi.',idempotencyKey:'dispute:decision:001'}};
