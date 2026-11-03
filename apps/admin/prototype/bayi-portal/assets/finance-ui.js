@@ -684,10 +684,15 @@
     const calculatedAt = summary.calculatedAtUtc ? new Date(summary.calculatedAtUtc) : null;
     if (calculatedAt && Number.isNaN(calculatedAt.getTime())) throw new Error('INVALID_FINANCE_TIMESTAMP');
     freshness.textContent = calculatedAt ? calculatedAt.toLocaleString('tr-TR') : 'Bilinmiyor';
-    if(!Array.isArray(summary.feeFamilies)||!Array.isArray(summary.branchBreakdown)||!summary.operationalContribution||summary.operationalContribution.status!=='SOURCE_NOT_CONNECTED')throw new Error('INVALID_FINANCE_DEALER_BREAKDOWN');
+    if(!Array.isArray(summary.feeFamilies)||!Array.isArray(summary.branchBreakdown)||!summary.operationalContribution||!['SOURCE_NOT_CONNECTED','CALCULATED'].includes(summary.operationalContribution.status))throw new Error('INVALID_FINANCE_DEALER_BREAKDOWN');
     const familyRows=summary.feeFamilies.map(item=>{if(!item||typeof item.feeFamily!=='string'||item.currency!==summary.currencyCode)throw new Error('INVALID_FINANCE_DEALER_FAMILY');const tr=document.createElement('tr');tr.append(cell(item.feeFamily),cell(amount(item.netAmount,item.currency)),cell(amount(item.taxAmount,item.currency)),cell(amount(item.grossAmount,item.currency)));return tr;});
     const branchRows=summary.branchBreakdown.map(item=>{if(!item||!uuidPattern.test(item.branchId||'')||typeof item.branchCode!=='string'||item.currency!==summary.currencyCode)throw new Error('INVALID_FINANCE_DEALER_BRANCH');const tr=document.createElement('tr');tr.append(cell(item.branchCode),cell(amount(item.accruedGrossAmount,item.currency)),cell(amount(item.collectedGrossAmount,item.currency)),cell(amount(item.openGrossAmount,item.currency)),cell(amount(item.overdueGrossAmount,item.currency)));return tr;});
-    dealerFamilies.replaceChildren(...familyRows);dealerBranches.replaceChildren(...branchRows);dealerFamiliesTable.hidden=!familyRows.length;dealerBranchesTable.hidden=!branchRows.length;dealerBreakdownEmpty.hidden=familyRows.length>0||branchRows.length>0;dealerBreakdownState.textContent='READY · BRANCH-SCOPED PROJECTION';operationalContribution.textContent='Operasyonel katkı hesaplanmadı: ERP müşteri cirosu adaptörü bağlı değil; tahmini kazanç üretilmez.';
+    dealerFamilies.replaceChildren(...familyRows);dealerBranches.replaceChildren(...branchRows);dealerFamiliesTable.hidden=!familyRows.length;dealerBranchesTable.hidden=!branchRows.length;dealerBreakdownEmpty.hidden=familyRows.length>0||branchRows.length>0;dealerBreakdownState.textContent='READY · BRANCH-SCOPED PROJECTION';
+    const contribution=summary.operationalContribution;
+    if(contribution.status==='CALCULATED'){
+      if(contribution.currency!==summary.currencyCode||contribution.method!=='CUSTOMER_NET_REVENUE_MINUS_GM_ACCRUALS'||contribution.isAccountingProfit!==false||contribution.rawCustomerRecordsExposed!==false)throw new Error('INVALID_OPERATIONAL_CONTRIBUTION');
+      operationalContribution.textContent=`Operasyonel katkı: ${amount(contribution.amount,contribution.currency)} · Müşteri net cirosu ${amount(contribution.customerNetRevenueAmount,contribution.currency)} - GM tahakkukları ${amount(contribution.gmAccruedGrossAmount,contribution.currency)} · Muhasebe kârı değildir.`;
+    }else operationalContribution.textContent='Operasyonel katkı hesaplanmadı: ERP müşteri cirosu adaptörü bağlı değil; tahmini kazanç üretilmez.';
     if(activeScreenId!=='SCR-01') applySummaryKpis(summary);
     setConnectionState('READY');
   };

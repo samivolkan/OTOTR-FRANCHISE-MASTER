@@ -5,6 +5,8 @@ set local request.jwt.claim.sub = '00000000-0000-4000-8000-000000000082';
 
 create or replace function finance_private.current_summary_projection_worker_is_trusted()
 returns boolean language sql stable security definer set search_path='' as $$select true$$;
+create or replace function finance_private.current_customer_revenue_adapter_is_trusted()
+returns boolean language sql stable security definer set search_path=pg_catalog as $$select true$$;
 create or replace function finance_private.current_actor_can_read_scope(
   p_actor_id uuid,p_legal_entity_id uuid,p_dealer_account_id uuid,p_branch_id uuid,p_operation_id text
 ) returns boolean language sql stable security definer set search_path=pg_catalog as $$
@@ -135,13 +137,23 @@ begin
     jsonb_build_object('lastAccrualId',accrual_2,'lastPaymentId',payment_id),repeat('2',64),corr
   );
   if replay->>'outcome'<>'REPLAY' then raise exception 'summary snapshot replay failed: %',replay; end if;
+  result:=finance_api.commit_branch_customer_revenue_snapshot(actor,hq,account_a,branch_a,'SYNTHETIC_BRANCH_ERP','revenue-2026-11-30-A',date '2026-11-30','TRY',1100,100,42,repeat('7',64),'CUSTOMER_REVENUE_DAILY_V1',corr);
+  if result->>'outcome'<>'CREATED'or(result->>'netCustomerRevenueAmount')::numeric<>1000 or result->>'rawCustomerRecordsExposed'<>'false'then raise exception 'customer revenue snapshot creation failed: %',result;end if;
+  replay:=finance_api.commit_branch_customer_revenue_snapshot(actor,hq,account_a,branch_a,'SYNTHETIC_BRANCH_ERP','revenue-2026-11-30-A',date '2026-11-30','TRY',1100,100,42,repeat('7',64),'CUSTOMER_REVENUE_DAILY_V1',corr);
+  if replay->>'outcome'<>'REPLAY'then raise exception 'customer revenue snapshot replay failed: %',replay;end if;
 
   result:=finance_api.get_dealer_finance_summary(hq,account_a,branch_a,date '2026-11-30');
   if result#>>'{accrued,grossAmount}'<>'300.00000000' or result#>>'{collected,grossAmount}'<>'40.00000000'
      or result#>>'{open,grossAmount}'<>'260.00000000' or result#>>'{unallocated,amount}'<>'60.00000000'
      or jsonb_array_length(result->'feeFamilies')<>1 or result#>>'{feeFamilies,0,feeFamily}'<>'EXTERNAL_SERVICE'
      or jsonb_array_length(result->'branchBreakdown')<>1 or result#>>'{branchBreakdown,0,branchCode}'<>'READ-BRANCH-A'
-     or result#>>'{operationalContribution,status}'<>'SOURCE_NOT_CONNECTED' then
+     or result#>>'{operationalContribution,status}'<>'CALCULATED'
+     or result#>>'{operationalContribution,amount}'<>'700.00000000'
+     or result#>>'{operationalContribution,customerNetRevenueAmount}'<>'1000.00000000'
+     or result#>>'{operationalContribution,gmAccruedGrossAmount}'<>'300.00000000'
+     or result#>>'{operationalContribution,method}'<>'CUSTOMER_NET_REVENUE_MINUS_GM_ACCRUALS'
+     or result#>>'{operationalContribution,isAccountingProfit}'<>'false'
+     or result#>>'{operationalContribution,rawCustomerRecordsExposed}'<>'false' then
     raise exception 'dealer finance summary totals mismatch: %',result;
   end if;
   export_result:=finance_api.export_dealer_finance_summary(hq,account_a,branch_a,date '2026-11-30');
