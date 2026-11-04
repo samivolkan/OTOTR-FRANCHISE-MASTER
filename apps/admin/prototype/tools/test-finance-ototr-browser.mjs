@@ -36,6 +36,15 @@ try {
   await page.waitForFunction(() => document.querySelector('[data-finance-readiness]')?.dataset.state === 'READY');
   assert.match(await page.locator('[data-finance-environment]').innerText(), /LIVE BAĞLANTI KAPALI/);
   assert.equal(await page.locator('[data-finance-connect]').isDisabled(), true);
+  await page.locator('[data-finance-screen="SCR-04"]').click();
+  const simulator = page.locator('[data-finance-rule-simulator]');
+  await simulator.locator('[name="collectedGross"]').fill('1180,00');
+  await simulator.locator('[name="ratePercent"]').fill('10');
+  await simulator.locator('[name="refundGross"]').fill('590,00');
+  await simulator.locator('button[type="submit"]').click();
+  assert.match(await simulator.innerText(), /118\.00 TRY/);
+  assert.match(await simulator.innerText(), /-59\.00 TRY/);
+  assert.match(await page.locator('[data-finance-simulator-state]').innerText(), /KAYDEDİLMEDİ/);
   await page.locator('[data-finance-screen="SCR-08"]').click();
   assert.equal(await page.locator('[data-finance-card-checkout-submit]').isDisabled(), true);
   assert.deepEqual(financeRequests, []);
