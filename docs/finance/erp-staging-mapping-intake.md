@@ -43,6 +43,8 @@ ERP sunucusundaki olay işleyicisi, yetkili şube eşlemesini tamamladıktan son
 
 Ön kontrolde iki etkin ERP şubesi ve şubeye bağlı bir etkin yönetici hesabı bulundu. Demo, test veya pilot önekiyle işaretlenmiş etkin şube ve finans kapsamındaki etkin merkez oturumu bulunmadı. Bunlar envanter sonuçlarıdır. Rol yetkisini doğrulamak için finans dağıtımı, iki sentetik şube, merkez finans ve şube yönetici test oturumları gerekir. Mevcut şube kayıtları pilot olarak atanmış sayılmaz.
 
+Migration ön kontrolünde staging geçmişindeki 125 sürümün çalışma kopyasında karşılığı bulunmadı. Çalışma kopyasındaki 28 finans dışı sürüm de staging geçmişinde görünmüyor. Bu karşılaştırma sürüm kimliklerine dayanır. Kurulumdan önce staging'in kayıtlı ERP geçmişi korunarak finans manifestindeki 137 sürüm için ayrı dağıtım önizlemesi alınır. Genel repo zinciri bu hedefe doğrudan uygulanmaz. Sürüm farkları eşlenmeden geçmiş onarımı yapılmaz.
+
 - Staging Supabase proje referansı veya eşdeğer veritabanı hedefi;
 - ERP test tenant/base URL;
 - secret manager ve secret adları (değerler değil);
