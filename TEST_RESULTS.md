@@ -1351,3 +1351,13 @@ Sınırlar: otomatik fotogrametri, üretici model kütüphanesi, buluttan ses/vi
 - Employee self-service leave submission, independent manager/HR approval, payroll lock separation and authorized document visibility remained passing.
 - Detailed matrix and staging re-run procedure: `docs/hr/GM_HR_ROLE_MATRIX_ACCEPTANCE_2026-11-04.md`.
 - Limit: this is PGlite PostgreSQL 17 acceptance with synthetic identities. Hosted Supabase Auth/RLS role testing remains the next staging step after migration-history reconciliation.
+
+## 2026-11-04 — Bursa Osmangazi franchise branch opening model
+
+- `npm run test:franchise-branch-opening`: PASS.
+- Synthetic application `FR-DEMO-20261104-OSMANGAZI` completed pre-screening, finance, location, legal, contract, onboarding and pilot-UAT gates: 7/7.
+- Synthetic branch `BURSA-OSM` / `OTOTR Bursa Osmangazi` was modeled with target opening date `2026-12-01`.
+- Staff model passed: 1 branch owner, 1 branch manager, 2 body technicians and 1 secretary; all five are bound to the same branch scope.
+- Current DB-role mappings are explicit: owner/secretary map to existing `BRANCH_MANAGER` scope, technicians map to `INSPECTION_TECHNICIAN`.
+- Final status is `PILOT_READY_PRODUCTION_BLOCKED`; real production opening remains blocked until the excluded KVKK/data-classification gate is approved.
+- Scenario and next staging steps: `docs/franchise/BURSA_OSMANGAZI_BRANCH_OPENING_MODEL_2026-11-04.md`.

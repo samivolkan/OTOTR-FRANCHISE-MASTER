@@ -405,3 +405,11 @@ Karar ve geri alma: docs/decisions/2026-09-08-kaporta-360-studio.md; migration i
 - Pushed the static ERP bundle to `samivolkan/Ototr` `main` at `6079d7d59a838c7498c1fc2e683495add91cc566`.
 - GitHub Pages deployment `41556872750` completed successfully; the live module, runtime files, ERP navigation bridge and anonymous access redirect were verified.
 - No remote Supabase migration was applied. Because privacy/KVKK item 2 was excluded by request, production activation and all real HR data remain fail-closed rather than being represented as complete.
+
+## 2026-11-04 — Bursa Osmangazi franchise opening model
+
+- Added a deterministic synthetic end-to-end model for franchise application `FR-DEMO-20261104-OSMANGAZI`.
+- Modeled the approved Bursa/Osmangazi branch, opening checklist, contract/legal gates, pilot UAT and five-person staff: owner, manager, two body technicians and secretary.
+- Added explicit product-role to existing DB-role mappings and branch-scope assertions.
+- No real franchise applicant, employee, customer, contract, branch or financial record was created. No remote Supabase migration or production write was run.
+- Production state intentionally ends at `PILOT_READY_PRODUCTION_BLOCKED` until the excluded KVKK/data-classification gate is approved.

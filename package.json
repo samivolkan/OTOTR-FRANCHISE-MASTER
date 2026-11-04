@@ -22,6 +22,7 @@
     "smoke:first-work-order:clean": "node tools/local-first-work-order-clean-e2e.mjs",
     "test:dealer-print": "node apps/admin/prototype/tools/test-bayi-final-report-print.mjs",
     "test:gm-hr": "node tools/test-gm-hr-database.mjs && node apps/admin/prototype/tools/test-gm-hr.mjs",
+    "test:franchise-branch-opening": "node apps/admin/prototype/tools/test-franchise-branch-opening.mjs",
     "test:public-api": "node tools/test-public-api.mjs",
     "test": "echo \"Use a scoped test script, for example: npm run test:public-api\" && exit 1",
     "ai:plan": "node scripts/ototr-orchestrator.mjs plan",
