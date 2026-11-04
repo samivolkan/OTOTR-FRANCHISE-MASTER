@@ -39,7 +39,9 @@ ERP sunucusundaki olay işleyicisi, yetkili şube eşlemesini tamamladıktan son
 
 ## Staging ortamı zorunluları
 
-Repo kayıtlarında `ototr-staging`, kamu webi ve Kaporta 360 pilotu için kullanılmış bir ortam olarak geçiyor. GM Finans için bu ortam adaydır. ERP test tenant adresi, sentetik pilot şubeler ve rol bazlı test erişimleri doğrulandıktan sonra FIN-G03/FIN-G05 uygulama hedefi olarak kaydedilir. Ortam adı tek başına finans dağıtım kanıtı oluşturmaz.
+`ototr-staging`, 5 Kasım 2026 tarihinde kullanıcı tarafından Muhasebe V2 staging hedefi olarak onaylandı. Bağlı proje üzerinde salt okunur ön kontrolde ERP kimlik ve şube tabloları bulundu. Finans şemaları, finans migration kayıtları ve finans Edge Function paketleri henüz yoktu.
+
+Ön kontrolde iki etkin ERP şubesi ve şubeye bağlı bir etkin yönetici hesabı bulundu. Demo, test veya pilot önekiyle işaretlenmiş etkin şube ve finans kapsamındaki etkin merkez oturumu bulunmadı. Bunlar envanter sonuçlarıdır. Rol yetkisini doğrulamak için finans dağıtımı, iki sentetik şube, merkez finans ve şube yönetici test oturumları gerekir. Mevcut şube kayıtları pilot olarak atanmış sayılmaz.
 
 - Staging Supabase proje referansı veya eşdeğer veritabanı hedefi;
 - ERP test tenant/base URL;
