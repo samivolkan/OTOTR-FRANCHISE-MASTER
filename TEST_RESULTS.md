@@ -1337,6 +1337,8 @@ Sınırlar: otomatik fotogrametri, üretici model kütüphanesi, buluttan ses/vi
 
 ## 2026-11-05 — Entry franchise accrual integrity
 
+- Local PostgREST smoke test temporarily enabled the reviewed `finance_api` schema and used a short-lived local JWT with no ERP scope. A direct HTTP call to the dealer summary RPC returned 403. The temporary local schema override was reset after the test.
+
 - The two-branch identity test exercises the finance summary RPC as the authenticated database role. Finance receives both synthetic balances. The branch manager receives their own balance and gets SQLSTATE 42501 for the other branch.
 
 - Local acceptance passed 57/57 after linking the official release gates to commercial configuration, UAT, staging evidence and the final decision record. The run used no production data. The official readiness report remained `NO_GO` with 0 of 12 gates passed.
