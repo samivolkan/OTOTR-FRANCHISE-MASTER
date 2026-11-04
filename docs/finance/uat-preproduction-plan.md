@@ -84,6 +84,20 @@ pwsh -NoProfile -File scripts/Test-FinanceStagingSecurity.ps1 -RequirePassed
 
 ## Karar komutu
 
+Resmî hazırlık kaydında kapı kapanışı ve sonradan yapılan hazırlık kontrolü aynı doğrulayıcıları çalıştırır. Staging ekibi ilgili kaydı tamamladıktan sonra kapı sahibinin ve onaylayan rollerin imzalarını ekler.
+
+| Kapı | Doğrulanan kayıt |
+|---|---|
+| FIN-G01 | `commercial-configuration.json` ve güncel kamuya açık özet |
+| FIN-G06 | `staging-reconciliation-evidence.json` |
+| FIN-G07 | `uat-execution-evidence.json` |
+| FIN-G08 | `staging-security-evidence.json` |
+| FIN-G09 | `staging-performance-evidence.json` |
+| FIN-G10 | `staging-operations-evidence.json` |
+| FIN-G11 | `staging-recovery-evidence.json` |
+
+Kayıtlar `docs/finance/` dizinindedir. Staging başlamadan önce ERP test tenant adresi, pilot şubeler ve rol bazlı test erişimleri [staging eşleme formuna](erp-staging-mapping-intake.md) kaydedilir. Geçiş ve mutabakatın ardından UAT senaryoları çalıştırılır. Güvenlik, performans, operasyon ve kurtarma kanıtları aynı sürüme bağlanır.
+
 FIN-G01…FIN-G11 tamamlandığında nihai karar `docs/finance/preproduction-decision.json` dosyasında hazırlanır. Proje Yöneticisi, Finans Direktörü, ERP Ürün Sahibi, Bilgi Güvenliği ve Franchise Yönetimi farklı kimliklerle imzalamadan; release commit’i, değişiklik penceresi, release manifesti ve rollback kanıtı bağlanmadan aşağıdaki komut `GO` vermez. Doğrulanan karar dosyası daha sonra beş rol tarafından FIN-G12 kanıtı olarak kaydedilir.
 
 ```powershell
