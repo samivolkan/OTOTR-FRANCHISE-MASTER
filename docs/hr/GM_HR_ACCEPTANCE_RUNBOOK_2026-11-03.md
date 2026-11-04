@@ -37,7 +37,7 @@ Beklenen özet:
 1. Staging projesi production değildir ve yalnız sentetik veri içerir.
 2. Staging migration geçmişi kaynak zinciriyle uzlaştırılmıştır; beklenmeyen remote-only/local-only kayıt yoktur.
 3. Staging'in güncel yedeği ve geri yükleme hedefi doğrulanmıştır.
-4. İki farklı HQ onay kullanıcısı, iki şube kullanıcısı, bir çalışan ve bir finans test kullanıcısı hazırdır.
+4. Altı ayrı staging Auth hesabı hazırdır: GM, İK uzmanı, şube İK, bordro, denetçi ve çalışan.
 5. Auth kullanıcıları `public.app_users.auth_user_id` ile eşlenmiştir.
 6. Uygulama runtime config'i yalnız staging URL ve publishable key içerir.
 
@@ -61,6 +61,8 @@ Uygulama sonrası:
 4. Sentetik işe giriş/çıkış, izin, puantaj, görevlendirme ve iki gölge bordro dönemi tamamlanır.
 5. Staging yedeği ayrı restore hedefine geri yüklenir; audit sayısı, iki `RECONCILED` dönem ve bloklu üretim kapısı karşılaştırılır.
 6. Supabase security/performance advisor bulguları kaydedilir ve yeni hata bırakılmaz.
+
+Rol matrisi kabul sırası `docs/hr/GM_HR_ROLE_MATRIX_ACCEPTANCE_2026-11-04.md` içindeki altı hesap ve negatif yetki kontrolleriyle birebir uygulanır.
 
 ## Yayın davranışı
 

@@ -22,6 +22,7 @@ const ids = Object.freeze({
   employeeUser: '20000000-0000-0000-0000-000000000005',
   financeUser: '20000000-0000-0000-0000-000000000006',
   branchBManagerUser: '20000000-0000-0000-0000-000000000007',
+  auditorUser: '20000000-0000-0000-0000-000000000008',
   ceoAuth: '30000000-0000-0000-0000-000000000001',
   gmAuth: '30000000-0000-0000-0000-000000000002',
   hrAuth: '30000000-0000-0000-0000-000000000003',
@@ -29,6 +30,7 @@ const ids = Object.freeze({
   employeeAuth: '30000000-0000-0000-0000-000000000005',
   financeAuth: '30000000-0000-0000-0000-000000000006',
   branchBManagerAuth: '30000000-0000-0000-0000-000000000007',
+  auditorAuth: '30000000-0000-0000-0000-000000000008',
 });
 
 const db = new PGlite({ extensions: { pgcrypto } });
@@ -93,7 +95,8 @@ async function setupSupabaseFixture() {
       ('${ids.managerUser}','${ids.managerAuth}','${ids.hqBranch}','BRANCH_MANAGER',true),
       ('${ids.employeeUser}','${ids.employeeAuth}','${ids.hqBranch}','INSPECTION_TECHNICIAN',true),
       ('${ids.financeUser}','${ids.financeAuth}','${ids.hqBranch}','FINANCE',true),
-      ('${ids.branchBManagerUser}','${ids.branchBManagerAuth}','${ids.branchB}','BRANCH_MANAGER',true);
+      ('${ids.branchBManagerUser}','${ids.branchBManagerAuth}','${ids.branchB}','BRANCH_MANAGER',true),
+      ('${ids.auditorUser}','${ids.auditorAuth}','${ids.hqBranch}','AUDITOR',true);
   `);
 }
 
@@ -235,6 +238,54 @@ const payrollRoleRequest = await rpc(ids.ceoAuth, 'hr_request_role_assignment', 
   'Sentetik kabul testi gölge bordro operatörü',
 ]);
 await rpc(ids.gmAuth, 'hr_decide_role_assignment', [payrollRoleRequest.roleAssignmentId, 'APPROVE']);
+
+const employeeSelfServiceRequest = await rpc(ids.ceoAuth, 'hr_request_role_assignment', [
+  ids.employeeUser,
+  'EMPLOYEE_SELF_SERVICE',
+  employer.employerId,
+  ids.hqBranch,
+  'Sentetik kabul testi çalışan öz hizmet rolü',
+]);
+await rpc(ids.gmAuth, 'hr_decide_role_assignment', [employeeSelfServiceRequest.roleAssignmentId, 'APPROVE']);
+
+const auditorRoleRequest = await rpc(ids.ceoAuth, 'hr_request_role_assignment', [
+  ids.auditorUser,
+  'AUDITOR',
+  employer.employerId,
+  null,
+  'Sentetik kabul testi denetçi rolü',
+]);
+await rpc(ids.gmAuth, 'hr_decide_role_assignment', [auditorRoleRequest.roleAssignmentId, 'APPROVE']);
+
+const roleMatrix = [
+  [ids.gmAuth, 'GENERAL_MANAGER', []],
+  [ids.hrAuth, 'CRM_AGENT', ['HR_ADMIN']],
+  [ids.managerAuth, 'BRANCH_MANAGER', ['BRANCH_HR_MANAGER']],
+  [ids.financeAuth, 'FINANCE', ['PAYROLL_OPERATOR']],
+  [ids.auditorAuth, 'AUDITOR', ['AUDITOR']],
+  [ids.employeeAuth, 'INSPECTION_TECHNICIAN', ['EMPLOYEE_SELF_SERVICE']],
+];
+for (const [authId, expectedDbRole, expectedHrRoles] of roleMatrix) {
+  const context = await rpc(authId, 'hr_my_context');
+  assert.equal(context.dbRole, expectedDbRole, `Role matrix db role mismatch for ${expectedDbRole}`);
+  const roleCodes = context.hrRoles.map((role) => role.roleCode);
+  for (const roleCode of expectedHrRoles) {
+    assert.ok(roleCodes.includes(roleCode), `Role matrix assignment missing: ${expectedDbRole}/${roleCode}`);
+  }
+  const dashboard = await rpc(authId, 'hr_dashboard');
+  assert.equal(typeof dashboard.employees, 'number', `Dashboard must be readable for ${expectedDbRole}`);
+}
+
+await expectDenied(
+  'Auditor candidate mutation',
+  () => rpc(ids.auditorAuth, 'hr_create_synthetic_candidate', [employer.employerId, ids.hqBranch, '00000000-0000-0000-0000-000000000000', 'Demo Denetçi Yetki Reddi', 'DEMO-AUDITOR-DENY', 'auditor-deny-0001']),
+  /HR scope denied|position not found|permission|denied/i,
+);
+await expectDenied(
+  'Employee payroll mutation',
+  () => rpc(ids.employeeAuth, 'hr_create_payroll_shadow_period', [employer.employerId, '2026-12-01', '2026-12-31', 'employee-payroll-deny-0001']),
+  /payroll scope denied|permission|denied/i,
+);
 
 const organization = await rpc(ids.hrAuth, 'hr_upsert_organization_unit', [
   employer.employerId,
