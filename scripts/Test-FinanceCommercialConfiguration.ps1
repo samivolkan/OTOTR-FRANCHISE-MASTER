@@ -27,7 +27,7 @@ if ($royalty.refundExcessPolicy.mode -ne 'CARRY_FORWARD_CREDIT' -or $royalty.ref
 if ($royalty.refundCashPayoutPolicy -ne 'DISABLED_CARRY_FORWARD_ONLY') { throw 'Confirmed royalty cash payout prohibition was changed.' }
 if ($royalty.waiverPolicy.scope -ne 'BRANCH' -or @($royalty.waiverPolicy.allowedTypes) -notcontains 'NEW_DEALER_INTRODUCTORY' -or @($royalty.waiverPolicy.allowedTypes) -notcontains 'FINANCIAL_HARDSHIP' -or (@($royalty.waiverPolicy.introductoryDurationsMonths) -join ',') -ne '6,12' -or -not $royalty.waiverPolicy.requiresEffectiveDateRange -or -not $royalty.waiverPolicy.requiresMakerCheckerApproval -or -not $royalty.waiverPolicy.financialHardshipReviewRequired -or $royalty.waiverPolicy.shiftSystemDependency -ne $false) { throw 'Confirmed branch waiver policy was changed.' }
 $entryFranchise = $d.feeFamilies | Where-Object code -eq 'ENTRY_FRANCHISE'
-if ($entryFranchise.decisionStatus -ne 'PARTIALLY_CONFIRMED' -or $entryFranchise.trigger -ne 'BRANCH_OPENING' -or $entryFranchise.accrualOccurrence -ne 'ONCE_PER_BRANCH' -or $entryFranchise.duplicateAccrualPolicy -ne 'REJECT' -or $entryFranchise.retroactiveAccrual -ne $false -or -not $entryFranchise.requiresBranchOpeningReference) { throw 'Confirmed one-time branch-opening entry franchise policy was changed.' }
+if ($entryFranchise.decisionStatus -notin @('PARTIALLY_CONFIRMED','APPROVED') -or $entryFranchise.trigger -ne 'BRANCH_OPENING' -or $entryFranchise.accrualOccurrence -ne 'ONCE_PER_BRANCH' -or $entryFranchise.duplicateAccrualPolicy -ne 'REJECT' -or $entryFranchise.retroactiveAccrual -ne $false -or -not $entryFranchise.requiresBranchOpeningReference) { throw 'Confirmed one-time branch-opening entry franchise policy was changed.' }
 $deduction = $d.feeFamilies | Where-Object code -eq 'DEDUCTION_CREDIT'
 if ($deduction.directBalanceEditAllowed -ne $false) { throw 'Direct balance editing must remain forbidden.' }
 $publicRaw = Get-Content -Raw -LiteralPath (Resolve-Path $PublicProjectionFile)
@@ -46,6 +46,11 @@ try {
  $generatedCanonical = $generated | ConvertTo-Json -Depth 20 -Compress
  $committedCanonical = $public | ConvertTo-Json -Depth 20 -Compress
  if ($generatedCanonical -cne $committedCanonical) { throw 'Committed commercial public projection is stale or was edited manually.' }
+ foreach ($family in $generated.feeFamilies) {
+   if ($family.decisionStatus -eq 'APPROVED' -and @($family.pendingFields).Count -gt 0) {
+     throw "Approved fee family has pending fields: $($family.code)"
+   }
+ }
 } finally {
  if (Test-Path -LiteralPath $generatedFile) { Remove-Item -LiteralPath $generatedFile -Force }
 }
