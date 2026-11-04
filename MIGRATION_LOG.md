@@ -402,5 +402,7 @@ Karar ve geri alma: docs/decisions/2026-09-08-kaporta-360-studio.md; migration i
 
 ## 2026-11-05 — Entry franchise accrual integrity
 
+- Migration `20261103010137` grants schema usage for the finance API to authenticated and service roles while removing inherited public function execution. Local PostgREST configuration exposes the API schema. Staging configuration still requires verification.
+
 - Migration `20261103010136` enforces one original entry franchise accrual per branch with a partial unique index. Historical originals count toward the limit. Existing duplicates stop migration for explicit reconciliation.
 - New postings require a scoped `branch.opened` event, an opening reference and the corresponding Istanbul business date. The ERP still needs to provide authoritative opening events and an approved rollout cutoff.

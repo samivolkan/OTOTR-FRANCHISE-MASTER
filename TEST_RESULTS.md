@@ -1337,6 +1337,8 @@ Sınırlar: otomatik fotogrametri, üretici model kütüphanesi, buluttan ses/vi
 
 ## 2026-11-05 — Entry franchise accrual integrity
 
+- The two-branch identity test exercises the finance summary RPC as the authenticated database role. Finance receives both synthetic balances. The branch manager receives their own balance and gets SQLSTATE 42501 for the other branch.
+
 - Local acceptance passed 57/57 after linking the official release gates to commercial configuration, UAT, staging evidence and the final decision record. The run used no production data. The official readiness report remained `NO_GO` with 0 of 12 gates passed.
 
 - An isolated copy of the canonical FIN-G01 registry accepted the first two synthetic signoffs. The third was rejected while commercial configuration was pending. The registry stayed `PENDING` and retained exactly two evidence entries. The actual registry was untouched.

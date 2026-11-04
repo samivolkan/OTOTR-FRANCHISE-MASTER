@@ -24,6 +24,34 @@ begin
  if not finance_private.current_actor_can_create_payment(ceo_auth,hq,a1,b1) or not finance_private.current_actor_can_create_payment(finance_auth,hq,a1,b1) then raise exception 'HQ payment creator role denied';end if;
  if finance_private.current_actor_can_create_payment(manager_auth,hq,a1,b1) or finance_private.current_actor_can_create_payment(finance_auth,hq,a2,b1) then raise exception 'payment create role or scope boundary violated';end if;
  if finance_private.current_actor_can_read_scope(manager_auth,hq,a1,b2,'getDealerFinanceSummary') then raise exception 'mismatched dealer and branch accepted';end if;
- raise notice 'IDENTITY SCOPE E2E PASSED: real ERP roles, mappings, grants and cross-scope denial verified';
+ insert into finance.dealer_finance_summary_snapshots(
+   legal_entity_id,dealer_account_id,branch_id,as_of_date,currency_code,
+   accrued_net,accrued_tax,accrued_gross,invoiced_net,invoiced_tax,invoiced_gross,
+   collected_net,collected_tax,collected_gross,open_net,open_tax,open_gross,
+   overdue_net,overdue_tax,overdue_gross,deducted_net,deducted_tax,deducted_gross,
+   refunded_net,refunded_tax,refunded_gross,disputed_net,disputed_tax,disputed_gross,
+   unallocated_cash_amount,read_model_version,source_watermark,snapshot_hash,created_by,correlation_id
+ ) values
+   (hq,a1,b1,current_date,'TRY',100,20,120,0,0,0,0,0,0,100,20,120,0,0,0,0,0,0,0,0,0,0,0,0,0,'scope-test','{}',repeat('a',64),ceo,corr),
+   (hq,a2,b2,current_date,'TRY',200,40,240,0,0,0,0,0,0,200,40,240,0,0,0,0,0,0,0,0,0,0,0,0,0,'scope-test','{}',repeat('b',64),ceo,corr);
+ perform set_config('request.jwt.claim.role','authenticated',true);
+ perform set_config('request.jwt.claim.sub',finance_auth::text,true);
+ set local role authenticated;
+ if (finance_api.get_dealer_finance_summary(hq,a1,b1,current_date)#>>'{accrued,grossAmount}')::numeric is distinct from 120
+    or (finance_api.get_dealer_finance_summary(hq,a2,b2,current_date)#>>'{accrued,grossAmount}')::numeric is distinct from 240 then
+   raise exception 'FINANCE RPC did not return both branch balances';
+ end if;
+ perform set_config('request.jwt.claim.sub',manager_auth::text,true);
+ if (finance_api.get_dealer_finance_summary(hq,a1,b1,current_date)#>>'{accrued,grossAmount}')::numeric is distinct from 120 then
+   raise exception 'BRANCH_MANAGER RPC did not return own balance';
+ end if;
+ begin
+   perform finance_api.get_dealer_finance_summary(hq,a2,b2,current_date);
+   raise exception 'BRANCH_MANAGER RPC exposed the other branch';
+ exception when insufficient_privilege then
+   if sqlerrm <> 'finance scope denied' then raise; end if;
+ end;
+ reset role;
+ raise notice 'IDENTITY SCOPE E2E PASSED: ERP roles, branch mappings and authenticated RPC isolation verified';
 end $test$;
 rollback;

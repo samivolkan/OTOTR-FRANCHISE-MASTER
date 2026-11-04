@@ -7,7 +7,7 @@ project_id = "ototr-local"
 [api]
 enabled = true
 port = 55321
-schemas = ["public", "graphql_public"]
+schemas = ["public", "graphql_public", "finance_api"]
 extra_search_path = ["public", "extensions"]
 max_rows = 1000
 
