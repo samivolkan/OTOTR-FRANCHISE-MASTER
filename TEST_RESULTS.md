@@ -1337,6 +1337,8 @@ Sınırlar: otomatik fotogrametri, üretici model kütüphanesi, buluttan ses/vi
 
 ## 2026-11-05 — Entry franchise accrual integrity
 
+- `node --test packages/shared/src/finance-branch-opening-adapter.test.mjs` passed 2/2. The reference adapter forwards a minimal event at the Istanbul cutover boundary and rejects earlier events, missing cutover, malformed dates, missing references and branch mismatches before calling ingestion.
+
 - Local finance acceptance passed 56/56 after applying the migration to the local test database. The verified catalog contains 137 finance migrations. Pre-production readiness remains `NO_GO`.
 
 - The local SQL accrual test passed inside a rolled-back transaction with migration `20261103010136`. The original posting and its replay left one entry charge. A distinct source event and key hit the branch uniqueness constraint. Missing opening references and an event date mismatch were rejected. Journal, open-item and calculation-run counts confirmed atomic rejection.

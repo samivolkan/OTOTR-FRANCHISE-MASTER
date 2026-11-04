@@ -30,6 +30,8 @@ Dağıtılacak 137 migration ve on bir finans Edge Function paketinin değişmez
 
 ## Şube açılış olayı ve UAT-FIN-05
 
+ERP sunucusundaki olay işleyicisi, yetkili şube eşlemesini tamamladıktan sonra `packages/shared/src/finance-branch-opening-adapter.mjs` içindeki adaptörü çağırır. Staging bağlantısı sırasında `ingest` işlevi mevcut finans olay alımına, `cutoverDate` ise onaylı İstanbul iş gününe bağlanır. Olay alımı için ERP kaynak sistem kimliği sunucu yapılandırmasından sağlanır.
+
 - ERP, yetkili açılış işleminin ardından `branch.opened` olayını üretir. Olay sabit bir kaynak olay kimliği, açılış işlemine ait `branchOpeningReference`, şube kimliği ve gerçekleşme zamanı taşır. Adaptör bu kimlikleri ERP ana verisinden GM, bayi, cari ve şube kapsamına eşler. İstanbul iş günü gerçekleşme zamanından türetilir.
 - Devreye alma kesim tarihi ERP Ürün Sahibi ve Finans Operasyon tarafından belirlenir. Adaptör, onaylı tarih tanımlanana kadar yeni giriş bedeli akışını kapalı tutar. Kesim öncesi açılışlar yeniden oynatılsa bile tahakkuk kuyruğuna girmez. Kesim sonrası gecikmeli teslim, özgün olay kimliği ve gerçekleşme zamanı ile değerlendirilir.
 - Tahakkuk motoru geçerli sözleşme ve ücret kuralı, vergi sürümü, muhasebe eşlemesi ve işlemeye açık dönem üzerinden hesaplama yapar. Onaylı tutar ve vade kuralı staging senaryosunun girdisidir. Hesaplama sonucunda tek borç, dengeli yevmiye ve faturaya izlenebilir tahakkuk beklenir.
