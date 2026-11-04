@@ -1334,3 +1334,9 @@ Sınırlar: otomatik fotogrametri, üretici model kütüphanesi, buluttan ses/vi
 - `scripts/Test-FinanceCommercialConfiguration.ps1`: PASS. Recorded the confirmed entry-franchise policy as a branch-opening event that accrues once per branch, rejects duplicate accrual attempts, requires the branch-opening reference and does not create retroactive accruals; amount, tax code, due rule and invoice line remain explicitly undecided.
 - Migration/deployment manifest, local replay, backup/restore, recovery contract, UAT inventory and `git diff --check`: PASS. Current verified local catalog is 164 total migrations, 136 finance migrations, 52 finance tables and 183 finance API functions.
 - Scope limit: tests used synthetic local data. A real provider is not selected or bound; provider sandbox checkout/3D Secure, staging delivery, real ERP middleware binding and human approvals were not exercised; pre-production remains `NO_GO`.
+
+## 2026-11-05 — Entry franchise accrual integrity
+
+- Local finance acceptance passed 56/56 after applying the migration to the local test database. The verified catalog contains 137 finance migrations. Pre-production readiness remains `NO_GO`.
+
+- The local SQL accrual test passed inside a rolled-back transaction with migration `20261103010136`. The original posting and its replay left one entry charge. A distinct source event and key hit the branch uniqueness constraint. Missing opening references and an event date mismatch were rejected. Journal, open-item and calculation-run counts confirmed atomic rejection.

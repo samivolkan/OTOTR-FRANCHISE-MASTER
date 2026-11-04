@@ -43,11 +43,13 @@ declare
   tax_version constant uuid := '82000000-0000-4000-8000-000000000002';
   corr constant uuid := '92000000-0000-4000-8000-000000000001';
   families text[] := array['ENTRY_FRANCHISE','QUERY','EXTERNAL_SERVICE','OPTIONAL_PRODUCT_SERVICE'];
-  events text[] := array['franchise.entry.activated','query.completed','external-service.delivered','optional-service.activated'];
+  events text[] := array['branch.opened','query.completed','external-service.delivered','optional-service.activated'];
   nets numeric[] := array[1000.00,100.00,250.00,300.00];
   fee_id uuid; rule_id uuid; mapping_id uuid; source_id uuid; event_id uuid; usage_exception_source uuid; usage_exception_rule uuid; usage_exception_request uuid; ingest_event uuid:=gen_random_uuid();ingest_source uuid;
   context jsonb; rule jsonb; command jsonb; calculation jsonb; result jsonb; replay jsonb; contract_projection jsonb; rule_page jsonb; usage_page jsonb;
   rule_cursor uuid;
+  second_source uuid;
+  rejected_constraint text;
   i integer; journal_count integer; accrual_count integer; open_count integer; test_accrual uuid;
   gross numeric(24,8); expected_total numeric(24,8):=1980.00000000;
 begin
@@ -126,8 +128,8 @@ begin
       business_date,occurred_at_utc,received_at_utc,aggregate_type,aggregate_id,aggregate_version,payload,
       payload_hash,status,created_by,correlation_id
     ) values(
-      source_id,hq,dealer,branch,'SYNTHETIC_ERP',event_id,events[i],1,date '2026-11-03',now(),now(),
-      'charge-family','family-'||i,1,jsonb_build_object('amount',nets[i]::text)||case when i=2 then jsonb_build_object('serviceCode','TRAMER_QUERY','providerCode','PROVIDER-A','externalReference','QUERY-001','providerCostAmount','50.00000000','currency','TRY','freeEntitlementApplied',false,'technicalRepeat',false) when i=3 then jsonb_build_object('serviceCode','VALUATION_SERVICE','providerCode','PROVIDER-B','externalReference','SERVICE-001','providerCostAmount','200.00000000','currency','TRY','freeEntitlementApplied',false,'technicalRepeat',false) else '{}'::jsonb end,repeat(i::text,64),
+      source_id,hq,dealer,branch,'SYNTHETIC_ERP',event_id,events[i],1,date '2026-11-03',timestamptz '2026-11-03 10:00:00+03',now(),
+      'charge-family','family-'||i,1,jsonb_build_object('amount',nets[i]::text)||case when i=1 then jsonb_build_object('branchOpeningReference',event_id) when i=2 then jsonb_build_object('serviceCode','TRAMER_QUERY','providerCode','PROVIDER-A','externalReference','QUERY-001','providerCostAmount','50.00000000','currency','TRY','freeEntitlementApplied',false,'technicalRepeat',false) when i=3 then jsonb_build_object('serviceCode','VALUATION_SERVICE','providerCode','PROVIDER-B','externalReference','SERVICE-001','providerCostAmount','200.00000000','currency','TRY','freeEntitlementApplied',false,'technicalRepeat',false) else '{}'::jsonb end,repeat(i::text,64),
       'RECEIVED',maker,corr
     );
 
@@ -167,6 +169,46 @@ begin
       checker,command,context,rule,calculation,date '2026-11-10',repeat(i::text,64),repeat(chr(96+i),64),null
     );
     if replay->>'outcome'<>'REPLAY' then raise exception 'idempotent replay failed for family %',families[i]; end if;
+    if i=1 then
+      insert into finance.source_events(
+        legal_entity_id,dealer_legal_entity_id,branch_id,source_system,event_id,event_type,schema_version,
+        business_date,occurred_at_utc,received_at_utc,aggregate_type,aggregate_id,aggregate_version,
+        payload,payload_hash,status,created_by,correlation_id
+      )
+      select legal_entity_id,dealer_legal_entity_id,branch_id,source_system,gen_random_uuid(),event_type,schema_version,
+        business_date,occurred_at_utc,received_at_utc,aggregate_type,'duplicate-opening',1,
+        payload,repeat('e',64),'RECEIVED',created_by,correlation_id
+      from finance.source_events where id=source_id returning id into second_source;
+      command:=command||jsonb_build_object('sourceEventId',second_source,'idempotencyKey','different-opening-key');
+      context:=finance_api.load_accrual_calculation_context(hq,dealer,account,branch,second_source,fee_id,'LIVE');
+      begin
+        update finance.source_events set payload=payload-'branchOpeningReference' where id=second_source;
+        perform finance_api.commit_accrual_calculation(
+          checker,command,context,rule,calculation,date '2026-11-10',repeat('e',64),repeat('f',64),null
+        );
+        raise exception 'missing opening reference was accepted';
+      exception when check_violation then
+        if sqlerrm <> 'entry franchise accrual requires a dated branch opening reference' then raise; end if;
+      end;
+      begin
+        update finance.source_events set occurred_at_utc=occurred_at_utc+interval '1 day' where id=second_source;
+        perform finance_api.commit_accrual_calculation(
+          checker,command,context,rule,calculation,date '2026-11-10',repeat('e',64),repeat('f',64),null
+        );
+        raise exception 'backdated opening event was accepted';
+      exception when check_violation then
+        if sqlerrm <> 'entry franchise accrual requires a dated branch opening reference' then raise; end if;
+      end;
+      begin
+        perform finance_api.commit_accrual_calculation(
+          checker,command,context,rule,calculation,date '2026-11-10',repeat('e',64),repeat('f',64),null
+        );
+        raise exception 'a different source event and key created a second entry franchise charge';
+      exception when unique_violation then
+        get stacked diagnostics rejected_constraint = CONSTRAINT_NAME;
+        if rejected_constraint <> 'accruals_entry_franchise_once_per_branch' then raise; end if;
+      end;
+    end if;
   end loop;
 
   insert into finance.rule_exceptions(contract_fee_rule_id,exception_code,scope_definition,condition_definition,override_definition,priority,effective_from,status,prepared_by,approved_by,approved_at_utc,created_by,correlation_id)

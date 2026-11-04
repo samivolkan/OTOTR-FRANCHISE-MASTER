@@ -399,3 +399,8 @@ Karar ve geri alma: docs/decisions/2026-09-08-kaporta-360-studio.md; migration i
 - Updated the immutable promotion manifest to 136 finance migrations and staging deployment inventory to 11 function packages. Added provider checkout context/session RPCs and the deployable `finance-payment-checkout` Edge route; open amount and branch scope are derived server-side and only the provider token hash is persisted in the existing outbox/audit chain. Local catalog: 52 finance tables, 183 `finance_api` functions and 52 forced-RLS finance tables.
 - Published scoped commits through `a9d758a`; later traceability corrections are `0dfc416` and `5bfac1f`. No production database migration, production secret or real payment/customer data was used.
 - Pre-production remains `NO_GO`: real ERP route binding, selected payment-provider checkout/3D Secure adapter, staging role/IDOR tests and authorized business/security signoffs remain external gates.
+
+## 2026-11-05 — Entry franchise accrual integrity
+
+- Migration `20261103010136` enforces one original entry franchise accrual per branch with a partial unique index. Historical originals count toward the limit. Existing duplicates stop migration for explicit reconciliation.
+- New postings require a scoped `branch.opened` event, an opening reference and the corresponding Istanbul business date. The ERP still needs to provide authoritative opening events and an approved rollout cutoff.
