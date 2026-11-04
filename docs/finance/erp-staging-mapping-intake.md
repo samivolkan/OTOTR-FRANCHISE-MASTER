@@ -39,6 +39,8 @@ ERP sunucusundaki olay işleyicisi, yetkili şube eşlemesini tamamladıktan son
 
 ## Staging ortamı zorunluları
 
+Repo kayıtlarında `ototr-staging`, kamu webi ve Kaporta 360 pilotu için kullanılmış bir ortam olarak geçiyor. GM Finans için bu ortam adaydır. ERP test tenant adresi, sentetik pilot şubeler ve rol bazlı test erişimleri doğrulandıktan sonra FIN-G03/FIN-G05 uygulama hedefi olarak kaydedilir. Ortam adı tek başına finans dağıtım kanıtı oluşturmaz.
+
 - Staging Supabase proje referansı veya eşdeğer veritabanı hedefi;
 - ERP test tenant/base URL;
 - secret manager ve secret adları (değerler değil);
