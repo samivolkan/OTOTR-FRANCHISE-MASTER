@@ -1,12 +1,11 @@
 import assert from 'node:assert/strict';
-import {readFile} from 'node:fs/promises';
 import {chromium} from 'playwright';
 import {createFinanceDemoServer} from './finance-demo-server.mjs';
 
 const publishRoot = process.argv[2];
 if (!publishRoot) throw new Error('Pass the local Ototr publish checkout path');
 
-const server = await createFinanceDemoServer({port: 0, staticRoot: publishRoot});
+const server = await createFinanceDemoServer({port: 0, staticRoot: publishRoot, enableOtotrDemo: true});
 const base = 'http://127.0.0.1:' + server.address().port;
 let browser;
 try {
@@ -20,15 +19,6 @@ try {
     if (/^\/(?:functions\/v1\/finance-|api\/finance\/)/.test(pathname)) {
       financeRequests.push(pathname);
     }
-  });
-  const bootstrap = await readFile(new URL('../bayi-portal/assets/finance-demo-bootstrap.js', import.meta.url), 'utf8');
-  await page.route(base + '/muhasebe-v2/?financeDemo=1', async route => {
-    const response = await route.fetch();
-    const html = await response.text();
-    await route.fulfill({response, body: html.replace(
-      '<script src="assets/finance-ui.js"></script>',
-      '<script>' + bootstrap + '</script><script src="assets/finance-ui.js"></script>'
-    )});
   });
   await page.goto(base + '/index.html#dashboard');
   await page.getByRole('button', {name: 'Muhasebe V2', exact: true}).click();

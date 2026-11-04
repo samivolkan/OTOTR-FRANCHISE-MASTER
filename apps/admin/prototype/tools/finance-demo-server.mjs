@@ -25,8 +25,17 @@ const health=Object.freeze({status:'READY',environment:'SYNTHETIC_DEMO',module:'
 const mime={'.html':'text/html; charset=utf-8','.js':'text/javascript; charset=utf-8','.mjs':'text/javascript; charset=utf-8','.css':'text/css; charset=utf-8','.svg':'image/svg+xml'};
 
 const api=body=>({getDealerFinanceSummary:summary,getHeadquartersFinanceSummary:headquarters,getFinanceOperationalHealth:operationalHealth,getFinancePeriod:period,listIntegrationErrors:integrationList,getIntegrationError:integrationDetail,listApprovalWorkItems:approvalList,getApprovalWorkItem:approvalDetail,listAuditEvents:auditList,getAuditCorrelationTrace:auditTrace}[body.operationId]??{items:[],nextCursor:null,hasMore:false});
-export function createFinanceDemoServer({port=4173,staticRoot=root}={}){
+export async function createFinanceDemoServer({port=4173,staticRoot=root,enableOtotrDemo=false}={}){
 const servingRoot=resolve(staticRoot);
+const ototrEntry=join(servingRoot,'muhasebe-v2','index.html');
+const financeScript='<script src="assets/finance-ui.js"></script>';
+let demoEntry;
+if(enableOtotrDemo){
+  const html=await readFile(ototrEntry,'utf8');
+  if(!html.includes(financeScript))throw new Error('Ototr Muhasebe V2 finance script not found');
+  const bootstrap=await readFile(join(root,'assets','finance-demo-bootstrap.js'),'utf8');
+  demoEntry=html.replace(financeScript,()=>'<script>'+bootstrap+'</script>'+financeScript);
+}
 const server=createServer(async(req,res)=>{
   try{
     if(req.method==='GET'&&req.url==='/health'){
@@ -46,15 +55,20 @@ const server=createServer(async(req,res)=>{
     const relative=url.pathname.slice(1)+(url.pathname.endsWith('/')?'index.html':'');
     const target=resolve(servingRoot,relative);
     if(!target.startsWith(servingRoot+sep)||!(await stat(target)).isFile())throw new Error('NOT_FOUND');
-    res.writeHead(200,{'content-type':mime[extname(target)]||'application/octet-stream','cache-control':'no-store'});res.end(await readFile(target));
+    const content=demoEntry&&target===ototrEntry&&url.searchParams.get('financeDemo')==='1'
+      ? demoEntry : await readFile(target);
+    res.writeHead(200,{'content-type':mime[extname(target)]||'application/octet-stream','cache-control':'no-store'});res.end(content);
   }catch(error){res.writeHead(error.message==='NOT_FOUND'?404:400,{'content-type':'application/json; charset=utf-8'});res.end(JSON.stringify({error:{code:'DEMO_REQUEST_FAILED',message:'Sentetik demo isteği tamamlanamadı.'}}));}
 });
 return new Promise((resolve,reject)=>{server.once('error',reject);server.listen(port,'127.0.0.1',()=>resolve(server));});
 }
 
-if(process.argv[1]&&fileURLToPath(import.meta.url)===process.argv[1]){
+if(process.argv[1]&&fileURLToPath(import.meta.url)===resolve(process.argv[1])){
   const port=Number(process.env.OTOTR_FINANCE_DEMO_PORT||4173);
-  await createFinanceDemoServer({port});
-  console.log(`OTOTR GM Finans sentetik demo: http://127.0.0.1:${port}/index.html?financeDemo=1#finance`);
-  console.log(`Sağlık kontrolü: http://127.0.0.1:${port}/health · productionDataUsed=false · writesPersisted=false`);
+  const staticRoot=process.argv[2];
+  const server=await createFinanceDemoServer({port,staticRoot,enableOtotrDemo:Boolean(staticRoot)});
+  const origin='http://127.0.0.1:'+server.address().port;
+  const demoPath=staticRoot?'/muhasebe-v2/?financeDemo=1':'/index.html?financeDemo=1#finance';
+  console.log(`OTOTR Finans sentetik demo: ${origin}${demoPath}`);
+  console.log(`Sağlık kontrolü: ${origin}/health · productionDataUsed=false · writesPersisted=false`);
 }
