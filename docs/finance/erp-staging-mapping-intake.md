@@ -21,11 +21,19 @@ Dağıtılacak 137 migration ve on bir finans Edge Function paketinin değişmez
 
 | Akış | Kaynak/hedef sistem | Taşıma | Kimlik doğrulama referansı | Idempotency anahtarı | Retry/DLQ sahibi | Durum |
 |---|---|---|---|---|---|---|
+| Şube açılışı | ERP şube yaşam döngüsü → finans olay kaydı | Sunucudan sunucuya, bağlama bekleniyor | Secret manager referansı | Kaynak sistem + ERP olay kimliği | ERP Entegrasyon, sorumlu ataması bekleniyor | PENDING |
 | Tahsilat kesinleşmesi | Bekleniyor | Bekleniyor | Secret manager referansı | Bekleniyor | Bekleniyor | PENDING |
 | Müşteri iadesi | Bekleniyor | Bekleniyor | Secret manager referansı | Bekleniyor | Bekleniyor | PENDING |
 | Sorgu/hizmet kullanımı | Bekleniyor | Bekleniyor | Secret manager referansı | Bekleniyor | Bekleniyor | PENDING |
 | Fatura dispatch/callback | Bayinin muhasebe/fatura adaptörü | Bekleniyor | Secret manager referansı | Bekleniyor | Bekleniyor | PENDING |
 | Muhasebe export/feedback | Bayi veya GM muhasebe adaptörü | Bekleniyor | Secret manager referansı | Bekleniyor | Bekleniyor | PENDING |
+
+## Şube açılış olayı ve UAT-FIN-05
+
+- ERP, yetkili açılış işleminin ardından `branch.opened` olayını üretir. Olay sabit bir kaynak olay kimliği, açılış işlemine ait `branchOpeningReference`, şube kimliği ve gerçekleşme zamanı taşır. Adaptör bu kimlikleri ERP ana verisinden GM, bayi, cari ve şube kapsamına eşler. İstanbul iş günü gerçekleşme zamanından türetilir.
+- Devreye alma kesim tarihi ERP Ürün Sahibi ve Finans Operasyon tarafından belirlenir. Adaptör, onaylı tarih tanımlanana kadar yeni giriş bedeli akışını kapalı tutar. Kesim öncesi açılışlar yeniden oynatılsa bile tahakkuk kuyruğuna girmez. Kesim sonrası gecikmeli teslim, özgün olay kimliği ve gerçekleşme zamanı ile değerlendirilir.
+- Tahakkuk motoru geçerli sözleşme ve ücret kuralı, vergi sürümü, muhasebe eşlemesi ve işlemeye açık dönem üzerinden hesaplama yapar. Onaylı tutar ve vade kuralı staging senaryosunun girdisidir. Hesaplama sonucunda tek borç, dengeli yevmiye ve faturaya izlenebilir tahakkuk beklenir.
+- Staging kabulünde kesim öncesi açılış, kesim anındaki açılış, gecikmeli teslim, aynı olayın tekrarı, farklı olay kimliğiyle aynı şubeye ikinci tahakkuk, eksik açılış referansı ve şubeler arası kapsam uyuşmazlığı çalıştırılır. Her ret ve tekrar için olay sonucu ile tahakkuk, yevmiye ve açık kalem sayıları kaydedilir. Kanıt Franchise Yönetimi onayıyla UAT-FIN-05 kaydına bağlanır.
 
 ## Staging ortamı zorunluları
 
