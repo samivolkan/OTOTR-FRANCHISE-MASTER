@@ -1342,3 +1342,12 @@ Sınırlar: otomatik fotogrametri, üretici model kütüphanesi, buluttan ses/vi
 - The ERP root loaded the GM İK navigation bridge; the live bridge contained the **GM İK Sistemi** heading and `gm-ik` route.
 - Fresh unauthenticated in-app-browser acceptance redirected `/Ototr/gm-ik/` to `Giriş yap · OTOTR V3` while preserving `%2FOtotr%2Fgm-ik%2F` in `returnTo`.
 - Production database migration was intentionally not applied. Item 2 remains excluded, so real-person rows, sensitive HR documents and production approval remain blocked by the reviewed database package.
+
+## 2026-11-04 — GM İK rol ve yetki matrisi kabulü
+
+- `npm run test:gm-hr`: PASS; six separate synthetic accounts were exercised: GM, HR specialist, branch HR, payroll, auditor and employee.
+- Every account returned the expected `dbRole` and assigned HR role from `hr_my_context()`; all six could read the scoped dashboard.
+- Auditor candidate mutation and employee payroll mutation were denied.
+- Employee self-service leave submission, independent manager/HR approval, payroll lock separation and authorized document visibility remained passing.
+- Detailed matrix and staging re-run procedure: `docs/hr/GM_HR_ROLE_MATRIX_ACCEPTANCE_2026-11-04.md`.
+- Limit: this is PGlite PostgreSQL 17 acceptance with synthetic identities. Hosted Supabase Auth/RLS role testing remains the next staging step after migration-history reconciliation.
