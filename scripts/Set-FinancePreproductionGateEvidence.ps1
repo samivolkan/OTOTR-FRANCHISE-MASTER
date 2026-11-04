@@ -45,6 +45,9 @@ if ($missingRoles.Count -eq 0) {
   if ($GateId -eq 'FIN-G01' -and $resolvedGateFile -eq $officialGateFile) {
     & (Join-Path $PSScriptRoot 'Test-FinanceCommercialConfiguration.ps1') -RequireApproved
   }
+  if ($GateId -eq 'FIN-G07' -and $resolvedGateFile -eq $officialGateFile) {
+    & (Join-Path $PSScriptRoot 'Test-FinanceUATExecution.ps1') -RequirePassed
+  }
   $gate.status = 'PASSED'
   $gate.blockingReason = $null
 } else {

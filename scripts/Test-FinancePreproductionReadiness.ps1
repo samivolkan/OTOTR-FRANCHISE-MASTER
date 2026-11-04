@@ -28,6 +28,9 @@ $results = foreach ($gate in $document.gates) {
     if ($gate.id -eq 'FIN-G01' -and $resolvedGateFile -eq $officialGateFile) {
       & (Join-Path $PSScriptRoot 'Test-FinanceCommercialConfiguration.ps1') -RequireApproved
     }
+    if ($gate.id -eq 'FIN-G07' -and $resolvedGateFile -eq $officialGateFile) {
+      & (Join-Path $PSScriptRoot 'Test-FinanceUATExecution.ps1') -RequirePassed
+    }
     if (-not $gate.evidence -or $gate.evidence.Count -lt 1) { throw "PASSED gate has no evidence: $($gate.id)" }
     foreach ($evidence in $gate.evidence) {
       if ([string]::IsNullOrWhiteSpace($evidence.path) -or $evidence.path -match '^[A-Za-z]:|^\\\\|^/') { throw "Evidence path must be repository-relative for $($gate.id)" }
