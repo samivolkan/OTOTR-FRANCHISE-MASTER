@@ -1337,6 +1337,8 @@ Sınırlar: otomatik fotogrametri, üretici model kütüphanesi, buluttan ses/vi
 
 ## 2026-11-05 — Entry franchise accrual integrity
 
+- Ototr Pages deployment `41923593646` completed successfully for `dba2960`. A fresh browser session opened the published Muhasebe V2 URL, was redirected to ERP login and retained the module URL in `returnTo`. This smoke test covers unauthenticated entry. Staging role isolation and authenticated finance access require a staging tenant and test users.
+
 - Added the opening adapter check to the standard local finance acceptance suite and linked it to UAT-FIN-05. The updated suite completed successfully with 57 checks. The updated UAT inventory passed independently.
 
 - `node --test packages/shared/src/finance-branch-opening-adapter.test.mjs` passed 2/2. The reference adapter forwards a minimal event at the Istanbul cutover boundary and rejects earlier events, missing cutover, malformed dates, missing references and branch mismatches before calling ingestion.
