@@ -42,11 +42,8 @@ $signedRoles = @($gate.evidence | ForEach-Object signedRole | Sort-Object -Uniqu
 $missingRoles = @($allowedRoles | Where-Object { $_ -notin $signedRoles })
 if ($missingRoles.Count -eq 0) {
   $officialGateFile = (Resolve-Path -LiteralPath (Join-Path $PSScriptRoot '../docs/finance/uat-preproduction-gates.json')).Path
-  if ($GateId -eq 'FIN-G01' -and $resolvedGateFile -eq $officialGateFile) {
-    & (Join-Path $PSScriptRoot 'Test-FinanceCommercialConfiguration.ps1') -RequireApproved
-  }
-  if ($GateId -eq 'FIN-G07' -and $resolvedGateFile -eq $officialGateFile) {
-    & (Join-Path $PSScriptRoot 'Test-FinanceUATExecution.ps1') -RequirePassed
+  if ($resolvedGateFile -eq $officialGateFile) {
+    & (Join-Path $PSScriptRoot 'Test-FinanceGatePrerequisite.ps1') -GateId $GateId
   }
   $gate.status = 'PASSED'
   $gate.blockingReason = $null

@@ -25,11 +25,8 @@ $results = foreach ($gate in $document.gates) {
   if ($allowedStatuses -notcontains $gate.status) { throw "Invalid status for $($gate.id): $($gate.status)" }
   if ([string]::IsNullOrWhiteSpace($gate.owner) -or -not $gate.approvers -or $gate.approvers.Count -lt 1) { throw "Owner and approver are required for $($gate.id)" }
   if ($gate.status -eq 'PASSED') {
-    if ($gate.id -eq 'FIN-G01' -and $resolvedGateFile -eq $officialGateFile) {
-      & (Join-Path $PSScriptRoot 'Test-FinanceCommercialConfiguration.ps1') -RequireApproved
-    }
-    if ($gate.id -eq 'FIN-G07' -and $resolvedGateFile -eq $officialGateFile) {
-      & (Join-Path $PSScriptRoot 'Test-FinanceUATExecution.ps1') -RequirePassed
+    if ($resolvedGateFile -eq $officialGateFile) {
+      & (Join-Path $PSScriptRoot 'Test-FinanceGatePrerequisite.ps1') -GateId $gate.id
     }
     if (-not $gate.evidence -or $gate.evidence.Count -lt 1) { throw "PASSED gate has no evidence: $($gate.id)" }
     foreach ($evidence in $gate.evidence) {
