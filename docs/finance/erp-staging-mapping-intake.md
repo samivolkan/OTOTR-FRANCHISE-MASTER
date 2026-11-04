@@ -45,6 +45,8 @@ ERP sunucusundaki olay işleyicisi, yetkili şube eşlemesini tamamladıktan son
 
 Migration ön kontrolünde staging geçmişindeki 125 sürümün çalışma kopyasında karşılığı bulunmadı. Çalışma kopyasındaki 28 finans dışı sürüm de staging geçmişinde görünmüyor. Bu karşılaştırma sürüm kimliklerine dayanır. Kurulumdan önce staging'in kayıtlı ERP geçmişi korunarak finans manifestindeki 137 sürüm için ayrı dağıtım önizlemesi alınır. Genel repo zinciri bu hedefe doğrudan uygulanmaz. Sürüm farkları eşlenmeden geçmiş onarımı yapılmaz.
 
+Staging katalog kontrolü ERP kullanıcı tablosunun `FINANCE` ve `BRANCH_MANAGER` rollerini kabul ettiğini, yönetici kapsamının ERP şube kimliğine bağlanabildiğini doğruladı. Finans dağıtımı sonrasında `supabase/tests/finance_identity_scope_e2e.sql` ile iki sentetik şube üzerinde veritabanı yetkileri sınanır. Bu test işlemi geri alır. Ardından gerçek test oturumlarıyla finans API’sine ve Muhasebe V2 ekranına erişim ayrıca doğrulanır.
+
 - Staging Supabase proje referansı veya eşdeğer veritabanı hedefi;
 - ERP test tenant/base URL;
 - secret manager ve secret adları (değerler değil);
