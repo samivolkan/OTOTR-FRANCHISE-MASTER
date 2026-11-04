@@ -5,6 +5,10 @@
   "stagingApplied": false,
   "productionApplied": false,
   "productionDataAllowed": false,
+  "dataApiSchemaPolicy": {
+    "required": ["finance_api"],
+    "forbidden": ["finance", "finance_private"]
+  },
   "migrationManifest": {
     "path": "supabase/finance-migration-promotion.json",
     "sha256": "7fb234546224ac49904ecbc1501a10d9ee4088c1e07d821986a7a23a6b462315"
@@ -22,5 +26,5 @@
     {"name":"finance-payment-callback-worker","verifyJwt":false,"files":["core.mjs","index.ts","README.md","supabase-adapter.mjs"],"packageSha256":"4416cb5c8cb033866abf1c7db2529ab048c20c8bef04be0a58bade9dd1accfb8","requiredSecretNames":["SUPABASE_URL","SUPABASE_SERVICE_ROLE_KEY","FINANCE_PAYMENT_PROVIDER_CODE","FINANCE_PAYMENT_PROVIDER_CALLBACK_SECRET","FINANCE_PAYMENT_PREPARED_ACTOR_ID","FINANCE_PAYMENT_VERIFIED_ACTOR_ID"]},
     {"name":"finance-payment-checkout","verifyJwt":false,"files":["index.ts","README.md","supabase-adapter.mjs","provider-sender.mjs","../../../packages/shared/src/finance-payment-checkout-orchestrator.mjs","../../../packages/shared/src/finance-payment-provider-adapter.mjs"],"packageSha256":"37d51ea23ce69f355edb2774f05eb84e6f1ad272b69565cca1e9511a35c939ea","requiredSecretNames":["SUPABASE_URL","SUPABASE_SERVICE_ROLE_KEY","FINANCE_PAYMENT_CHECKOUT_GATEWAY_TOKEN","FINANCE_PAYMENT_PROVIDER_CODE","FINANCE_PAYMENT_PROVIDER_CHECKOUT_ENDPOINT","FINANCE_PAYMENT_PROVIDER_CHECKOUT_BEARER_TOKEN"]}
   ],
-  "deploymentEvidenceRequired": ["projectRef","deployedCommit","migrationManifestSha256","functionPackageSha256s","secretNameInventory","smokeTestEvidence","deployedAtUtc","deployedBy"]
+  "deploymentEvidenceRequired": ["projectRef","deployedCommit","migrationManifestSha256","functionPackageSha256s","secretNameInventory","dataApiSchemaEvidence","smokeTestEvidence","deployedAtUtc","deployedBy"]
 }

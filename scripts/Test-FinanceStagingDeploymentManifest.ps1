@@ -26,6 +26,14 @@ $expected = @('finance-read','finance-command','finance-customer-revenue-worker'
 $names = @($manifest.functions | ForEach-Object name)
 if ($names.Count -ne 11 -or @($names | Sort-Object -Unique).Count -ne 11 -or @($expected | Where-Object { $_ -notin $names }).Count) { throw 'Finance function deployment inventory is incomplete.' }
 $config = Get-Content -Raw -LiteralPath (Join-Path $root 'supabase\config.toml')
+$apiSection = [regex]::Match($config, '(?ms)^\[api\]\s*\r?\n(?<body>.*?)(?=^\[|\z)').Groups['body'].Value
+$schemaList = [regex]::Match($apiSection, '(?m)^schemas\s*=\s*(\[[^\r\n]*\])').Groups[1].Value
+$schemas = @($schemaList | ConvertFrom-Json)
+if (($manifest.dataApiSchemaPolicy.required -join ',') -ne 'finance_api' -or
+    ($manifest.dataApiSchemaPolicy.forbidden -join ',') -ne 'finance,finance_private' -or
+    'finance_api' -notin $schemas -or 'finance' -in $schemas -or 'finance_private' -in $schemas) {
+  throw 'Finance Data API schema policy does not match local API configuration.'
+}
 foreach ($function in $manifest.functions) {
   if ($function.packageSha256 -notmatch '^[a-f0-9]{64}$' -or (Get-PackageHash (Join-Path $root "supabase\functions\$($function.name)") @($function.files)) -ne $function.packageSha256) { throw "Function package hash mismatch: $($function.name)" }
   if (-not $function.requiredSecretNames -or @($function.requiredSecretNames | Where-Object { $_ -notmatch '^[A-Z][A-Z0-9_]+$' }).Count) { throw "Invalid secret name inventory: $($function.name)" }
@@ -35,6 +43,6 @@ foreach ($function in $manifest.functions) {
 }
 $serialized = $manifest | ConvertTo-Json -Depth 30
 if ($serialized -match 'sb_secret_|eyJ[A-Za-z0-9_-]{20,}|Bearer\s+\S+|https://[a-z0-9-]+\.supabase\.co') { throw 'Deployment manifest contains a secret value or concrete project endpoint.' }
-if (@($manifest.deploymentEvidenceRequired).Count -ne 8) { throw 'Staging deployment evidence contract is incomplete.' }
+if (@($manifest.deploymentEvidenceRequired).Count -ne 9 -or 'dataApiSchemaEvidence' -notin $manifest.deploymentEvidenceRequired) { throw 'Staging deployment evidence contract is incomplete.' }
 Write-Host 'FINANCE STAGING DEPLOYMENT MANIFEST: PASSED' -ForegroundColor Green
 Write-Host '138 migrations; 11 immutable function packages; JWT policy and secret-name-only inventory verified; stagingApplied: false.'

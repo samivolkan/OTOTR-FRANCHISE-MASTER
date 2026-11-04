@@ -43,7 +43,9 @@ ERP sunucusundaki olay işleyicisi, yetkili şube eşlemesini tamamladıktan son
 
 Ön kontrolde iki etkin ERP şubesi ve şubeye bağlı bir etkin yönetici hesabı bulundu. Demo, test veya pilot önekiyle işaretlenmiş etkin şube ve finans kapsamındaki etkin merkez oturumu bulunmadı. Bunlar envanter sonuçlarıdır. Rol yetkisini doğrulamak için finans dağıtımı, iki sentetik şube, merkez finans ve şube yönetici test oturumları gerekir. Mevcut şube kayıtları pilot olarak atanmış sayılmaz.
 
-Migration ön kontrolünde staging geçmişindeki 125 sürümün çalışma kopyasında karşılığı bulunmadı. Çalışma kopyasındaki 28 finans dışı sürüm de staging geçmişinde görünmüyor. Bu karşılaştırma sürüm kimliklerine dayanır. Kurulumdan önce staging'in kayıtlı ERP geçmişi korunarak finans manifestindeki 137 sürüm için ayrı dağıtım önizlemesi alınır. Genel repo zinciri bu hedefe doğrudan uygulanmaz. Sürüm farkları eşlenmeden geçmiş onarımı yapılmaz.
+Migration ön kontrolünde staging geçmişindeki 125 sürümün çalışma kopyasında karşılığı bulunmadı. Çalışma kopyasındaki 28 finans dışı sürüm de staging geçmişinde görünmüyor. Bu karşılaştırma sürüm kimliklerine dayanır. Kurulumdan önce staging'in kayıtlı ERP geçmişi korunarak finans manifestindeki 138 sürüm için ayrı dağıtım önizlemesi alınır. Genel repo zinciri bu hedefe doğrudan uygulanmaz. Sürüm farkları eşlenmeden geçmiş onarımı yapılmaz.
+
+Staging Data API ayarına `finance_api` eklenir. Mevcut ERP şemaları korunur ve `finance` ile `finance_private` API dışında tutulur. Dağıtım kanıtına bu ayar ve iki sentetik şubeyle HTTP üzerinden alınan erişim sonuçları eklenir.
 
 Staging katalog kontrolü ERP kullanıcı tablosunun `FINANCE` ve `BRANCH_MANAGER` rollerini kabul ettiğini, yönetici kapsamının ERP şube kimliğine bağlanabildiğini doğruladı. Finans dağıtımı sonrasında `supabase/tests/finance_identity_scope_e2e.sql` ile iki sentetik şube üzerinde veritabanı yetkileri sınanır. Bu test işlemi geri alır. Ardından gerçek test oturumlarıyla finans API’sine ve Muhasebe V2 ekranına erişim ayrıca doğrulanır.
 
