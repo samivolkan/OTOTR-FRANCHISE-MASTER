@@ -30,6 +30,9 @@ $results = foreach ($gate in $document.gates) {
     }
     if (-not $gate.evidence -or $gate.evidence.Count -lt 1) { throw "PASSED gate has no evidence: $($gate.id)" }
     foreach ($evidence in $gate.evidence) {
+      if ($gate.id -eq 'FIN-G12' -and $resolvedGateFile -eq $officialGateFile -and $evidence.path -ne 'docs/finance/preproduction-decision.json') {
+        throw 'FIN-G12 requires the official final decision file.'
+      }
       if ([string]::IsNullOrWhiteSpace($evidence.path) -or $evidence.path -match '^[A-Za-z]:|^\\\\|^/') { throw "Evidence path must be repository-relative for $($gate.id)" }
       $evidencePath = [IO.Path]::GetFullPath((Join-Path $root $evidence.path))
       if (-not $evidencePath.StartsWith($root, [StringComparison]::OrdinalIgnoreCase) -or -not (Test-Path -LiteralPath $evidencePath -PathType Leaf)) { throw "Evidence file missing or outside repository for $($gate.id): $($evidence.path)" }
@@ -51,6 +54,12 @@ $results = foreach ($gate in $document.gates) {
 if ($results.Count -ne 12) { throw "Expected 12 finance pre-production gates, found $($results.Count)." }
 if (($results | Where-Object id -eq 'FIN-G12').status -eq 'PASSED' -and @($results | Where-Object { $_.id -ne 'FIN-G12' -and $_.status -ne 'PASSED' }).Count -gt 0) {
   throw 'FIN-G12 cannot pass before FIN-G01 through FIN-G11.'
+}
+if ($resolvedGateFile -eq $officialGateFile -and ($results | Where-Object id -eq 'FIN-G12').status -eq 'PASSED') {
+  $finalDecision = Get-Content -Raw -LiteralPath (Join-Path $root 'docs/finance/preproduction-decision.json') | ConvertFrom-Json
+  if ($finalDecision.decision -ne 'GO' -or $finalDecision.productionDecision -ne 'NO_GO') {
+    throw 'FIN-G12 requires a valid pre-production GO decision.'
+  }
 }
 $decision = if (@($results | Where-Object status -ne 'PASSED').Count -eq 0) { 'GO' } else { 'NO_GO' }
 $summary = [pscustomobject]@{

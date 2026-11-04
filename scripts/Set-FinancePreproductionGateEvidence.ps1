@@ -27,6 +27,13 @@ $resolvedEvidence = [IO.Path]::GetFullPath((Join-Path $root $EvidencePath))
 if (-not $resolvedEvidence.StartsWith($root, [StringComparison]::OrdinalIgnoreCase) -or -not (Test-Path -LiteralPath $resolvedEvidence -PathType Leaf)) { throw 'Evidence file is missing or outside the repository.' }
 $relativeEvidence = [IO.Path]::GetRelativePath($root, $resolvedEvidence).Replace('\','/')
 $hash = (Get-FileHash -LiteralPath $resolvedEvidence -Algorithm SHA256).Hash.ToLowerInvariant()
+$officialGateFile = (Resolve-Path -LiteralPath (Join-Path $PSScriptRoot '../docs/finance/uat-preproduction-gates.json')).Path
+if ($resolvedGateFile -eq $officialGateFile -and $GateId -eq 'FIN-G12') {
+  if ($relativeEvidence -ne 'docs/finance/preproduction-decision.json') {
+    throw 'FIN-G12 requires the official final decision file.'
+  }
+  & (Join-Path $PSScriptRoot 'Test-FinancePreproductionDecision.ps1') -RequireGo
+}
 
 $existing = @($gate.evidence | Where-Object { $_.path -eq $relativeEvidence -and $_.signedRole -eq $SignedRole })
 if ($existing.Count -gt 0) { throw "This evidence and role signoff is already registered for $GateId." }
@@ -41,7 +48,6 @@ $gate.evidence = @($gate.evidence) + @($newEvidence)
 $signedRoles = @($gate.evidence | ForEach-Object signedRole | Sort-Object -Unique)
 $missingRoles = @($allowedRoles | Where-Object { $_ -notin $signedRoles })
 if ($missingRoles.Count -eq 0) {
-  $officialGateFile = (Resolve-Path -LiteralPath (Join-Path $PSScriptRoot '../docs/finance/uat-preproduction-gates.json')).Path
   if ($resolvedGateFile -eq $officialGateFile) {
     & (Join-Path $PSScriptRoot 'Test-FinanceGatePrerequisite.ps1') -GateId $GateId
   }
