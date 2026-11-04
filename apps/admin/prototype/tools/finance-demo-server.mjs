@@ -1,5 +1,5 @@
 import {createServer} from 'node:http';
-import {readFile,stat} from 'node:fs/promises';
+import {readFile,realpath,stat} from 'node:fs/promises';
 import {dirname,extname,join,resolve,sep} from 'node:path';
 import {fileURLToPath} from 'node:url';
 
@@ -26,7 +26,7 @@ const mime={'.html':'text/html; charset=utf-8','.js':'text/javascript; charset=u
 
 const api=body=>({getDealerFinanceSummary:summary,getHeadquartersFinanceSummary:headquarters,getFinanceOperationalHealth:operationalHealth,getFinancePeriod:period,listIntegrationErrors:integrationList,getIntegrationError:integrationDetail,listApprovalWorkItems:approvalList,getApprovalWorkItem:approvalDetail,listAuditEvents:auditList,getAuditCorrelationTrace:auditTrace}[body.operationId]??{items:[],nextCursor:null,hasMore:false});
 export async function createFinanceDemoServer({port=4173,staticRoot=root,enableOtotrDemo=false}={}){
-const servingRoot=resolve(staticRoot);
+const servingRoot=await realpath(staticRoot);
 const ototrEntry=join(servingRoot,'muhasebe-v2','index.html');
 const financeScript='<script src="assets/finance-ui.js"></script>';
 let demoEntry;
@@ -38,6 +38,9 @@ if(enableOtotrDemo){
 }
 const server=createServer(async(req,res)=>{
   try{
+    if(!/^(?:127\.0\.0\.1|localhost)(?::\d+)?$/i.test(req.headers.host||'')){
+      res.writeHead(403).end();return;
+    }
     if(req.method==='GET'&&req.url==='/health'){
       res.writeHead(200,{'content-type':'application/json; charset=utf-8','cache-control':'no-store'});res.end(JSON.stringify(health));return;
     }
@@ -52,9 +55,12 @@ const server=createServer(async(req,res)=>{
       const body=JSON.parse(raw);const data=api(body);res.writeHead(200,{'content-type':'application/json; charset=utf-8','cache-control':'no-store','correlation-id':'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa'});res.end(JSON.stringify({data}));return;
     }
     const url=new URL(req.url,'http://local');
-    const relative=url.pathname.slice(1)+(url.pathname.endsWith('/')?'index.html':'');
-    const target=resolve(servingRoot,relative);
-    if(!target.startsWith(servingRoot+sep)||!(await stat(target)).isFile())throw new Error('NOT_FOUND');
+    const relative=decodeURIComponent(url.pathname.slice(1))+(url.pathname.endsWith('/')?'index.html':'');
+    if(relative.split(/[\\/]/).some(segment=>segment.startsWith('.')||segment.includes(':')))throw new Error('NOT_FOUND');
+    const requested=resolve(servingRoot,relative);
+    if(!requested.startsWith(servingRoot+sep))throw new Error('NOT_FOUND');
+    const target=await realpath(requested).catch(()=>null);
+    if(!target||!target.startsWith(servingRoot+sep)||!(await stat(target)).isFile())throw new Error('NOT_FOUND');
     const content=demoEntry&&target===ototrEntry&&url.searchParams.get('financeDemo')==='1'
       ? demoEntry : await readFile(target);
     res.writeHead(200,{'content-type':mime[extname(target)]||'application/octet-stream','cache-control':'no-store'});res.end(content);

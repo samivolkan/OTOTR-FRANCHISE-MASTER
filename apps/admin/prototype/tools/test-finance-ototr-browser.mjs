@@ -9,6 +9,9 @@ const server = await createFinanceDemoServer({port: 0, staticRoot: publishRoot, 
 const base = 'http://127.0.0.1:' + server.address().port;
 let browser;
 try {
+  for (const path of ['/.git/HEAD', '/%2egit/HEAD', '/muhasebe-v2/%5c..%5c.git%5cHEAD']) {
+    assert.equal((await fetch(base + path)).status, 404);
+  }
   browser = await chromium.launch({
     executablePath: process.env.PLAYWRIGHT_CHROME_PATH || 'C:/Program Files/Google/Chrome/Application/chrome.exe'
   });
