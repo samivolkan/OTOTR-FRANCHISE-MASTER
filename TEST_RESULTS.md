@@ -1337,6 +1337,8 @@ Sınırlar: otomatik fotogrametri, üretici model kütüphanesi, buluttan ses/vi
 
 ## 2026-11-05 — Entry franchise accrual integrity
 
+- An isolated copy of the canonical FIN-G01 registry accepted the first two synthetic signoffs. The third was rejected while commercial configuration was pending. The registry stayed `PENDING` and retained exactly two evidence entries. The actual registry was untouched.
+
 - Ototr Pages deployment `41923593646` completed successfully for `dba2960`. A fresh browser session opened the published Muhasebe V2 URL, was redirected to ERP login and retained the module URL in `returnTo`. This smoke test covers unauthenticated entry. Staging role isolation and authenticated finance access require a staging tenant and test users.
 
 - Added the opening adapter check to the standard local finance acceptance suite and linked it to UAT-FIN-05. The updated suite completed successfully with 57 checks. The updated UAT inventory passed independently.
