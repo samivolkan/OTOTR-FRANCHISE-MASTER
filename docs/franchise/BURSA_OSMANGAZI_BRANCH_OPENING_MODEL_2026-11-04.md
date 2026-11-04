@@ -39,6 +39,21 @@ Başvuru gerçek kişi verisi içermediği için yalnızca sentetik kabul testin
 
 Şube sahibi ve sekreter için mevcut veritabanı rolü geçici ürün eşlemesidir. Ayrı `BRANCH_OWNER` ve `RECEPTION_STAFF` veritabanı rolleri açılmadan yeni yetki verilmez; UI etiketi tek başına erişim sağlamaz.
 
+## 3A. Merkez organizasyon yapısı
+
+Şube açılışının üzerinde, alt kadroların sonradan eklenebileceği dört merkez birimi bulunur:
+
+| Merkez birimi | İlk sorumlu pozisyonu | Sorumluluk kodu | Alt kadro örnekleri |
+|---|---|---|---|
+| Hukuk ve Uyum Merkezi | Sorumlu Avukat | `LEGAL_RESPONSIBLE` | Hukuk uzmanı, sözleşme/KVKK uzmanı |
+| Muhasebe Merkezi | Yeminli Müşavir | `ACCOUNTING_RESPONSIBLE` | Muhasebe uzmanı, tahsilat/bordro uzmanı |
+| İK Operasyon Merkezi | İK Operasyon Sorumlusu | `HR_OPERATIONS_RESPONSIBLE` | İK uzmanı, işe alım/özlük uzmanı |
+| Bilgi Teknolojileri Merkezi | BT Sorumlusu | `IT_RESPONSIBLE` | Uygulama destek, altyapı ve güvenlik uzmanı |
+
+Merkez sorumluluk kodları ürün organizasyon kodlarıdır; mevcut veritabanı rolüyle otomatik olarak yeni yetki kazanmaz. Özellikle Hukuk ve BT sorumluları için ayrı yetki rolü açılmadan `AUDITOR`/`HR_ADMIN` gibi mevcut roller doğrudan kopyalanmayacaktır. Yetki ataması yine GM onayı ve dört göz kuralıyla yapılacaktır.
+
+Her merkez birimi `headcountLimit=1` sorumlu pozisyonuyla açılır; alt kadrolar yeni pozisyon satırları olarak eklenir. Böylece yeni birim açmadan ekip büyütülebilir.
+
 ## 4. Açılış checklist'i
 
 - Franchise sözleşmesi

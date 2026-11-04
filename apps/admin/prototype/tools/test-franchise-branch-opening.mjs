@@ -19,6 +19,13 @@ const application = {
   },
 };
 
+const centralOrganization = [
+  { code: 'LEGAL', name: 'Hukuk ve Uyum Merkezi', responsibilityCode: 'LEGAL_RESPONSIBLE', positionCode: 'CENTRAL_LEGAL_LEAD', title: 'Sorumlu Avukat', dbRoleMapping: 'ROLE_CATALOG_REVIEW_REQUIRED' },
+  { code: 'ACCOUNTING', name: 'Muhasebe Merkezi', responsibilityCode: 'ACCOUNTING_RESPONSIBLE', positionCode: 'CENTRAL_ACCOUNTING_LEAD', title: 'Yeminli Müşavir', dbRoleMapping: 'PAYROLL_OPERATOR_PLUS_FINANCE_REVIEW' },
+  { code: 'HR_OPERATIONS', name: 'İK Operasyon Merkezi', responsibilityCode: 'HR_OPERATIONS_RESPONSIBLE', positionCode: 'CENTRAL_HR_OPERATIONS_LEAD', title: 'İK Operasyon Sorumlusu', dbRoleMapping: 'HR_ADMIN' },
+  { code: 'IT', name: 'Bilgi Teknolojileri Merkezi', responsibilityCode: 'IT_RESPONSIBLE', positionCode: 'CENTRAL_IT_LEAD', title: 'Bilgi Teknolojileri Sorumlusu', dbRoleMapping: 'ROLE_CATALOG_REVIEW_REQUIRED' },
+];
+
 const branch = {
   id: 'BR-BURSA-OSMANGAZI-DEMO',
   code: 'BURSA-OSM',
@@ -104,6 +111,19 @@ assert.equal(branch.status, 'PILOT_READY_PRODUCTION_BLOCKED');
 assert.equal(application.decisionStatus, 'APPROVED');
 assert.equal(application.currentStep, 'ONBOARDING');
 
+// 5) Merkez organizasyon: sorumlular sabit, alt kadrolar headcount ile genişletilebilir.
+assert.equal(centralOrganization.length, 4);
+assert.deepEqual(centralOrganization.map((unit) => unit.code), ['LEGAL', 'ACCOUNTING', 'HR_OPERATIONS', 'IT']);
+for (const unit of centralOrganization) {
+  unit.headcountLimit = 1;
+  unit.childPositions = [];
+  assert.ok(unit.responsibilityCode.endsWith('_RESPONSIBLE'));
+}
+centralOrganization.find((unit) => unit.code === 'LEGAL').childPositions.push({ code: 'LEGAL_SPECIALIST', title: 'Hukuk Uzmanı', headcountLimit: 5 });
+centralOrganization.find((unit) => unit.code === 'ACCOUNTING').childPositions.push({ code: 'ACCOUNTING_SPECIALIST', title: 'Muhasebe Uzmanı', headcountLimit: 10 });
+centralOrganization.find((unit) => unit.code === 'HR_OPERATIONS').childPositions.push({ code: 'HR_SPECIALIST', title: 'İK Uzmanı', headcountLimit: 10 });
+centralOrganization.find((unit) => unit.code === 'IT').childPositions.push({ code: 'IT_SUPPORT', title: 'BT Destek Uzmanı', headcountLimit: 10 });
+
 console.log(JSON.stringify({
   result: 'PASS',
   application: {
@@ -120,5 +140,6 @@ console.log(JSON.stringify({
     openingDate: branch.openingDate,
   },
   staff: staff.map(({ name, productRole, dbRole, branchId, status }) => ({ name, productRole, dbRole, branchId, status })),
+  centralOrganization: centralOrganization.map(({ code, name, responsibilityCode, positionCode, title, dbRoleMapping, childPositions }) => ({ code, name, responsibilityCode, positionCode, title, dbRoleMapping, childPositions })),
   productionGate: 'BLOCKED_UNTIL_PRIVACY_POLICY_APPROVED',
 }, null, 2));

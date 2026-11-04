@@ -413,3 +413,10 @@ Karar ve geri alma: docs/decisions/2026-09-08-kaporta-360-studio.md; migration i
 - Added explicit product-role to existing DB-role mappings and branch-scope assertions.
 - No real franchise applicant, employee, customer, contract, branch or financial record was created. No remote Supabase migration or production write was run.
 - Production state intentionally ends at `PILOT_READY_PRODUCTION_BLOCKED` until the excluded KVKK/data-classification gate is approved.
+
+## 2026-11-04 — Central organization structure added to franchise model
+
+- Added central units for Legal & Compliance, Accounting, HR Operations and Information Technology.
+- Each unit has one responsible position plus extensible child-position templates.
+- Central responsibility codes are intentionally separated from current database roles; no automatic privilege escalation was introduced for Legal or IT.
+- Real central users, legal records, finance records or HR data were not created; the model remains synthetic and production-blocked.

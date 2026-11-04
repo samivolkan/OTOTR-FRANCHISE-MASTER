@@ -1361,3 +1361,11 @@ Sınırlar: otomatik fotogrametri, üretici model kütüphanesi, buluttan ses/vi
 - Current DB-role mappings are explicit: owner/secretary map to existing `BRANCH_MANAGER` scope, technicians map to `INSPECTION_TECHNICIAN`.
 - Final status is `PILOT_READY_PRODUCTION_BLOCKED`; real production opening remains blocked until the excluded KVKK/data-classification gate is approved.
 - Scenario and next staging steps: `docs/franchise/BURSA_OSMANGAZI_BRANCH_OPENING_MODEL_2026-11-04.md`.
+
+## 2026-11-04 — Merkez hukuk, muhasebe, İK operasyon ve BT yapısı
+
+- Bursa Osmangazi modeline dört merkez birimi eklendi: Hukuk ve Uyum, Muhasebe, İK Operasyon ve Bilgi Teknolojileri.
+- Her birimde bir sorumlu pozisyonu ve sonradan genişletilebilir alt pozisyon şablonu doğrulandı.
+- `LEGAL_RESPONSIBLE`, `ACCOUNTING_RESPONSIBLE`, `HR_OPERATIONS_RESPONSIBLE` ve `IT_RESPONSIBLE` ürün sorumluluk kodları birbirinden ayrıldı.
+- Hukuk ve BT sorumlularının mevcut DB rolüyle otomatik yetki kazanmaması güvenlik sınırı olarak kaydedildi; ayrı yetki rolü ancak yeni rol kataloğu migration'ı ve GM onayı sonrasında açılabilir.
+- `npm run test:franchise-branch-opening`: PASS.
