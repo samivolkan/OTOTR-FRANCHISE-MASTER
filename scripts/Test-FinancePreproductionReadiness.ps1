@@ -7,6 +7,7 @@ param(
 $ErrorActionPreference = 'Stop'
 $resolvedGateFile = (Resolve-Path -LiteralPath $GateFile).Path
 $root = (Resolve-Path -LiteralPath (Join-Path $PSScriptRoot '..')).Path
+$officialGateFile = [IO.Path]::GetFullPath((Join-Path $root 'docs/finance/uat-preproduction-gates.json'))
 $document = Get-Content -Raw -LiteralPath $resolvedGateFile | ConvertFrom-Json -Depth 20
 
 if ($document.schemaVersion -ne 1 -or $document.module -ne 'OTOTR_FRANCHISE_FINANCE' -or $document.target -ne 'PREPRODUCTION') {
@@ -24,6 +25,9 @@ $results = foreach ($gate in $document.gates) {
   if ($allowedStatuses -notcontains $gate.status) { throw "Invalid status for $($gate.id): $($gate.status)" }
   if ([string]::IsNullOrWhiteSpace($gate.owner) -or -not $gate.approvers -or $gate.approvers.Count -lt 1) { throw "Owner and approver are required for $($gate.id)" }
   if ($gate.status -eq 'PASSED') {
+    if ($gate.id -eq 'FIN-G01' -and $resolvedGateFile -eq $officialGateFile) {
+      & (Join-Path $PSScriptRoot 'Test-FinanceCommercialConfiguration.ps1') -RequireApproved
+    }
     if (-not $gate.evidence -or $gate.evidence.Count -lt 1) { throw "PASSED gate has no evidence: $($gate.id)" }
     foreach ($evidence in $gate.evidence) {
       if ([string]::IsNullOrWhiteSpace($evidence.path) -or $evidence.path -match '^[A-Za-z]:|^\\\\|^/') { throw "Evidence path must be repository-relative for $($gate.id)" }
