@@ -1337,6 +1337,8 @@ Sınırlar: otomatik fotogrametri, üretici model kütüphanesi, buluttan ses/vi
 
 ## 2026-11-05 — Entry franchise accrual integrity
 
+- Added the opening adapter check to the standard local finance acceptance suite and linked it to UAT-FIN-05. The updated suite completed successfully with 57 checks. The updated UAT inventory passed independently.
+
 - `node --test packages/shared/src/finance-branch-opening-adapter.test.mjs` passed 2/2. The reference adapter forwards a minimal event at the Istanbul cutover boundary and rejects earlier events, missing cutover, malformed dates, missing references and branch mismatches before calling ingestion.
 
 - Local finance acceptance passed 56/56 after applying the migration to the local test database. The verified catalog contains 137 finance migrations. Pre-production readiness remains `NO_GO`.

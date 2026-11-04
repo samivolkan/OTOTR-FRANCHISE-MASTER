@@ -16,6 +16,7 @@ $checks = @(
   'Test-FinanceBranchAccessMiddleware.ps1',
   'Test-FinanceRefundWorker.ps1',
   'Test-FinanceChargeFamiliesE2E.ps1',
+  'Test-FinanceBranchOpeningAdapter.ps1',
   'Test-FinanceServiceUsageWorker.ps1',
   'Test-FinancePassThroughExpenseE2E.ps1',
   'Test-FinanceExpenseIdentityBridgeE2E.ps1',
