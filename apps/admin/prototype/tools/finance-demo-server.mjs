@@ -1,6 +1,6 @@
 import {createServer} from 'node:http';
 import {readFile,stat} from 'node:fs/promises';
-import {dirname,extname,join,normalize} from 'node:path';
+import {dirname,extname,join,resolve,sep} from 'node:path';
 import {fileURLToPath} from 'node:url';
 
 const toolsDir=dirname(fileURLToPath(import.meta.url));
@@ -25,7 +25,8 @@ const health=Object.freeze({status:'READY',environment:'SYNTHETIC_DEMO',module:'
 const mime={'.html':'text/html; charset=utf-8','.js':'text/javascript; charset=utf-8','.mjs':'text/javascript; charset=utf-8','.css':'text/css; charset=utf-8','.svg':'image/svg+xml'};
 
 const api=body=>({getDealerFinanceSummary:summary,getHeadquartersFinanceSummary:headquarters,getFinanceOperationalHealth:operationalHealth,getFinancePeriod:period,listIntegrationErrors:integrationList,getIntegrationError:integrationDetail,listApprovalWorkItems:approvalList,getApprovalWorkItem:approvalDetail,listAuditEvents:auditList,getAuditCorrelationTrace:auditTrace}[body.operationId]??{items:[],nextCursor:null,hasMore:false});
-export function createFinanceDemoServer({port=4173}={}){
+export function createFinanceDemoServer({port=4173,staticRoot=root}={}){
+const servingRoot=resolve(staticRoot);
 const server=createServer(async(req,res)=>{
   try{
     if(req.method==='GET'&&req.url==='/health'){
@@ -41,8 +42,10 @@ const server=createServer(async(req,res)=>{
       let raw='';for await(const chunk of req)raw+=chunk;if(raw.length>32768)throw new Error('PAYLOAD_TOO_LARGE');
       const body=JSON.parse(raw);const data=api(body);res.writeHead(200,{'content-type':'application/json; charset=utf-8','cache-control':'no-store','correlation-id':'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa'});res.end(JSON.stringify({data}));return;
     }
-    const url=new URL(req.url,'http://local');const relative=normalize(url.pathname==='/'?'index.html':url.pathname.slice(1));const target=join(root,relative);
-    if(!target.startsWith(root)||!(await stat(target)).isFile())throw new Error('NOT_FOUND');
+    const url=new URL(req.url,'http://local');
+    const relative=url.pathname.slice(1)+(url.pathname.endsWith('/')?'index.html':'');
+    const target=resolve(servingRoot,relative);
+    if(!target.startsWith(servingRoot+sep)||!(await stat(target)).isFile())throw new Error('NOT_FOUND');
     res.writeHead(200,{'content-type':mime[extname(target)]||'application/octet-stream','cache-control':'no-store'});res.end(await readFile(target));
   }catch(error){res.writeHead(error.message==='NOT_FOUND'?404:400,{'content-type':'application/json; charset=utf-8'});res.end(JSON.stringify({error:{code:'DEMO_REQUEST_FAILED',message:'Sentetik demo isteği tamamlanamadı.'}}));}
 });
