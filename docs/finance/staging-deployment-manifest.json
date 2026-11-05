@@ -15,7 +15,7 @@
   },
   "functions": [
     {"name":"finance-read","verifyJwt":true,"files":["core.mjs","index.ts","README.md","supabase-adapter.mjs"],"packageSha256":"aa09149d90011535b15f5aabb7ddbf4a6f86f51ba6623bd23eb6df52339bfad8","requiredSecretNames":["SUPABASE_URL","SUPABASE_PUBLISHABLE_KEYS","OTOTR_FINANCE_ALLOWED_ORIGINS"]},
-    {"name":"finance-command","verifyJwt":true,"files":["core.mjs","index.ts","README.md","supabase-adapter.mjs"],"packageSha256":"d0790d6378fc580efa63cccfa8835b4f49193f011dad60430a5f49a02b909aab","requiredSecretNames":["SUPABASE_URL","SUPABASE_PUBLISHABLE_KEYS","SUPABASE_SERVICE_ROLE_KEY","OTOTR_FINANCE_ALLOWED_ORIGINS"]},
+    {"name":"finance-command","verifyJwt":true,"files":["core.mjs","index.ts","README.md","supabase-adapter.mjs"],"packageSha256":"4d9bf8c34a68f181d96b9d563ef749a0e23da196cb50eb656ddb6c2f24d805cc","requiredSecretNames":["SUPABASE_URL","SUPABASE_PUBLISHABLE_KEYS","SUPABASE_SERVICE_ROLE_KEY","OTOTR_FINANCE_ALLOWED_ORIGINS"]},
     {"name":"finance-customer-revenue-worker","verifyJwt":false,"files":["core.mjs","index.ts","supabase-adapter.mjs"],"packageSha256":"69ff152048e73d9684ed876dac1881124cba56898b4a3565a4fda8fde666400c","requiredSecretNames":["SUPABASE_URL","SUPABASE_SERVICE_ROLE_KEY"]},
     {"name":"finance-payment-ingestion-worker","verifyJwt":false,"files":["core.mjs","index.ts","supabase-adapter.mjs"],"packageSha256":"843cc531a96bcb7ca319ee01804a4f1bb30827967063ba032b361f62dd06c55c","requiredSecretNames":["SUPABASE_URL","SUPABASE_SERVICE_ROLE_KEY"]},
     {"name":"finance-refund-worker","verifyJwt":false,"files":["core.mjs","index.ts","supabase-adapter.mjs"],"packageSha256":"c9f40093387b3a70bad523cc2d5b97c6ce55eaca74632cc6f7e452ac8e2aa793","requiredSecretNames":["SUPABASE_URL","SUPABASE_SERVICE_ROLE_KEY"]},
