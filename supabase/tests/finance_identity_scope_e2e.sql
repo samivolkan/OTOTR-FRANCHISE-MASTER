@@ -37,11 +37,19 @@ begin
  perform set_config('request.jwt.claim.role','authenticated',true);
  perform set_config('request.jwt.claim.sub',finance_auth::text,true);
  set local role authenticated;
+ if finance_api.authorize_scope(hq,a1,b1,'getDealerFinanceSummary') is distinct from true
+    or finance_api.authorize_scope(hq,a2,b2,'getDealerFinanceSummary') is distinct from true then
+   raise exception 'FINANCE Edge authorization RPC did not allow both branches';
+ end if;
  if (finance_api.get_dealer_finance_summary(hq,a1,b1,current_date)#>>'{accrued,grossAmount}')::numeric is distinct from 120
     or (finance_api.get_dealer_finance_summary(hq,a2,b2,current_date)#>>'{accrued,grossAmount}')::numeric is distinct from 240 then
    raise exception 'FINANCE RPC did not return both branch balances';
  end if;
  perform set_config('request.jwt.claim.sub',manager_auth::text,true);
+ if finance_api.authorize_scope(hq,a1,b1,'getDealerFinanceSummary') is distinct from true
+    or finance_api.authorize_scope(hq,a2,b2,'getDealerFinanceSummary') is distinct from false then
+   raise exception 'BRANCH_MANAGER Edge authorization RPC did not isolate branch scope';
+ end if;
  if (finance_api.get_dealer_finance_summary(hq,a1,b1,current_date)#>>'{accrued,grossAmount}')::numeric is distinct from 120 then
    raise exception 'BRANCH_MANAGER RPC did not return own balance';
  end if;
