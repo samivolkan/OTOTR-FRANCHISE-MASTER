@@ -1337,6 +1337,8 @@ Sınırlar: otomatik fotogrametri, üretici model kütüphanesi, buluttan ses/vi
 
 ## 2026-11-05 — Entry franchise accrual integrity
 
+- Hosted `finance-read` accepted the staging loopback origin `http://127.0.0.1:42733` with HTTP 204 and rejected a different origin with HTTP 403. The fallback is limited to the staging project and can be replaced by the configured origin allowlist.
+
 - Hosted staging returned `PASS_TWO_BRANCH_AUTHENTICATED_RPC`. Finance read synthetic gross balances of 120 and 240 TRY. The manager read 120 TRY for the assigned branch and received SQLSTATE 42501 for the other. The fixture transaction rolled back and left zero synthetic entities.
 - Hosted HTTP checks returned 401 for anonymous finance summary and Edge access, and 406 for the private finance schema profiles. The database role test used synthetic claims. Authenticated ERP browser sessions and signed staging UAT remain pending.
 
