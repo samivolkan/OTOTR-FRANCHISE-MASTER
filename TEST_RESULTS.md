@@ -1337,6 +1337,8 @@ Sınırlar: otomatik fotogrametri, üretici model kütüphanesi, buluttan ses/vi
 
 ## 2026-11-05 — Entry franchise accrual integrity
 
+- Hosted staging catalog check confirmed forced row-level security on all 52 finance tables and zero direct SELECT, INSERT, UPDATE or DELETE privileges for anonymous or authenticated browser roles.
+
 - Hosted staging passed the overdue branch-access and data-minimization SQL checks. Overdue debt blocked operations while allowing payment, partial payment kept the block, and verified full payment restored access. Browser roles had no direct finance table access and anonymous callers could not execute protected projections.
 
 - Hosted staging passed the transactional card checkout and settlement SQL test. A scoped synthetic settlement allocated the full invoice balance and unlocked the branch. A replay did not duplicate the payment. The test rolled back and used no external provider or real card data.
