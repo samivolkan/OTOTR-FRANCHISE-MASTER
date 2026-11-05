@@ -1350,6 +1350,7 @@ Sınırlar: otomatik fotogrametri, üretici model kütüphanesi, buluttan ses/vi
 - Hosted `finance-read` accepted the staging loopback origin `http://127.0.0.1:42733` with HTTP 204 and rejected a different origin with HTTP 403. The fallback is limited to the staging project and can be replaced by the configured origin allowlist.
 
 - Hosted staging returned `PASS_TWO_BRANCH_AUTHENTICATED_RPC`. Finance read synthetic gross balances of 120 and 240 TRY. The manager read 120 TRY for the assigned branch and received SQLSTATE 42501 for the other. The fixture transaction rolled back and left zero synthetic entities.
+- Hosted staging returned SAME_DEALER_SCOPE_PASS with both synthetic branches sharing the same dealer account. Finance read the 120 and 240 TRY branch balances. The manager read 120 TRY for the assigned branch and the direct request for the other branch failed with SQLSTATE 42501. The fixture rolled back. This verifies authenticated RPC scope with synthetic claims; browser login is a separate UAT step.
 - Hosted HTTP checks returned 401 for anonymous finance summary and Edge access, and 406 for the private finance schema profiles. The database role test used synthetic claims. Authenticated ERP browser sessions and signed staging UAT remain pending.
 
 - Local PostgREST smoke test temporarily enabled the reviewed `finance_api` schema and used a short-lived local JWT with no ERP scope. A direct HTTP call to the dealer summary RPC returned 403. The temporary local schema override was reset after the test.
