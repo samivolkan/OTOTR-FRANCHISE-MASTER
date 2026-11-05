@@ -8,7 +8,9 @@ function required(name: string): string {
 }
 
 const allowedOrigins = required('OTOTR_FINANCE_ALLOWED_ORIGINS').split(',').map(value => value.trim()).filter(Boolean);
-const adapter = createFinanceSupabaseAdapter({ supabaseUrl: required('SUPABASE_URL'), publishableKey: required('SUPABASE_PUBLISHABLE_KEY') });
+const publishableKey = Deno.env.get('SUPABASE_PUBLISHABLE_KEY')?.trim() ||
+  JSON.parse(required('SUPABASE_PUBLISHABLE_KEYS')).default;
+const adapter = createFinanceSupabaseAdapter({ supabaseUrl: required('SUPABASE_URL'), publishableKey });
 const handler = createFinanceReadHandler({ allowedOrigins, ...adapter });
 
 Deno.serve(handler);

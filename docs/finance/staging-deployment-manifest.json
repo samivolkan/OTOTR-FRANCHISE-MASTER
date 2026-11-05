@@ -14,8 +14,8 @@
     "sha256": "7fb234546224ac49904ecbc1501a10d9ee4088c1e07d821986a7a23a6b462315"
   },
   "functions": [
-    {"name":"finance-read","verifyJwt":true,"files":["core.mjs","index.ts","README.md","supabase-adapter.mjs"],"packageSha256":"69d6e10e72614d7aa092b94c3f230c7c0e818016d58e6e5c39fd677a08de8589","requiredSecretNames":["SUPABASE_URL","SUPABASE_PUBLISHABLE_KEY","OTOTR_FINANCE_ALLOWED_ORIGINS"]},
-    {"name":"finance-command","verifyJwt":true,"files":["core.mjs","index.ts","README.md","supabase-adapter.mjs"],"packageSha256":"c0e5a50b011102f7d7040ebf2b001d0e597e5188d2f4db1c89d1324bd4c8f7e9","requiredSecretNames":["SUPABASE_URL","SUPABASE_PUBLISHABLE_KEY","SUPABASE_SERVICE_ROLE_KEY","OTOTR_FINANCE_ALLOWED_ORIGINS"]},
+    {"name":"finance-read","verifyJwt":true,"files":["core.mjs","index.ts","README.md","supabase-adapter.mjs"],"packageSha256":"e25f031af13e89a9dbeb51208ec80d3b4a526fbd217760c9b76c768433f4e228","requiredSecretNames":["SUPABASE_URL","SUPABASE_PUBLISHABLE_KEYS","OTOTR_FINANCE_ALLOWED_ORIGINS"]},
+    {"name":"finance-command","verifyJwt":true,"files":["core.mjs","index.ts","README.md","supabase-adapter.mjs"],"packageSha256":"d0790d6378fc580efa63cccfa8835b4f49193f011dad60430a5f49a02b909aab","requiredSecretNames":["SUPABASE_URL","SUPABASE_PUBLISHABLE_KEYS","SUPABASE_SERVICE_ROLE_KEY","OTOTR_FINANCE_ALLOWED_ORIGINS"]},
     {"name":"finance-customer-revenue-worker","verifyJwt":false,"files":["core.mjs","index.ts","supabase-adapter.mjs"],"packageSha256":"69ff152048e73d9684ed876dac1881124cba56898b4a3565a4fda8fde666400c","requiredSecretNames":["SUPABASE_URL","SUPABASE_SERVICE_ROLE_KEY"]},
     {"name":"finance-payment-ingestion-worker","verifyJwt":false,"files":["core.mjs","index.ts","supabase-adapter.mjs"],"packageSha256":"843cc531a96bcb7ca319ee01804a4f1bb30827967063ba032b361f62dd06c55c","requiredSecretNames":["SUPABASE_URL","SUPABASE_SERVICE_ROLE_KEY"]},
     {"name":"finance-refund-worker","verifyJwt":false,"files":["core.mjs","index.ts","supabase-adapter.mjs"],"packageSha256":"c9f40093387b3a70bad523cc2d5b97c6ce55eaca74632cc6f7e452ac8e2aa793","requiredSecretNames":["SUPABASE_URL","SUPABASE_SERVICE_ROLE_KEY"]},
