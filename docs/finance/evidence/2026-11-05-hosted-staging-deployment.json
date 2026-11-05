@@ -1,0 +1,92 @@
+{
+  "schemaVersion": 1,
+  "target": "STAGING",
+  "environment": "ototr-staging",
+  "database": {
+    "bundleVersion": "20261105094438",
+    "sourceFirstVersion": "20261103010000",
+    "sourceLastVersion": "20261103010137",
+    "sourceMigrationCount": 138,
+    "migrationManifestSha256": "7fb234546224ac49904ecbc1501a10d9ee4088c1e07d821986a7a23a6b462315",
+    "dataApiConfigVersion": "20261105094618",
+    "financeTables": 52,
+    "forcedRlsTables": 52,
+    "browserTableGrants": 0
+  },
+  "functions": [
+    {
+      "name": "finance-accounting-export-worker",
+      "version": 1,
+      "status": "ACTIVE",
+      "verifyJwt": false
+    },
+    {
+      "name": "finance-branch-access",
+      "version": 1,
+      "status": "ACTIVE",
+      "verifyJwt": false
+    },
+    {
+      "name": "finance-command",
+      "version": 3,
+      "status": "ACTIVE",
+      "verifyJwt": true
+    },
+    {
+      "name": "finance-customer-revenue-worker",
+      "version": 1,
+      "status": "ACTIVE",
+      "verifyJwt": false
+    },
+    {
+      "name": "finance-invoice-callback-worker",
+      "version": 1,
+      "status": "ACTIVE",
+      "verifyJwt": false
+    },
+    {
+      "name": "finance-payment-callback-worker",
+      "version": 1,
+      "status": "ACTIVE",
+      "verifyJwt": false
+    },
+    {
+      "name": "finance-payment-checkout",
+      "version": 1,
+      "status": "ACTIVE",
+      "verifyJwt": false
+    },
+    {
+      "name": "finance-payment-ingestion-worker",
+      "version": 1,
+      "status": "ACTIVE",
+      "verifyJwt": false
+    },
+    {
+      "name": "finance-read",
+      "version": 3,
+      "status": "ACTIVE",
+      "verifyJwt": true
+    },
+    {
+      "name": "finance-refund-worker",
+      "version": 1,
+      "status": "ACTIVE",
+      "verifyJwt": false
+    },
+    {
+      "name": "finance-service-usage-worker",
+      "version": 1,
+      "status": "ACTIVE",
+      "verifyJwt": false
+    }
+  ],
+  "verification": {
+    "twoBranchDatabaseScope": "PASSED_SYNTHETIC_ROLLED_BACK",
+    "anonymousHttpAccess": "DENIED",
+    "rawFinanceHttpProfiles": "DENIED",
+    "authenticatedErpBrowser": "NOT_RUN",
+    "uat": "NOT_SIGNED",
+    "preproduction": "NO_GO"
+  }
+}
