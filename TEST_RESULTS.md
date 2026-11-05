@@ -1337,6 +1337,8 @@ Sınırlar: otomatik fotogrametri, üretici model kütüphanesi, buluttan ses/vi
 
 ## 2026-11-05 — Entry franchise accrual integrity
 
+- Hosted staging passed the overdue branch-access and data-minimization SQL checks. Overdue debt blocked operations while allowing payment, partial payment kept the block, and verified full payment restored access. Browser roles had no direct finance table access and anonymous callers could not execute protected projections.
+
 - Hosted staging passed the transactional card checkout and settlement SQL test. A scoped synthetic settlement allocated the full invoice balance and unlocked the branch. A replay did not duplicate the payment. The test rolled back and used no external provider or real card data.
 
 - Hosted staging passed the royalty credit carry-forward and refund identity bridge SQL tests. A synthetic 180 TRY credit settled a 120 TRY invoice, carried 60 TRY forward and reduced the next 100 TRY invoice to 40 TRY. The refund identity bridge check confirmed server-only mutation privileges. Both transactions rolled back.
