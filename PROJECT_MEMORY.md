@@ -207,3 +207,10 @@ Each topic conversation must end with:
 - Browser integration is read-only and allowlisted; local demo records are never auto-imported. Source runtime config is blank and permits only a public Supabase publishable key.
 - `npm run test:gm-hr` is the canonical synthetic acceptance command. It uses pinned `@electric-sql/pglite@0.5.14`; this does not replace staging Supabase/hosted restore acceptance.
 - No remote database migration was applied because Docker was absent and staging migration-history drift must be reconciled first. Follow `docs/hr/GM_HR_ACCEPTANCE_RUNBOOK_2026-11-03.md`.
+
+## Franchise–İK–Finans Integration Contract — 2026-11-06
+
+- `branch.opening.ready` is the fail-closed handoff. Franchise, HR and Finance share one UUID `branchId` plus dealer/account/legal-entity identity; modules communicate through adapters, not cross-domain table writes.
+- Bursa Osmangazi remains synthetic. Its five-person branch organization is stored under branch scope and never added to the 13-unit central GM HR tree.
+- HR provisioning and Finance ENTRY_FRANCHISE delivery reuse existing domain boundaries. Source `eventId` provides idempotency, one `correlationId` joins safe audit records, and the Finance unique constraint remains the final duplicate-charge defense.
+- The Franchise runtime producer is not implemented or claimed complete here. Staging identity mapping, demo Auth/RLS accounts, cutover delivery and signed readiness evidence remain explicit gates; privacy stays `EXCLUDED_BY_SCOPE` and production stays `NO_GO`.

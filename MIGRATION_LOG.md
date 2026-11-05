@@ -404,3 +404,10 @@ Karar ve geri alma: docs/decisions/2026-09-08-kaporta-360-studio.md; migration i
 
 - Migration `20261103010136` enforces one original entry franchise accrual per branch with a partial unique index. Historical originals count toward the limit. Existing duplicates stop migration for explicit reconciliation.
 - New postings require a scoped `branch.opened` event, an opening reference and the corresponding Istanbul business date. The ERP still needs to provide authoritative opening events and an approved rollout cutoff.
+
+## 2026-11-06 — Franchise–İK–Finans contract integration
+
+- Integrated the existing GM HR foundation commits onto current `origin/main` without changing the HR schema, central organization codes or Finance migration chain.
+- Added a shared branch/dealer/legal-entity identity contract and adapter-only Franchise→HR / Franchise→Finance ports. No remote migration, production data, secret, payment, payroll or SGK operation was executed.
+- Added fail-closed branch-scope, readiness, idempotency, correlation and privacy rules plus the synthetic Bursa Osmangazi acceptance path.
+- Franchise runtime remains an external integration gate; no unfinished Franchise implementation was overwritten or represented as complete.

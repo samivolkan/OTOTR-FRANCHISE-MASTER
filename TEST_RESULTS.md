@@ -1342,3 +1342,10 @@ Sınırlar: otomatik fotogrametri, üretici model kütüphanesi, buluttan ses/vi
 - Local finance acceptance passed 56/56 after applying the migration to the local test database. The verified catalog contains 137 finance migrations. Pre-production readiness remains `NO_GO`.
 
 - The local SQL accrual test passed inside a rolled-back transaction with migration `20261103010136`. The original posting and its replay left one entry charge. A distinct source event and key hit the branch uniqueness constraint. Missing opening references and an event date mismatch were rejected. Journal, open-item and calculation-run counts confirmed atomic rejection.
+
+## 2026-11-06 — Franchise–İK–Finans sentetik kabulü
+
+- `npm run test:gm-hr`: PASS. PGlite üzerinde 28 HR tablosu, 31 RPC, 47 audit olayı; privacy `EXCLUDED_BY_SCOPE` ve production `BLOCKED` olarak doğrulandı. Pilot HTML/ağ/ERP menü sınırı da geçti.
+- `npm run test:franchise-hr-finance`: PASS. Node contract tests 4/4; GM İK merkez ağacı 13/13 tek sorumlu birimle değişmeden doğrulandı; şube düğümü 0. Bursa Osmangazi akışı aynı `branchId` ile 5 sentetik kadro, tek ENTRY_FRANCHISE, idempotent replay ve ortak correlation/audit kaydı üretti.
+- `npm run test:franchise-branch-opening`: PASS. Başvuru 7/7 gate, 10/10 checklist, 1 sahip + 1 müdür + 2 kaporta + 1 sekreter ve `PILOT_READY_PRODUCTION_BLOCKED` sonucu doğrulandı.
+- Testler bellek içi adaptör portları ve sentetik kimliklerle çalıştı. Franchise runtime event producer, staging Auth/RLS, gerçek Finans Edge/RPC teslimi, KVKK ve üretim kabulü test edilmedi; bunlar açık gate ve üretim `NO_GO` olarak kalır.

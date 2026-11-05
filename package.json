@@ -26,7 +26,9 @@
     "test:public-api": "node tools/test-public-api.mjs",
     "test": "echo \"Use a scoped test script, for example: npm run test:public-api\" && exit 1",
     "ai:plan": "node scripts/ototr-orchestrator.mjs plan",
-    "ai:plan:dry": "node scripts/ototr-orchestrator.mjs plan --dry-run"
+    "ai:plan:dry": "node scripts/ototr-orchestrator.mjs plan --dry-run",
+    "test:gm-hr-organization": "node apps/admin/prototype/tools/test-gm-hr-organization-regression.mjs",
+    "test:franchise-hr-finance": "node --test packages/shared/src/branch-identity-contract.test.mjs packages/shared/src/finance-branch-opening-adapter.test.mjs && node apps/admin/prototype/tools/test-gm-hr-organization-regression.mjs && node apps/admin/prototype/tools/test-franchise-hr-finance-integration.mjs"
   },
   "repository": {
     "type": "git",
