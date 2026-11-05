@@ -47,6 +47,8 @@ Migration ön kontrolünde staging geçmişindeki 125 sürümün çalışma kopy
 
 Staging Data API ayarına `finance_api` eklenir. Mevcut ERP şemaları korunur ve `finance` ile `finance_private` API dışında tutulur. Dağıtım kanıtına bu ayar ve iki sentetik şubeyle HTTP üzerinden alınan erişim sonuçları eklenir.
 
+Tarayıcı bağlantısından önce Edge Function Secrets ekranında `OTOTR_FINANCE_ALLOWED_ORIGINS` tanımlanır. Değer, staging istemcisinin tam origin’idir. Sayfa yolu ve sorgu parametreleri eklenmez. Örneğin ayrı bir yerel staging istemcisi 42733 portunda çalıştırılırsa değer `http://127.0.0.1:42733` olur. Birden çok onaylı origin virgülle ayrılır. `finance-read` ve `finance-command` için önce izinli origin ile OPTIONS 204, ardından farklı origin ile 403 doğrulanır. Yetki testi iki ayrı Supabase Auth oturumuyla çalıştırılır.
+
 Staging katalog kontrolü ERP kullanıcı tablosunun `FINANCE` ve `BRANCH_MANAGER` rollerini kabul ettiğini, yönetici kapsamının ERP şube kimliğine bağlanabildiğini doğruladı. Finans dağıtımı sonrasında `supabase/tests/finance_identity_scope_e2e.sql` ile iki sentetik şube üzerinde veritabanı yetkileri sınanır. Bu test işlemi geri alır. Ardından gerçek test oturumlarıyla finans API’sine ve Muhasebe V2 ekranına erişim ayrıca doğrulanır.
 
 - Staging Supabase proje referansı veya eşdeğer veritabanı hedefi;
