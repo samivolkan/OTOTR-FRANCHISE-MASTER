@@ -1337,6 +1337,8 @@ Sınırlar: otomatik fotogrametri, üretici model kütüphanesi, buluttan ses/vi
 
 ## 2026-11-05 — Entry franchise accrual integrity
 
+- Hosted staging passed expense and integration-retry identity tests. The expense workflow verified distinct maker and checker roles. The integration workflow verified scoped assignment and retry, dead-letter resolution rules, audit records and server-only writes. Both synthetic test transactions rolled back.
+
 - Hosted staging catalog check confirmed forced row-level security on all 52 finance tables and zero direct SELECT, INSERT, UPDATE or DELETE privileges for anonymous or authenticated browser roles.
 
 - Hosted staging passed the overdue branch-access and data-minimization SQL checks. Overdue debt blocked operations while allowing payment, partial payment kept the block, and verified full payment restored access. Browser roles had no direct finance table access and anonymous callers could not execute protected projections.
