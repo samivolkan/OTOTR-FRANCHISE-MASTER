@@ -35,6 +35,47 @@ async function read(token, scope) {
   return {status: response.status, body: await response.json().catch(() => null)};
 }
 
+async function verifyBrowser(publishRoot, branchA, branchB) {
+  const {chromium} = await import('playwright');
+  const {createFinanceDemoServer} = await import('./finance-demo-server.mjs');
+  const server = await createFinanceDemoServer({port: 42733, staticRoot: publishRoot});
+  let browser;
+  try {
+    browser = await chromium.launch({
+      executablePath: process.env.PLAYWRIGHT_CHROME_PATH || 'C:/Program Files/Google/Chrome/Application/chrome.exe'
+    });
+    for (const [label, token, scope] of [
+      ['Finance branch A', financeToken, branchA],
+      ['Finance branch B', financeToken, branchB],
+      ['Manager branch A', managerToken, branchA]
+    ]) {
+      const page = await browser.newPage();
+      try {
+        await page.addInitScript(({base, key, token, scope}) => {
+          window.OTOTR_SUPABASE_CONFIG = {url: base, publishableKey: key};
+          window.OTOTR_FINANCE_AUTH = {getAccessToken: () => token};
+          window.OTOTR_FINANCE_CONTEXT = scope;
+        }, {base, key, token, scope});
+        await page.goto(origin + '/muhasebe-v2/', {waitUntil: 'domcontentloaded'});
+        const response = page.waitForResponse(response =>
+          response.url() === base + '/functions/v1/finance-read' &&
+          response.request().postDataJSON()?.operationId === 'getDealerFinanceSummary'
+        );
+        await page.locator('[data-finance-connect]').click();
+        assert.equal((await response).status(), 200, label + ' browser read failed');
+        await page.locator('[data-finance-screen="SCR-02"]').click();
+        await page.getByText('READY · BRANCH-SCOPED PROJECTION', {exact: true}).waitFor();
+        console.log('PASS browser ' + label);
+      } finally {
+        await page.close();
+      }
+    }
+  } finally {
+    await browser?.close();
+    await new Promise(resolve => server.close(resolve));
+  }
+}
+
 try {
   assert.ok(key?.startsWith('sb_publishable_'), 'Staging publishable key is required');
   assert.ok(financeToken && managerToken && financeToken !== managerToken, 'Two separate staging Auth sessions are required');
@@ -59,6 +100,7 @@ try {
   assert.equal(denied.status, 403, 'Cross-branch request expected HTTP 403');
   assert.equal(denied.body?.error?.code, 'SCOPE_DENIED');
   console.log('PASS manager cross-branch access rejected');
+  if (process.argv[2]) await verifyBrowser(process.argv[2], branchA, branchB);
 } catch (error) {
   console.error(error.message);
   process.exitCode = 1;
