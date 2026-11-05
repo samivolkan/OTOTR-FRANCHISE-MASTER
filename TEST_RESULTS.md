@@ -1337,6 +1337,8 @@ Sınırlar: otomatik fotogrametri, üretici model kütüphanesi, buluttan ses/vi
 
 ## 2026-11-05 — Entry franchise accrual integrity
 
+- Hosted staging passed the royalty credit carry-forward and refund identity bridge SQL tests. A synthetic 180 TRY credit settled a 120 TRY invoice, carried 60 TRY forward and reduced the next 100 TRY invoice to 40 TRY. The refund identity bridge check confirmed server-only mutation privileges. Both transactions rolled back.
+
 - Hosted `finance-read` accepted the staging loopback origin `http://127.0.0.1:42733` with HTTP 204 and rejected a different origin with HTTP 403. The fallback is limited to the staging project and can be replaced by the configured origin allowlist.
 
 - Hosted staging returned `PASS_TWO_BRANCH_AUTHENTICATED_RPC`. Finance read synthetic gross balances of 120 and 240 TRY. The manager read 120 TRY for the assigned branch and received SQLSTATE 42501 for the other. The fixture transaction rolled back and left zero synthetic entities.
