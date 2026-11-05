@@ -44,10 +44,11 @@ async function verifyBrowser(publishRoot, branchA, branchB) {
     browser = await chromium.launch({
       executablePath: process.env.PLAYWRIGHT_CHROME_PATH || 'C:/Program Files/Google/Chrome/Application/chrome.exe'
     });
-    for (const [label, token, scope] of [
-      ['Finance branch A', financeToken, branchA],
-      ['Finance branch B', financeToken, branchB],
-      ['Manager branch A', managerToken, branchA]
+    for (const [label, token, scope, expectedStatus] of [
+      ['Finance branch A', financeToken, branchA, 200],
+      ['Finance branch B', financeToken, branchB, 200],
+      ['Manager branch A', managerToken, branchA, 200],
+      ['Manager branch B', managerToken, branchB, 403]
     ]) {
       const page = await browser.newPage();
       try {
@@ -63,7 +64,13 @@ async function verifyBrowser(publishRoot, branchA, branchB) {
           response.request().postDataJSON()?.operationId === 'getDealerFinanceSummary'
         );
         await page.locator('[data-finance-connect]').click();
-        assert.equal((await response).status(), 200, label + ' browser read failed');
+        const summary = await response;
+        assert.equal(summary.status(), expectedStatus, label + ' unexpected browser response');
+        if (expectedStatus === 403) {
+          assert.equal((await summary.json())?.error?.code, 'SCOPE_DENIED');
+          console.log('PASS browser ' + label + ' denied');
+          continue;
+        }
         await page.locator('[data-finance-screen="SCR-02"]').click();
         await page.getByText('READY · BRANCH-SCOPED PROJECTION', {exact: true}).waitFor();
         console.log('PASS browser ' + label);
