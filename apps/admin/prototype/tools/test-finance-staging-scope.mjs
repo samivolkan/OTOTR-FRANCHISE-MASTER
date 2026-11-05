@@ -51,11 +51,12 @@ async function verifyBrowser(publishRoot, branchA, branchB) {
     ]) {
       const page = await browser.newPage();
       try {
-        await page.addInitScript(({base, key, token, scope}) => {
+        await page.addInitScript(({base, key, token, scope, origin}) => {
+          if (window !== window.top || location.origin !== origin || location.pathname !== '/muhasebe-v2/') return;
           window.OTOTR_SUPABASE_CONFIG = {url: base, publishableKey: key};
           window.OTOTR_FINANCE_AUTH = {getAccessToken: () => token};
           window.OTOTR_FINANCE_CONTEXT = scope;
-        }, {base, key, token, scope});
+        }, {base, key, token, scope, origin});
         await page.goto(origin + '/muhasebe-v2/', {waitUntil: 'domcontentloaded'});
         const response = page.waitForResponse(response =>
           response.url() === base + '/functions/v1/finance-read' &&
