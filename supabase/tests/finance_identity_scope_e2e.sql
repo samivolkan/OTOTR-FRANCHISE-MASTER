@@ -37,6 +37,7 @@ begin
  perform set_config('request.jwt.claim.role','authenticated',true);
  perform set_config('request.jwt.claim.sub',finance_auth::text,true);
  set local role authenticated;
+ if (select array_agg(branch_id order by branch_id) from finance_api.list_session_branch_scopes() where legal_entity_id=hq) is distinct from array[b1,b2] then raise exception 'FINANCE scope discovery failed'; end if;
  if finance_api.authorize_scope(hq,a1,b1,'getDealerFinanceSummary') is distinct from true
     or finance_api.authorize_scope(hq,a2,b2,'getDealerFinanceSummary') is distinct from true then
    raise exception 'FINANCE Edge authorization RPC did not allow both branches';
@@ -46,6 +47,7 @@ begin
    raise exception 'FINANCE RPC did not return both branch balances';
  end if;
  perform set_config('request.jwt.claim.sub',manager_auth::text,true);
+ if (select array_agg(branch_id) from finance_api.list_session_branch_scopes() where legal_entity_id=hq) is distinct from array[b1] then raise exception 'Manager scope discovery failed'; end if;
  if finance_api.authorize_scope(hq,a1,b1,'getDealerFinanceSummary') is distinct from true
     or finance_api.authorize_scope(hq,a2,b2,'getDealerFinanceSummary') is distinct from false then
    raise exception 'BRANCH_MANAGER Edge authorization RPC did not isolate branch scope';
