@@ -1,16 +1,33 @@
 # OTOTR API Workspace
 
-This folder is reserved for a future dedicated backend API server.
+Bu klasör OTOTR Franchise System için sunucu tarafı C# Web API uygulamalarının aktif çalışma alanıdır.
 
-Current decision on 2026-06-03:
+## Güncel Karar
 
-- Do not start a separate Node/NestJS/Fastify production API yet.
-- Use Supabase/Postgres, RLS, reviewed RPCs and Supabase Edge Functions as the first backend layer.
-- Keep server-only public form and integration endpoints under `supabase/functions`.
-- Revisit this folder when mobile branch, technician and bayi portal contracts require a long-running custom API server.
+- Üretim backend sınırı C# / ASP.NET Core Web API'dir.
+- Mobil ve web uygulamaları SQL Server'a doğrudan bağlanmaz.
+- İstemciler yalnızca HTTPS API adresi ve JWT oturumu üzerinden çalışır.
+- Supabase üretim backend'i olarak kullanılmaz.
+- Docker zorunlu değildir ve bu çalışma kapsamında kullanılmaz.
+- Gerçek connection string, access token, API key veya secret değeri GitHub'a yazılmaz.
 
-Hard rules:
+## Aktif Servisler
 
-- Do not place service-role keys, API tokens or real `.env` values in this folder.
-- Do not duplicate Supabase RPC behavior here unless there is a documented reason.
-- Document endpoint contracts in `docs/api.md` before implementation.
+- `OtoTr.WhatsApp.Api`
+  - WhatsApp Business Platform / Cloud API webhook'u
+  - otomatik müşteri hizmetleri akışları
+  - ERP randevu, paket, rapor, garanti ve destek entegrasyonu
+  - SQL Server konuşma kayıtları
+  - JWT korumalı canlı temsilci API'si
+
+Ayrıntılı kurulum ve mevcut numara aktivasyon planı:
+
+- `docs/whatsapp-customer-service.md`
+
+## Güvenlik Kuralları
+
+- Mobil veya tarayıcı kaynak koduna SQL Server kullanıcı adı/parolası koyma.
+- Meta access token, App Secret, webhook verify token veya ERP servis anahtarını commit etme.
+- Production database üzerinde otomatik destructive migration çalıştırma.
+- Webhook isteklerinde `X-Hub-Signature-256` doğrulamasını kapatma.
+- Müşteri hizmetleri ekranlarını JWT rol politikası olmadan yayınlama.

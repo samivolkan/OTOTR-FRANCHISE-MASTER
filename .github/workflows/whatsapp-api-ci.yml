@@ -1,0 +1,44 @@
+name: WhatsApp API CI
+
+on:
+  pull_request:
+    paths:
+      - "apps/api/OtoTr.WhatsApp.Api/**"
+      - "apps/api/OtoTr.WhatsApp.Api.Tests/**"
+      - ".github/workflows/whatsapp-api-ci.yml"
+  push:
+    branches:
+      - "feature/whatsapp-customer-service"
+    paths:
+      - "apps/api/OtoTr.WhatsApp.Api/**"
+      - "apps/api/OtoTr.WhatsApp.Api.Tests/**"
+      - ".github/workflows/whatsapp-api-ci.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 8
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "8.0.x"
+
+      - name: Restore API
+        run: dotnet restore apps/api/OtoTr.WhatsApp.Api/OtoTr.WhatsApp.Api.csproj
+
+      - name: Restore tests
+        run: dotnet restore apps/api/OtoTr.WhatsApp.Api.Tests/OtoTr.WhatsApp.Api.Tests.csproj
+
+      - name: Build API
+        run: dotnet build apps/api/OtoTr.WhatsApp.Api/OtoTr.WhatsApp.Api.csproj --configuration Release --no-restore --warnaserror
+
+      - name: Run tests
+        run: dotnet test apps/api/OtoTr.WhatsApp.Api.Tests/OtoTr.WhatsApp.Api.Tests.csproj --configuration Release --no-restore --verbosity normal
