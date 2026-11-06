@@ -24,7 +24,7 @@ export function createFinanceCustomerSettlementHandler({ingest, calculateAccrual
     // A duplicate inbox receipt can follow a failed worker attempt. Retry processing
     // against the same stored event so the worker can replay its own committed result.
     const result = settlement.kind === 'refund'
-      ? await processRefund({...command, refundId: event.payload.refundId})
+      ? await processRefund({...command, actorId: context.actorId, refundId: event.payload.refundId})
       : await calculateAccrual({
         ...command,
         jobType: 'ACCRUAL_CALCULATION_REQUESTED',
