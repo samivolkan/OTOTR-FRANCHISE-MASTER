@@ -95,7 +95,7 @@ foreach ($line in $lines) {
 
 $expected = [ordered]@{
   migration_count = '166'
-  finance_migration_count = '142'
+  finance_migration_count = '143'
   finance_tables = '52'
   finance_private_tables = '2'
   finance_api_functions = '183'

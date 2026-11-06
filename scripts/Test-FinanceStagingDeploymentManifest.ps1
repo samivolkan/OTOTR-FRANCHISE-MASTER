@@ -45,4 +45,4 @@ $serialized = $manifest | ConvertTo-Json -Depth 30
 if ($serialized -match 'sb_secret_|eyJ[A-Za-z0-9_-]{20,}|Bearer\s+\S+|https://[a-z0-9-]+\.supabase\.co') { throw 'Deployment manifest contains a secret value or concrete project endpoint.' }
 if (@($manifest.deploymentEvidenceRequired).Count -ne 9 -or 'dataApiSchemaEvidence' -notin $manifest.deploymentEvidenceRequired) { throw 'Staging deployment evidence contract is incomplete.' }
 Write-Host 'FINANCE STAGING DEPLOYMENT MANIFEST: PASSED' -ForegroundColor Green
-Write-Host '142 migrations; 11 immutable function packages; JWT policy and secret-name-only inventory verified; stagingApplied: false.'
+Write-Host '143 migrations; 11 immutable function packages; JWT policy and secret-name-only inventory verified; stagingApplied: false.'
