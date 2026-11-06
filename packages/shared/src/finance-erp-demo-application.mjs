@@ -29,5 +29,7 @@ export function createErpDemoFinanceApplication({
     getWorkerAccessToken,
     readsCurrentRoyaltyBalance: true
   });
-  return createStagingErpDemoSettlementService({...staging, processSettlement});
+  return createStagingErpDemoSettlementService({
+    ...staging, processSettlement, verifyWorker: getWorkerAccessToken
+  });
 }

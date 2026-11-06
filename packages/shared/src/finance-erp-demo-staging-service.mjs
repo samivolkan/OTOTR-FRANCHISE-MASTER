@@ -5,19 +5,24 @@ import {createErpDemoScenarioLoader} from './finance-erp-demo-scenario.mjs';
 
 export function createStagingErpDemoSettlementService({
   supabaseUrl, serviceRoleKey, identity, scenario, allowedOrigins,
-  processSettlement, clock, fetchImpl
+  processSettlement, verifyWorker, clock, fetchImpl
 }) {
   const bindings = createErpDemoSupabaseBindings({
     supabaseUrl, serviceRoleKey, identity, fetchImpl
   });
-  const loadAuthorizedScenario = createErpDemoScenarioLoader({
+  const resolveScenario = createErpDemoScenarioLoader({
     scenario,
     authorizeBranch: (actor, scope) => identity.authorizeScope({
       actor, scope, operationId: 'getDealerFinanceSummary'
     })
   });
   const handle = createErpDemoSettlementHandler({
-    ...bindings, environment: 'staging', loadAuthorizedScenario, processSettlement, clock
+    async loadAuthorizedScenario(actor) {
+      const authorized = await resolveScenario(actor);
+      if (authorized) await verifyWorker();
+      return authorized;
+    },
+    ...bindings, environment: 'staging', processSettlement, clock
   });
   return createErpDemoSettlementTransport({handle, allowedOrigins});
 }
