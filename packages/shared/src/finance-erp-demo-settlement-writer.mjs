@@ -14,6 +14,10 @@ export function createErpDemoSettlementWriter({loadAuthorizedScenario, saveOpera
 
     const scenario = await loadAuthorizedScenario(actor);
     if (!scenario) return null;
+    if (typeof scenario.correlationId !== 'string' ||
+        !/^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$/i.test(scenario.correlationId)) {
+      throw new Error('Demo scenario correlation ID must be a UUID');
+    }
 
     const original = spec.original && await loadOperation(scenario, spec.original);
     if (spec.original && (!original || original.branch_id !== scenario.erpBranchId ||
@@ -42,6 +46,6 @@ export function createErpDemoSettlementWriter({loadAuthorizedScenario, saveOpera
 
     const settlement = readErpCustomerSettlement(transaction, scenario);
     if (!settlement) throw new Error('Invalid persisted demo settlement');
-    return {settlement, context: scenario.context};
+    return {settlement, context: {...scenario.context, receivedAtUtc: settlement.occurredAtUtc}};
   };
 }
