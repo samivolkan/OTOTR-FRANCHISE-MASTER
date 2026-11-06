@@ -72,7 +72,7 @@ begin
     status,posted_at_utc,posted_by,created_by,correlation_id
   ) values
     (accrual_journal,hq,branch_period,'billing-accrual-journal',repeat('c',64),'ACCRUAL',date '2026-11-03',date '2026-11-03','POSTED',now(),checker,maker,corr),
-    (accounting_journal,hq,hq_period,'accounting-export-journal',repeat('d',64),'ADJUSTMENT',date '2026-11-04',date '2026-11-04','POSTED',now(),checker,maker,corr);
+    (accounting_journal,hq,branch_period,'accounting-export-journal',repeat('d',64),'ADJUSTMENT',date '2026-11-04',date '2026-11-04','POSTED',now(),checker,maker,corr);
   insert into finance.journal_lines(
     journal_entry_id,line_no,dealer_account_id,account_code,branch_id,currency_code,debit_amount,credit_amount,
     created_by,correlation_id
@@ -81,8 +81,8 @@ begin
     (accrual_journal,2,account,'600.HIZMET',branch,'TRY',0,120,maker,corr),
     (accrual_journal,3,account,'391.KDV',branch,'TRY',0,20,maker,corr),
     (accounting_journal,1,account,'120.BAYI',branch,'TRY',140,0,maker,corr),
-    (accounting_journal,2,account,'600.HIZMET',branch,'TRY',0,120,maker,corr),
-    (accounting_journal,3,account,'391.KDV',branch,'TRY',0,20,maker,corr);
+    (accounting_journal,2,null,'600.HIZMET',branch,'TRY',0,120,maker,corr),
+    (accounting_journal,3,null,'391.KDV',branch,'TRY',0,20,maker,corr);
   insert into finance.accruals(
     id,legal_entity_id,pass_through_expense_id,dealer_account_id,branch_id,journal_entry_id,sequence_no,
     fee_definition_id,currency_code,net_amount,tax_amount,gross_amount,status,created_by,correlation_id
