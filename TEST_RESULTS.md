@@ -1376,3 +1376,9 @@ Sınırlar: otomatik fotogrametri, üretici model kütüphanesi, buluttan ses/vi
 - Local finance acceptance passed 56/56 after applying the migration to the local test database. The verified catalog contains 137 finance migrations. Pre-production readiness remains `NO_GO`.
 
 - The local SQL accrual test passed inside a rolled-back transaction with migration `20261103010136`. The original posting and its replay left one entry charge. A distinct source event and key hit the branch uniqueness constraint. Missing opening references and an event date mismatch were rejected. Journal, open-item and calculation-run counts confirmed atomic rejection.
+
+### ERP-triggered royalty demo preflight
+
+- SCOPE-B2 is the clean ERP-linked staging branch and has an open November 2026 calculation period.
+- Do not copy the SCOPE-B1 royalty tax flag. Its published 10 percent staging rule has price_includes_tax=true, which treats the computed royalty as tax-inclusive and would yield 80 TRY after refund. The SCOPE-B2 demo rule requires price_includes_tax=false, yielding 72 + 48 - 24 = 96 TRY at the synthetic 20 percent tax rate.
+- The collection basis itself remains the full gross amount including customer tax. Production accounting tax code approval is pending. ERP initiation and both browser role checks are pending.
