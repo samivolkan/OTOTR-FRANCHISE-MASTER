@@ -6,9 +6,12 @@ export function createErpSettlementFinanceRuntime({
   accrualWorker,
   refundWorker,
   refreshBranchSummary,
-  getWorkerAccessToken
+  getWorkerAccessToken,
+  readsCurrentRoyaltyBalance = false
 }) {
-  if (typeof refreshBranchSummary !== 'function') throw new TypeError('Branch summary refresher is required');
+  if (typeof refreshBranchSummary !== 'function' && readsCurrentRoyaltyBalance !== true) {
+    throw new TypeError('Branch summary refresher is required');
+  }
 
   return async function processErpSettlement(settlement, context) {
     const token = await getWorkerAccessToken();
@@ -44,7 +47,7 @@ export function createErpSettlementFinanceRuntime({
 
     // Refresh on replay too. The previous attempt may have posted successfully
     // and then failed before publishing the updated read model.
-    if (settlement.kind === 'refund' || context.runType === 'LIVE') {
+    if (refreshBranchSummary && (settlement.kind === 'refund' || context.runType === 'LIVE')) {
       await refreshBranchSummary({
         actorId: actor.id,
         legalEntityId: context.scope.headquartersLegalEntityId,
