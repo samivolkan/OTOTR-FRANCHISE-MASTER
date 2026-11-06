@@ -18,28 +18,28 @@ as $$ select true $$;
 
 do $test$
 declare
-  v_actor constant uuid := '00000000-0000-4000-8000-000000000001';
-  v_approver constant uuid := '00000000-0000-4000-8000-000000000002';
-  v_hq constant uuid := '10000000-0000-4000-8000-000000000001';
-  v_dealer constant uuid := '20000000-0000-4000-8000-000000000001';
-  v_branch constant uuid := '30000000-0000-4000-8000-000000000001';
-  v_account constant uuid := '40000000-0000-4000-8000-000000000001';
-  v_fee constant uuid := '50000000-0000-4000-8000-000000000001';
-  v_tax_code constant uuid := '51000000-0000-4000-8000-000000000001';
-  v_tax_version constant uuid := '52000000-0000-4000-8000-000000000001';
-  v_mapping constant uuid := '53000000-0000-4000-8000-000000000001';
-  v_contract constant uuid := '60000000-0000-4000-8000-000000000001';
-  v_contract_version constant uuid := '61000000-0000-4000-8000-000000000001';
-  v_rule constant uuid := '62000000-0000-4000-8000-000000000001';
-  v_oct_hq_period constant uuid := '70000000-0000-4000-8000-000000000001';
-  v_oct_branch_period constant uuid := '71000000-0000-4000-8000-000000000001';
-  v_nov_hq_period constant uuid := '70000000-0000-4000-8000-000000000002';
-  v_nov_branch_period constant uuid := '71000000-0000-4000-8000-000000000002';
-  v_collection_event constant uuid := '80000000-0000-4000-8000-000000000001';
-  v_collection_id constant uuid := '81000000-0000-4000-8000-000000000001';
-  v_refund_event constant uuid := '80000000-0000-4000-8000-000000000002';
-  v_collection_corr constant uuid := '90000000-0000-4000-8000-000000000001';
-  v_refund_corr constant uuid := '90000000-0000-4000-8000-000000000002';
+  v_actor constant uuid := gen_random_uuid();
+  v_approver constant uuid := gen_random_uuid();
+  v_hq constant uuid := gen_random_uuid();
+  v_dealer constant uuid := gen_random_uuid();
+  v_branch constant uuid := gen_random_uuid();
+  v_account constant uuid := gen_random_uuid();
+  v_fee constant uuid := gen_random_uuid();
+  v_tax_code constant uuid := gen_random_uuid();
+  v_tax_version constant uuid := gen_random_uuid();
+  v_mapping constant uuid := gen_random_uuid();
+  v_contract constant uuid := gen_random_uuid();
+  v_contract_version constant uuid := gen_random_uuid();
+  v_rule constant uuid := gen_random_uuid();
+  v_oct_hq_period constant uuid := gen_random_uuid();
+  v_oct_branch_period constant uuid := gen_random_uuid();
+  v_nov_hq_period constant uuid := gen_random_uuid();
+  v_nov_branch_period constant uuid := gen_random_uuid();
+  v_collection_event constant uuid := gen_random_uuid();
+  v_collection_id constant uuid := gen_random_uuid();
+  v_refund_event constant uuid := gen_random_uuid();
+  v_collection_corr constant uuid := gen_random_uuid();
+  v_refund_corr constant uuid := gen_random_uuid();
   v_context jsonb;
   v_command jsonb;
   v_rule_snapshot jsonb;
@@ -84,7 +84,7 @@ begin
   insert into finance.fee_definitions(
     id,legal_entity_id,code,version_no,fee_family,name,status,created_by,correlation_id
   ) values (
-    v_fee,v_hq,'ROYALTY-COLLECTION',1,'ROYALTY','Tahsilat Bazlı Royalty','PUBLISHED',v_actor,v_collection_corr
+    v_fee,v_hq,'TEST-ROYALTY-' || v_fee::text,1,'ROYALTY','Tahsilat Bazlı Royalty','PUBLISHED',v_actor,v_collection_corr
   );
 
   insert into finance.tax_codes(
@@ -123,7 +123,7 @@ begin
     id,contract_id,version_no,currency_code,effective_from,content_hash,evidence_object_key,
     status,prepared_by,approved_by,approved_at_utc,created_by,correlation_id
   ) values (
-    v_contract_version,v_contract,1,'TRY',date '2026-01-01',repeat('a',64),'synthetic/contracts/demo-v1',
+    v_contract_version,v_contract,1,'TRY',date '2026-01-01',encode(sha256(convert_to(v_collection_corr::text || ':a','UTF8')),'hex'),'synthetic/contracts/demo-v1',
     'ACTIVE',v_actor,v_approver,statement_timestamp(),v_actor,v_collection_corr
   );
 
@@ -168,7 +168,7 @@ begin
     jsonb_build_object(
       'collectionId',v_collection_id,'branchId',v_branch,'currency','TRY',
       'collectedGrossAmount','1180.00000000','settlementStatus','SETTLED','partial',true
-    ),repeat('b',64),'RECEIVED',v_actor,v_collection_corr
+    ),encode(sha256(convert_to(v_collection_corr::text || ':b','UTF8')),'hex'),'RECEIVED',v_actor,v_collection_corr
   );
 
   v_context := jsonb_build_object(
@@ -194,7 +194,7 @@ begin
   v_result := finance_api.commit_accrual_calculation(
     v_actor,v_command,v_context,v_rule_snapshot,
     '{"status":"CALCULATED","basisAmount":"1180.00000000","amounts":{"netAmount":"98.33333333","taxAmount":"19.66666667","grossAmount":"118.00000000","currency":"TRY"}}'::jsonb,
-    date '2026-10-22',repeat('d',64),repeat('e',64),'{}'::jsonb
+    date '2026-10-22',encode(sha256(convert_to(v_collection_corr::text || ':d','UTF8')),'hex'),encode(sha256(convert_to(v_collection_corr::text || ':e','UTF8')),'hex'),'{}'::jsonb
   );
   if v_result->>'outcome' <> 'CREATED' then
     raise exception 'original royalty accrual was not created: %',v_result;
@@ -238,7 +238,7 @@ begin
       'refundId',v_refund_event,'originalCollectionId',v_collection_id,
       'branchId',v_branch,'currency','TRY','refundedGrossAmount','590.00000000',
       'settlementStatus','SETTLED','refundStatus','SETTLED'
-    ),repeat('c',64),'RECEIVED',v_actor,v_refund_corr
+    ),encode(sha256(convert_to(v_collection_corr::text || ':c','UTF8')),'hex'),'RECEIVED',v_actor,v_refund_corr
   );
 
   v_refund_context := finance_api.load_royalty_refund_context(

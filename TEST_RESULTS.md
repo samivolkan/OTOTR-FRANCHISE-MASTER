@@ -1388,3 +1388,7 @@ Sınırlar: otomatik fotogrametri, üretici model kütüphanesi, buluttan ses/vi
 - SCOPE-B2 staging preflight found exactly one matching ERP branch, dealer account, current open calculation period, active demo contract rule and EVIDENCE_V1 link.
 - Ototr Pages published the opt-in settlement panel in 573be64 (workflow 42143486408). HTTP 200 and the panel markup were confirmed on the published URL. Authenticated operation initiation is still pending.
 - The dedicated staging worker requires OTOTR_FINANCE_DEMO_WORKER_EMAIL, OTOTR_FINANCE_DEMO_WORKER_PASSWORD and OTOTR_FINANCE_DEMO_SCENARIO in Edge Function secrets. Do not put worker credentials in repository files, SQL fixtures or browser assets.
+
+- SCOPE-B2 demo branch is mapped to its ERP branch and the staging branch-manager demo account was moved from SCOPE-B1 to SCOPE-B2.
+- Hosted staging returned ROLE_RPC_BASELINE_PASS. With the selected demo accounts' claims set inside a rolled-back SQL transaction, Merkez Finans could query both branches and the branch manager could query only SCOPE-B2. SCOPE-B2 returned 0 TRY for both allowed roles. The SCOPE-B1 manager request raised insufficient_privilege. This is database authorization evidence, not an authenticated browser test.
+- Hosted staging returned ROYALTY_DB_REGRESSION_PASSED for the partial collection/refund fixture with unique test identifiers and a rollback. This verifies the refund references and periods. The SCOPE-B2 worker-backed ERP initiation and resulting 96 TRY browser acceptance remain open.
