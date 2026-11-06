@@ -31,3 +31,5 @@ Başarılı sonuç şu sözleşmeleri doğrular:
 ## Sınırlar
 
 Bu demo, staging veya pre-production onayı değildir. Gerçek ERP adaptörleri, yetkili kullanıcı maker-checker imzaları, ticari/vergi kararları, alarm hedefleri, maskeli pilot veri, hacim testi ve geri dönüş tatbikatı tamamlanmadan canlıya geçiş kararı `NO_GO` kalır. Demo ekranındaki tutarlar ticari karar veya fatura dayanağı olarak kullanılamaz.
+
+For hosted demo provisioning, create a dedicated staging Auth user with no ERP roles. Grant only finance.source-events.ingest and finance.accruals.calculate for SCOPE-B2 via Auth app metadata. Keep the worker sign-in secrets in Edge Functions Secrets. Configure the scenario with the SCOPE-B2 ERP branch ID, finance branch ID, headquarters and dealer legal entity IDs, dealer account ID, royalty fee definition ID, one stable correlation UUID, explicitly allowed ERP user IDs, runType LIVE (inside staging), and attempt 1. The worker account must not be listed as an ERP UI actor.
