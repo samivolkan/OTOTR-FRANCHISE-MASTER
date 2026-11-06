@@ -1382,3 +1382,5 @@ Sınırlar: otomatik fotogrametri, üretici model kütüphanesi, buluttan ses/vi
 - SCOPE-B2 is the clean ERP-linked staging branch and has an open November 2026 calculation period.
 - Do not copy the SCOPE-B1 royalty tax flag. Its published 10 percent staging rule has price_includes_tax=true, which treats the computed royalty as tax-inclusive and would yield 80 TRY after refund. The SCOPE-B2 demo rule requires price_includes_tax=false, yielding 72 + 48 - 24 = 96 TRY at the synthetic 20 percent tax rate.
 - The collection basis itself remains the full gross amount including customer tax. Production accounting tax code approval is pending. ERP initiation and both browser role checks are pending.
+
+- Hosted staging Edge Function finance-erp-demo v1 was deployed with JWT verification. An unauthenticated POST returned HTTP 401. This verifies gateway rejection only. Worker secrets, authenticated initiation, and browser role checks remain pending.
