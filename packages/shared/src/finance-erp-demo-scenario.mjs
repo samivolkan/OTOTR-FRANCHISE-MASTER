@@ -8,7 +8,7 @@ export function createErpDemoScenarioLoader({scenario, authorizeBranch}) {
       ![...actorIds, erpBranchId, financeBranchId, correlationId, dealerAccountId,
         feeDefinitionId, scope.headquartersLegalEntityId, scope.dealerLegalEntityId].every(id =>
         typeof id === 'string' && UUID.test(id)) ||
-      scope.branchId !== financeBranchId || context.runType !== 'LIVE') {
+      scope.branchId !== financeBranchId || context.runType !== 'LIVE' || context.attempt !== 1) {
     throw new Error('Invalid staging ERP demo scenario');
   }
   const permittedActors = new Set(actorIds);
