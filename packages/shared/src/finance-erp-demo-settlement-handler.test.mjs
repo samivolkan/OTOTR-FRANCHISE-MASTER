@@ -52,3 +52,37 @@ test('ERP demo retries keep the transaction and refund reference', async () => {
   assert.equal(posted[3].settlement.originalCollectionId, posted[1].settlement.transactionId);
   assert.equal(rows.size, 3);
 });
+
+test('staging demo does not write when worker login fails', async () => {
+  const {createStagingErpDemoSettlementService} = await import('./finance-erp-demo-staging-service.mjs');
+  const id = crypto.randomUUID();
+  const handle = createStagingErpDemoSettlementService({
+    supabaseUrl: 'https://bsjkohwbtrfwrqcyhsfz.supabase.co',
+    serviceRoleKey: 'test-only',
+    allowedOrigins: [],
+    identity: {
+      authenticate: async () => ({id}),
+      authorizeScope: async () => true
+    },
+    scenario: {
+      actorIds: [id], erpBranchId: id, financeBranchId: id, correlationId: id,
+      context: {
+        runType: 'LIVE', attempt: 1, dealerAccountId: id, feeDefinitionId: id,
+        scope: {branchId: id, headquartersLegalEntityId: id, dealerLegalEntityId: id}
+      }
+    },
+    verifyWorker: async () => { throw new Error('Worker sign-in failed'); },
+    fetchImpl: async () => { writes++; },
+    processSettlement: async () => { postings++; }
+  });
+  let writes = 0;
+  let postings = 0;
+  const response = await handle(new Request('https://erp.invalid', {
+    method: 'POST',
+    headers: {Authorization: 'Bearer demo'},
+    body: JSON.stringify({operation: 'collection-600'})
+  }));
+  assert.equal(response.status, 502);
+  assert.equal(writes, 0);
+  assert.equal(postings, 0);
+});
