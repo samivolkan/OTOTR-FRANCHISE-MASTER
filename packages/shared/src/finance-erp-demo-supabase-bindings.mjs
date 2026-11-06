@@ -27,5 +27,21 @@ export function createErpDemoSupabaseBindings({
     return options.method === 'POST' ? undefined : response.json();
   }
 
-  return {authenticate, requestErpTransactions};
+  async function trustedCommit(operation, payload) {
+    if (operation !== 'commit_accrual_calculation') throw new Error('Invalid accrual RPC');
+    const response = await fetchImpl(stagingOrigin + '/rest/v1/rpc/' + operation, {
+      method: 'POST',
+      headers: {
+        apikey: serviceRoleKey,
+        Authorization: 'Bearer ' + serviceRoleKey,
+        'Content-Type': 'application/json',
+        'Content-Profile': 'finance_api'
+      },
+      body: JSON.stringify(payload)
+    });
+    if (!response.ok) throw Object.assign(new Error('Accrual commit failed'), {code: 'DATABASE_ERROR'});
+    return response.json();
+  }
+
+  return {authenticate, requestErpTransactions, trustedCommit};
 }
