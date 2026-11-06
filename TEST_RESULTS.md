@@ -1384,3 +1384,7 @@ Sınırlar: otomatik fotogrametri, üretici model kütüphanesi, buluttan ses/vi
 - The collection basis itself remains the full gross amount including customer tax. Production accounting tax code approval is pending. ERP initiation and both browser role checks are pending.
 
 - Hosted staging Edge Function finance-erp-demo v1 was deployed with JWT verification. An unauthenticated POST returned HTTP 401. This verifies gateway rejection only. Worker secrets, authenticated initiation, and browser role checks remain pending.
+
+- SCOPE-B2 staging preflight found exactly one matching ERP branch, dealer account, current open calculation period, active demo contract rule and EVIDENCE_V1 link.
+- Ototr Pages published the opt-in settlement panel in 573be64 (workflow 42143486408). HTTP 200 and the panel markup were confirmed on the published URL. Authenticated operation initiation is still pending.
+- The dedicated staging worker requires OTOTR_FINANCE_DEMO_WORKER_EMAIL, OTOTR_FINANCE_DEMO_WORKER_PASSWORD and OTOTR_FINANCE_DEMO_SCENARIO in Edge Function secrets. Do not put worker credentials in repository files, SQL fixtures or browser assets.
