@@ -3,9 +3,6 @@
 begin;
 set local request.jwt.claim.sub = '00000000-0000-4000-8000-000000000052';
 set local request.jwt.claim.role = 'service_role';
-create or replace function finance_private.current_actor_can_dispatch_invoice(
-  p_actor_id uuid,p_legal_entity_id uuid,p_branch_id uuid
-) returns boolean language sql stable security definer set search_path='' as $$select true$$;
 create or replace function finance_private.current_callback_caller_is_trusted()
 returns boolean language sql stable security definer set search_path='' as $$select true$$;
 create or replace function finance_private.current_actor_can_read_headquarters(p_actor_id uuid,p_legal_entity_id uuid,p_operation_id text)
