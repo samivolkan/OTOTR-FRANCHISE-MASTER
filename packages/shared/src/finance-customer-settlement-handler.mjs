@@ -11,6 +11,7 @@ export function createFinanceCustomerSettlementHandler({ingest, calculateAccrual
 
     const {headquartersLegalEntityId, dealerLegalEntityId, branchId} = event.scope;
     const command = {
+      actorId: context.actorId,
       legalEntityId: headquartersLegalEntityId,
       dealerLegalEntityId,
       dealerAccountId: context.dealerAccountId,
