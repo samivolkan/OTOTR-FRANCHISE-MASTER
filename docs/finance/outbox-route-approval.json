@@ -38,5 +38,14 @@
     "requireTokenFreeEvidence": true,
     "requireControlledAckRetryDeadLetterDrill": true
   },
+  "predeploymentHardening": {
+    "packageSha256": "15a697b19a85d3012531980fa2c5c00a9785b7792d95443e42988db0bc4eaf7d",
+    "missingWorkerIdentityStatus": 401,
+    "invalidConfigurationStatus": 503,
+    "allRoutesValidatedBeforeMessageClaim": true,
+    "invalidRouteNetworkCalls": 0,
+    "unconfiguredTopicRetryable": false,
+    "tests": ["Test-FinanceOutboxWorker.ps1", "Test-FinanceOutboxWorkerE2E.ps1"]
+  },
   "preProductionDecision": "NO_GO"
 }
