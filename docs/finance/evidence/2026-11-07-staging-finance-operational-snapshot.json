@@ -1,0 +1,52 @@
+{
+  "schemaVersion": 1,
+  "module": "OTOTR_FRANCHISE_FINANCE",
+  "target": "STAGING",
+  "environment": "ototr-staging",
+  "projectRef": "bsjkohwbtrfwrqcyhsfz",
+  "observedWindow": {
+    "startedAtUtc": "2026-11-06T02:10:00Z",
+    "completedAtUtc": "2026-11-07T02:10:00Z"
+  },
+  "productionDataUsed": false,
+  "healthAdvisorBlockingFindingCount": 0,
+  "edgeFunctionAggregate": {
+    "financeRequestCount": 8,
+    "successfulPreflightCount": 1,
+    "unauthorizedProbeCount": 7,
+    "latestRefundWorkerVersion": 3,
+    "latestErpDemoVersion": 7,
+    "rawSensitiveRequestMetadataStored": false
+  },
+  "databaseAggregate": {
+    "outbox": {
+      "pending": 11,
+      "processing": 0,
+      "published": 0,
+      "deadLetter": 0,
+      "oldestPendingAgeSeconds": 90192,
+      "minimumAttemptCount": 0,
+      "maximumAttemptCount": 0
+    },
+    "sourceEvents": {"received":0,"processing":0,"processed":3,"failed":0},
+    "integrationErrors": {"open":0,"retrying":0,"resolved":0,"ignored":0},
+    "auditEventCount": 11
+  },
+  "outboxCategories": [
+    {"topic":"finance.accrual","pending":3},
+    {"topic":"finance.billing","pending":1},
+    {"topic":"finance.billing.export","pending":1},
+    {"topic":"finance.invoice","pending":2},
+    {"topic":"finance.period","pending":1},
+    {"topic":"finance.accounting","pending":3}
+  ],
+  "interpretation": {
+    "status": "ACTION_REQUIRED",
+    "candidateThresholdBreached": true,
+    "dataLossProven": false,
+    "dispatcherActivityProven": false,
+    "alertDeliveryProven": false,
+    "reason": "Eleven finance outbox records are pending, none has an attempt, and the oldest exceeds the candidate 15-minute critical threshold. Dispatcher ownership and alert delivery are not configured or evidenced."
+  },
+  "preProductionDecision": "NO_GO"
+}

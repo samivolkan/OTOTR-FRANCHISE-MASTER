@@ -12,6 +12,7 @@ $checks = @(
   'Test-FinanceStagingTargetSnapshot.ps1',
   'Test-FinanceStagingRoyaltyDemoEvidence.ps1',
   'Test-FinanceStagingSecurityAdvisorEvidence.ps1',
+  'Test-FinanceStagingOperationalSnapshot.ps1',
   'Test-FinanceLocalReplay.ps1',
   'Test-FinanceRoyaltyE2E.ps1',
   'Test-FinanceRoyaltyRefundIdentityBridgeE2E.ps1',
