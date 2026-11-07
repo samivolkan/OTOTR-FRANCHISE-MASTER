@@ -1,0 +1,26 @@
+{
+  "schemaVersion": 1,
+  "module": "OTOTR_FRANCHISE_FINANCE",
+  "target": "LOCAL_BASELINE_ONLY",
+  "observedAtUtc": "2026-11-07T02:34:50.2593805Z",
+  "environment": "LOCAL_DOCKER_SYNTHETIC",
+  "productionDataUsed": false,
+  "stagingTargetApproved": false,
+  "preProductionDecision": "NO_GO",
+  "workload": {
+    "id": "LOCAL-PERF-FIN-01",
+    "name": "Scoped audit pagination baseline",
+    "datasetRows": 2000,
+    "pageSize": 200,
+    "observedPageMs": 23.44,
+    "localRegressionThresholdMs": 1500,
+    "transactionRolledBack": true,
+    "residueCount": 0
+  },
+  "limitations": [
+    "Not a hosted staging measurement",
+    "No approved concurrency, request-volume, P95, P99, error-rate or timeout budget",
+    "Does not prove Edge Function, network, Auth or provider latency",
+    "Does not close FIN-G09"
+  ]
+}
