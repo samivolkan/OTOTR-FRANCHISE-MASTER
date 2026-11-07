@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 1,
+  "module": "OTOTR_FRANCHISE_FINANCE",
+  "target": "ototr-staging",
+  "projectRef": "bsjkohwbtrfwrqcyhsfz",
+  "function": {
+    "name": "finance-service-usage-worker",
+    "version": 3,
+    "status": "ACTIVE",
+    "verifyJwt": false,
+    "authenticationBoundary": "SERVICE_ROLE_BEARER_VALIDATED_BY_FUNCTION",
+    "packageSha256": "17addb5b9b0bbb5b4c3909af5d8fc53177f3c815d9fced4f6bfca09e493b1513"
+  },
+  "catalogPolicy": {
+    "queryEventType": "query.completed",
+    "allowedServiceCodes": ["TRAMER_QUERY", "KM_QUERY", "TRAMER_360_QUERY"],
+    "unknownQueryCodeRejected": true,
+    "externalServiceEventRemainsSeparate": true
+  },
+  "verification": {
+    "localAcceptance": "94_OF_94_PASSED",
+    "workerRegression": "PASSED",
+    "catalogAllowlist": "PASSED",
+    "activeHostedVersionListed": true,
+    "realProviderEventDelivered": false
+  },
+  "security": {
+    "secretValuesRead": false,
+    "secretValuesStored": false,
+    "personalDataStored": false
+  },
+  "productionDataUsed": false,
+  "preProductionDecision": "NO_GO",
+  "remaining": [
+    "Gerçek staging sağlayıcı olay teslimi ve replay/conflict doğrulaması",
+    "Sorgu sözleşme kuralları, yürürlük tarihi ve vergi-muhasebe onayı",
+    "Finans Operasyon kabul imzası"
+  ]
+}
