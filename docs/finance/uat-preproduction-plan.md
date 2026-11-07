@@ -154,6 +154,6 @@ Komut kanıtın SHA-256 değerini kendisi üretir. Aynı dosya/rol imzasının t
 - Staging rol kabul aracı, iki ayrı test hesabıyla Supabase Auth üzerinden geçici oturum açabilir; parola ve tokenlar repository’ye veya test çıktısına yazılmaz.
 - Ticari/mali karar girişi için `commercial-configuration-intake.md`, ERP staging eşlemesi için `erp-staging-mapping-intake.md` hazırlandı.
 - Yerel sentetik operasyon tabanı hazırdır: 2.000 kapsamlı audit kaydında sayfalama ölçülür; ayrı yerel hedefe backup/restore katalog doğrulaması yapılır; `operations-runbook.md` alarm, retry, forward-fix ve tatbikat kayıtlarını tanımlar; GM Finans sağlık özeti outbox yaşı/sayısı, dead-letter, açık entegrasyon hatası ve audit zincirini yetkili genel merkez ekranına taşır.
-- Staging adaptörleri, gerçek kullanıcı UAT’si, ticari/vergi imzaları, staging hacminde performans, pre-production restore ve imzalı operasyon tatbikatı henüz yoktur.
+- Staging finans API/worker adaptörlerinin önemli bölümü aktiftir ve SCOPE-B1 sentetik tahsilat/iade zinciri veritabanında doğrulanmıştır. Buna karşılık gerçek ERP tüketici outbox adaptörü, SCOPE-B2 tarayıcıdan başlatılan akış, gerçek kullanıcı UAT’si, ticari/vergi imzaları, staging hacminde performans, pre-production restore ve imzalı operasyon tatbikatı henüz tamamlanmamıştır.
 
 Sonuç: **NO-GO**. Bu, bir hata değil; eksik kurumsal kanıtları görünür tutan fail-closed karardır.
