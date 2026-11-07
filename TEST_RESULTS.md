@@ -1551,3 +1551,11 @@ Sınırlar: otomatik fotogrametri, üretici model kütüphanesi, buluttan ses/vi
 - `scripts/Test-FinanceLocalAcceptance.ps1`: PASS, 93/93 checks, `LOCAL_ONLY`, `productionDataUsed: false`.
 - Migration `ototr-staging` ortamına uygulandı. İki aktif Şube Yöneticisinin ikisi de finans kapsamına bağlı; üç aktif eşlemenin biri açık, ikisi gecikmiş royalty nedeniyle kilitli görünüyor. `authenticated` rolü korumalı iş emri fonksiyonunu çalıştırabilirken iç kontrolü ve kontrolsüz fonksiyonu doğrudan çalıştıramıyor; güvenlik danışmanında yeni kapıya özel bulgu yok.
 - Bu turda yetkili staging kullanıcı JWT'si kullanılmadığından gerçek oturumla açık/kilitli iş emri çağrısı yapılmadı; pre-production kararı `NO_GO` kalır.
+
+## 2026-11-07 — TRAMER/KM/TRAMER 360 teknik hizmet kataloğu
+
+- TRAMER, KM ve TRAMER 360 için üç global `QUERY` bedel tanımı staging'e yayımlandı. Migration fiyat, KDV, vade veya aktif sözleşme kuralı saklamaz; tek başına tahakkuk oluşturamaz.
+- Kullanıcı tarafından kararlaştırılan fiyatlar yalnız güvenli sunucu yapılandırmasından materyalize edilir; public projeksiyon ve bedel tanımı ticari tutar açıklamaz.
+- Yerel katalog, migration manifesti, temiz replay ve güvenli ticari yapılandırma testleri geçti; staging'de üç beklenen kodun üçü de yayımlanmış ve tekildir.
+- `scripts/Test-FinanceLocalAcceptance.ps1`: PASS, 94/94 checks, `LOCAL_ONLY`, `productionDataUsed: false`.
+- Sözleşme kuralı, yürürlük tarihi, vergi/muhasebe eşlemesi ve Operasyon/Mali Müşavir onayı tamamlanmadan pre-production kararı `NO_GO` kalır.

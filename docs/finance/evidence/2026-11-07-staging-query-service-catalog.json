@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 1,
+  "module": "OTOTR_FRANCHISE_FINANCE",
+  "target": "ototr-staging",
+  "observedAtUtc": "2026-11-07T04:35:42Z",
+  "migration": "finance_query_service_catalog",
+  "deployment": "APPLIED",
+  "catalog": {
+    "expectedServiceCodes": 3,
+    "observedServiceCodes": 3,
+    "publishedDefinitions": 3,
+    "globalDefinitions": 3,
+    "distinctDefinitions": 3,
+    "amountStoredInDefinition": false,
+    "contractRuleActivatedByMigration": false
+  },
+  "commercialValueSource": "SERVER_SECRET_CONFIGURATION",
+  "productionDataUsed": false,
+  "containsPersonalData": false,
+  "advisorApprovalRequired": true,
+  "preProductionDecision": "NO_GO"
+}

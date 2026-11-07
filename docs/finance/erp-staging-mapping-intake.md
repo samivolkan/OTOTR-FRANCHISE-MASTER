@@ -14,7 +14,7 @@ Kayıtlı 155 finans migration'ı ve on üç finans Edge Function paketinin değ
 | Bayi cari hesabı | Staging pilot bayi kapsamı | `finance.dealer_accounts` | ERP bayi → tek aktif cari | Finans Operasyon | TECHNICALLY_PRESENT / APPROVAL_PENDING |
 | ERP kullanıcı/rol | `public.app_users` | `app_users` + `finance_private.erp_branch_scope_mappings` | Auth UID + ERP branch UUID | Bilgi Güvenliği | TECHNICALLY_PRESENT / JWT_UAT_PENDING |
 | Sözleşme | Staging pilot sözleşme kaydı | `finance.franchise_contracts` + `contract_versions` | Bayi + sözleşme + sürüm | Franchise Yönetimi | ACTIVE_FIXTURE / SIGNOFF_PENDING |
-| Hizmet/sorgu kodu | Staging pilot bedel kodu | `finance.fee_definitions` + `contract_fee_rules` | Bedel kodu + sürüm | Operasyon | PARTIAL / QUERY_CATALOG_PENDING |
+| Hizmet/sorgu kodu | TRAMER, KM ve TRAMER 360 teknik kataloğu | `finance.fee_definitions` + `contract_fee_rules` | Bedel kodu + sürüm | Operasyon | TECHNICALLY_PRESENT / RULE_AND_APPROVAL_PENDING |
 | Muhasebe hesap kodu | Staging pilot mapping | `finance.accounting_mappings` | Mapping kodu + sürüm | Mali Müşavir | TECHNICALLY_PRESENT / ADVISOR_APPROVAL_PENDING |
 
 ## Adaptör sözleşmeleri

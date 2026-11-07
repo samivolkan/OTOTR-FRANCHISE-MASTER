@@ -91,6 +91,7 @@ $checks = @(
   'Test-FinanceCommercialDecisionResponse.ps1',
   'Test-FinanceTaxAccountingDecisionPack.ps1',
   'Test-FinanceCommercialSecretConfig.ps1',
+  'Test-FinanceQueryServiceCatalog.ps1',
   'Test-FinanceCommercialSecretProvisioning.ps1',
   'Test-FinanceHostedCommercialSecretInventoryContract.ps1',
   'Test-FinanceDeliveryConsistency.ps1',
