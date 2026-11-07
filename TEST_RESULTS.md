@@ -1395,3 +1395,11 @@ Sınırlar: otomatik fotogrametri, üretici model kütüphanesi, buluttan ses/vi
 
 - SCOPE-B2 demo rule retained its seven-day demo due term and now supplies the EVENT_PLUS_DAYS input shape expected by the reference engine. Using staging rule parameters, the local reference engine calculated 72 TRY and 48 TRY gross royalty for the 600 TRY and 400 TRY collections. The proportional 200 TRY refund calculation gives 24 TRY and an expected net of 96 TRY.
 - Staging finance-erp-demo v3 returned 204 to the Pages CORS preflight and 401 to an unauthenticated POST. The deployed gateway checks and local calculations do not establish ERP initiation or browser acceptance. Both remain pending.
+
+## 2026-11-07 — GM Finans delivery consistency baseline
+
+- `scripts/Test-FinanceLocalAcceptance.ps1`: PASS, 73/73 checks, `LOCAL_ONLY`, `productionDataUsed: false`.
+- Canonical pre-production registry remains `NO_GO`: all 12 gates are `PENDING`; no synthetic, local or technical staging result was promoted to business approval.
+- Official UI inventory contains 17 screens: 0 `SHELL_ONLY`, 2 `PARTIAL_LIVE_READ`, 9 `PARTIAL_LIVE_WRITE`, 4 `LIVE_READ_VERIFIED`, 2 `LIVE_WRITE`.
+- Local recovery verification covers 52 finance tables and 191 API functions. The commercial configuration uses server-side secret names and values are not committed or exposed to browser assets.
+- Limits: hosted commercial-secret inventory, SCOPE-B2 real ERP browser initiation, signed two-role UAT, approved KDV/accounting mapping, staging load targets, outbox consumer binding, managed restore/rollback drill and final approvals remain open.
