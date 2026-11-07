@@ -72,6 +72,7 @@ $checks = @(
   'Test-FinanceCommercialConfiguration.ps1',
   'Test-FinanceCommercialSecretConfig.ps1',
   'Test-FinanceCommercialSecretProvisioning.ps1',
+  'Test-FinanceHostedCommercialSecretInventoryContract.ps1',
   'Test-FinancePreproductionGateEvidence.ps1',
   'Test-FinancePreproductionDecisionContract.ps1',
   'Test-FinancePreproductionReadiness.ps1'

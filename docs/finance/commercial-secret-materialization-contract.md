@@ -17,3 +17,9 @@ ERP tarayıcısı `materializeCommercialFeeRule` komutunda yalnız `SERVER_COMME
 Bu katman vergi kodu belirlemez. Hesaplama kuralının yayımlanması için onaylı vergi kodu sürümü, yürürlük tarihi, vade, maker-checker ve kanıt belgesi ayrıca zorunludur. Yerel testteki %20 oran yalnız kullanıcı kararının sentetik hesap doğrulamasıdır; mali müşavir onayı yerine geçmez.
 
 Staging kurulumu `scripts/Set-FinanceCommercialSecrets.ps1` ile yapılır. Araç beş değeri yalnız process environment değişkenlerinden alır, geçici env dosyasını `finally` bloğunda siler, Supabase CLI v3 için hedefi açıkça `--remote=<project-ref>` olarak belirtir ve çıktı/kanıtta yalnız Secret adlarını tutar. `-ValidateOnly` uzaktaki projeyi değiştirmeden sözleşmeyi doğrular. Hosted uygulama için en dar kapsamlı token üzerinde `edge_functions_secrets_write`, envanter doğrulaması için `edge_functions_secrets_read` yetkileri gerekir.
+
+Salt-okunur hosted envanter doğrulaması değerleri değiştirmeden aşağıdaki komutla yapılır. Çıktı yalnız doğrulanan ad sayısını içerir; Secret değeri, digest veya erişim tokenı yazdırılmaz. Supabase CLI v3 yerel hedefi varsaydığı için proje `--remote=<ref>` ile açıkça seçilir.
+
+```powershell
+pwsh -NoProfile -File scripts/Test-FinanceHostedCommercialSecretInventory.ps1 -ProjectRef bsjkohwbtrfwrqcyhsfz
+```
