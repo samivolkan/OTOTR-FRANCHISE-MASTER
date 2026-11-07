@@ -1498,3 +1498,9 @@ Sınırlar: otomatik fotogrametri, üretici model kütüphanesi, buluttan ses/vi
 - `EVET`, `HAYIR` ve açıklaması zorunlu `YORUM` cevaplarını kanonik ankete kaydeden araç eklendi.
 - Araç bilinmeyen soru, açıklamasız `YORUM` ve `EVET/HAYIR` ile gönderilen serbest açıklamayı reddeder; 11/11 cevapta durumu otomatik tamamlar.
 - `scripts/Test-FinanceLocalAcceptance.ps1`: PASS, 86/86 checks, `LOCAL_ONLY`, `productionDataUsed: false`.
+
+## 2026-11-07 — Staging outbox route dağıtım kapısı
+
+- Staging envanterinde beklenen 13 finans fonksiyonundan yalnız `finance-outbox-worker` eksik olduğu ve 11 bekleyen mesajın hiç denenmediği salt okunur kontrollerle yeniden doğrulandı.
+- Worker, gerçek tüketici endpoint'i ve teslim secret'ı onaylanmadan dağıtılmadı; route alanları, HTTPS origin sınırı, üç ayrı onay ve token içermeyen tatbikat kanıtı için fail-closed paket eklendi.
+- `scripts/Test-FinanceLocalAcceptance.ps1`: PASS, 87/87 checks, `LOCAL_ONLY`, `productionDataUsed: false`.

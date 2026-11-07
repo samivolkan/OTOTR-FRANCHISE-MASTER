@@ -1,0 +1,42 @@
+{
+  "schemaVersion": 1,
+  "module": "OTOTR_FRANCHISE_FINANCE",
+  "target": "STAGING_OUTBOX_ROUTE_APPROVAL",
+  "status": "PENDING_APPROVAL",
+  "projectRef": "bsjkohwbtrfwrqcyhsfz",
+  "productionDataAllowed": false,
+  "allowedProtocol": "HTTPS_ONLY",
+  "routes": [],
+  "deliverySecret": {
+    "name": "FINANCE_OUTBOX_DELIVERY_TOKEN",
+    "valueStoredInRepository": false,
+    "provisioningStatus": "PENDING"
+  },
+  "routeConfigurationSecret": {
+    "name": "FINANCE_OUTBOX_ROUTES",
+    "valueStoredInRepository": false,
+    "provisioningStatus": "PENDING"
+  },
+  "requiredRouteFields": [
+    "topic",
+    "consumerSystem",
+    "endpointOrigin",
+    "payloadContractVersion",
+    "dataClassification",
+    "owner",
+    "retryOwner",
+    "approvedAtUtc"
+  ],
+  "requiredApprovals": [
+    {"role":"ERP Entegrasyon Lideri","status":"PENDING"},
+    {"role":"Bilgi Güvenliği","status":"PENDING"},
+    {"role":"Finans Operasyon","status":"PENDING"}
+  ],
+  "deploymentPolicy": {
+    "deployOnlyWhenApproved": true,
+    "requireAtLeastOneRoute": true,
+    "requireTokenFreeEvidence": true,
+    "requireControlledAckRetryDeadLetterDrill": true
+  },
+  "preProductionDecision": "NO_GO"
+}
