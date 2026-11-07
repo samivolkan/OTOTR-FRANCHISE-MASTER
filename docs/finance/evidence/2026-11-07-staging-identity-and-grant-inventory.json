@@ -11,6 +11,10 @@
   "database": {
     "postgresMajor": 17,
     "financeSchemaExists": true,
+    "financeTables": 52,
+    "financeTablesWithRls": 52,
+    "financeTablesWithForceRls": 52,
+    "browserFinanceSchemaUsageGrants": 0,
     "directFinanceTableGrantsToBrowserRoles": 0,
     "directFinanceRoutineGrantsToBrowserRoles": 0,
     "browserRolesChecked": ["anon", "authenticated", "public"]
@@ -49,10 +53,19 @@
     "financeErpDemoVersion6": {"authenticatedSuccessObserved": false},
     "interpretation": "JWT rejection is visible, but an authenticated current-version UAT run was not observed and must not be inferred."
   },
+  "unauthenticatedPerimeterCheck": {
+    "method": "POST",
+    "body": "empty-json-object",
+    "financeRead": {"httpStatus": 401, "message": "Missing authorization header"},
+    "financeCommand": {"httpStatus": 401, "message": "Missing authorization header"},
+    "financeErpDemo": {"httpStatus": 401, "message": "Missing authorization header"},
+    "interpretation": "All three current staging entry points fail closed without an Authorization header; role and branch authorization still require authenticated UAT."
+  },
   "interpretation": {
     "proven": [
       "Staging project is healthy and contains two branches plus two finance-eligible and two branch-manager ERP identities.",
-      "No direct finance table or routine grant exists for anon, authenticated or public roles.",
+      "All 52 finance tables have RLS and FORCE RLS enabled.",
+      "No finance schema usage or direct finance table/routine grant exists for anon, authenticated or public roles.",
       "One active tax-code version exists; this is technical inventory and is not accounting approval."
     ],
     "notProven": [
