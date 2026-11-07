@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import {randomUUID} from 'node:crypto';
 import {resolveStagingToken} from './finance-staging-auth.mjs';
+import {assertFinanceDataMinimized} from './finance-data-minimization.mjs';
 
 const base = 'https://bsjkohwbtrfwrqcyhsfz.supabase.co';
 const origin = 'http://127.0.0.1:42733';
@@ -72,6 +73,7 @@ async function verifyBrowser(publishRoot, branchA, branchB) {
         }
         await page.locator('[data-finance-screen="SCR-02"]').click();
         await page.getByText('READY · BRANCH-SCOPED PROJECTION', {exact: true}).waitFor();
+        assert.doesNotMatch(await page.locator('body').innerText(),/sb_secret_|service_role|access[_ ]?token|refresh[_ ]?token|customerEmail|customerPhone|objectKey|rawPayload|cardNumber|\bcvv\b/i,label+' rendered sensitive finance data');
         console.log('PASS browser ' + label);
       } finally {
         await page.close();
@@ -103,6 +105,7 @@ try {
     assert.equal(result.status, 200, label + ' expected HTTP 200');
     assert.ok(result.body?.data?.branchId === scope.branchId, label + ' returned an unexpected branch');
     assert.ok(result.body?.data?.accrued?.grossAmount != null, label + ' returned no fixture balance');
+    assertFinanceDataMinimized(result.body.data,label);
     console.log('PASS ' + label);
   }
   const denied = await read(managerToken, branchB);
