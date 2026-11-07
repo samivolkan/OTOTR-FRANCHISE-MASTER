@@ -51,6 +51,20 @@ Tarayıcı bağlantısından önce Edge Function Secrets ekranında `OTOTR_FINAN
 
 Staging katalog kontrolü ERP kullanıcı tablosunun `FINANCE` ve `BRANCH_MANAGER` rollerini kabul ettiğini, yönetici kapsamının ERP şube kimliğine bağlanabildiğini doğruladı. Finans dağıtımı sonrasında `supabase/tests/finance_identity_scope_e2e.sql` ile iki sentetik şube üzerinde veritabanı yetkileri sınanır. Bu test işlemi geri alır. Ardından gerçek test oturumlarıyla finans API’sine ve Muhasebe V2 ekranına erişim ayrıca doğrulanır.
 
+Gerçek oturum kabul aracı kısa ömürlü JWT’nin elle kopyalanmasını gerektirmez. İki ayrı test hesabının bilgileri yalnız süreç ortamına verilir; araç Supabase Auth üzerinden geçici token alır ve tokenı çıktıya yazmaz. Eski CI akışları için doğrudan `*_TOKEN` değişkenleri de desteklenir, ancak e-posta/parola yöntemi tercih edilir.
+
+```powershell
+$env:OTOTR_STAGING_PUBLISHABLE_KEY = '<publishable-key>'
+# Secret manager sürece OTOTR_STAGING_FINANCE_EMAIL/PASSWORD ve
+# OTOTR_STAGING_MANAGER_EMAIL/PASSWORD değişkenlerini enjekte eder.
+$env:OTOTR_STAGING_SCOPE_A = '<legal-entity-uuid>,<dealer-account-uuid>,<branch-a-uuid>'
+$env:OTOTR_STAGING_SCOPE_B = '<legal-entity-uuid>,<dealer-account-uuid>,<branch-b-uuid>'
+$env:OTOTR_STAGING_FIXTURE_DATE = 'YYYY-MM-DD'
+node apps/admin/prototype/tools/test-finance-staging-scope.mjs apps/admin/prototype/bayi-portal
+```
+
+Parola, token ve servis anahtarı repository dosyasına, terminal geçmişine, ekran görüntüsüne veya UAT kanıtına eklenmez. Kanıt yalnız rol, kapsam, HTTP sonucu, correlation kimliği ve kişisel veri içermeyen kontrol toplamlarını içerir.
+
 - Staging Supabase proje referansı veya eşdeğer veritabanı hedefi;
 - ERP test tenant/base URL;
 - secret manager ve secret adları (değerler değil);

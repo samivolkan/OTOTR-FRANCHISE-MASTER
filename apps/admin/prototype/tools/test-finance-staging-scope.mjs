@@ -1,11 +1,10 @@
 import assert from 'node:assert/strict';
 import {randomUUID} from 'node:crypto';
+import {resolveStagingToken} from './finance-staging-auth.mjs';
 
 const base = 'https://bsjkohwbtrfwrqcyhsfz.supabase.co';
 const origin = 'http://127.0.0.1:42733';
 const key = process.env.OTOTR_STAGING_PUBLISHABLE_KEY;
-const financeToken = process.env.OTOTR_STAGING_FINANCE_TOKEN;
-const managerToken = process.env.OTOTR_STAGING_MANAGER_TOKEN;
 const uuid = /^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$/i;
 
 function scopeFromEnvironment(name) {
@@ -86,7 +85,9 @@ async function verifyBrowser(publishRoot, branchA, branchB) {
 
 try {
   assert.ok(key?.startsWith('sb_publishable_'), 'Staging publishable key is required');
-  assert.ok(financeToken && managerToken && financeToken !== managerToken, 'Two separate staging Auth sessions are required');
+  const financeToken=await resolveStagingToken('finance',{base,publishableKey:key});
+  const managerToken=await resolveStagingToken('manager',{base,publishableKey:key});
+  assert.notEqual(financeToken,managerToken,'Two separate staging Auth sessions are required');
   assert.match(process.env.OTOTR_STAGING_FIXTURE_DATE || '', /^\d{4}-\d{2}-\d{2}$/);
   const branchA = scopeFromEnvironment('OTOTR_STAGING_SCOPE_A');
   const branchB = scopeFromEnvironment('OTOTR_STAGING_SCOPE_B');

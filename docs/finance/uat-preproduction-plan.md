@@ -134,6 +134,8 @@ Komut kanıtın SHA-256 değerini kendisi üretir. Aynı dosya/rol imzasının t
 - 17 GM Finans ekranının tamamı en az canlı okuma seviyesinde; shell ekran kalmadı.
 - Onay iş listesi ve audit/correlation projectionları şube izolasyonu ve veri minimizasyonuyla doğrulandı.
 - ERP arayüzü izole Chrome testinde yönetişim, entegrasyon, export, masraf, itiraz, ekstre ve ödeme akışlarıyla doğrulandı.
+- Staging envanterinde iki merkez-finans uygun kullanıcı ve iki şube yöneticisi bulundu; `anon`, `authenticated` ve `public` rollerine finans tabloları veya rutinleri için doğrudan yetki verilmediği kişisel veri alınmadan doğrulandı. Bu envanter gerçek oturum 403 testinin yerine geçmez.
+- Staging rol kabul aracı, iki ayrı test hesabıyla Supabase Auth üzerinden geçici oturum açabilir; parola ve tokenlar repository’ye veya test çıktısına yazılmaz.
 - Ticari/mali karar girişi için `commercial-configuration-intake.md`, ERP staging eşlemesi için `erp-staging-mapping-intake.md` hazırlandı.
 - Yerel sentetik operasyon tabanı hazırdır: 2.000 kapsamlı audit kaydında sayfalama ölçülür; ayrı yerel hedefe backup/restore katalog doğrulaması yapılır; `operations-runbook.md` alarm, retry, forward-fix ve tatbikat kayıtlarını tanımlar; GM Finans sağlık özeti outbox yaşı/sayısı, dead-letter, açık entegrasyon hatası ve audit zincirini yetkili genel merkez ekranına taşır.
 - Staging adaptörleri, gerçek kullanıcı UAT’si, ticari/vergi imzaları, staging hacminde performans, pre-production restore ve imzalı operasyon tatbikatı henüz yoktur.

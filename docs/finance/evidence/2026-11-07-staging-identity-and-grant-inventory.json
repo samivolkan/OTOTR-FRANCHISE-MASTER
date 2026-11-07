@@ -1,0 +1,66 @@
+{
+  "schemaVersion": 1,
+  "module": "OTOTR_FRANCHISE_FINANCE",
+  "environment": "ototr-staging",
+  "projectRef": "bsjkohwbtrfwrqcyhsfz",
+  "observedAtUtc": "2026-11-07T01:10:09.4275537Z",
+  "inspectedCommit": "9862000d3371a1110693c4a47f7d70d5f804cf49",
+  "productionDataUsed": false,
+  "containsPersonalData": false,
+  "projectStatus": "ACTIVE_HEALTHY",
+  "database": {
+    "postgresMajor": 17,
+    "financeSchemaExists": true,
+    "directFinanceTableGrantsToBrowserRoles": 0,
+    "directFinanceRoutineGrantsToBrowserRoles": 0,
+    "browserRolesChecked": ["anon", "authenticated", "public"]
+  },
+  "inventory": {
+    "legalEntities": 1,
+    "dealerAccounts": 2,
+    "branches": 2,
+    "contracts": 2,
+    "contractVersions": 2,
+    "draftContractVersions": 0,
+    "feeRules": 2,
+    "draftFeeRules": 0,
+    "taxCodes": 1,
+    "taxCodeVersions": 1,
+    "activeTaxCodeVersions": 1,
+    "financeBranchAssignments": 0
+  },
+  "identityInventory": {
+    "authUsers": 11,
+    "activeErpUsers": 8,
+    "financeEligibleActiveUsers": 2,
+    "branchManagerActiveUsers": 2,
+    "activeFranchiseScopeUsers": 1,
+    "activeFranchiseScopeRoles": {"gm": 1},
+    "activeFranchiseScopeWidths": {"0": 1}
+  },
+  "edgeFunctionInventory": {
+    "financeCommand": {"status": "ACTIVE", "version": 7, "verifyJwt": true, "packageSha256": "b9c8b0d7a017dc717f8e839a197feea195863690c13bab07025642ee78b4c814"},
+    "financeRead": {"status": "ACTIVE", "version": 5, "verifyJwt": true, "packageSha256": "50e7dd56660d1b8aff58c4a8e36b317254fc98f312cc074fd5be7f4d761daf7b"},
+    "financeErpDemo": {"status": "ACTIVE", "version": 6, "verifyJwt": true, "packageSha256": "a981850bc64b8fe4647b0a941baafbd0034737e3c561a92eaef5bdf1110b7667"}
+  },
+  "runtimeObservationLast24Hours": {
+    "financeCommandVersion7": {"unauthenticated401": 1, "authenticatedSuccessObserved": false},
+    "financeReadVersion5": {"authenticatedSuccessObserved": false},
+    "financeErpDemoVersion6": {"authenticatedSuccessObserved": false},
+    "interpretation": "JWT rejection is visible, but an authenticated current-version UAT run was not observed and must not be inferred."
+  },
+  "interpretation": {
+    "proven": [
+      "Staging project is healthy and contains two branches plus two finance-eligible and two branch-manager ERP identities.",
+      "No direct finance table or routine grant exists for anon, authenticated or public roles.",
+      "One active tax-code version exists; this is technical inventory and is not accounting approval."
+    ],
+    "notProven": [
+      "Authenticated browser role matrix and cross-branch 403 behavior for the current release commit.",
+      "Maker-checker separation with two independently authenticated users.",
+      "Accounting approval of the active tax-code version.",
+      "Commercial Edge Function secret values; secret values were not read or recorded."
+    ]
+  },
+  "decision": "NO_GO"
+}
