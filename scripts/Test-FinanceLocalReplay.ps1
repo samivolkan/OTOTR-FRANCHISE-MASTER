@@ -78,6 +78,14 @@ select 'refund_trace_helper_browser_execute=' ||
          or pg_catalog.has_function_privilege('public',
            'finance_api.authorize_refund_trace_scope(uuid,uuid,uuid,text)', 'EXECUTE')
        )::text;
+select 'contract_draft_create_scope_bridge=' ||
+       (position('public.app_users' in pg_catalog.pg_get_functiondef('finance_private.resolve_contract_version_create_scope(uuid,uuid,text)'::regprocedure)) > 0)::text;
+select 'fee_rule_create_scope_bridge=' ||
+       (position('public.app_users' in pg_catalog.pg_get_functiondef('finance_private.resolve_fee_rule_create_scope(uuid,uuid,text)'::regprocedure)) > 0)::text;
+select 'contract_draft_create_service_only=' ||
+       (pg_catalog.has_function_privilege('service_role','finance_api.commit_contract_version_create(uuid,uuid,uuid,uuid,uuid,uuid,date,date,text,uuid[],text,text,text,text,uuid)','EXECUTE') and not pg_catalog.has_function_privilege('authenticated','finance_api.commit_contract_version_create(uuid,uuid,uuid,uuid,uuid,uuid,date,date,text,uuid[],text,text,text,text,uuid)','EXECUTE'))::text;
+select 'fee_rule_create_service_only=' ||
+       (pg_catalog.has_function_privilege('service_role','finance_api.commit_fee_rule_create(uuid,uuid,uuid,uuid,uuid,uuid,jsonb,text,text,uuid)','EXECUTE') and not pg_catalog.has_function_privilege('authenticated','finance_api.commit_fee_rule_create(uuid,uuid,uuid,uuid,uuid,uuid,jsonb,text,text,uuid)','EXECUTE'))::text;
 '@
 
 $lines = @($sql | & $dockerPath exec -i $ContainerName psql -X -At -v ON_ERROR_STOP=1 -U postgres -d postgres)
@@ -109,6 +117,10 @@ $expected = [ordered]@{
   scope_hook_browser_execute = 'false'
   refund_trace_uses_scope_bridge = 'true'
   refund_trace_helper_browser_execute = 'false'
+  contract_draft_create_scope_bridge = 'true'
+  fee_rule_create_scope_bridge = 'true'
+  contract_draft_create_service_only = 'true'
+  fee_rule_create_service_only = 'true'
 }
 
 $failures = [System.Collections.Generic.List[string]]::new()
