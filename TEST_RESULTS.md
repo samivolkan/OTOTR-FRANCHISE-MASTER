@@ -1398,7 +1398,7 @@ Sınırlar: otomatik fotogrametri, üretici model kütüphanesi, buluttan ses/vi
 
 ## 2026-11-07 — GM Finans delivery consistency baseline
 
-- `scripts/Test-FinanceLocalAcceptance.ps1`: PASS, 76/76 checks, `LOCAL_ONLY`, `productionDataUsed: false`.
+- `scripts/Test-FinanceLocalAcceptance.ps1`: PASS, 77/77 checks, `LOCAL_ONLY`, `productionDataUsed: false`.
 - Canonical pre-production registry remains `NO_GO`: all 12 gates are `PENDING`; no synthetic, local or technical staging result was promoted to business approval.
 - Official UI inventory contains 17 screens: 0 `SHELL_ONLY`, 2 `PARTIAL_LIVE_READ`, 9 `PARTIAL_LIVE_WRITE`, 4 `LIVE_READ_VERIFIED`, 2 `LIVE_WRITE`.
 - Local recovery verification covers 52 finance tables and 191 API functions. The commercial configuration uses server-side secret names and values are not committed or exposed to browser assets.
@@ -1427,3 +1427,9 @@ Sınırlar: otomatik fotogrametri, üretici model kütüphanesi, buluttan ses/vi
 - Dört staging iş yükünün hacim, eşzamanlılık, istek, P95, P99, hata oranı ve timeout hedefleri için ayrı onay kaydı oluşturuldu; değerler sahip onayı olmadan boş bırakıldı.
 - Onaylı hedef kaydı Platform Lideri ve ERP Teknik Liderinin farklı kimliklerini ve hashli imza kanıtını zorunlu kılar. P99 < P95, timeout < P99 ve geçersiz hacim/hata oranları reddedilir.
 - Staging performans sonucu artık kanonik hedef dosyasının SHA-256 değerini taşımak ve her hedefi birebir eşlemek zorundadır. Hedeflerin test sonrasında gevşetilmesi kapalıdır; FIN-G09 gerçek staging koşusu ve imzalar tamamlanana kadar `PENDING` kalır.
+
+## 2026-11-07 — FIN-G10 operasyon politikası
+
+- Vardiya sistemi bağımlılığı kaldırıldı. İlk 24 saat kontrolü, ayrı bir vardiya modülü yerine birincil/yedek sorumluların yazılı sorumluluk ve devir planı olarak modellendi.
+- Alarm/destek kanallarının yalnız secret adları, nöbetçi kimlik hashleri, destek SLA belgesi ve altı tatbikat hedefi kanonik politikaya alındı. Özel kanal/iletişim/secret değerleri depoya alınmaz.
+- Staging tatbikat sonucu onaylı operasyon politikası hashini ve altı süre hedefini birebir taşımak zorundadır. Operasyon Lideri ve Finans Operasyon imzaları ile gerçek dispatcher/alarm tatbikatları tamamlanana kadar FIN-G10 `PENDING` kalır.

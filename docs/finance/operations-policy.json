@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "module": "OTOTR_FRANCHISE_FINANCE",
+  "target": "PREPRODUCTION_OPERATIONS_POLICY",
+  "status": "PENDING_APPROVAL",
+  "shiftSystemUsed": false,
+  "alertChannelSecretName": null,
+  "supportChannelSecretName": null,
+  "primaryOnCallIdentitySha256": null,
+  "backupOnCallIdentitySha256": null,
+  "supportSlaPolicyPath": null,
+  "supportSlaPolicySha256": null,
+  "first24hResponsibilityPlanPath": null,
+  "first24hResponsibilityPlanSha256": null,
+  "drillTargets": [
+    {"id":"OPS-FIN-01","name":"Alarm teslimi","targetMaxMinutes":null},
+    {"id":"OPS-FIN-02","name":"Olay kabulü","targetMaxMinutes":null},
+    {"id":"OPS-FIN-03","name":"Correlation araması","targetMaxMinutes":null},
+    {"id":"OPS-FIN-04","name":"Eskalasyon zinciri","targetMaxMinutes":null},
+    {"id":"OPS-FIN-05","name":"Finansal olay çözümü","targetMaxMinutes":null},
+    {"id":"OPS-FIN-06","name":"İlk 24 saat sorumluluk devri","targetMaxMinutes":null}
+  ],
+  "approval": {"operationsLeadIdentitySha256":null,"financeOperationsIdentitySha256":null,"evidencePath":null,"evidenceSha256":null,"approvedAtUtc":null}
+}

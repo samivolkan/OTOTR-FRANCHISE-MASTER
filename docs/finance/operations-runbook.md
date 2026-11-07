@@ -71,4 +71,4 @@ Operasyon kabul kaydı `docs/finance/staging-operations-evidence.json` dosyasıd
 - staging P95/P99 hedefleri;
 - RTO ve RPO;
 - bakım ve geri dönüş penceresi;
-- ilk 24 saat izleme vardiyası.
+- ilk 24 saat sorumluluk ve nöbet devri (vardiya sistemi değildir).

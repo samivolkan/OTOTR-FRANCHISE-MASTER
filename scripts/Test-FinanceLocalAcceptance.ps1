@@ -70,6 +70,7 @@ $checks = @(
   'Test-FinanceStagingPerformanceContract.ps1',
   'Test-FinancePerformanceTargets.ps1',
   'Test-FinanceStagingOperationsContract.ps1',
+  'Test-FinanceOperationsPolicy.ps1',
   'Test-FinanceStagingRecoveryContract.ps1',
   'Test-FinanceCommercialConfiguration.ps1',
   'Test-FinanceTaxAccountingDecisionPack.ps1',

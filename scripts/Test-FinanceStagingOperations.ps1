@@ -8,7 +8,7 @@ $root = (Resolve-Path (Join-Path $PSScriptRoot '..')).Path
 $d = Get-Content -Raw -LiteralPath (Resolve-Path $EvidenceFile) | ConvertFrom-Json -Depth 30
 if ($d.schemaVersion -ne 1 -or $d.module -ne 'OTOTR_FRANCHISE_FINANCE' -or $d.target -ne 'PREPRODUCTION_OPERATIONS') { throw 'Invalid finance operations evidence identity.' }
 if ($d.productionDataUsed -or $d.preProductionDecision -ne 'NO_GO' -or $d.status -notin @('NOT_RUN','RUNNING','FAILED','PASSED')) { throw 'Finance operations evidence policy is invalid.' }
-$names = @('Alarm teslimi','Olay kabulü','Correlation araması','Eskalasyon zinciri','Finansal olay çözümü','İlk 24 saat vardiya devri')
+$names = @('Alarm teslimi','Olay kabulü','Correlation araması','Eskalasyon zinciri','Finansal olay çözümü','İlk 24 saat sorumluluk devri')
 if (@($d.drills).Count -ne 6) { throw 'Expected six finance operations drills.' }
 for ($i=0; $i -lt 6; $i++) {
   $drill=$d.drills[$i];$id='OPS-FIN-{0:d2}' -f ($i+1)
@@ -30,10 +30,11 @@ if ($d.status -eq 'PASSED') {
   foreach ($name in @('alertChannelSecretName','supportChannelSecretName')) { if ($d.configuration.$name -notmatch '^[A-Z][A-Z0-9_]{2,127}$') { throw "Secret-manager name is invalid: $name" } }
   foreach ($name in @('primaryOnCallIdentitySha256','backupOnCallIdentitySha256')) { if ($d.configuration.$name -notmatch '^[a-f0-9]{64}$') { throw "On-call identity hash missing: $name" } }
   if ($d.configuration.primaryOnCallIdentitySha256 -eq $d.configuration.backupOnCallIdentitySha256) { throw 'Primary and backup on-call identities must differ.' }
-  foreach ($pair in @(@('supportSlaPolicyPath','supportSlaPolicySha256'),@('first24hSchedulePath','first24hScheduleSha256'))) {
+  foreach ($pair in @(@('supportSlaPolicyPath','supportSlaPolicySha256'),@('first24hResponsibilityPlanPath','first24hResponsibilityPlanSha256'))) {
     $path=[IO.Path]::GetFullPath((Join-Path $root $d.configuration.($pair[0])))
     if (-not $path.StartsWith($root,[StringComparison]::OrdinalIgnoreCase) -or -not (Test-Path $path -PathType Leaf) -or (Get-FileHash $path -Algorithm SHA256).Hash.ToLowerInvariant() -ne $d.configuration.($pair[1])) { throw "Operations configuration evidence invalid: $($pair[0])" }
   }
+  foreach($name in @('policyPath','policySha256')){if([string]::IsNullOrWhiteSpace($d.configuration.$name)){throw"Operations policy reference missing: $name"}};$policyPath=[IO.Path]::GetFullPath((Join-Path $root $d.configuration.policyPath));if(-not$policyPath.StartsWith($root,[StringComparison]::OrdinalIgnoreCase)-or-not(Test-Path -LiteralPath $policyPath -PathType Leaf)-or(Get-FileHash -LiteralPath $policyPath -Algorithm SHA256).Hash.ToLowerInvariant()-ne$d.configuration.policySha256){throw'Operations policy hash is invalid.'};& (Join-Path $PSScriptRoot 'Test-FinanceOperationsPolicy.ps1') -RequireApproved -PolicyFile $policyPath;$policy=Get-Content -LiteralPath $policyPath -Raw|ConvertFrom-Json -Depth 20;foreach($drill in $d.drills){$target=$policy.drillTargets|Where-Object id -eq $drill.id;if($null-eq$target-or[decimal]$drill.targetMaxMinutes-ne[decimal]$target.targetMaxMinutes){throw"Operations target differs from approved policy: $($drill.id)"}}
   $serialized=$d|ConvertTo-Json -Depth 30
   if ($serialized -match '(?i)https?://|@|\+\d{8,}|slack\.com|teams\.microsoft|webhook') { throw 'Operations evidence contains a concrete private channel or contact value.' }
 }
