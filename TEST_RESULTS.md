@@ -1485,3 +1485,10 @@ Sınırlar: otomatik fotogrametri, üretici model kütüphanesi, buluttan ses/vi
 - IDOR, export, anonim erişim, origin ve veri minimizasyonu sonuçları doğrulanmadan artifact kabul edilmez.
 - JSON kanıtlarının SHA-256 manifesti workflow içinde üretilir; credential/raw payload alanları reddedilir.
 - `scripts/Test-FinanceLocalAcceptance.ps1`: PASS, 84/84 checks, `LOCAL_ONLY`, `productionDataUsed: false`.
+
+## 2026-11-07 — FIN-G01 ticari karar anketi
+
+- Giriş franchise, sorgu istisnaları, harici hizmet, opsiyon, masraf dağıtımı, kesinti/kredi ve genel yürürlük için 11 maddelik kanonik anket oluşturuldu.
+- Her soru yalnız `EVET`, `HAYIR` veya açıklamalı `YORUM` kabul eder; cevap verilmeden ticari değer türetilmez.
+- Vergi/muhasebe kararı ve yetkili imzalar ticari cevaplardan ayrı kapı olarak korunur.
+- `scripts/Test-FinanceLocalAcceptance.ps1`: PASS, 85/85 checks, `LOCAL_ONLY`, `productionDataUsed: false`.
