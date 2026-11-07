@@ -42,9 +42,9 @@ function Get-RelativeImportGraph([string]$EntryPoint, [string]$PackageDirectory)
 
 $migrationPath = [IO.Path]::GetFullPath((Join-Path $root $manifest.migrationManifest.path))
 if (-not $migrationPath.StartsWith($root, [StringComparison]::OrdinalIgnoreCase) -or (Get-PortableHash $migrationPath) -ne $manifest.migrationManifest.sha256) { throw 'Migration manifest hash mismatch.' }
-$expected = @('finance-read','finance-command','finance-customer-revenue-worker','finance-payment-ingestion-worker','finance-refund-worker','finance-service-usage-worker','finance-invoice-callback-worker','finance-accounting-export-worker','finance-branch-access','finance-payment-callback-worker','finance-payment-checkout','finance-erp-demo')
+$expected = @('finance-read','finance-command','finance-customer-revenue-worker','finance-payment-ingestion-worker','finance-refund-worker','finance-outbox-worker','finance-service-usage-worker','finance-invoice-callback-worker','finance-accounting-export-worker','finance-branch-access','finance-payment-callback-worker','finance-payment-checkout','finance-erp-demo')
 $names = @($manifest.functions | ForEach-Object name)
-if ($names.Count -ne 12 -or @($names | Sort-Object -Unique).Count -ne 12 -or @($expected | Where-Object { $_ -notin $names }).Count) { throw 'Finance function deployment inventory is incomplete.' }
+if ($names.Count -ne 13 -or @($names | Sort-Object -Unique).Count -ne 13 -or @($expected | Where-Object { $_ -notin $names }).Count) { throw 'Finance function deployment inventory is incomplete.' }
 $config = Get-Content -Raw -LiteralPath (Join-Path $root 'supabase\config.toml')
 $apiSection = [regex]::Match($config, '(?ms)^\[api\]\s*\r?\n(?<body>.*?)(?=^\[|\z)').Groups['body'].Value
 $schemaList = [regex]::Match($apiSection, '(?m)^schemas\s*=\s*(\[[^\r\n]*\])').Groups[1].Value
@@ -75,4 +75,4 @@ $serialized = $manifest | ConvertTo-Json -Depth 30
 if ($serialized -match 'sb_secret_|eyJ[A-Za-z0-9_-]{20,}|Bearer\s+\S+|https://[a-z0-9-]+\.supabase\.co') { throw 'Deployment manifest contains a secret value or concrete project endpoint.' }
 if (@($manifest.deploymentEvidenceRequired).Count -ne 9 -or 'dataApiSchemaEvidence' -notin $manifest.deploymentEvidenceRequired) { throw 'Staging deployment evidence contract is incomplete.' }
 Write-Host 'FINANCE STAGING DEPLOYMENT MANIFEST: PASSED' -ForegroundColor Green
-Write-Host '152 migrations; 12 immutable function packages; finance-command and finance-erp-demo dependency graphs, JWT policy and secret-name-only inventory verified; stagingApplied: false.'
+Write-Host '153 migrations; 13 immutable function packages; finance-command and finance-erp-demo dependency graphs, JWT policy and secret-name-only inventory verified; stagingApplied: false.'

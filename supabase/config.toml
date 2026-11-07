@@ -52,6 +52,10 @@ verify_jwt = true
 # Internal endpoint verifies the complete service-role secret itself.
 verify_jwt = false
 
+[functions.finance-outbox-worker]
+# Internal endpoint verifies the complete service-role secret itself.
+verify_jwt = false
+
 [functions.finance-customer-revenue-worker]
 verify_jwt = false
 
