@@ -57,12 +57,10 @@
     },
     {
       "code": "EXTERNAL_SERVICE",
-      "decisionStatus": "PENDING",
-      "confirmedBehavior": "Başarılı hizmet teslimi tetikleyicisi tanımlı.",
+      "decisionStatus": "PARTIALLY_CONFIRMED",
+      "confirmedBehavior": "Başarılı harici hizmet teslimi, sağlayıcı maliyeti artı yüzdesel hizmet bedeli ve hizmet bedeline ayrıca KDV yöntemiyle yansıtılır. Sağlayıcı maliyeti, hizmet bedeli ve vergi şubeye ayrı gösterilir; oran, yürürlük ve vergi kodu onayı beklenir.",
       "pendingFields": [
-        "calculationMethod",
         "amountOrRate",
-        "providerMarginPolicy",
         "effectiveFrom",
         "dueRule",
         "taxCode",

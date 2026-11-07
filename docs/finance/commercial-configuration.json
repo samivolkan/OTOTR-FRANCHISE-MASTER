@@ -171,11 +171,18 @@
     },
     {
       "code": "EXTERNAL_SERVICE",
-      "decisionStatus": "PENDING",
+      "decisionStatus": "PARTIALLY_CONFIRMED",
       "trigger": "SUCCESSFUL_SERVICE_DELIVERY",
-      "calculationMethod": null,
+      "calculationMethod": "COST_PLUS_PERCENTAGE_SERVICE_FEE",
+      "basis": "PROVIDER_COST",
       "amountOrRate": null,
-      "providerMarginPolicy": null,
+      "providerMarginPolicy": "PERCENTAGE_SERVICE_FEE",
+      "taxTreatment": "VAT_ADDED_TO_SERVICE_FEE",
+      "transparencyPolicy": {
+        "showProviderCost": true,
+        "showServiceFee": true,
+        "showTaxSeparately": true
+      },
       "effectiveFrom": null,
       "dueRule": null,
       "taxCode": null,
