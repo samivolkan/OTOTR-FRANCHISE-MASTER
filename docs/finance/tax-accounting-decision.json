@@ -5,7 +5,7 @@
   "environment": "PREPRODUCTION_CANDIDATE",
   "status": "PENDING_ADVISOR_APPROVAL",
   "countryCode": "TR",
-  "currencyCode": "TRY",
+  "currencyCode": null,
   "documentDecimalScale": 2,
   "storageDecimalScale": 8,
   "roundingMode": null,
