@@ -1503,6 +1503,11 @@ Sınırlar: otomatik fotogrametri, üretici model kütüphanesi, buluttan ses/vi
 - `PERIODIC_FRANCHISE` ayrı bedel ailesi olarak ticari, vergi/muhasebe ve public karar projeksiyonlarına eklendi; varsayılan kapalıdır ve yalnız onaylı sürümlü sözleşme kuralıyla etkinleşebilir.
 - Yerel PostgreSQL E2E, beş bedel ailesinde beş dengeli yevmiye, beş açık borç ve toplam 2.460 TRY sentetik brüt tahakkuku; tekrar çalıştırmada sıfır mükerrer kayıtla doğruladı.
 - Ticari tutar, oran, sıklık, vade veya vergi kodu varsayılmadı; FIN-C12 kullanıcı kararını bekler.
+
+## 2026-11-07 — Periyodik franchise ERP olay adaptörü
+
+- Dönem olayını şube, sözleşme sürümü, bedel kuralı ve dönem aralığından deterministik kimlikle üreten güvenilir ERP/zamanlayıcı adaptörü eklendi.
+- Olay payload'ı tutar, oran, KDV, müşteri ve kart verisi taşımaz; İstanbul iş günü, kesim tarihi, şube kapsamı ve tekrar güvenliği fail-closed test edildi.
 - `scripts/Test-FinanceLocalAcceptance.ps1`: PASS, 86/86 checks, `LOCAL_ONLY`, `productionDataUsed: false`.
 
 ## 2026-11-07 — Staging outbox route dağıtım kapısı
@@ -1516,3 +1521,4 @@ Sınırlar: otomatik fotogrametri, üretici model kütüphanesi, buluttan ses/vi
 - `ototr-staging` Environment canlı API kontrolünde yalnız yayınlanabilir anahtar adının bulunduğu; iki demo role ait e-posta/parola değerlerinin hâlâ eksik olduğu doğrulandı.
 - Secret değerlerini hiçbir zaman okumadan yalnız gerekli adları ve izinli branch politikasını atomik kanıta dönüştüren yenileme aracı eklendi.
 - `scripts/Test-FinanceLocalAcceptance.ps1`: PASS, 88/88 checks, `LOCAL_ONLY`, `productionDataUsed: false`.
+- `scripts/Test-FinanceLocalAcceptance.ps1`: PASS, 89/89 checks, `LOCAL_ONLY`, `productionDataUsed: false`.

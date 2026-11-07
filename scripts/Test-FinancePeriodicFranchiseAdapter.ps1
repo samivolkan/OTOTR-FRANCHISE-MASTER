@@ -1,0 +1,2 @@
+[CmdletBinding()]param()
+$ErrorActionPreference='Stop';$test=Join-Path $PSScriptRoot '..\packages\shared\src\finance-periodic-franchise-adapter.test.mjs';node --test $test;if($LASTEXITCODE-ne 0){throw'Periodic franchise adapter contract failed.'};Write-Host 'FINANCE PERIODIC FRANCHISE ADAPTER: PASSED' -ForegroundColor Green;Write-Host 'Deterministic period identity, Istanbul boundary, branch scope, amount-free payload and fail-closed validation verified.'
