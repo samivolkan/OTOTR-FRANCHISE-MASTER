@@ -1,0 +1,42 @@
+{
+  "schemaVersion": 1,
+  "module": "OTOTR_FRANCHISE_FINANCE",
+  "target": "STAGING_SECURITY_REFRESH",
+  "projectRef": "bsjkohwbtrfwrqcyhsfz",
+  "projectStatus": "ACTIVE_HEALTHY",
+  "observedAtUtc": "2026-11-07T03:04:10.901Z",
+  "productionDataUsed": false,
+  "inspectionMode": "READ_ONLY_METADATA",
+  "financeBoundary": {
+    "tableCount": 54,
+    "rlsEnabledCount": 52,
+    "forceRlsCount": 52,
+    "privateMappingTableCount": 2,
+    "browserTableGrantCount": 0,
+    "anonFinanceSchemaUsage": false,
+    "authenticatedFinanceSchemaUsage": false,
+    "anonFinancePrivateSchemaUsage": false,
+    "authenticatedFinancePrivateSchemaUsage": false,
+    "storagePolicyHelperCount": 4,
+    "storagePolicyHelpersHavePinnedSearchPath": true,
+    "storagePolicyHelpersDirectlyCallableByBrowser": false
+  },
+  "advisorSummary": [
+    {"name":"rls_enabled_no_policy","level":"INFO","projectCount":253,"financeFindingCount":52,"financeDisposition":"EXPECTED_PRIVATE_RAW_TABLE_MODEL"},
+    {"name":"function_search_path_mutable","level":"WARN","projectCount":4,"financeFindingCount":0,"financeDisposition":"OUTSIDE_FINANCE_SCHEMA"},
+    {"name":"extension_in_public","level":"WARN","projectCount":1,"financeFindingCount":0,"financeDisposition":"OUTSIDE_FINANCE_SCHEMA"},
+    {"name":"authenticated_security_definer_function_executable","level":"WARN","projectCount":42,"financeFindingCount":0,"financeDisposition":"NO_FINANCE_ADVISOR_FINDING"},
+    {"name":"auth_leaked_password_protection","level":"WARN","projectCount":1,"financeFindingCount":0,"financeDisposition":"PROJECT_AUTH_CONTROL_REQUIRES_REVIEW"}
+  ],
+  "financeEdgeFunctions": {
+    "financeCommand":{"status":"ACTIVE","version":7,"verifyJwt":true},
+    "financeRead":{"status":"ACTIVE","version":5,"verifyJwt":true},
+    "financeErpDemo":{"status":"ACTIVE","version":7,"verifyJwt":true}
+  },
+  "decision": "NO_GO",
+  "openActions": [
+    "Enable or formally risk-accept leaked-password protection before FIN-G08 approval.",
+    "Review the three non-finance WARN classes with the platform security owner; do not classify them as finance closure evidence.",
+    "Complete SEC-FIN-02, SEC-FIN-03, SEC-FIN-06, SEC-FIN-07 and SEC-FIN-08 with authenticated staging sessions and signoff."
+  ]
+}

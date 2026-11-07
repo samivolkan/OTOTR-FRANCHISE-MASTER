@@ -6,7 +6,7 @@
   "productionDataUsed": false,
   "run": {"environmentId":"ototr-staging:bsjkohwbtrfwrqcyhsfz","deployedCommit":"5515e8982c146a9f6007be988a23fd37f5d4fda3","startedAtUtc":"2026-11-07T01:13:27.0164716Z","completedAtUtc":null,"executedByCorporateId":null,"approvedByCorporateId":null,"toolVersions":[]},
   "controls": [
-    {"id":"SEC-FIN-01","name":"RLS ve ham tablo erişimi","status":"PASSED","evidence":[{"path":"docs/finance/evidence/2026-11-07-staging-identity-and-grant-inventory.json","sha256":"db8ff36eaae443cb4234dc8c79165e46e5e9cafd6e546a19694116e0d1d3cdc3"},{"path":"docs/finance/evidence/2026-11-07-staging-finance-security-advisor.json","sha256":"21cc7a1cedb3cd00c521fd28b9cd00ef304683ea29363e04029cff350329d269"}]},
+    {"id":"SEC-FIN-01","name":"RLS ve ham tablo erişimi","status":"PASSED","evidence":[{"path":"docs/finance/evidence/2026-11-07-staging-identity-and-grant-inventory.json","sha256":"db8ff36eaae443cb4234dc8c79165e46e5e9cafd6e546a19694116e0d1d3cdc3"},{"path":"docs/finance/evidence/2026-11-07-staging-finance-security-advisor.json","sha256":"21cc7a1cedb3cd00c521fd28b9cd00ef304683ea29363e04029cff350329d269"},{"path":"docs/finance/evidence/2026-11-07-staging-finance-security-refresh.json","sha256":"c519cd69bb34e9fa7fcf990660d553206520036be953f10b849b363b5d5c6286"}]},
     {"id":"SEC-FIN-02","name":"IDOR ve çapraz şube izolasyonu","status":"RUNNING","evidence":[]},
     {"id":"SEC-FIN-03","name":"Export yetkilendirmesi","status":"RUNNING","evidence":[]},
     {"id":"SEC-FIN-04","name":"Service-role mutasyon izolasyonu","status":"PASSED","evidence":[{"path":"docs/finance/evidence/2026-11-07-staging-identity-and-grant-inventory.json","sha256":"db8ff36eaae443cb4234dc8c79165e46e5e9cafd6e546a19694116e0d1d3cdc3"}]},
@@ -15,6 +15,6 @@
     {"id":"SEC-FIN-07","name":"DLP ve kişisel veri sızıntısı","status":"RUNNING","evidence":[{"path":"docs/finance/evidence/2026-11-07-hosted-finance-dlp.json","sha256":"ac4123225a88b073d2c2ea3f5dbd6f7bcad5bf44a3ecde3a3287efcf04aae959"},{"path":"scripts/Test-FinanceHostedDlp.ps1","sha256":"06f4f1d83608a2fc352c3245f6bd1bc4a3840785bae4c72353fe8c085406c4a4"}]},
     {"id":"SEC-FIN-08","name":"JWT rol ve şube kapsamı","status":"RUNNING","evidence":[]}
   ],
-  "findings": {"critical":0,"high":0,"medium":0,"low":0,"unresolved":0,"acceptedRisk":0},
+  "findings": {"critical":0,"high":0,"medium":0,"low":0,"unresolved":4,"acceptedRisk":0},
   "preProductionDecision": "NO_GO"
 }

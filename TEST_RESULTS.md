@@ -1440,3 +1440,10 @@ Sınırlar: otomatik fotogrametri, üretici model kütüphanesi, buluttan ses/vi
 - UAT sonucu artık JSON elle değiştirilmeden repository-relative beklenen, gerçek ve ek kanıt dosyalarından SHA-256 üretilerek kaydedilir.
 - Aynı kişinin uygulayan ve onaylayan olması, kontrol toplamı uyuşmayan bir sonucun `PASSED` yapılması ve kesinleşmiş senaryonun tekrar yazılması reddedilir.
 - Bu araç gerçek kullanıcı UAT'sinin yerine geçmez. On sekiz staging senaryosu ve yetkili imzalar tamamlanana kadar FIN-G07 `PENDING`, pre-production `NO_GO` kalır.
+
+## 2026-11-07 — FIN-G08 staging güvenlik yenilemesi
+
+- Supabase staging projesi `ACTIVE_HEALTHY`; finans komut, okuma ve ERP demo fonksiyonları aktif ve JWT korumalıdır.
+- Salt-okunur katalog denetiminde 54 finans/özel tablo bulundu. 52 ham finans tablosu RLS + FORCE RLS kullanır; iki iç kimlik/eşleme tablosu tarayıcıya kapalı `finance_private` şemasındadır. `anon` ve `authenticated` için finans tablo grantı ve iki finans şemasında USAGE yetkisi sıfırdır.
+- Dört Storage politika yardımcısı `SECURITY DEFINER` olsa da sabit `search_path` kullanır, özel şemadadır ve tarayıcı rolleri şema USAGE yetkisine sahip olmadığından doğrudan çağrılamaz.
+- Güncel danışman proje genelinde üç finans-dışı WARN sınıfı ve Auth için sızmış parola korumasının kapalı olduğu uyarısını veriyor. Bu nedenle FIN-G08 gerçek oturum testleri, parola koruması kararı ve Bilgi Güvenliği/KVKK imzası olmadan `PENDING` kalır.
