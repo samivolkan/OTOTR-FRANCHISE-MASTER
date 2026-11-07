@@ -1584,3 +1584,11 @@ Sınırlar: otomatik fotogrametri, üretici model kütüphanesi, buluttan ses/vi
 - Migration `ototr-staging` ortamına uygulandı; fonksiyon `authenticated` için yetkili, `anon` için kapalı ve genel merkez kapsam kontrolü korunmuş durumda.
 - `scripts/Test-FinanceLocalAcceptance.ps1`: PASS, 95/95 checks, `LOCAL_ONLY`, `productionDataUsed: false`.
 - Gerçek muhasebe sağlayıcı callback/export teslimi ve Mali Müşavir imzası tamamlanmadan SCR-13 `PARTIAL_LIVE_WRITE`, pre-production `NO_GO` kalır.
+
+## 2026-11-07 — Kesinti/kredi bedel ailesi ERP eşlemesi
+
+- Ticari yapılandırmadaki `DEDUCTION_CREDIT` iş kodu ile mevcut finans defterindeki `ADJUSTMENT` saklama kodu arasında kanonik, makinece doğrulanan eşleme eklendi.
+- Diğer yedi bedel ailesinde iş kodu ve saklama kodu birebir aynıdır; eşleme sekiz aileyi kapsar ve dokuzuncu bir aile oluşturmaz.
+- Güvenli public projeksiyon teknik eşlemeyi yayınlar fakat ticari tutar, onay kimliği veya kanıt metadatası açıklamaz. ERP ekranı yanlış veya eksik eşlemede fail-closed davranır.
+- Ticari yapılandırma testi ve tarayıcı E2E testi geçti.
+- `scripts/Test-FinanceLocalAcceptance.ps1`: PASS, 95/95 checks, `LOCAL_ONLY`, `productionDataUsed: false`.

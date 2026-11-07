@@ -7,6 +7,16 @@
   "storageDecimalScale": 8,
   "documentDecimalScale": 2,
   "roundingMode": null,
+  "feeFamilyStorageMapping": [
+    {"businessCode":"ROYALTY","storageCode":"ROYALTY"},
+    {"businessCode":"ENTRY_FRANCHISE","storageCode":"ENTRY_FRANCHISE"},
+    {"businessCode":"PERIODIC_FRANCHISE","storageCode":"PERIODIC_FRANCHISE"},
+    {"businessCode":"QUERY","storageCode":"QUERY"},
+    {"businessCode":"EXTERNAL_SERVICE","storageCode":"EXTERNAL_SERVICE"},
+    {"businessCode":"OPTIONAL_PRODUCT_SERVICE","storageCode":"OPTIONAL_PRODUCT_SERVICE"},
+    {"businessCode":"PASS_THROUGH_EXPENSE","storageCode":"PASS_THROUGH_EXPENSE"},
+    {"businessCode":"DEDUCTION_CREDIT","storageCode":"ADJUSTMENT"}
+  ],
   "invoicePresentationPolicy": {
     "mode": "SEPARATE_LINE_PER_FEE_FAMILY",
     "transparentFeeFamilies": [

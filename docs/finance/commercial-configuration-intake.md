@@ -4,6 +4,10 @@ Bu belge FIN-G01 ve FIN-G02 için karar toplama formudur. Boş alanlardan oran, 
 
 Makinece doğrulanan ana kayıt `docs/finance/commercial-configuration.json` dosyasıdır. Bu formdaki kararlar o kayda işlenmeden, `Test-FinanceCommercialConfiguration.ps1 -RequireApproved` geçmeden ve imzalı kanıt hash'i eklenmeden FIN-G01/FIN-G02 kapatılamaz.
 
+## Bedel ailesi entegrasyon kodları
+
+ERP ve kullanıcı arayüzünde iş adı `DEDUCTION_CREDIT` olarak kullanılır. Mevcut finans defterindeki teknik saklama kodu `ADJUSTMENT` olarak korunur. Bu ikisi aynı anlamdaki kesinti/kredi ailesidir; adaptörler `feeFamilyStorageMapping` kaydını kullanır ve yeni bir dokuzuncu bedel ailesi oluşturmaz. Diğer yedi ailenin iş ve saklama kodları aynıdır.
+
 ## 1. Genel kararlar
 
 | Alan | Karar | Onaylayan | Geçerlilik başlangıcı |

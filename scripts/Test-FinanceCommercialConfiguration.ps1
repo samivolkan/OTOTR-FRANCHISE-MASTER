@@ -13,6 +13,9 @@ $invoicePolicy=$d.invoicePresentationPolicy
 $invoiceFamilies=@('ROYALTY','ENTRY_FRANCHISE','PERIODIC_FRANCHISE','QUERY','EXTERNAL_SERVICE','OPTIONAL_PRODUCT_SERVICE','PASS_THROUGH_EXPENSE','DEDUCTION_CREDIT')
 if($invoicePolicy.mode-ne'SEPARATE_LINE_PER_FEE_FAMILY'-or(@($invoicePolicy.transparentFeeFamilies)-join',')-ne($invoiceFamilies-join',')-or(@($invoicePolicy.queryServiceLines)-join',')-ne'TRAMER_QUERY,KM_QUERY,TRAMER_360_QUERY'-or-not$invoicePolicy.showSourceExpenseServiceFeeAndTaxSeparately-or-not$invoicePolicy.showProviderCostServiceFeeAndTaxSeparately-or$invoicePolicy.officialInvoiceLineCodesStatus-ne'PENDING_TAX_ACCOUNTING_APPROVAL'-or$invoicePolicy.aggregateDifferentFeeFamilies){throw'Confirmed transparent invoice presentation policy was changed.'}
 $expected=@('ROYALTY','ENTRY_FRANCHISE','PERIODIC_FRANCHISE','QUERY','EXTERNAL_SERVICE','OPTIONAL_PRODUCT_SERVICE','PASS_THROUGH_EXPENSE','DEDUCTION_CREDIT')
+$storageExpected=@('ROYALTY','ENTRY_FRANCHISE','PERIODIC_FRANCHISE','QUERY','EXTERNAL_SERVICE','OPTIONAL_PRODUCT_SERVICE','PASS_THROUGH_EXPENSE','ADJUSTMENT')
+$storageMapping=@($d.feeFamilyStorageMapping)
+if($storageMapping.Count-ne 8-or(@($storageMapping.businessCode)-join',')-ne($expected-join',')-or(@($storageMapping.storageCode)-join',')-ne($storageExpected-join',')){throw'Business-to-storage fee family mapping is incomplete.'}
 $codes = @($d.feeFamilies | ForEach-Object code)
 if ($codes.Count -ne 8 -or @($codes | Sort-Object -Unique).Count -ne 8 -or @($expected | Where-Object { $_ -notin $codes }).Count) { throw 'Commercial configuration fee family inventory is incomplete.' }
 $royalty = $d.feeFamilies | Where-Object code -eq 'ROYALTY'
