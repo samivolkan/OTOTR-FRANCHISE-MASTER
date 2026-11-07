@@ -1,0 +1,5 @@
+import {selectEffectiveRule,evaluateFeeRule,resolveDueDate} from './finance-rule-engine.mjs';
+import {createAccrualCalculationSupabaseDependencies} from './finance-accrual-calculation-supabase-dependencies.mjs';
+import {createAccrualCalculationWorker} from './finance-accrual-calculation-worker.mjs';
+export function createAccrualCalculationWorkerRuntime(options={}){if(typeof options.workerAccessToken!=='string'||options.workerAccessToken.length<20)throw Object.assign(new Error('Özel worker access token zorunludur.'),{code:'CONFIGURATION_ERROR'});const d=createAccrualCalculationSupabaseDependencies(options),actorPromise=d.authenticate(options.workerAccessToken);return createAccrualCalculationWorker({ruleEngine:{selectEffectiveRule,evaluateFeeRule,resolveDueDate},authorize:async c=>{const actor=await actorPromise;if(!actor)return false;return d.authorizeAccrualCalculation({actor,...c,permission:'finance.accruals.calculate'});},repositoryForCommand:async()=>{const actor=await actorPromise;if(!actor)throw Object.assign(new Error('Worker kimliği doğrulanamadı.'),{code:'SCOPE_DENIED'});return d.repositoryForActor(actor);}});}
+

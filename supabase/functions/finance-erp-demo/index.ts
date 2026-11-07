@@ -3,9 +3,9 @@ import {createErpDemoFinanceApplication} from '../../../packages/shared/src/fina
 import {createStagingFinanceWorkerTokenProvider} from '../../../packages/shared/src/finance-erp-demo-worker-token.mjs';
 import {createFinanceSupabaseAdapter} from '../finance-read/supabase-adapter.mjs';
 import {createFinanceRefundWorkerAdapter} from '../finance-refund-worker/supabase-adapter.mjs';
-import {createSourceEventIngestionService} from './engine/target-candidate/src/finance/source-event-ingestion.mjs';
-import {createSourceEventSupabaseDependencies} from './engine/target-candidate/supabase/functions/finance-source-event/supabase-dependencies.mjs';
-import {createAccrualCalculationWorkerRuntime} from './engine/target-candidate/supabase/functions/finance-accrual-calculation/runtime.mjs';
+import {createSourceEventIngestionService} from '../../../packages/shared/src/finance-source-event-ingestion.mjs';
+import {createSourceEventSupabaseDependencies} from '../../../packages/shared/src/finance-source-event-supabase-dependencies.mjs';
+import {createAccrualCalculationWorkerRuntime} from '../../../packages/shared/src/finance-accrual-calculation-runtime.mjs';
 
 import {createErpDemoSettlementTransport} from '../../../packages/shared/src/finance-erp-demo-settlement-transport.mjs';
 

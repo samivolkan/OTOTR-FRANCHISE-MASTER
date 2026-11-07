@@ -41,7 +41,7 @@ declare
   branch_period constant uuid := '72000000-0000-4000-8000-000000000002';
   tax_code constant uuid := '82000000-0000-4000-8000-000000000001';
   tax_version constant uuid := '82000000-0000-4000-8000-000000000002';
-  corr constant uuid := '92000000-0000-4000-8000-000000000001';
+  corr uuid := gen_random_uuid();
   families text[] := array['ENTRY_FRANCHISE','QUERY','EXTERNAL_SERVICE','OPTIONAL_PRODUCT_SERVICE'];
   events text[] := array['branch.opened','query.completed','external-service.delivered','optional-service.activated'];
   nets numeric[] := array[1000.00,100.00,250.00,300.00];
@@ -160,13 +160,15 @@ begin
       )
     );
     result:=finance_api.commit_accrual_calculation(
-      checker,command,context,rule,calculation,date '2026-11-10',repeat(i::text,64),repeat(chr(96+i),64),null
+      checker,command,context,rule,calculation,date '2026-11-10',repeat(i::text,64),
+      encode(extensions.digest(pg_catalog.convert_to(corr::text||':result:'||i,'UTF8'),'sha256'),'hex'),null
     );
     if result->>'outcome'<>'CREATED' or result->>'status'<>'POSTED' then
       raise exception 'accrual failed for family %: %',families[i],result;
     end if;
     replay:=finance_api.commit_accrual_calculation(
-      checker,command,context,rule,calculation,date '2026-11-10',repeat(i::text,64),repeat(chr(96+i),64),null
+      checker,command,context,rule,calculation,date '2026-11-10',repeat(i::text,64),
+      encode(extensions.digest(pg_catalog.convert_to(corr::text||':result:'||i,'UTF8'),'sha256'),'hex'),null
     );
     if replay->>'outcome'<>'REPLAY' then raise exception 'idempotent replay failed for family %',families[i]; end if;
     if i=1 then
@@ -184,7 +186,8 @@ begin
       begin
         update finance.source_events set payload=payload-'branchOpeningReference' where id=second_source;
         perform finance_api.commit_accrual_calculation(
-          checker,command,context,rule,calculation,date '2026-11-10',repeat('e',64),repeat('f',64),null
+          checker,command,context,rule,calculation,date '2026-11-10',repeat('e',64),
+          encode(extensions.digest(pg_catalog.convert_to(corr::text||':entry-guard','UTF8'),'sha256'),'hex'),null
         );
         raise exception 'missing opening reference was accepted';
       exception when check_violation then
@@ -193,7 +196,8 @@ begin
       begin
         update finance.source_events set occurred_at_utc=occurred_at_utc+interval '1 day' where id=second_source;
         perform finance_api.commit_accrual_calculation(
-          checker,command,context,rule,calculation,date '2026-11-10',repeat('e',64),repeat('f',64),null
+          checker,command,context,rule,calculation,date '2026-11-10',repeat('e',64),
+          encode(extensions.digest(pg_catalog.convert_to(corr::text||':entry-guard','UTF8'),'sha256'),'hex'),null
         );
         raise exception 'backdated opening event was accepted';
       exception when check_violation then
@@ -201,7 +205,8 @@ begin
       end;
       begin
         perform finance_api.commit_accrual_calculation(
-          checker,command,context,rule,calculation,date '2026-11-10',repeat('e',64),repeat('f',64),null
+          checker,command,context,rule,calculation,date '2026-11-10',repeat('e',64),
+          encode(extensions.digest(pg_catalog.convert_to(corr::text||':entry-guard','UTF8'),'sha256'),'hex'),null
         );
         raise exception 'a different source event and key created a second entry franchise charge';
       exception when unique_violation then
