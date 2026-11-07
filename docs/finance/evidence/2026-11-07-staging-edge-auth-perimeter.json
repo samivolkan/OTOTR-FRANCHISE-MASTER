@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 1,
+  "module": "OTOTR_FRANCHISE_FINANCE",
+  "target": "ototr-staging",
+  "projectRef": "bsjkohwbtrfwrqcyhsfz",
+  "observedAtUtc": "2026-11-07T04:56:25.5992572Z",
+  "productionDataUsed": false,
+  "change": "Provider-dependent entrypoints reject missing identity before loading optional provider configuration.",
+  "deployments": [
+    {"name":"finance-accounting-export-worker","version":3,"status":"ACTIVE","anonymousStatus":401,"errorCode":"WORKER_AUTH_REQUIRED","cacheControl":"no-store"},
+    {"name":"finance-payment-callback-worker","version":3,"status":"ACTIVE","anonymousStatus":401,"errorCode":"INVALID_SIGNATURE","cacheControl":"no-store"},
+    {"name":"finance-payment-checkout","version":3,"status":"ACTIVE","anonymousStatus":401,"errorCode":"GATEWAY_AUTH_REQUIRED","cacheControl":"no-store"}
+  ],
+  "verification": {
+    "accountingExportWorkerRegression": "PASSED",
+    "paymentCallbackWorkerRegression": "PASSED",
+    "paymentCheckoutWorkerRegression": "PASSED",
+    "stagingDeploymentManifest": "PASSED",
+    "anonymous500ResponsesRemainingForChangedFunctions": 0,
+    "providerCredentialValuesRead": false,
+    "providerDeliveryExecuted": false
+  },
+  "preProductionDecision": "NO_GO",
+  "remaining": [
+    "Seçilecek gerçek ödeme ve muhasebe sağlayıcılarının onaylı secret yapılandırması",
+    "Yetkili staging checkout, callback ve muhasebe export teslimi",
+    "Finans Operasyon ve Mali Müşavir kabul imzaları"
+  ]
+}
