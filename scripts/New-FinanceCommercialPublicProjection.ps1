@@ -34,7 +34,16 @@ $families = foreach ($code in $codes) {
   $pending = @($decisionFields[$code] | Where-Object { $null -eq $family.$_ -or [string]::IsNullOrWhiteSpace([string]$family.$_) })
   [ordered]@{code=$code;decisionStatus=$family.decisionStatus;confirmedBehavior=$behaviors[$code];pendingFields=$pending}
 }
-$projection = [ordered]@{schemaVersion=1;module='OTOTR_FRANCHISE_FINANCE';projection='COMMERCIAL_DECISION_STATUS_PUBLIC';status=$source.status;productionValuesExposed=$false;approvalIdentitiesExposed=$false;evidenceMetadataExposed=$false;feeFamilies=$families}
+$invoicePresentation=[ordered]@{
+  mode=$source.invoicePresentationPolicy.mode
+  transparentFeeFamilies=@($source.invoicePresentationPolicy.transparentFeeFamilies)
+  queryServiceLines=@($source.invoicePresentationPolicy.queryServiceLines)
+  showSourceExpenseServiceFeeAndTaxSeparately=[bool]$source.invoicePresentationPolicy.showSourceExpenseServiceFeeAndTaxSeparately
+  showProviderCostServiceFeeAndTaxSeparately=[bool]$source.invoicePresentationPolicy.showProviderCostServiceFeeAndTaxSeparately
+  officialInvoiceLineCodesStatus=$source.invoicePresentationPolicy.officialInvoiceLineCodesStatus
+  aggregateDifferentFeeFamilies=[bool]$source.invoicePresentationPolicy.aggregateDifferentFeeFamilies
+}
+$projection = [ordered]@{schemaVersion=1;module='OTOTR_FRANCHISE_FINANCE';projection='COMMERCIAL_DECISION_STATUS_PUBLIC';status=$source.status;productionValuesExposed=$false;approvalIdentitiesExposed=$false;evidenceMetadataExposed=$false;invoicePresentation=$invoicePresentation;feeFamilies=$families}
 $target = [IO.Path]::GetFullPath($OutputFile)
 $parent = Split-Path -Parent $target
 if (-not (Test-Path -LiteralPath $parent)) { throw 'Projection output directory does not exist.' }

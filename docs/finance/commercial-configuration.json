@@ -7,6 +7,28 @@
   "storageDecimalScale": 8,
   "documentDecimalScale": 2,
   "roundingMode": null,
+  "invoicePresentationPolicy": {
+    "mode": "SEPARATE_LINE_PER_FEE_FAMILY",
+    "transparentFeeFamilies": [
+      "ROYALTY",
+      "ENTRY_FRANCHISE",
+      "PERIODIC_FRANCHISE",
+      "QUERY",
+      "EXTERNAL_SERVICE",
+      "OPTIONAL_PRODUCT_SERVICE",
+      "PASS_THROUGH_EXPENSE",
+      "DEDUCTION_CREDIT"
+    ],
+    "queryServiceLines": [
+      "TRAMER_QUERY",
+      "KM_QUERY",
+      "TRAMER_360_QUERY"
+    ],
+    "showSourceExpenseServiceFeeAndTaxSeparately": true,
+    "showProviderCostServiceFeeAndTaxSeparately": true,
+    "officialInvoiceLineCodesStatus": "PENDING_TAX_ACCOUNTING_APPROVAL",
+    "aggregateDifferentFeeFamilies": false
+  },
   "feeFamilies": [
     {
       "code": "ROYALTY",

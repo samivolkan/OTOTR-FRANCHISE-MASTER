@@ -9,6 +9,9 @@ $root = (Resolve-Path (Join-Path $PSScriptRoot '..')).Path
 $d = Get-Content -Raw -LiteralPath (Resolve-Path $ConfigurationFile) | ConvertFrom-Json -Depth 30
 if ($d.schemaVersion -ne 1 -or $d.module -ne 'OTOTR_FRANCHISE_FINANCE' -or $d.environment -ne 'PREPRODUCTION_CANDIDATE') { throw 'Invalid commercial configuration identity.' }
 if ($d.storageDecimalScale -ne 8 -or $d.documentDecimalScale -ne 2) { throw 'Finance decimal scale policy changed without review.' }
+$invoicePolicy=$d.invoicePresentationPolicy
+$invoiceFamilies=@('ROYALTY','ENTRY_FRANCHISE','PERIODIC_FRANCHISE','QUERY','EXTERNAL_SERVICE','OPTIONAL_PRODUCT_SERVICE','PASS_THROUGH_EXPENSE','DEDUCTION_CREDIT')
+if($invoicePolicy.mode-ne'SEPARATE_LINE_PER_FEE_FAMILY'-or(@($invoicePolicy.transparentFeeFamilies)-join',')-ne($invoiceFamilies-join',')-or(@($invoicePolicy.queryServiceLines)-join',')-ne'TRAMER_QUERY,KM_QUERY,TRAMER_360_QUERY'-or-not$invoicePolicy.showSourceExpenseServiceFeeAndTaxSeparately-or-not$invoicePolicy.showProviderCostServiceFeeAndTaxSeparately-or$invoicePolicy.officialInvoiceLineCodesStatus-ne'PENDING_TAX_ACCOUNTING_APPROVAL'-or$invoicePolicy.aggregateDifferentFeeFamilies){throw'Confirmed transparent invoice presentation policy was changed.'}
 $expected=@('ROYALTY','ENTRY_FRANCHISE','PERIODIC_FRANCHISE','QUERY','EXTERNAL_SERVICE','OPTIONAL_PRODUCT_SERVICE','PASS_THROUGH_EXPENSE','DEDUCTION_CREDIT')
 $codes = @($d.feeFamilies | ForEach-Object code)
 if ($codes.Count -ne 8 -or @($codes | Sort-Object -Unique).Count -ne 8 -or @($expected | Where-Object { $_ -notin $codes }).Count) { throw 'Commercial configuration fee family inventory is incomplete.' }
@@ -47,6 +50,7 @@ $public = $publicRaw | ConvertFrom-Json -Depth 20
 if ($public.schemaVersion -ne 1 -or $public.module -ne $d.module -or $public.projection -ne 'COMMERCIAL_DECISION_STATUS_PUBLIC' -or $public.productionValuesExposed -ne $false -or $public.approvalIdentitiesExposed -ne $false -or $public.evidenceMetadataExposed -ne $false) { throw 'Invalid commercial public projection identity.' }
 if ($publicRaw -match 'financeDirector|financialAdvisor|franchiseManagement|evidencePath|evidenceSha256|signedAtUtc|ratePercent\s*"\s*:|amountOrRate\s*"\s*:|FINANCE_QUERY_|FINANCE_PASS_THROUGH_') { throw 'Commercial public projection exposes protected approval, evidence or production values.' }
 if (@($public.feeFamilies).Count -ne 8) { throw 'Commercial public projection fee family inventory is incomplete.' }
+if($public.invoicePresentation.mode-ne'SEPARATE_LINE_PER_FEE_FAMILY'-or(@($public.invoicePresentation.transparentFeeFamilies)-join',')-ne($invoiceFamilies-join',')-or(@($public.invoicePresentation.queryServiceLines)-join',')-ne'TRAMER_QUERY,KM_QUERY,TRAMER_360_QUERY'-or$public.invoicePresentation.aggregateDifferentFeeFamilies){throw'Commercial public invoice presentation is incomplete.'}
 foreach ($sourceFamily in $d.feeFamilies) {
  $projected = @($public.feeFamilies | Where-Object code -eq $sourceFamily.code)
  if ($projected.Count -ne 1 -or $projected[0].decisionStatus -ne $sourceFamily.decisionStatus -or [string]::IsNullOrWhiteSpace($projected[0].confirmedBehavior) -or $null -eq $projected[0].pendingFields) { throw "Commercial public projection mismatch: $($sourceFamily.code)" }
