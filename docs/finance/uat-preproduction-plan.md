@@ -98,6 +98,20 @@ Resmî hazırlık kaydında kapı kapanışı ve sonradan yapılan hazırlık ko
 
 Kayıtlar `docs/finance/` dizinindedir. Staging başlamadan önce ERP test tenant adresi, pilot şubeler ve rol bazlı test erişimleri [staging eşleme formuna](erp-staging-mapping-intake.md) kaydedilir. Geçiş ve mutabakatın ardından UAT senaryoları çalıştırılır. Güvenlik, performans, operasyon ve kurtarma kanıtları aynı sürüme bağlanır.
 
+FIN-G06 kanıtı elle hesaplanmaz. Kişisel veri içermeyen, `SYNTHETIC_OR_ANONYMIZED` olarak işaretlenmiş kaynak ve hedef özetleri aşağıdaki araçla karşılaştırılır. Araç kimlik eşleşmesini, 12 kontrol toplamını ve iki snapshot SHA-256 değerini üretir; fark varsa `MISMATCH` kaydı oluşturur ve release kapısı kapalı kalır.
+
+```powershell
+pwsh -NoProfile -File scripts/New-FinanceStagingReconciliationEvidence.ps1 `
+  -SourceSnapshotFile <maskeli-kaynak.json> `
+  -TargetSnapshotFile <staging-hedef.json> `
+  -OutputFile docs/finance/staging-reconciliation-evidence.json `
+  -ExecutedBy <kurumsal-kimlik-id> `
+  -StartedAtUtc <utc> `
+  -CompletedAtUtc <utc>
+
+pwsh -NoProfile -File scripts/Test-FinanceStagingReconciliation.ps1 -RequireMatched
+```
+
 FIN-G01…FIN-G11 tamamlandığında nihai karar `docs/finance/preproduction-decision.json` dosyasında hazırlanır. Proje Yöneticisi, Finans Direktörü, ERP Ürün Sahibi, Bilgi Güvenliği ve Franchise Yönetimi farklı kimliklerle imzalamadan; release commit’i, değişiklik penceresi, release manifesti ve rollback kanıtı bağlanmadan aşağıdaki komut `GO` vermez. Doğrulanan karar dosyası daha sonra beş rol tarafından FIN-G12 kanıtı olarak kaydedilir.
 
 ```powershell
