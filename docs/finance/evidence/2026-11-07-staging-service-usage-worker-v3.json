@@ -21,7 +21,11 @@
     "localAcceptance": "94_OF_94_PASSED",
     "workerRegression": "PASSED",
     "catalogAllowlist": "PASSED",
+    "localReplayMapping": "200_REPLAY_PASSED",
+    "localConflictMapping": "409_CONFLICT_PASSED",
     "activeHostedVersionListed": true,
+    "anonymousHostedRequest": "401_WORKER_AUTH_REQUIRED",
+    "hostedCacheControl": "no-store",
     "realProviderEventDelivered": false
   },
   "security": {
@@ -32,7 +36,7 @@
   "productionDataUsed": false,
   "preProductionDecision": "NO_GO",
   "remaining": [
-    "Gerçek staging sağlayıcı olay teslimi ve replay/conflict doğrulaması",
+    "Gerçek staging sağlayıcı olay teslimi ve hosted replay/conflict doğrulaması",
     "Sorgu sözleşme kuralları, yürürlük tarihi ve vergi-muhasebe onayı",
     "Finans Operasyon kabul imzası"
   ]

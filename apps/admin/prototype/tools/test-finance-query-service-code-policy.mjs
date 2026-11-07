@@ -49,4 +49,19 @@ const externalService = await send({
 });
 assert.equal(externalService.status, 200, 'Harici hizmet kodları ayrı olay tipinde çalışmaya devam etmelidir.');
 
-console.log('PASS finance query service code policy: catalog allowlist and external-service separation');
+for (const [outcome, expectedStatus] of [['REPLAY', 200], ['CONFLICT', 409]]) {
+  const outcomeHandler = createFinanceServiceUsageWorkerHandler({
+    serviceRoleKey,
+    correlationFactory: () => id(8),
+    commitUsage: async () => ({ outcome, sourceEventId: id(9), status: 'RECEIVED' }),
+  });
+  const response = await outcomeHandler(new Request('https://worker.test', {
+    method: 'POST',
+    headers: { authorization: `Bearer ${serviceRoleKey}`, 'content-type': 'application/json' },
+    body: JSON.stringify(baseEvent),
+  }));
+  assert.equal(response.status, expectedStatus, `${outcome} sonucu doğru HTTP durumuna çevrilmelidir.`);
+  assert.equal((await response.json()).data.outcome, outcome);
+}
+
+console.log('PASS finance query service code policy: catalog allowlist, external-service separation, replay and conflict');
