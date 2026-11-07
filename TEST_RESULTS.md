@@ -1398,7 +1398,7 @@ Sınırlar: otomatik fotogrametri, üretici model kütüphanesi, buluttan ses/vi
 
 ## 2026-11-07 — GM Finans delivery consistency baseline
 
-- `scripts/Test-FinanceLocalAcceptance.ps1`: PASS, 74/74 checks, `LOCAL_ONLY`, `productionDataUsed: false`.
+- `scripts/Test-FinanceLocalAcceptance.ps1`: PASS, 75/75 checks, `LOCAL_ONLY`, `productionDataUsed: false`.
 - Canonical pre-production registry remains `NO_GO`: all 12 gates are `PENDING`; no synthetic, local or technical staging result was promoted to business approval.
 - Official UI inventory contains 17 screens: 0 `SHELL_ONLY`, 2 `PARTIAL_LIVE_READ`, 9 `PARTIAL_LIVE_WRITE`, 4 `LIVE_READ_VERIFIED`, 2 `LIVE_WRITE`.
 - Local recovery verification covers 52 finance tables and 191 API functions. The commercial configuration uses server-side secret names and values are not committed or exposed to browser assets.
@@ -1415,3 +1415,9 @@ Sınırlar: otomatik fotogrametri, üretici model kütüphanesi, buluttan ses/vi
 - Supabase Management API, staging üzerinde `finance-erp-demo` v7 durumunu `ACTIVE` ve JWT doğrulamasını açık olarak doğruladı.
 - Unified Logs son 24 saatte v7 için bir istek gösterdi; istek HTTP 401 ile reddedildi. Kabul edilmiş kimlikli istek ve v7 runtime olayı yoktur.
 - Bu kanıt yalnız yetkisiz çevre erişiminin kapalı olduğunu ispatlar. Gerçek ERP tarayıcı başlangıcı, SCOPE-B2 tahsilat/iade sonucu ve iki rolün finans görünümü halen doğrulanmamıştır; FIN-G05 `PENDING`, pre-production `NO_GO` kalır.
+
+## 2026-11-07 — SCOPE-B2 kimlikli UAT koşucusu
+
+- Güvenli ortamdan sağlanan Merkez Finans ve Şube Yöneticisi access tokenlarıyla çalışan staging UAT koşucusu eklendi. Koşucu tokenları dosyaya veya çıktıya yazmaz; yalnız kurumsal kimlik hashlerini ve kontrol sonuçlarını üretir.
+- Koşucu üç idempotent ERP demo işlemini sırasıyla başlatır, Merkez Finans için SCOPE-B1/SCOPE-B2 görünümünü, Şube Yöneticisi için yalnız SCOPE-B2 görünümünü, çapraz istekte 403 ve iki rolde 96 TL royalty bakiyesini zorunlu kılar.
+- Mock sözleşme testleri geçti. Bu ekleme gerçek hosted çalıştırma veya ERP tarayıcı oturumu kanıtı değildir; iki güvenli access token sağlanmadığı için FIN-G04/FIN-G05 durumu değiştirilmedi.
