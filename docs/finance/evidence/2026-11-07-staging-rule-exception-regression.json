@@ -17,8 +17,11 @@
     "status": "ACTIVE",
     "verifyJwt": true,
     "repositoryFiles": 26,
+    "dependencyGraphVerified": true,
     "externalTargetCandidateDependency": false,
-    "packageSha256": "a981850bc64b8fe4647b0a941baafbd0034737e3c561a92eaef5bdf1110b7667"
+    "packageSha256": "a981850bc64b8fe4647b0a941baafbd0034737e3c561a92eaef5bdf1110b7667",
+    "deploymentPackageSha256": "a981850bc64b8fe4647b0a941baafbd0034737e3c561a92eaef5bdf1110b7667",
+    "repositoryManifestPackageSha256": "c760cca5c57f3933a86b1027e379de5407d10a3fc634af46b54b452b75df7cac"
   },
   "verification": {
     "resolverRestored": true,

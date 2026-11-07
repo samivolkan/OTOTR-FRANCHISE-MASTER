@@ -19,12 +19,32 @@ function Get-PackageHash([string]$Directory, [object[]]$Files) {
   $joined = $lines -join "`n"
   [Convert]::ToHexString([Security.Cryptography.SHA256]::HashData([Text.UTF8Encoding]::new($false).GetBytes($joined))).ToLowerInvariant()
 }
+function Get-RelativeImportGraph([string]$EntryPoint, [string]$PackageDirectory) {
+  $seen = @{}
+  function Visit-Import([string]$SourcePath) {
+    $source = [IO.Path]::GetFullPath($SourcePath)
+    if (-not $source.StartsWith($root, [StringComparison]::OrdinalIgnoreCase)) { throw "Function import escapes repository: $source" }
+    if ($seen.ContainsKey($source)) { return }
+    if (-not (Test-Path -LiteralPath $source -PathType Leaf)) { throw "Function dependency missing: $source" }
+    $seen[$source] = $true
+    $content = [IO.File]::ReadAllText($source)
+    if ($content -match 'target-candidate') { throw "External target-candidate dependency is forbidden: $source" }
+    $pattern = '(?m)^(?:import|export)\s+(?:[^''"]+?\s+from\s+)?[''"](?<specifier>\.[^''"]+)[''"]'
+    foreach ($match in [regex]::Matches($content, $pattern)) {
+      $dependency = [IO.Path]::GetFullPath((Join-Path (Split-Path -Parent $source) $match.Groups['specifier'].Value))
+      if (-not [IO.Path]::HasExtension($dependency)) { $dependency += '.mjs' }
+      Visit-Import $dependency
+    }
+  }
+  Visit-Import $EntryPoint
+  @($seen.Keys | ForEach-Object { [IO.Path]::GetRelativePath($PackageDirectory, $_).Replace('\', '/') } | Sort-Object)
+}
 
 $migrationPath = [IO.Path]::GetFullPath((Join-Path $root $manifest.migrationManifest.path))
 if (-not $migrationPath.StartsWith($root, [StringComparison]::OrdinalIgnoreCase) -or (Get-PortableHash $migrationPath) -ne $manifest.migrationManifest.sha256) { throw 'Migration manifest hash mismatch.' }
-$expected = @('finance-read','finance-command','finance-customer-revenue-worker','finance-payment-ingestion-worker','finance-refund-worker','finance-service-usage-worker','finance-invoice-callback-worker','finance-accounting-export-worker','finance-branch-access','finance-payment-callback-worker','finance-payment-checkout')
+$expected = @('finance-read','finance-command','finance-customer-revenue-worker','finance-payment-ingestion-worker','finance-refund-worker','finance-service-usage-worker','finance-invoice-callback-worker','finance-accounting-export-worker','finance-branch-access','finance-payment-callback-worker','finance-payment-checkout','finance-erp-demo')
 $names = @($manifest.functions | ForEach-Object name)
-if ($names.Count -ne 11 -or @($names | Sort-Object -Unique).Count -ne 11 -or @($expected | Where-Object { $_ -notin $names }).Count) { throw 'Finance function deployment inventory is incomplete.' }
+if ($names.Count -ne 12 -or @($names | Sort-Object -Unique).Count -ne 12 -or @($expected | Where-Object { $_ -notin $names }).Count) { throw 'Finance function deployment inventory is incomplete.' }
 $config = Get-Content -Raw -LiteralPath (Join-Path $root 'supabase\config.toml')
 $apiSection = [regex]::Match($config, '(?ms)^\[api\]\s*\r?\n(?<body>.*?)(?=^\[|\z)').Groups['body'].Value
 $schemaList = [regex]::Match($apiSection, '(?m)^schemas\s*=\s*(\[[^\r\n]*\])').Groups[1].Value
@@ -41,8 +61,13 @@ foreach ($function in $manifest.functions) {
   $jwt = if ($function.verifyJwt) { 'true' } else { 'false' }
   if ($config -notmatch "(?ms)^$section\s*.*?^verify_jwt\s*=\s*$jwt\s*$") { throw "verify_jwt configuration mismatch: $($function.name)" }
 }
+$erpDemo = @($manifest.functions | Where-Object name -eq 'finance-erp-demo')
+$erpDemoDirectory = Join-Path $root 'supabase\functions\finance-erp-demo'
+$erpDemoGraph = @(Get-RelativeImportGraph (Join-Path $erpDemoDirectory 'index.ts') $erpDemoDirectory)
+$erpDemoFiles = @($erpDemo.files | Sort-Object)
+if ($erpDemoGraph.Count -ne 26 -or (Compare-Object $erpDemoGraph $erpDemoFiles)) { throw 'finance-erp-demo manifest does not match its complete repository-local dependency graph.' }
 $serialized = $manifest | ConvertTo-Json -Depth 30
 if ($serialized -match 'sb_secret_|eyJ[A-Za-z0-9_-]{20,}|Bearer\s+\S+|https://[a-z0-9-]+\.supabase\.co') { throw 'Deployment manifest contains a secret value or concrete project endpoint.' }
 if (@($manifest.deploymentEvidenceRequired).Count -ne 9 -or 'dataApiSchemaEvidence' -notin $manifest.deploymentEvidenceRequired) { throw 'Staging deployment evidence contract is incomplete.' }
 Write-Host 'FINANCE STAGING DEPLOYMENT MANIFEST: PASSED' -ForegroundColor Green
-Write-Host '150 migrations; 11 immutable function packages; JWT policy and secret-name-only inventory verified; stagingApplied: false.'
+Write-Host '150 migrations; 12 immutable function packages; finance-erp-demo 26-file dependency graph, JWT policy and secret-name-only inventory verified; stagingApplied: false.'

@@ -44,6 +44,10 @@ verify_jwt = true
 [functions.finance-command]
 verify_jwt = true
 
+[functions.finance-erp-demo]
+# Authenticated staging-only ERP simulation endpoint.
+verify_jwt = true
+
 [functions.finance-refund-worker]
 # Internal endpoint verifies the complete service-role secret itself.
 verify_jwt = false
