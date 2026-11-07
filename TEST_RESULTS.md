@@ -1468,3 +1468,11 @@ Sınırlar: otomatik fotogrametri, üretici model kütüphanesi, buluttan ses/vi
 - Staging toplulaştırılmış metadata denetiminde 1 aktif FINANCE, 2 aktif BRANCH_MANAGER, SCOPE-B1 için 2 ve SCOPE-B2 için 1 aktif ERP→finans şube mapping'i bulundu; çakışan aktif mapping yok.
 - `actor_scope_grants=0` mimari hata değildir: Merkez Finans kapsamı rol seviyesinde, Şube Yöneticisi kapsamı ERP şube köprüsüyle, denetçi/hukuk istisnaları ise explicit actor grant ile çözülür. Pilot denetçi/hukuk kullanıcısı olmadığından sıfır beklenir.
 - `finance.branch_assignments` bir kullanıcı yetki tablosu değil, şube–bayi tüzel kişi ana veri tablosudur. FIN-G03'teki yanlış “doğrudan finans kullanıcı-şube ataması” engeli kaldırıldı; gerçek oturum kabulü ve iş/muhasebe onayları halen açıktır.
+
+## 2026-11-07 — Güvenli iki-rol hosted UAT hattı
+
+- Merkez Finans ve Şube Yöneticisi e-posta/parolalarını Supabase Auth access tokenlarına yalnız bellekte dönüştüren credential runner eklendi.
+- İki farklı hesap zorunlu; access tokenlar/parolalar kanıt dosyasına veya log özetine yazılmaz ve iki oturum koşu sonunda local logout ile kapatılır.
+- Manuel GitHub Actions workflow'u 96 TRY rol/kapsam senaryosu ile IDOR/export/anon/origin/veri minimizasyonu kontrollerini aynı koşuda yürütür.
+- Repository'de gerekli `ototr-staging` Environment secret adları henüz görünmediğinden hosted koşu yapılmadı; bu sınır FIN-G04/07/08 içinde açıkça korunur.
+- `scripts/Test-FinanceLocalAcceptance.ps1`: PASS, 82/82 checks, `LOCAL_ONLY`, `productionDataUsed: false`.

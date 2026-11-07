@@ -10,6 +10,7 @@ $checks = @(
   'Test-FinanceStagingErpDemoRuntimeAudit.ps1',
   'Test-FinanceScopeB2AuthenticatedUat.ps1',
   'Test-FinanceAuthenticatedSecurityUat.ps1',
+  'Test-FinanceCredentialAuthenticatedUat.ps1',
   'Test-FinanceStagingReconciliationContract.ps1',
   'Test-FinanceStagingIdentityScopeArchitecture.ps1',
   'Test-FinanceStagingReconciliationGenerator.ps1',

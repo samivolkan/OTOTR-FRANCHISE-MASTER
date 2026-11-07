@@ -1,0 +1,33 @@
+name: Finance staging authenticated UAT
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  finance-uat:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment: ototr-staging
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - name: Run two-role authenticated finance UAT
+        env:
+          OTOTR_FINANCE_UAT_FINANCE_EMAIL: ${{ secrets.OTOTR_FINANCE_UAT_FINANCE_EMAIL }}
+          OTOTR_FINANCE_UAT_FINANCE_PASSWORD: ${{ secrets.OTOTR_FINANCE_UAT_FINANCE_PASSWORD }}
+          OTOTR_FINANCE_UAT_BRANCH_MANAGER_EMAIL: ${{ secrets.OTOTR_FINANCE_UAT_BRANCH_MANAGER_EMAIL }}
+          OTOTR_FINANCE_UAT_BRANCH_MANAGER_PASSWORD: ${{ secrets.OTOTR_FINANCE_UAT_BRANCH_MANAGER_PASSWORD }}
+          OTOTR_FINANCE_UAT_PUBLISHABLE_KEY: ${{ secrets.OTOTR_FINANCE_UAT_PUBLISHABLE_KEY }}
+        run: node scripts/Invoke-FinanceCredentialAuthenticatedUat.mjs docs/finance/evidence/hosted-authenticated-uat
+      - name: Upload aggregate-only evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: finance-staging-authenticated-uat
+          path: docs/finance/evidence/hosted-authenticated-uat/*.json
+          if-no-files-found: error
+          retention-days: 30
