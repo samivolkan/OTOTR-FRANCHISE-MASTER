@@ -1,0 +1,52 @@
+{
+  "schemaVersion": 1,
+  "module": "OTOTR_FRANCHISE_FINANCE",
+  "target": "STAGING",
+  "environment": "ototr-staging",
+  "projectRef": "bsjkohwbtrfwrqcyhsfz",
+  "observedAtUtc": "2026-11-07T02:01:02.452Z",
+  "productionDataUsed": false,
+  "advisor": {
+    "financeLintCount": 1,
+    "financeFindingCount": 52,
+    "criticalCount": 0,
+    "highCount": 0,
+    "warningCount": 0,
+    "infoCount": 52,
+    "finding": {
+      "name": "rls_enabled_no_policy",
+      "level": "INFO",
+      "affectedFinanceTables": 52,
+      "remediationUrl": "https://supabase.com/docs/guides/database/database-linter?lint=0008_rls_enabled_no_policy"
+    }
+  },
+  "databaseVerification": {
+    "financeTableCount": 52,
+    "rlsEnabledCount": 52,
+    "rlsForcedCount": 52,
+    "financeTablePolicyCount": 0,
+    "browserRawTableGrantCount": 0,
+    "financeApiAuthenticatedFunctionCount": 106,
+    "financePrivateAuthenticatedExecuteCount": 4,
+    "financePrivateAnonExecuteCount": 0
+  },
+  "privateFunctionReview": {
+    "classification": "INTENTIONAL_STORAGE_RLS_HELPERS",
+    "functions": [
+      "dispute_evidence_request_is_open(uuid)",
+      "storage_dispute_evidence_access(text,text,boolean)",
+      "storage_expense_evidence_access(text,text)",
+      "storage_payment_evidence_access(text,text)"
+    ],
+    "storagePoliciesUsingHelpers": 6,
+    "directRawFinanceTableAccessGranted": false
+  },
+  "interpretation": {
+    "rawFinanceTablesAreFailClosed": true,
+    "browserAccessIsThroughFinanceApi": true,
+    "advisorInfoAcceptedAsArchitecture": true,
+    "securityGatePassed": false,
+    "reason": "IDOR, export, DLP and authenticated browser role tests plus security and KVKK signoff remain open."
+  },
+  "preProductionDecision": "NO_GO"
+}
