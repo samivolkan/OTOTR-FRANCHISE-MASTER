@@ -126,6 +126,20 @@
       "invoiceLineCode": null
     },
     {
+      "code": "PERIODIC_FRANCHISE",
+      "decisionStatus": "PENDING",
+      "trigger": "SCHEDULED_CONTRACT_PERIOD",
+      "activationPolicy": "CONTRACT_RULE_REQUIRED",
+      "defaultEnabled": false,
+      "calculationMethod": null,
+      "amountOrRate": null,
+      "billingFrequency": null,
+      "effectiveFrom": null,
+      "dueRule": null,
+      "taxCode": null,
+      "invoiceLineCode": null
+    },
+    {
       "code": "QUERY",
       "decisionStatus": "PARTIALLY_CONFIRMED",
       "trigger": "SUCCESSFUL_CHARGEABLE_QUERY",

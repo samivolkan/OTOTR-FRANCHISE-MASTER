@@ -42,16 +42,16 @@ declare
   tax_code constant uuid := '82000000-0000-4000-8000-000000000001';
   tax_version constant uuid := '82000000-0000-4000-8000-000000000002';
   corr uuid := gen_random_uuid();
-  families text[] := array['ENTRY_FRANCHISE','QUERY','EXTERNAL_SERVICE','OPTIONAL_PRODUCT_SERVICE'];
-  events text[] := array['branch.opened','query.completed','external-service.delivered','optional-service.activated'];
-  nets numeric[] := array[1000.00,100.00,250.00,300.00];
+  families text[] := array['ENTRY_FRANCHISE','QUERY','EXTERNAL_SERVICE','OPTIONAL_PRODUCT_SERVICE','PERIODIC_FRANCHISE'];
+  events text[] := array['branch.opened','query.completed','external-service.delivered','optional-service.activated','franchise-period.due'];
+  nets numeric[] := array[1000.00,100.00,250.00,300.00,400.00];
   fee_id uuid; rule_id uuid; mapping_id uuid; source_id uuid; event_id uuid; usage_exception_source uuid; usage_exception_rule uuid; usage_exception_request uuid; ingest_event uuid:=gen_random_uuid();ingest_source uuid;
   context jsonb; rule jsonb; command jsonb; calculation jsonb; result jsonb; replay jsonb; contract_projection jsonb; rule_page jsonb; usage_page jsonb;
   rule_cursor uuid;
   second_source uuid;
   rejected_constraint text;
   i integer; journal_count integer; accrual_count integer; open_count integer; test_accrual uuid;
-  gross numeric(24,8); expected_total numeric(24,8):=1980.00000000;
+  gross numeric(24,8); expected_total numeric(24,8):=2460.00000000;
 begin
   insert into finance.legal_entities(id,entity_code,legal_name,status,created_by,correlation_id)
   values(hq,'OTOTR-HQ-FAMILY-DEMO','OTOTR Sentetik Bedel Aileleri','ACTIVE',maker,corr);
@@ -237,7 +237,7 @@ begin
     from finance.accruals where legal_entity_id=hq;
   select count(*) into open_count from finance.open_items where legal_entity_id=hq and item_type='DEBIT' and status='OPEN';
   select count(*) into journal_count from finance.journal_entries where legal_entity_id=hq and entry_type='ACCRUAL';
-  if accrual_count<>4 or open_count<>4 or journal_count<>4 or gross<>expected_total then
+  if accrual_count<>5 or open_count<>5 or journal_count<>5 or gross<>expected_total then
     raise exception 'family totals mismatch accruals %, open %, journals %, gross %',accrual_count,open_count,journal_count,gross;
   end if;
   if exists(
@@ -245,7 +245,7 @@ begin
       (select sum(debit_amount) from finance.journal_lines where journal_entry_id=je.id)<>
       (select sum(credit_amount) from finance.journal_lines where journal_entry_id=je.id)
   ) then raise exception 'a charge-family journal is not balanced'; end if;
-  if (select count(*) from finance.calculation_runs where legal_entity_id=hq)<>4 then
+  if (select count(*) from finance.calculation_runs where legal_entity_id=hq)<>5 then
     raise exception 'replay created duplicate calculation runs';
   end if;
   insert into finance.source_events(
@@ -315,8 +315,13 @@ begin
   end if;
   rule_cursor:=(rule_page->>'nextCursor')::uuid;
   rule_page:=finance_api.list_contract_fee_rules(hq,account,branch,contract_version,'ACTIVE',rule_cursor,2);
-  if (rule_page->>'hasMore')::boolean is distinct from false or jsonb_array_length(rule_page->'items')<>2 then
+  if (rule_page->>'hasMore')::boolean is distinct from true or jsonb_array_length(rule_page->'items')<>2 then
     raise exception 'fee rule second page mismatch: %',rule_page;
+  end if;
+  rule_cursor:=(rule_page->>'nextCursor')::uuid;
+  rule_page:=finance_api.list_contract_fee_rules(hq,account,branch,contract_version,'ACTIVE',rule_cursor,2);
+  if (rule_page->>'hasMore')::boolean is distinct from false or jsonb_array_length(rule_page->'items')<>1 then
+    raise exception 'fee rule third page mismatch: %',rule_page;
   end if;
   select id into test_accrual from finance.accruals where legal_entity_id=hq order by id limit 1;
   result:=finance_api.get_accrual_detail(hq,account,branch,test_accrual);
@@ -327,7 +332,7 @@ begin
     raise exception 'accrual read projection mismatch: %',result;
   end if;
 
-  raise notice 'CHARGE FAMILY ACCRUAL E2E PASSED: four fee families plus current-contract and fee-rule pagination verified';
+  raise notice 'CHARGE FAMILY ACCRUAL E2E PASSED: five fee families plus current-contract and fee-rule pagination verified';
 end
 $test$;
 

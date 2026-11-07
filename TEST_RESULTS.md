@@ -1406,7 +1406,7 @@ Sınırlar: otomatik fotogrametri, üretici model kütüphanesi, buluttan ses/vi
 
 ## 2026-11-07 — FIN-G02 vergi ve muhasebe karar paketi
 
-- Yedi bedel ailesi için tek, sürümlü vergi ve muhasebe karar kaydı oluşturuldu. Royalty brüt tahsilat matrahı, hesaplanan bedele ayrıca yüzde 20 KDV, masraf hizmet bedeli KDV davranışı ve bağlı ters kayıt provenance ilkeleri korundu.
+- Sekiz bedel ailesi için tek, sürümlü vergi ve muhasebe karar kaydı oluşturuldu. Royalty brüt tahsilat matrahı, hesaplanan bedele ayrıca yüzde 20 KDV, masraf hizmet bedeli KDV davranışı ve bağlı ters kayıt provenance ilkeleri korundu.
 - Canlı vergi kodu veya hesap planı tahmin edilmedi. Fatura/iade belge tipi, yuvarlama, vergi kodu sürümleri ve muhasebe hesapları boş ve `PENDING_ADVISOR_APPROVAL` durumundadır.
 - Onay için Mali Müşavir ve Finans Direktörü farklı kurumsal kimlikleri, depo içi göreli kanıt yolu, SHA-256 ve imza zamanı zorunludur. FIN-G02 bu koşullar sağlanana kadar `PENDING` ve pre-production `NO_GO` kalır.
 
@@ -1488,7 +1488,7 @@ Sınırlar: otomatik fotogrametri, üretici model kütüphanesi, buluttan ses/vi
 
 ## 2026-11-07 — FIN-G01 ticari karar anketi
 
-- Giriş franchise, sorgu istisnaları, harici hizmet, opsiyon, masraf dağıtımı, kesinti/kredi ve genel yürürlük için 11 maddelik kanonik anket oluşturuldu.
+- Giriş franchise, isteğe bağlı periyodik franchise, sorgu istisnaları, harici hizmet, opsiyon, masraf dağıtımı, kesinti/kredi ve genel yürürlük için 12 maddelik kanonik anket oluşturuldu.
 - Her soru yalnız `EVET`, `HAYIR` veya açıklamalı `YORUM` kabul eder; cevap verilmeden ticari değer türetilmez.
 - Vergi/muhasebe kararı ve yetkili imzalar ticari cevaplardan ayrı kapı olarak korunur.
 - `scripts/Test-FinanceLocalAcceptance.ps1`: PASS, 85/85 checks, `LOCAL_ONLY`, `productionDataUsed: false`.
@@ -1496,7 +1496,13 @@ Sınırlar: otomatik fotogrametri, üretici model kütüphanesi, buluttan ses/vi
 ## 2026-11-07 — FIN-G01 karar kayıt aracı
 
 - `EVET`, `HAYIR` ve açıklaması zorunlu `YORUM` cevaplarını kanonik ankete kaydeden araç eklendi.
-- Araç bilinmeyen soru, açıklamasız `YORUM` ve `EVET/HAYIR` ile gönderilen serbest açıklamayı reddeder; 11/11 cevapta durumu otomatik tamamlar.
+- Araç bilinmeyen soru, açıklamasız `YORUM` ve `EVET/HAYIR` ile gönderilen serbest açıklamayı reddeder; 12/12 cevapta durumu otomatik tamamlar.
+
+## 2026-11-07 — Periyodik franchise bedeli desteği
+
+- `PERIODIC_FRANCHISE` ayrı bedel ailesi olarak ticari, vergi/muhasebe ve public karar projeksiyonlarına eklendi; varsayılan kapalıdır ve yalnız onaylı sürümlü sözleşme kuralıyla etkinleşebilir.
+- Yerel PostgreSQL E2E, beş bedel ailesinde beş dengeli yevmiye, beş açık borç ve toplam 2.460 TRY sentetik brüt tahakkuku; tekrar çalıştırmada sıfır mükerrer kayıtla doğruladı.
+- Ticari tutar, oran, sıklık, vade veya vergi kodu varsayılmadı; FIN-C12 kullanıcı kararını bekler.
 - `scripts/Test-FinanceLocalAcceptance.ps1`: PASS, 86/86 checks, `LOCAL_ONLY`, `productionDataUsed: false`.
 
 ## 2026-11-07 — Staging outbox route dağıtım kapısı

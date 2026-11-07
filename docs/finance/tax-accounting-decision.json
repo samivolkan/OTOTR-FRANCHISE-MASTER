@@ -39,6 +39,7 @@
   "feeFamilyMappings": [
     {"code":"ROYALTY","taxCode":null,"taxCodeVersionId":null,"receivableAccountCode":null,"revenueAccountCode":null,"taxPayableAccountCode":null,"reversalAccountCode":null,"invoiceLineCode":"ROYALTY_SERVICE_FEE"},
     {"code":"ENTRY_FRANCHISE","taxCode":null,"taxCodeVersionId":null,"receivableAccountCode":null,"revenueAccountCode":null,"taxPayableAccountCode":null,"reversalAccountCode":null,"invoiceLineCode":null},
+    {"code":"PERIODIC_FRANCHISE","taxCode":null,"taxCodeVersionId":null,"receivableAccountCode":null,"revenueAccountCode":null,"taxPayableAccountCode":null,"reversalAccountCode":null,"invoiceLineCode":null},
     {"code":"QUERY","taxCode":null,"taxCodeVersionId":null,"receivableAccountCode":null,"revenueAccountCode":null,"taxPayableAccountCode":null,"reversalAccountCode":null,"invoiceLineCode":null},
     {"code":"EXTERNAL_SERVICE","taxCode":null,"taxCodeVersionId":null,"receivableAccountCode":null,"revenueAccountCode":null,"taxPayableAccountCode":null,"reversalAccountCode":null,"invoiceLineCode":null},
     {"code":"OPTIONAL_PRODUCT_SERVICE","taxCode":null,"taxCodeVersionId":null,"receivableAccountCode":null,"revenueAccountCode":null,"taxPayableAccountCode":null,"reversalAccountCode":null,"invoiceLineCode":null},

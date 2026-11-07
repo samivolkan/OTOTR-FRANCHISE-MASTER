@@ -15,10 +15,10 @@ if ($d.documentPolicy.invoiceIssuer -ne 'HEADQUARTERS_LEGAL_ENTITY' -or $d.docum
 if ($d.taxPolicy.royaltyBasis -ne 'FULL_SETTLED_CUSTOMER_GROSS_INCLUDING_VAT' -or $d.taxPolicy.royaltyChargeTreatment -ne 'VAT_ADDED_TO_CALCULATED_ROYALTY' -or [decimal]$d.taxPolicy.royaltyBusinessRatePercent -ne 20 -or $d.taxPolicy.passThroughServiceFeeTreatment -ne 'VAT_ADDED_TO_MARKUP_SERVICE_FEE' -or [decimal]$d.taxPolicy.passThroughBusinessRatePercent -ne 20 -or $d.taxPolicy.businessRatesAreAccountingApproval -ne $false -or -not $d.taxPolicy.taxCodeVersionRequiredBeforePublishing) { throw 'Confirmed business tax behavior or accounting-approval boundary changed.' }
 if ($d.reversalPolicy.method -ne 'LINKED_REVERSAL_JOURNAL' -or $d.reversalPolicy.directBalanceEditAllowed -ne $false -or -not $d.reversalPolicy.preserveOriginalPeriodReference -or -not $d.reversalPolicy.preserveOriginalAccrualReference -or $d.reversalPolicy.lockedOriginalPeriodPosting -ne 'CURRENT_OPEN_PERIOD' -or $d.reversalPolicy.creditCarryForwardScope -ne 'BRANCH' -or $d.reversalPolicy.crossBranchTransferAllowed -ne $false) { throw 'Reversal accounting provenance policy changed.' }
 
-$expected = @('ROYALTY','ENTRY_FRANCHISE','QUERY','EXTERNAL_SERVICE','OPTIONAL_PRODUCT_SERVICE','PASS_THROUGH_EXPENSE','DEDUCTION_CREDIT')
+$expected = @('ROYALTY','ENTRY_FRANCHISE','PERIODIC_FRANCHISE','QUERY','EXTERNAL_SERVICE','OPTIONAL_PRODUCT_SERVICE','PASS_THROUGH_EXPENSE','DEDUCTION_CREDIT')
 $mappings = @($d.feeFamilyMappings)
 $codes = @($mappings | ForEach-Object code)
-if ($mappings.Count -ne 7 -or @($codes | Sort-Object -Unique).Count -ne 7 -or @($expected | Where-Object { $_ -notin $codes }).Count) { throw 'Tax/accounting mapping must cover all seven fee families exactly once.' }
+if ($mappings.Count -ne 8 -or @($codes | Sort-Object -Unique).Count -ne 8 -or @($expected | Where-Object { $_ -notin $codes }).Count) { throw 'Tax/accounting mapping must cover all eight fee families exactly once.' }
 $royalty = $mappings | Where-Object code -eq 'ROYALTY'
 if ($royalty.invoiceLineCode -ne 'ROYALTY_SERVICE_FEE') { throw 'Confirmed royalty invoice line code changed.' }
 
@@ -42,5 +42,5 @@ if ($approved) {
 }
 
 Write-Host ("FINANCE TAX + ACCOUNTING DECISION: {0}" -f $d.status) -ForegroundColor $(if($approved){'Green'}else{'Yellow'})
-Write-Host 'Seven fee families covered; business tax behavior preserved; synthetic account codes excluded.'
+Write-Host 'Eight fee families covered; business tax behavior preserved; synthetic account codes excluded.'
 if ($RequireApproved -and -not $approved) { throw 'Tax/accounting decision is not approved.' }

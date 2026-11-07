@@ -11,17 +11,18 @@
   },
   "familiesVerified": [
     "ENTRY_FRANCHISE",
+    "PERIODIC_FRANCHISE",
     "QUERY",
     "EXTERNAL_SERVICE",
     "OPTIONAL_PRODUCT_SERVICE"
   ],
   "scenario": {
     "currency": "TRY",
-    "grossTotal": "1980.00000000",
-    "calculationRuns": 4,
-    "postedAccruals": 4,
-    "balancedJournals": 4,
-    "branchDebitOpenItems": 4,
+    "grossTotal": "2460.00000000",
+    "calculationRuns": 5,
+    "postedAccruals": 5,
+    "balancedJournals": 5,
+    "branchDebitOpenItems": 5,
     "duplicateRunsCreatedByRetry": 0
   },
   "assertions": [
@@ -41,7 +42,7 @@
   "limitations": {
     "commercialValues": "SYNTHETIC_TEST_VECTORS_NOT_APPROVED_BUSINESS_RATES",
     "adjustmentFamily": "NOT_COVERED_REQUIRES_EXPLICIT_DEBIT_OR_CREDIT_ADJUSTMENT_WORKFLOW",
-    "periodicFranchiseFamily": "NOT_COVERED_PENDING_FIRST_RELEASE_SCOPE_DECISION",
+    "periodicFranchiseFamily": "SUPPORTED_ONLY_BY_EXPLICIT_VERSIONED_CONTRACT_RULE_DEFAULT_DISABLED",
     "uatSignoff": "NOT_RUN",
     "stagingRun": "NOT_RUN",
     "preProductionDecision": "NO_GO"

@@ -1,6 +1,6 @@
 [CmdletBinding()]
 param(
-  [Parameter(Mandatory)][ValidatePattern('^FIN-C(0[1-9]|1[01])$')][string]$QuestionId,
+  [Parameter(Mandatory)][ValidatePattern('^FIN-C(0[1-9]|1[0-2])$')][string]$QuestionId,
   [Parameter(Mandatory)][ValidateSet('EVET','HAYIR','YORUM')][string]$Response,
   [string]$Comment,
   [string]$QuestionnaireFile=(Join-Path $PSScriptRoot '..\docs\finance\commercial-decision-questionnaire.json')

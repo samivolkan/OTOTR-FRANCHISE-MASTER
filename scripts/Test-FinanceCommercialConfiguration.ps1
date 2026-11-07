@@ -9,9 +9,9 @@ $root = (Resolve-Path (Join-Path $PSScriptRoot '..')).Path
 $d = Get-Content -Raw -LiteralPath (Resolve-Path $ConfigurationFile) | ConvertFrom-Json -Depth 30
 if ($d.schemaVersion -ne 1 -or $d.module -ne 'OTOTR_FRANCHISE_FINANCE' -or $d.environment -ne 'PREPRODUCTION_CANDIDATE') { throw 'Invalid commercial configuration identity.' }
 if ($d.storageDecimalScale -ne 8 -or $d.documentDecimalScale -ne 2) { throw 'Finance decimal scale policy changed without review.' }
-$expected=@('ROYALTY','ENTRY_FRANCHISE','QUERY','EXTERNAL_SERVICE','OPTIONAL_PRODUCT_SERVICE','PASS_THROUGH_EXPENSE','DEDUCTION_CREDIT')
+$expected=@('ROYALTY','ENTRY_FRANCHISE','PERIODIC_FRANCHISE','QUERY','EXTERNAL_SERVICE','OPTIONAL_PRODUCT_SERVICE','PASS_THROUGH_EXPENSE','DEDUCTION_CREDIT')
 $codes = @($d.feeFamilies | ForEach-Object code)
-if ($codes.Count -ne 7 -or @($codes | Sort-Object -Unique).Count -ne 7 -or @($expected | Where-Object { $_ -notin $codes }).Count) { throw 'Commercial configuration fee family inventory is incomplete.' }
+if ($codes.Count -ne 8 -or @($codes | Sort-Object -Unique).Count -ne 8 -or @($expected | Where-Object { $_ -notin $codes }).Count) { throw 'Commercial configuration fee family inventory is incomplete.' }
 $royalty = $d.feeFamilies | Where-Object code -eq 'ROYALTY'
 if ($royalty.trigger -ne 'SETTLED_COLLECTION_PIECE' -or $royalty.calculationMethod -ne 'PERCENTAGE' -or $royalty.basisIncludesTax -ne $true -or $royalty.refundPolicy.mode -ne 'PROPORTIONAL_REVERSAL' -or -not $royalty.refundPolicy.onEachConfirmedRefund -or -not $royalty.refundPolicy.preserveOriginalPeriodReference -or -not $royalty.refundPolicy.preserveOriginalAccrualReference -or -not $royalty.refundPolicy.postToOpenPeriodWhenOriginalLocked) { throw 'Confirmed royalty/refund invariants were changed.' }
 if ($null -ne $royalty.ratePercent -or $royalty.rateDecisionStatus -ne 'CONFIRMED_SECURE_VALUE' -or $royalty.rateSource -ne 'SECRET_MANAGER' -or $royalty.rateSecretName -ne 'FINANCE_ROYALTY_DEFAULT_RATE_PERCENT' -or $royalty.scopeVariability -ne 'BRANCH' -or $royalty.chargeTaxTreatment -ne 'VAT_ADDED_TO_CALCULATED_ROYALTY') { throw 'Confirmed plus VAT, branch-variable and secret-backed royalty policy was changed.' }
@@ -28,6 +28,8 @@ if ($royalty.refundCashPayoutPolicy -ne 'DISABLED_CARRY_FORWARD_ONLY') { throw '
 if ($royalty.waiverPolicy.scope -ne 'BRANCH' -or @($royalty.waiverPolicy.allowedTypes) -notcontains 'NEW_DEALER_INTRODUCTORY' -or @($royalty.waiverPolicy.allowedTypes) -notcontains 'FINANCIAL_HARDSHIP' -or (@($royalty.waiverPolicy.introductoryDurationsMonths) -join ',') -ne '6,12' -or -not $royalty.waiverPolicy.requiresEffectiveDateRange -or -not $royalty.waiverPolicy.requiresMakerCheckerApproval -or -not $royalty.waiverPolicy.financialHardshipReviewRequired -or $royalty.waiverPolicy.shiftSystemDependency -ne $false) { throw 'Confirmed branch waiver policy was changed.' }
 $entryFranchise = $d.feeFamilies | Where-Object code -eq 'ENTRY_FRANCHISE'
 if ($entryFranchise.decisionStatus -notin @('PARTIALLY_CONFIRMED','APPROVED') -or $entryFranchise.trigger -ne 'BRANCH_OPENING' -or $entryFranchise.accrualOccurrence -ne 'ONCE_PER_BRANCH' -or $entryFranchise.duplicateAccrualPolicy -ne 'REJECT' -or $entryFranchise.retroactiveAccrual -ne $false -or -not $entryFranchise.requiresBranchOpeningReference) { throw 'Confirmed one-time branch-opening entry franchise policy was changed.' }
+$periodicFranchise = $d.feeFamilies | Where-Object code -eq 'PERIODIC_FRANCHISE'
+if ($periodicFranchise.decisionStatus -notin @('PENDING','APPROVED') -or $periodicFranchise.trigger -ne 'SCHEDULED_CONTRACT_PERIOD' -or $periodicFranchise.activationPolicy -ne 'CONTRACT_RULE_REQUIRED' -or $periodicFranchise.defaultEnabled -ne $false) { throw 'Periodic franchise must remain disabled until an approved contract rule enables it.' }
 $queryFamily = $d.feeFamilies | Where-Object code -eq 'QUERY'
 $queryCodes = @($queryFamily.priceCatalog | ForEach-Object serviceCode)
 if ($queryFamily.decisionStatus -notin @('PARTIALLY_CONFIRMED','APPROVED') -or $queryFamily.calculationMethod -ne 'FIXED_AMOUNT_PER_SUCCESSFUL_QUERY' -or $null -ne $queryFamily.amountOrRate -or $queryFamily.priceDecisionStatus -ne 'CONFIRMED_SECURE_VALUES' -or $queryFamily.priceSource -ne 'SECRET_MANAGER' -or $queryFamily.currencyCode -ne 'TRY' -or (@($queryCodes) -join ',') -ne 'TRAMER_QUERY,KM_QUERY,TRAMER_360_QUERY') { throw 'Confirmed secure query price catalog policy was changed.' }
@@ -41,7 +43,7 @@ $publicRaw = Get-Content -Raw -LiteralPath (Resolve-Path $PublicProjectionFile)
 $public = $publicRaw | ConvertFrom-Json -Depth 20
 if ($public.schemaVersion -ne 1 -or $public.module -ne $d.module -or $public.projection -ne 'COMMERCIAL_DECISION_STATUS_PUBLIC' -or $public.productionValuesExposed -ne $false -or $public.approvalIdentitiesExposed -ne $false -or $public.evidenceMetadataExposed -ne $false) { throw 'Invalid commercial public projection identity.' }
 if ($publicRaw -match 'financeDirector|financialAdvisor|franchiseManagement|evidencePath|evidenceSha256|signedAtUtc|ratePercent\s*"\s*:|amountOrRate\s*"\s*:|FINANCE_QUERY_|FINANCE_PASS_THROUGH_') { throw 'Commercial public projection exposes protected approval, evidence or production values.' }
-if (@($public.feeFamilies).Count -ne 7) { throw 'Commercial public projection fee family inventory is incomplete.' }
+if (@($public.feeFamilies).Count -ne 8) { throw 'Commercial public projection fee family inventory is incomplete.' }
 foreach ($sourceFamily in $d.feeFamilies) {
  $projected = @($public.feeFamilies | Where-Object code -eq $sourceFamily.code)
  if ($projected.Count -ne 1 -or $projected[0].decisionStatus -ne $sourceFamily.decisionStatus -or [string]::IsNullOrWhiteSpace($projected[0].confirmedBehavior) -or $null -eq $projected[0].pendingFields) { throw "Commercial public projection mismatch: $($sourceFamily.code)" }
@@ -75,5 +77,5 @@ if ($approved) {
 }
 $decision=if($approved){'APPROVED'}else{'PENDING_DECISIONS'}
 Write-Host "FINANCE COMMERCIAL CONFIGURATION: $decision" -ForegroundColor $(if($approved){'Green'}else{'Yellow'})
-Write-Host ("Fee families: 7; royalty, query catalog and pass-through markup: confirmed secret-backed decisions; production values exposed: false")
+Write-Host ("Fee families: 8; periodic franchise disabled until approved contract rule; production values exposed: false")
 if ($RequireApproved -and -not $approved) { throw 'Commercial configuration is not approved.' }

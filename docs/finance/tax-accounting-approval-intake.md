@@ -15,7 +15,7 @@ Ana kayıt `tax-accounting-decision.json` dosyasıdır. Bu form Mali Müşavir v
 
 ## Her bedel ailesi için zorunlu eşleme
 
-Yedi bedel ailesinin her biri için vergi kodu, onaylı vergi kodu sürümü, bayi/şube alacak hesabı, gelir hesabı, hesaplanan KDV hesabı, ters kayıt hesabı ve fatura satır kodu doldurulur. Royalty için mevcut iş kararı: müşteriden kesinleşen KDV dahil brüt tahsilatın tamamı matrahtır; hesaplanan royalty bedeline ayrıca yüzde 20 KDV uygulanır. Bu iş kararı tek başına muhasebe/vergi görüşü değildir.
+Sekiz bedel ailesinin her biri için vergi kodu, onaylı vergi kodu sürümü, bayi/şube alacak hesabı, gelir hesabı, hesaplanan KDV hesabı, ters kayıt hesabı ve fatura satır kodu doldurulur. Royalty için mevcut iş kararı: müşteriden kesinleşen KDV dahil brüt tahsilatın tamamı matrahtır; hesaplanan royalty bedeline ayrıca yüzde 20 KDV uygulanır. Bu iş kararı tek başına muhasebe/vergi görüşü değildir.
 
 İade ve iptaller doğrudan bakiye değişikliği yapmaz. Bağlı ters yevmiye üretir, orijinal dönem ve tahakkuk referansını korur; orijinal dönem kilitliyse kayıt güncel açık döneme atılır. Fazla royalty kredisi yalnız aynı şubede ileri taşınır.
 

@@ -29,6 +29,20 @@
       ]
     },
     {
+      "code": "PERIODIC_FRANCHISE",
+      "decisionStatus": "PENDING",
+      "confirmedBehavior": "Periyodik franchise bedeli varsayılan olarak kapalıdır; yalnız onaylı ve sürümlü sözleşme kuralıyla etkinleşebilir.",
+      "pendingFields": [
+        "calculationMethod",
+        "amountOrRate",
+        "billingFrequency",
+        "effectiveFrom",
+        "dueRule",
+        "taxCode",
+        "invoiceLineCode"
+      ]
+    },
+    {
       "code": "QUERY",
       "decisionStatus": "PARTIALLY_CONFIRMED",
       "confirmedBehavior": "Başarılı ve ücretlendirilebilir sorgu başına sabit tutar uygulanır. TRAMER, KM ve TRAMER 360 hizmet kodlarının kullanıcı tarafından kararlaştırılan tutarları yalnız güvenli backend yapılandırmasında tutulur; public projeksiyon ticari tutar açıklamaz.",
