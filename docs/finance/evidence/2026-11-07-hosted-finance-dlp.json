@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 1,
+  "module": "OTOTR_FRANCHISE_FINANCE",
+  "controlId": "SEC-FIN-07",
+  "surface": "https://samivolkan.github.io/Ototr/muhasebe-v2/",
+  "observedAtUtc": "2026-11-07T01:26:49.1085700Z",
+  "inspectedCommit": "fe72e945fc731cc27f040291940181d7764b5206",
+  "productionDataUsed": false,
+  "rawMatchedValuesRecorded": false,
+  "documentsScanned": 9,
+  "linkedAssetsScanned": 8,
+  "linkedAssetBytes": 367762,
+  "totalHtmlAndAssetBytes": 673276,
+  "findings": {
+    "secretKeyPatterns": 0,
+    "jwtPatterns": 0,
+    "credentialLiteralAssignments": 0,
+    "emailLiterals": 0,
+    "luhnValidCardNumbers": 0
+  },
+  "falsePositiveHandling": "Numeric candidates are violations only when 13-19 digits and Luhn-valid; PDF xref zero padding is excluded.",
+  "limitations": [
+    "This scan covers the hosted public HTML and linked static assets only.",
+    "Authenticated API responses and generated exports require the pending two-role staging UAT run.",
+    "KVKK approval is not implied."
+  ],
+  "result": "PARTIAL_PASS",
+  "preProductionDecision": "NO_GO"
+}

@@ -12,7 +12,7 @@
     {"id":"SEC-FIN-04","name":"Service-role mutasyon izolasyonu","status":"PASSED","evidence":[{"path":"docs/finance/evidence/2026-11-07-staging-identity-and-grant-inventory.json","sha256":"db8ff36eaae443cb4234dc8c79165e46e5e9cafd6e546a19694116e0d1d3cdc3"}]},
     {"id":"SEC-FIN-05","name":"Log ve hata maskeleme","status":"PASSED","evidence":[{"path":"docs/finance/evidence/2026-11-07-staging-log-masking.json","sha256":"1789589dc3f80093e522638c13c1ddadbd1f02020438ee6874451519e286eb8b"},{"path":"scripts/Test-FinanceLogMasking.ps1","sha256":"fbd2bf8a917341afac12bab95c0f53b4da78d3e4042ff7d88105d321121a0e18"}]},
     {"id":"SEC-FIN-06","name":"Veri minimizasyonu","status":"RUNNING","evidence":[]},
-    {"id":"SEC-FIN-07","name":"DLP ve kişisel veri sızıntısı","status":"NOT_RUN","evidence":[]},
+    {"id":"SEC-FIN-07","name":"DLP ve kişisel veri sızıntısı","status":"RUNNING","evidence":[{"path":"docs/finance/evidence/2026-11-07-hosted-finance-dlp.json","sha256":"ac4123225a88b073d2c2ea3f5dbd6f7bcad5bf44a3ecde3a3287efcf04aae959"},{"path":"scripts/Test-FinanceHostedDlp.ps1","sha256":"06f4f1d83608a2fc352c3245f6bd1bc4a3840785bae4c72353fe8c085406c4a4"}]},
     {"id":"SEC-FIN-08","name":"JWT rol ve şube kapsamı","status":"RUNNING","evidence":[]}
   ],
   "findings": {"critical":null,"high":null,"medium":null,"low":null,"unresolved":null,"acceptedRisk":null},
