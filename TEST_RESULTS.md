@@ -1504,3 +1504,9 @@ Sınırlar: otomatik fotogrametri, üretici model kütüphanesi, buluttan ses/vi
 - Staging envanterinde beklenen 13 finans fonksiyonundan yalnız `finance-outbox-worker` eksik olduğu ve 11 bekleyen mesajın hiç denenmediği salt okunur kontrollerle yeniden doğrulandı.
 - Worker, gerçek tüketici endpoint'i ve teslim secret'ı onaylanmadan dağıtılmadı; route alanları, HTTPS origin sınırı, üç ayrı onay ve token içermeyen tatbikat kanıtı için fail-closed paket eklendi.
 - `scripts/Test-FinanceLocalAcceptance.ps1`: PASS, 87/87 checks, `LOCAL_ONLY`, `productionDataUsed: false`.
+
+## 2026-11-07 — GitHub staging UAT secret envanteri yenileme
+
+- `ototr-staging` Environment canlı API kontrolünde yalnız yayınlanabilir anahtar adının bulunduğu; iki demo role ait e-posta/parola değerlerinin hâlâ eksik olduğu doğrulandı.
+- Secret değerlerini hiçbir zaman okumadan yalnız gerekli adları ve izinli branch politikasını atomik kanıta dönüştüren yenileme aracı eklendi.
+- `scripts/Test-FinanceLocalAcceptance.ps1`: PASS, 88/88 checks, `LOCAL_ONLY`, `productionDataUsed: false`.
