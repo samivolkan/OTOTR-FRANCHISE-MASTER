@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 1,
+  "module": "OTOTR_FRANCHISE_FINANCE",
+  "environment": "ototr-staging",
+  "projectRef": "bsjkohwbtrfwrqcyhsfz",
+  "function": {
+    "name": "finance-command",
+    "id": "f2f17287-70a9-4d32-99c8-7430d5028ea2",
+    "version": 6,
+    "status": "ACTIVE",
+    "verifyJwt": true,
+    "deploymentSha256": "e6aeeee3adcbcef13fb2107c350db9a4e3fcb3895b9875f19c2772f36924f0b1",
+    "entrypoint": "supabase/functions/finance-command/index.ts",
+    "repositoryDependencyCount": 5
+  },
+  "source": {
+    "branch": "codex/gm-finans-release",
+    "commit": "b892bbde50b876aa3ca28d12b2f6cb5935b20e95"
+  },
+  "verification": {
+    "deployedPackageReadBack": "MATCHED_OPERATION_AND_DEPENDENCIES",
+    "unauthenticatedHttpStatus": 401,
+    "jwtBoundary": "PASSED",
+    "localAcceptance": "59_OF_59_PASSED",
+    "productionDataUsed": false
+  },
+  "commercialSecrets": {
+    "requiredNamesRecordedInManifest": true,
+    "hostedPresenceVerified": false,
+    "valuesStoredInEvidence": false
+  },
+  "gateImpact": {
+    "FIN-G01": "PENDING",
+    "FIN-G05": "PENDING",
+    "preProductionDecision": "NO_GO",
+    "reason": "Hosted commercial Secret presence and authenticated ERP materialization UAT are not yet verified."
+  },
+  "observedAtUtc": "2026-11-07T00:43:44.4389505Z"
+}
