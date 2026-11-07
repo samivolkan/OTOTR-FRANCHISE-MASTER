@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 1,
+  "module": "OTOTR_FRANCHISE_FINANCE",
+  "target": "STAGING",
+  "environment": "ototr-staging",
+  "projectRef": "bsjkohwbtrfwrqcyhsfz",
+  "observedAtUtc": "2026-11-07T02:22:00Z",
+  "productionDataUsed": false,
+  "projectState": {
+    "defaultBranch": "main",
+    "defaultBranchStatus": "ACTIVE_HEALTHY",
+    "developmentBranchCount": 0,
+    "isolatedRestoreTargetExists": false,
+    "healthAdvisorFindingCount": 0
+  },
+  "migrationState": {
+    "latestAppliedFinanceMigrationVersion": "20261107015427",
+    "latestAppliedFinanceMigrationName": "finance_source_event_processed_terminal_state",
+    "localCandidateMigrationVersion": "20261107021500",
+    "localCandidateAppliedToStaging": false
+  },
+  "recoveryChecks": {
+    "localSeparateDatabaseRestorePassed": true,
+    "localFinanceTableCount": 52,
+    "localFinanceApiFunctionCount": 191,
+    "managedBackupHistoryVerified": false,
+    "stagingRestoreDrillExecuted": false,
+    "applicationRollbackDrillExecuted": false,
+    "forwardFixDrillExecuted": false,
+    "destructiveDownMigrationUsed": false
+  },
+  "interpretation": {
+    "status": "ACTION_REQUIRED",
+    "reason": "The staging project is healthy, but no isolated restore target exists and managed backup history, restore, application rollback and forward-fix drills are not evidenced. Creating a Supabase development branch may incur cost and was not attempted without cost confirmation."
+  },
+  "preProductionDecision": "NO_GO"
+}
