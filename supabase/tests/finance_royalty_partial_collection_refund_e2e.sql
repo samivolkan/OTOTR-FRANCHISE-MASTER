@@ -199,6 +199,9 @@ begin
   if v_result->>'outcome' <> 'CREATED' then
     raise exception 'original royalty accrual was not created: %',v_result;
   end if;
+  if (select status from finance.source_events where id=v_collection_event)<>'PROCESSED' then
+    raise exception 'posted royalty source event did not reach PROCESSED';
+  end if;
 
   select a.id,a.journal_entry_id into strict v_original_accrual,v_original_journal
     from finance.accruals a
@@ -252,12 +255,15 @@ begin
     raise exception 'current open posting period was not selected';
   end if;
 
-  v_refund_result := finance_api.process_royalty_refund_reversal(
+  v_refund_result := finance_api.process_royalty_refund_reversal_v2(
     v_actor,v_hq,v_dealer,v_account,v_branch,v_refund_event,v_refund_event,
     'demo:royalty:refund:1',v_refund_corr
   );
   if v_refund_result->>'outcome' <> 'CREATED' then
     raise exception 'royalty refund reversal was not created: %',v_refund_result;
+  end if;
+  if (select status from finance.source_events where id=v_refund_event)<>'PROCESSED' then
+    raise exception 'posted refund source event did not reach PROCESSED';
   end if;
   v_reversal_accrual := (v_refund_result->>'reversalAccrualId')::uuid;
 
@@ -293,7 +299,7 @@ begin
      and ae.safe_context->>'postingPeriodId'=v_nov_branch_period::text;
   if v_count <> 1 then raise exception 'audit period provenance missing'; end if;
 
-  v_replay := finance_api.process_royalty_refund_reversal(
+  v_replay := finance_api.process_royalty_refund_reversal_v2(
     v_actor,v_hq,v_dealer,v_account,v_branch,v_refund_event,v_refund_event,
     'demo:royalty:refund:1',v_refund_corr
   );

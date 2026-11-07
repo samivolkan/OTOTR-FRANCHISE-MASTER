@@ -14,7 +14,7 @@ test('ERP refund forwards the trusted actor and persisted finance event to the r
     supabaseUrl: 'https://staging.invalid',
     serviceRoleKey: 'test'.repeat(12),
     async fetchImpl(url, options) {
-      assert.equal(new URL(url).pathname, '/rest/v1/rpc/process_royalty_refund_reversal');
+      assert.equal(new URL(url).pathname, '/rest/v1/rpc/process_royalty_refund_reversal_v2');
       const body = JSON.parse(options.body);
       assert.equal(body.p_actor_id, actorId);
       assert.equal(body.p_source_event_id, sourceEventId);
