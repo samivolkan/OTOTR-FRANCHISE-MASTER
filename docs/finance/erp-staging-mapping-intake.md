@@ -2,20 +2,20 @@
 
 Bu belge FIN-G03 ve FIN-G05 için gerekli teknik girdileri toplar. Üretim kimlik bilgileri repository'ye yazılmaz; yalnız secret manager referansı kaydedilir.
 
-Dağıtılacak 153 migration ve on üç finans Edge Function paketinin değişmez hash, JWT politikası ve gerekli secret **adları** `staging-deployment-manifest.json` içinde tutulur. Manifest gerçek secret değeri veya proje endpoint'i içeremez; `stagingApplied` ancak gerçek dağıtım ve smoke-test kanıtı ayrıca imzalandıktan sonra güncellenebilir.
+Kayıtlı 155 finans migration'ı ve on üç finans Edge Function paketinin değişmez hash, JWT politikası ve gerekli secret **adları** `staging-deployment-manifest.json` içinde tutulur. Manifest gerçek secret değeri veya proje endpoint'i içeremez; `stagingApplied` ancak gerçek dağıtım ve smoke-test kanıtı ayrıca imzalandıktan sonra güncellenebilir.
 
 ## Ana veri eşlemeleri
 
 | Alan | ERP kaynak nesnesi/alanı | Finans hedefi | Tekillik anahtarı | Sahip | Durum |
 |---|---|---|---|---|---|
-| Genel merkez tüzel kişi | Bekleniyor | `finance.legal_entities` | Bekleniyor | ERP Ürün Sahibi | PENDING |
-| Bayi tüzel kişisi | Bekleniyor | `finance.dealer_legal_entities` | Bekleniyor | ERP Ürün Sahibi | PENDING |
-| Şube | Bekleniyor | `finance.branches` | Bekleniyor | ERP Ürün Sahibi | PENDING |
-| Bayi cari hesabı | Bekleniyor | `finance.dealer_accounts` | Bekleniyor | Finans Operasyon | PENDING |
-| ERP kullanıcı/rol | Bekleniyor | `app_users` + scope mapping | Bekleniyor | Bilgi Güvenliği | PENDING |
-| Sözleşme | Bekleniyor | `finance.franchise_contracts` | Bekleniyor | Franchise Yönetimi | PENDING |
-| Hizmet/sorgu kodu | Bekleniyor | `finance.fee_definitions` | Bekleniyor | Operasyon | PENDING |
-| Muhasebe hesap kodu | Bekleniyor | accounting mapping version | Bekleniyor | Mali Müşavir | PENDING |
+| Genel merkez tüzel kişi | Staging pilot ERP kapsamı | `finance.legal_entities` | ERP kanonik tüzel kişi anahtarı | ERP Ürün Sahibi | TECHNICALLY_PRESENT / APPROVAL_PENDING |
+| Bayi tüzel kişisi | Staging pilot bayi kapsamı | `finance.dealer_legal_entities` | ERP kanonik bayi anahtarı | ERP Ürün Sahibi | TECHNICALLY_PRESENT / APPROVAL_PENDING |
+| Şube | `public.branches` + aktif ERP kapsam eşlemesi | `finance.branches` | ERP branch UUID → finance branch UUID | ERP Ürün Sahibi | TECHNICALLY_PRESENT / SESSION_UAT_PENDING |
+| Bayi cari hesabı | Staging pilot bayi kapsamı | `finance.dealer_accounts` | ERP bayi → tek aktif cari | Finans Operasyon | TECHNICALLY_PRESENT / APPROVAL_PENDING |
+| ERP kullanıcı/rol | `public.app_users` | `app_users` + `finance_private.erp_branch_scope_mappings` | Auth UID + ERP branch UUID | Bilgi Güvenliği | TECHNICALLY_PRESENT / JWT_UAT_PENDING |
+| Sözleşme | Staging pilot sözleşme kaydı | `finance.franchise_contracts` + `contract_versions` | Bayi + sözleşme + sürüm | Franchise Yönetimi | ACTIVE_FIXTURE / SIGNOFF_PENDING |
+| Hizmet/sorgu kodu | Staging pilot bedel kodu | `finance.fee_definitions` + `contract_fee_rules` | Bedel kodu + sürüm | Operasyon | PARTIAL / QUERY_CATALOG_PENDING |
+| Muhasebe hesap kodu | Staging pilot mapping | `finance.accounting_mappings` | Mapping kodu + sürüm | Mali Müşavir | TECHNICALLY_PRESENT / ADVISOR_APPROVAL_PENDING |
 
 ## Adaptör sözleşmeleri
 

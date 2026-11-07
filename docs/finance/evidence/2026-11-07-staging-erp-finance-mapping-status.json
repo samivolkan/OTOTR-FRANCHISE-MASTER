@@ -4,19 +4,19 @@
   "target": "STAGING",
   "environment": "ototr-staging",
   "projectRef": "bsjkohwbtrfwrqcyhsfz",
-  "observedAtUtc": "2026-11-07T02:03:00Z",
+  "observedAtUtc": "2026-11-07T04:33:57.3072149Z",
   "productionDataUsed": false,
   "containsPersonalData": false,
   "status": "PARTIAL",
   "mappings": [
     {"id":"MAP-FIN-01","source":"ERP_HEADQUARTERS_LEGAL_ENTITY","target":"finance.legal_entities","status":"TECHNICALLY_PRESENT","observedCount":1,"remaining":"ERP product-owner canonical key approval"},
-    {"id":"MAP-FIN-02","source":"ERP_DEALER_ACCOUNT","target":"finance.dealer_accounts","status":"TECHNICALLY_PRESENT","observedCount":2,"remaining":"Pilot dealer code and canonical key approval"},
+    {"id":"MAP-FIN-02","source":"ERP_DEALER_LEGAL_ENTITY_AND_ACCOUNT","target":"finance.dealer_legal_entities and finance.dealer_accounts","status":"TECHNICALLY_PRESENT","observedDealerLegalEntityCount":2,"observedDealerAccountCount":2,"remaining":"Pilot dealer code and canonical key approval"},
     {"id":"MAP-FIN-03","source":"ERP_BRANCH","target":"finance.branches","status":"TECHNICALLY_PRESENT","observedCount":2,"remaining":"SCOPE-B1 and SCOPE-B2 pilot-code approval"},
     {"id":"MAP-FIN-04","source":"ERP_USER_ROLE_SCOPE","target":"app_users plus finance_private.erp_branch_scope_mappings","status":"TECHNICALLY_PRESENT_PENDING_SESSION","observedFinanceRoleCount":1,"observedBranchManagerCount":2,"observedActiveErpBranchMappingCount":3,"observedDuplicateMappingCount":0,"remaining":"Authenticated role matrix and cross-branch 403 browser/API evidence"},
-    {"id":"MAP-FIN-05","source":"FRANCHISE_CONTRACT","target":"finance.franchise_contracts and contract_versions","status":"TECHNICALLY_PRESENT","observedContractCount":2,"observedVersionCount":2,"remaining":"Pilot contract reference, active-version and commercial approval"},
-    {"id":"MAP-FIN-06","source":"ERP_SERVICE_QUERY_CODE","target":"finance.fee_definitions and contract fee rules","status":"PARTIAL","observedFeeRuleCount":2,"remaining":"TRAMER, KM, TRAMER 360 and all pilot service-code mapping approval"},
+    {"id":"MAP-FIN-05","source":"FRANCHISE_CONTRACT","target":"finance.franchise_contracts and contract_versions","status":"TECHNICALLY_PRESENT_NOT_SIGNED","observedActiveContractCount":2,"observedActiveVersionCount":2,"remaining":"Pilot contract reference and Franchise Management commercial signoff"},
+    {"id":"MAP-FIN-06","source":"ERP_SERVICE_QUERY_CODE","target":"finance.fee_definitions and contract fee rules","status":"PARTIAL","observedPublishedFeeDefinitionCount":1,"observedActiveFeeRuleCount":2,"remaining":"TRAMER, KM, TRAMER 360 and all pilot service-code mapping approval"},
     {"id":"MAP-FIN-07","source":"ERP_TAX_CODE","target":"finance.tax_codes and tax_code_versions","status":"TECHNICALLY_PRESENT_NOT_APPROVED","observedTaxCodeCount":1,"observedActiveVersionCount":1,"remaining":"Mali Musavir accounting and tax-code approval"},
-    {"id":"MAP-FIN-08","source":"ERP_ACCOUNT_CODE","target":"finance.accounting_mappings","status":"NOT_EVIDENCED","remaining":"Receivable, revenue, tax, reversal and export account mapping"}
+    {"id":"MAP-FIN-08","source":"ERP_ACCOUNT_CODE","target":"finance.accounting_mappings","status":"TECHNICALLY_PRESENT_NOT_APPROVED","observedActiveMappingCount":1,"remaining":"Mali Musavir approval for receivable, revenue, tax, reversal and export account coverage"}
   ],
   "reconciliation": {
     "identitySourceCount": 2,
