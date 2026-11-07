@@ -6,6 +6,7 @@ $startedAt = [DateTimeOffset]::UtcNow
 $checks = @(
   'Test-FinanceMigrationManifest.ps1',
   'Test-FinanceStagingDeploymentManifest.ps1',
+  'Test-FinanceStagingDeploymentDrift.ps1',
   'Test-FinanceStagingErpDemoRuntimeAudit.ps1',
   'Test-FinanceScopeB2AuthenticatedUat.ps1',
   'Test-FinanceAuthenticatedSecurityUat.ps1',

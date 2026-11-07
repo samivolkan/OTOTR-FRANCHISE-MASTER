@@ -1454,3 +1454,10 @@ Sınırlar: otomatik fotogrametri, üretici model kütüphanesi, buluttan ses/vi
 - İki ayrı staging access tokenıyla Merkez Finans ve Şube Yöneticisi kapsam matrisini kullanan güvenlik koşucusu eklendi. Tokenlar yalnız süreç belleğinden okunur ve kanıta yazılmaz.
 - Koşucu kendi şube özeti, çapraz şube 403, kendi kapsamında export, çapraz export 403, anonim 401, geçersiz origin 403 ve başarılı yanıtlarda kişisel/gizli alan yokluğunu tek koşuda doğrular.
 - Mock sözleşme testleri geçti; yasak kişisel alan içeren başarılı yanıt fail-closed reddedildi. Güvenli tokenlar bu süreç ortamında bulunmadığı için hosted koşu yapılmadı ve SEC-FIN-02/03/06/08 ilerletilmedi.
+
+## 2026-11-07 — FIN-G05/10 staging dağıtım drift denetimi
+
+- `scripts/Test-FinanceLocalAcceptance.ps1`: PASS, 80/80 checks, `LOCAL_ONLY`, `productionDataUsed: false`.
+- Supabase migration geçmişi ile 153 kayıtlı finans manifesti karşılaştırıldı. İlk 138 migration staging bundle'ında; sonraki 15 patch'in tamamı semantik ad eşlemesiyle mevcut. Eksik `finance_outbox_worker_identity_bridge` migration'ı staging'e uygulandı; `anon/authenticated` execute kapalı, `service_role` açık ve hiçbir outbox satırı hareket etmedi.
+- Beklenen 13 finans Edge Function paketinin 12'si aktif; `finance-outbox-worker` staging'de yok. Bu bulgu 11 PENDING outbox kaydında attempt sayısının sıfır olmasıyla tutarlıdır, ancak nedensellik kontrollü deployment/tatbikat yapılmadan iddia edilmez.
+- Eksik worker güvenli route/teslim ayarlarıyla dağıtılıp lease/ACK/retry/dead-letter tatbikatı kanıtlanana kadar FIN-G05 ve FIN-G10 `PENDING`, pre-production `NO_GO` kalır.
