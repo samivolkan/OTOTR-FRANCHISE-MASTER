@@ -39,13 +39,16 @@
     "requireControlledAckRetryDeadLetterDrill": true
   },
   "predeploymentHardening": {
-    "packageSha256": "500f55925f6aa290d5374728edad4423a1b7ef110b96597ba9ebdfb3da31b045",
+    "packageSha256": "779a5cde2601ac88e25d45b2c8883f28f77d6091d77bc224014f30d8c48c5d95",
     "missingWorkerIdentityStatus": 401,
     "invalidConfigurationStatus": 503,
     "allRoutesValidatedBeforeMessageClaim": true,
     "invalidRouteNetworkCalls": 0,
     "personalDataOrSecretPayloadNetworkCalls": 0,
     "unsafePayloadRetryable": false,
+    "malformedClaimOrMessageDeliveryCalls": 0,
+    "acknowledgementFailureRetryable": true,
+    "failurePersistenceUnavailableStatus": 503,
     "unconfiguredTopicRetryable": false,
     "tests": ["Test-FinanceOutboxWorker.ps1", "Test-FinanceOutboxWorkerE2E.ps1"]
   },
