@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "module": "OTOTR_FRANCHISE_FINANCE",
+  "environment": "ototr-staging",
+  "projectRef": "bsjkohwbtrfwrqcyhsfz",
+  "function": {
+    "name": "finance-command",
+    "id": "f2f17287-70a9-4d32-99c8-7430d5028ea2",
+    "version": 7,
+    "status": "ACTIVE",
+    "verifyJwt": true,
+    "deploymentSha256": "b9c8b0d7a017dc717f8e839a197feea195863690c13bab07025642ee78b4c814"
+  },
+  "source": {
+    "branch": "codex/gm-finans-release",
+    "commit": "fd97ee2"
+  },
+  "verification": {
+    "createContractVersionDraftPresent": true,
+    "createContractFeeRuleDraftPresent": true,
+    "deployedPackageReadBack": "MATCHED",
+    "unauthenticatedHttpStatus": 401,
+    "jwtBoundary": "PASSED",
+    "localAcceptance": "60_OF_60_PASSED",
+    "productionDataUsed": false
+  },
+  "gateImpact": {
+    "FIN-G05": "PENDING",
+    "preProductionDecision": "NO_GO",
+    "reason": "Authenticated ERP draft creation and commercial Secret-backed rule materialization remain to be executed in staging."
+  }
+}
