@@ -1567,3 +1567,11 @@ Sınırlar: otomatik fotogrametri, üretici model kütüphanesi, buluttan ses/vi
 - Staging katalog kontrolü 15/15 indeksi, 52/52 RLS ve FORCE RLS durumunu doğruladı; finans için kapsayıcı indeksi eksik yabancı anahtar bulgusu sıfıra indi.
 - `scripts/Test-FinanceLocalAcceptance.ps1`: PASS, 94/94 checks, `LOCAL_ONLY`, `productionDataUsed: false`.
 - `finance-outbox-worker`, gerçek iki-rol UAT ve yetkili imzalar eksik olduğundan pre-production kararı `NO_GO` kalır.
+
+## 2026-11-07 — Güvenli iki-rol UAT secret aktarımı
+
+- Merkez Finans ve Şube Yöneticisi demo hesap bilgilerini repository dosyasına veya komut argümanına yazmadan `ototr-staging` GitHub Environment alanına aktaran etkileşimli araç eklendi.
+- Parolalar `SecureString` olarak alınır, yalnız standart girdiyle `gh secret set` komutuna verilir ve bellek işaretçisi işlem sonunda sıfırlanır. Son kontrol yalnız secret adlarını okur.
+- Statik güvenlik sözleşmesi; farklı iki rol, beş gerekli secret adı, dosyaya yazmama ve değerleri ekrana basmama kurallarını doğruladı.
+- `scripts/Test-FinanceLocalAcceptance.ps1`: PASS, 95/95 checks, `LOCAL_ONLY`, `productionDataUsed: false`.
+- Gerçek hesap parolaları yetkili tarafından girilmeden hosted UAT çalıştırılmaz ve pre-production kararı `NO_GO` kalır.

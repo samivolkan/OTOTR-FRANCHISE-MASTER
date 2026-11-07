@@ -13,6 +13,7 @@ $checks = @(
   'Test-FinanceCredentialAuthenticatedUat.ps1',
   'Test-FinanceGithubStagingEnvironment.ps1',
   'Test-FinanceGithubStagingEnvironmentEvidenceRefresh.ps1',
+  'Test-FinanceGithubStagingSecretProvisioning.ps1',
   'Test-FinanceHostedAuthenticatedUatEvidenceContract.ps1',
   'Test-FinanceStagingReconciliationContract.ps1',
   'Test-FinanceStagingIdentityScopeArchitecture.ps1',

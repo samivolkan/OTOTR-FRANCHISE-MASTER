@@ -11,6 +11,14 @@ Workflow: `.github/workflows/finance-staging-authenticated-uat.yml`
 
 Workflow ayrıca önceden yapılandırılmış `OTOTR_FINANCE_UAT_PUBLISHABLE_KEY` değerini kullanır.
 
+Yetkili Windows oturumunda dört rol bilgisini dosyaya veya komut argümanına yazmadan eklemek için repository kökünde aşağıdaki araç çalıştırılır:
+
+```powershell
+& scripts/Set-FinanceGithubStagingUatSecrets.ps1
+```
+
+Araç parolaları `SecureString` olarak alır, değerleri yalnız standart girdi üzerinden `gh secret set` komutuna aktarır ve yerel dosyaya yazmaz. Son kontrol yalnız beş secret adını okur; değerler geri okunamaz ve ekrana basılmaz.
+
 Merkez Finans ve Şube Yöneticisi farklı Auth kullanıcıları olmalıdır. Workflow yalnız manuel `workflow_dispatch` ile çalışır; repository içeriğini değiştirme yetkisi yoktur. Parolalar Supabase Auth üzerinden kısa ömürlü oturumlara çevrilir, access tokenlar kanıta alınmaz ve koşu sonunda iki oturum için local logout çağrısı yapılır.
 
 Başarılı koşu iki aggregate-only artifact üretir:
