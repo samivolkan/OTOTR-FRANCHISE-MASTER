@@ -1447,3 +1447,10 @@ Sınırlar: otomatik fotogrametri, üretici model kütüphanesi, buluttan ses/vi
 - Salt-okunur katalog denetiminde 54 finans/özel tablo bulundu. 52 ham finans tablosu RLS + FORCE RLS kullanır; iki iç kimlik/eşleme tablosu tarayıcıya kapalı `finance_private` şemasındadır. `anon` ve `authenticated` için finans tablo grantı ve iki finans şemasında USAGE yetkisi sıfırdır.
 - Dört Storage politika yardımcısı `SECURITY DEFINER` olsa da sabit `search_path` kullanır, özel şemadadır ve tarayıcı rolleri şema USAGE yetkisine sahip olmadığından doğrudan çağrılamaz.
 - Güncel danışman proje genelinde üç finans-dışı WARN sınıfı ve Auth için sızmış parola korumasının kapalı olduğu uyarısını veriyor. Bu nedenle FIN-G08 gerçek oturum testleri, parola koruması kararı ve Bilgi Güvenliği/KVKK imzası olmadan `PENDING` kalır.
+
+## 2026-11-07 — FIN-G08 kimlikli güvenlik UAT koşucusu
+
+- `scripts/Test-FinanceLocalAcceptance.ps1`: PASS, 79/79 checks, `LOCAL_ONLY`, `productionDataUsed: false`.
+- İki ayrı staging access tokenıyla Merkez Finans ve Şube Yöneticisi kapsam matrisini kullanan güvenlik koşucusu eklendi. Tokenlar yalnız süreç belleğinden okunur ve kanıta yazılmaz.
+- Koşucu kendi şube özeti, çapraz şube 403, kendi kapsamında export, çapraz export 403, anonim 401, geçersiz origin 403 ve başarılı yanıtlarda kişisel/gizli alan yokluğunu tek koşuda doğrular.
+- Mock sözleşme testleri geçti; yasak kişisel alan içeren başarılı yanıt fail-closed reddedildi. Güvenli tokenlar bu süreç ortamında bulunmadığı için hosted koşu yapılmadı ve SEC-FIN-02/03/06/08 ilerletilmedi.
