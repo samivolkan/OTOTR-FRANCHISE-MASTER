@@ -1,0 +1,45 @@
+{
+  "schemaVersion": 1,
+  "module": "OTOTR_FRANCHISE_FINANCE",
+  "target": "STAGING",
+  "environment": "ototr-staging",
+  "projectRef": "bsjkohwbtrfwrqcyhsfz",
+  "checkedAtUtc": "2026-11-07T02:47:51Z",
+  "observationSource": "SUPABASE_MANAGEMENT_API_AND_UNIFIED_LOGS",
+  "projectStatus": "ACTIVE_HEALTHY",
+  "function": {
+    "name": "finance-erp-demo",
+    "id": "41f34c11-4a23-4db5-af36-725c82b3f72b",
+    "version": 7,
+    "status": "ACTIVE",
+    "verifyJwt": true,
+    "hostedBundleSha256": "720bf4c95ace917636774f8f95903bfdf86a2c6976b47c9df02e4f40cff1a6f6",
+    "repositoryManifestPackageSha256": "9457cc11ed811f6a4ad177da2b28167528d673dc935236cbcdb59c4cf9f1f109",
+    "hashSchemeComparable": false
+  },
+  "runtimeWindow": {
+    "lookbackHours": 24,
+    "version7RequestCount": 1,
+    "version7UnauthorizedRequestCount": 1,
+    "version7AcceptedRequestCount": 0,
+    "version7RuntimeEventCount": 0,
+    "latestObservedVersion": 7,
+    "latestObservedAtUtc": "2026-11-07T01:56:14.856Z",
+    "observedStatusCodes": [401]
+  },
+  "interpretation": {
+    "deploymentVerified": true,
+    "unauthenticatedPerimeterVerified": true,
+    "authenticatedRuntimeInvocationVerified": false,
+    "erpEndToEndScenarioVerified": false,
+    "scopeB2RoyaltyBalanceVerified": false,
+    "reason": "Version 7 is active and rejected the observed unauthenticated request with HTTP 401. No accepted version 7 request or runtime event was observed, so ERP initiation and SCOPE-B2 financial results remain unverified."
+  },
+  "security": {
+    "productionDataUsed": false,
+    "secretValuesRecorded": false,
+    "requestBodiesRecorded": false,
+    "authorizationValuesRecorded": false
+  },
+  "preProductionDecision": "NO_GO"
+}

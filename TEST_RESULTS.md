@@ -1409,3 +1409,9 @@ Sınırlar: otomatik fotogrametri, üretici model kütüphanesi, buluttan ses/vi
 - Yedi bedel ailesi için tek, sürümlü vergi ve muhasebe karar kaydı oluşturuldu. Royalty brüt tahsilat matrahı, hesaplanan bedele ayrıca yüzde 20 KDV, masraf hizmet bedeli KDV davranışı ve bağlı ters kayıt provenance ilkeleri korundu.
 - Canlı vergi kodu veya hesap planı tahmin edilmedi. Fatura/iade belge tipi, yuvarlama, vergi kodu sürümleri ve muhasebe hesapları boş ve `PENDING_ADVISOR_APPROVAL` durumundadır.
 - Onay için Mali Müşavir ve Finans Direktörü farklı kurumsal kimlikleri, depo içi göreli kanıt yolu, SHA-256 ve imza zamanı zorunludur. FIN-G02 bu koşullar sağlanana kadar `PENDING` ve pre-production `NO_GO` kalır.
+
+## 2026-11-07 — finance-erp-demo v7 staging runtime denetimi
+
+- Supabase Management API, staging üzerinde `finance-erp-demo` v7 durumunu `ACTIVE` ve JWT doğrulamasını açık olarak doğruladı.
+- Unified Logs son 24 saatte v7 için bir istek gösterdi; istek HTTP 401 ile reddedildi. Kabul edilmiş kimlikli istek ve v7 runtime olayı yoktur.
+- Bu kanıt yalnız yetkisiz çevre erişiminin kapalı olduğunu ispatlar. Gerçek ERP tarayıcı başlangıcı, SCOPE-B2 tahsilat/iade sonucu ve iki rolün finans görünümü halen doğrulanmamıştır; FIN-G05 `PENDING`, pre-production `NO_GO` kalır.
