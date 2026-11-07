@@ -56,34 +56,36 @@ export function createFinanceCommercialSecretConfig({getSecret} = {}) {
     throw new FinanceCommercialConfigError('COMMERCIAL_SECRET_PROVIDER_REQUIRED', 'Server-side commercial secret provider is required.');
   }
 
-  const queryAmounts = new Map(Object.entries(FINANCE_COMMERCIAL_SECRET_NAMES.queryAmounts).map(([serviceCode, secretName]) => [
-    serviceCode,
-    decimalToString(readDecimal(getSecret, secretName), 2),
-  ]));
-  const markupPercent = readDecimal(getSecret, FINANCE_COMMERCIAL_SECRET_NAMES.passThroughMarkupPercent, {maximumExclusive: ONE_HUNDRED});
-  const markupRate = decimalToString(divideDecimal(markupPercent, ONE_HUNDRED, 8, 'HALF_UP'));
-  const royaltyPercent = readDecimal(getSecret, FINANCE_COMMERCIAL_SECRET_NAMES.royaltyDefaultPercent, {maximumExclusive: ONE_HUNDRED});
-  const royaltyRate = decimalToString(divideDecimal(royaltyPercent, ONE_HUNDRED, 8, 'HALF_UP'));
-
   return Object.freeze({
     materializeDefaultRoyaltyCalculation() {
+      const royaltyPercent = readDecimal(getSecret, FINANCE_COMMERCIAL_SECRET_NAMES.royaltyDefaultPercent, {maximumExclusive: ONE_HUNDRED});
+      const royaltyRate = decimalToString(divideDecimal(royaltyPercent, ONE_HUNDRED, 8, 'HALF_UP'));
       return immutableCalculation('PERCENTAGE', {rate: royaltyRate});
     },
     materializeQueryCalculation(serviceCode) {
-      if (!queryAmounts.has(serviceCode)) {
+      const secretName = FINANCE_COMMERCIAL_SECRET_NAMES.queryAmounts[serviceCode];
+      if (!secretName) {
         throw new FinanceCommercialConfigError('QUERY_SERVICE_NOT_CONFIGURED', 'Query service code is not configured.');
       }
-      return immutableCalculation('FIXED', {amount: queryAmounts.get(serviceCode)});
+      return immutableCalculation('FIXED', {amount: decimalToString(readDecimal(getSecret, secretName), 2)});
     },
     materializePassThroughCalculation() {
+      const markupPercent = readDecimal(getSecret, FINANCE_COMMERCIAL_SECRET_NAMES.passThroughMarkupPercent, {maximumExclusive: ONE_HUNDRED});
+      const markupRate = decimalToString(divideDecimal(markupPercent, ONE_HUNDRED, 8, 'HALF_UP'));
       return immutableCalculation('COST_PLUS', {markupRate});
     },
     publicStatus() {
       return Object.freeze({
-        queryServiceCodes: Object.freeze([...queryAmounts.keys()]),
-        queryAmountsConfigured: queryAmounts.size === Object.keys(FINANCE_COMMERCIAL_SECRET_NAMES.queryAmounts).length,
-        passThroughMarkupConfigured: true,
-        royaltyDefaultConfigured: true,
+        queryServiceCodes: Object.freeze(Object.keys(FINANCE_COMMERCIAL_SECRET_NAMES.queryAmounts)),
+        queryAmountsConfigured: Object.values(FINANCE_COMMERCIAL_SECRET_NAMES.queryAmounts).every(secretName => {
+          try { readDecimal(getSecret, secretName); return true; } catch { return false; }
+        }),
+        passThroughMarkupConfigured: (() => {
+          try { readDecimal(getSecret, FINANCE_COMMERCIAL_SECRET_NAMES.passThroughMarkupPercent, {maximumExclusive: ONE_HUNDRED}); return true; } catch { return false; }
+        })(),
+        royaltyDefaultConfigured: (() => {
+          try { readDecimal(getSecret, FINANCE_COMMERCIAL_SECRET_NAMES.royaltyDefaultPercent, {maximumExclusive: ONE_HUNDRED}); return true; } catch { return false; }
+        })(),
         currency: 'TRY',
         productionValuesExposed: false,
       });

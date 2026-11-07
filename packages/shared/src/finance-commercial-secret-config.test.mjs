@@ -55,16 +55,27 @@ function input(extra = {}) {
 test('secure catalog materializes fixed query amounts without public value exposure', () => {
   const requested = [];
   const config = createFinanceCommercialSecretConfig({getSecret(name) { requested.push(name); return secrets.get(name); }});
-  assert.deepEqual(requested, [
-    ...Object.values(FINANCE_COMMERCIAL_SECRET_NAMES.queryAmounts),
-    FINANCE_COMMERCIAL_SECRET_NAMES.passThroughMarkupPercent,
-    FINANCE_COMMERCIAL_SECRET_NAMES.royaltyDefaultPercent,
-  ]);
   const result = evaluateFeeRule(rule(config.materializeQueryCalculation('TRAMER_QUERY'), 'QUERY'), input());
   assert.deepEqual(result.amounts, {calculatedAmount: '250.00', netAmount: '250.00', taxAmount: '50.00', grossAmount: '300.00', currency: 'TRY'});
+  assert.deepEqual(requested, ['FINANCE_QUERY_TRAMER_TRY_AMOUNT']);
   const status = JSON.stringify(config.publicStatus());
   for (const value of secrets.values()) assert.equal(status.includes(value), false);
   assert.equal(config.publicStatus().productionValuesExposed, false);
+});
+
+test('missing unrelated commercial secrets do not block an available rule family', () => {
+  const queryOnly = createFinanceCommercialSecretConfig({getSecret: name => name === 'FINANCE_QUERY_KM_TRY_AMOUNT' ? '350' : undefined});
+  assert.deepEqual(queryOnly.materializeQueryCalculation('KM_QUERY').parameters, {amount: '350.00'});
+  assert.throws(() => queryOnly.materializeDefaultRoyaltyCalculation(), {code: 'COMMERCIAL_SECRET_INVALID'});
+  assert.throws(() => queryOnly.materializePassThroughCalculation(), {code: 'COMMERCIAL_SECRET_INVALID'});
+  assert.deepEqual(queryOnly.publicStatus(), {
+    queryServiceCodes: ['TRAMER_QUERY','KM_QUERY','TRAMER_360_QUERY'],
+    queryAmountsConfigured: false,
+    passThroughMarkupConfigured: false,
+    royaltyDefaultConfigured: false,
+    currency: 'TRY',
+    productionValuesExposed: false,
+  });
 });
 
 test('default royalty percentage is materialized only from server configuration', () => {
@@ -85,7 +96,7 @@ test('secure pass-through markup materializes COST_PLUS and adds tax separately'
 test('missing, invalid, out-of-range and unknown service configuration fail closed without leaking values', () => {
   for (const invalid of [undefined, 'abc', '0', '100']) {
     assert.throws(
-      () => createFinanceCommercialSecretConfig({getSecret: name => name === FINANCE_COMMERCIAL_SECRET_NAMES.passThroughMarkupPercent ? invalid : '1'}),
+      () => createFinanceCommercialSecretConfig({getSecret: name => name === FINANCE_COMMERCIAL_SECRET_NAMES.passThroughMarkupPercent ? invalid : '1'}).materializePassThroughCalculation(),
       error => error.code?.startsWith('COMMERCIAL_SECRET_') && !String(error.message).includes(String(invalid)),
     );
   }
