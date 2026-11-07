@@ -1559,3 +1559,11 @@ Sınırlar: otomatik fotogrametri, üretici model kütüphanesi, buluttan ses/vi
 - Yerel katalog, migration manifesti, temiz replay ve güvenli ticari yapılandırma testleri geçti; staging'de üç beklenen kodun üçü de yayımlanmış ve tekildir.
 - `scripts/Test-FinanceLocalAcceptance.ps1`: PASS, 94/94 checks, `LOCAL_ONLY`, `productionDataUsed: false`.
 - Sözleşme kuralı, yürürlük tarihi, vergi/muhasebe eşlemesi ve Operasyon/Mali Müşavir onayı tamamlanmadan pre-production kararı `NO_GO` kalır.
+
+## 2026-11-07 — Finans yabancı anahtar indeks iyileştirmesi
+
+- Canlı Supabase performans danışmanı ve katalog kontrolüyle finans şemasındaki kapsayıcı indeksi eksik yabancı anahtarlar doğrulandı.
+- On beş geri uyumlu indeks yerel ortama ve `ototr-staging` ortamına uygulandı; iş davranışı, RLS veya tarayıcı yetkileri değiştirilmedi.
+- Staging katalog kontrolü 15/15 indeksi, 52/52 RLS ve FORCE RLS durumunu doğruladı; finans için kapsayıcı indeksi eksik yabancı anahtar bulgusu sıfıra indi.
+- `scripts/Test-FinanceLocalAcceptance.ps1`: PASS, 94/94 checks, `LOCAL_ONLY`, `productionDataUsed: false`.
+- `finance-outbox-worker`, gerçek iki-rol UAT ve yetkili imzalar eksik olduğundan pre-production kararı `NO_GO` kalır.

@@ -3,17 +3,17 @@
   "module": "OTOTR_FRANCHISE_FINANCE",
   "target": "STAGING_DEPLOYMENT_DRIFT",
   "projectRef": "bsjkohwbtrfwrqcyhsfz",
-  "observedAtUtc": "2026-11-07T04:42:15.4807996Z",
+  "observedAtUtc": "2026-11-07T05:25:58.1353454Z",
   "productionDataUsed": false,
   "inspectionMode": "READ_ONLY_MANAGEMENT_API_AND_CATALOG",
   "status": "DRIFT",
   "migrationInventory": {
-    "expectedManifestCount": 156,
+    "expectedManifestCount": 157,
     "bundledSourceCount": 138,
-    "expectedPostBundleCount": 18,
-    "matchedPostBundleCount": 18,
+    "expectedPostBundleCount": 19,
+    "matchedPostBundleCount": 19,
     "missing": [],
-    "appliedHostedVersion": "20261107043802",
+    "appliedHostedVersion": "20261107052521",
     "versionRenamesObserved": true,
     "semanticNameMatchesUsed": true
   },
@@ -31,7 +31,7 @@
   },
   "decision": "NO_GO",
   "requiredRemediation": [
-    "All 156 manifest migrations are semantically present; the latest hosted migration is finance_query_service_catalog and no outbox row was moved.",
+    "All 157 manifest migrations are semantically present; the latest hosted migration is finance_foreign_key_covering_indexes and no outbox row was moved.",
     "Deploy finance-outbox-worker with approved route and delivery secret names; never commit secret values.",
     "Run controlled lease, ACK, retry and dead-letter drills and capture token-free evidence.",
     "Re-run migration and Edge Function inventory; require zero missing expected items before advancing FIN-G05 or FIN-G10."

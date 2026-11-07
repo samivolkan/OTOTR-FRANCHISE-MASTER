@@ -1,0 +1,28 @@
+{
+  "schemaVersion": 1,
+  "module": "OTOTR_FRANCHISE_FINANCE",
+  "target": "STAGING_FOREIGN_KEY_INDEX_REMEDIATION",
+  "projectRef": "bsjkohwbtrfwrqcyhsfz",
+  "observedAtUtc": "2026-11-07T05:25:58.1353454Z",
+  "productionDataUsed": false,
+  "migration": {
+    "semanticName": "finance_foreign_key_covering_indexes",
+    "hostedVersion": "20261107052521",
+    "repositoryFile": "supabase/migrations/20261107053000_finance_foreign_key_covering_indexes.sql",
+    "status": "APPLIED"
+  },
+  "verification": {
+    "expectedIndexCount": 15,
+    "observedIndexCount": 15,
+    "remainingFinanceUnindexedForeignKeyFindings": 0,
+    "financeTableCount": 52,
+    "financeRlsEnabledCount": 52,
+    "financeRlsForcedCount": 52
+  },
+  "interpretation": {
+    "businessBehaviorChanged": false,
+    "browserAccessChanged": false,
+    "unusedIndexFindingsExpectedBeforeTraffic": true,
+    "preProductionDecision": "NO_GO"
+  }
+}
