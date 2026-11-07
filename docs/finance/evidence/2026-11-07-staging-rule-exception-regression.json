@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 1,
+  "module": "OTOTR_FRANCHISE_FINANCE",
+  "target": "STAGING",
+  "environment": "ototr-staging",
+  "projectRef": "bsjkohwbtrfwrqcyhsfz",
+  "sourceCommit": "4486acb",
+  "migration": {
+    "name": "restore_accrual_rule_exception_precedence",
+    "sourceVersion": "20261107000325",
+    "applied": true
+  },
+  "verification": {
+    "resolverRestored": true,
+    "ruleProvenancePreserved": true,
+    "stalePendingPolicyGuardRemoved": true,
+    "anonymousExecuteDenied": true,
+    "authenticatedExecuteAllowed": true,
+    "chargeFamilyTransaction": "PASSED_ROLLED_BACK",
+    "chargeFamilies": [
+      "ENTRY_FRANCHISE",
+      "QUERY",
+      "EXTERNAL_SERVICE",
+      "OPTIONAL_PRODUCT_SERVICE"
+    ],
+    "deterministicBranchExceptionPrecedence": true,
+    "entryFranchiseOncePerBranch": true,
+    "idempotentReplay": true,
+    "persistentSyntheticRowsCreated": false
+  },
+  "securityAdvisor": {
+    "checkedBeforeMigration": true,
+    "financeBlockingFindingIntroduced": false,
+    "knownExternalWarning": "AUTH_LEAKED_PASSWORD_PROTECTION_DISABLED"
+  },
+  "productionDataUsed": false,
+  "productionApplied": false,
+  "preProductionDecision": "NO_GO"
+}
