@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import {
   createFinanceCommercialSecretConfig,
+  createFinanceCommercialRuleMaterializer,
   FINANCE_COMMERCIAL_SECRET_NAMES,
 } from './finance-commercial-secret-config.mjs';
 import {evaluateFeeRule} from './finance-rule-engine.mjs';
@@ -79,4 +80,17 @@ test('missing, invalid, out-of-range and unknown service configuration fail clos
   }
   const config = createFinanceCommercialSecretConfig({getSecret: name => secrets.get(name)});
   assert.throws(() => config.materializeQueryCalculation('UNKNOWN_QUERY'), {code: 'QUERY_SERVICE_NOT_CONFIGURED'});
+});
+
+test('server materializer replaces only approved descriptors and rejects browser supplied parameters', () => {
+  const materialize = createFinanceCommercialRuleMaterializer({getSecret: name => secrets.get(name)});
+  const base = rule({source: 'SERVER_COMMERCIAL_CONFIG', family: 'QUERY', serviceCode: 'KM_QUERY'}, 'QUERY');
+  const materialized = materialize(base);
+  assert.deepEqual(materialized.calculation, {
+    method: 'FIXED', parameters: {amount: '350.00'}, minimumAmount: null, maximumAmount: null,
+    currency: 'TRY', decimalScale: 2, roundingMode: 'HALF_UP',
+  });
+  assert.deepEqual(base.calculation, {source: 'SERVER_COMMERCIAL_CONFIG', family: 'QUERY', serviceCode: 'KM_QUERY'});
+  assert.throws(() => materialize({...base, calculation: {...base.calculation, amount: '1'}}), {code: 'COMMERCIAL_RULE_DESCRIPTOR_INVALID'});
+  assert.throws(() => materialize({...base, calculation: {source: 'BROWSER', family: 'QUERY', serviceCode: 'KM_QUERY'}}), {code: 'COMMERCIAL_RULE_SOURCE_INVALID'});
 });

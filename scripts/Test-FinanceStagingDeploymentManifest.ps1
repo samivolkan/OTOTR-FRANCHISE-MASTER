@@ -66,8 +66,13 @@ $erpDemoDirectory = Join-Path $root 'supabase\functions\finance-erp-demo'
 $erpDemoGraph = @(Get-RelativeImportGraph (Join-Path $erpDemoDirectory 'index.ts') $erpDemoDirectory)
 $erpDemoFiles = @($erpDemo.files | Sort-Object)
 if ($erpDemoGraph.Count -ne 26 -or (Compare-Object $erpDemoGraph $erpDemoFiles)) { throw 'finance-erp-demo manifest does not match its complete repository-local dependency graph.' }
+$financeCommand = @($manifest.functions | Where-Object name -eq 'finance-command')
+$financeCommandDirectory = Join-Path $root 'supabase\functions\finance-command'
+$financeCommandGraph = @(Get-RelativeImportGraph (Join-Path $financeCommandDirectory 'index.ts') $financeCommandDirectory)
+$financeCommandFiles = @($financeCommand.files | Sort-Object)
+if ($financeCommandGraph.Count -ne 5 -or @($financeCommandGraph | Where-Object { $_ -notin $financeCommandFiles }).Count) { throw 'finance-command manifest omits a repository-local runtime dependency.' }
 $serialized = $manifest | ConvertTo-Json -Depth 30
 if ($serialized -match 'sb_secret_|eyJ[A-Za-z0-9_-]{20,}|Bearer\s+\S+|https://[a-z0-9-]+\.supabase\.co') { throw 'Deployment manifest contains a secret value or concrete project endpoint.' }
 if (@($manifest.deploymentEvidenceRequired).Count -ne 9 -or 'dataApiSchemaEvidence' -notin $manifest.deploymentEvidenceRequired) { throw 'Staging deployment evidence contract is incomplete.' }
 Write-Host 'FINANCE STAGING DEPLOYMENT MANIFEST: PASSED' -ForegroundColor Green
-Write-Host '150 migrations; 12 immutable function packages; finance-erp-demo 26-file dependency graph, JWT policy and secret-name-only inventory verified; stagingApplied: false.'
+Write-Host '150 migrations; 12 immutable function packages; finance-command and finance-erp-demo dependency graphs, JWT policy and secret-name-only inventory verified; stagingApplied: false.'

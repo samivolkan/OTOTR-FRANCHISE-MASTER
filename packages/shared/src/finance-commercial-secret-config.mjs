@@ -83,3 +83,29 @@ export function createFinanceCommercialSecretConfig({getSecret} = {}) {
     },
   });
 }
+
+export function createFinanceCommercialRuleMaterializer({getSecret} = {}) {
+  return function materializeCommercialRule(rule) {
+    if (!rule || typeof rule !== 'object' || Array.isArray(rule) || !rule.calculation || typeof rule.calculation !== 'object' || Array.isArray(rule.calculation)) {
+      throw new FinanceCommercialConfigError('COMMERCIAL_RULE_INVALID', 'Commercial rule and server materialization descriptor are required.');
+    }
+    const descriptor = rule.calculation;
+    if (descriptor.source !== 'SERVER_COMMERCIAL_CONFIG' || !['QUERY', 'PASS_THROUGH_EXPENSE'].includes(descriptor.family)) {
+      throw new FinanceCommercialConfigError('COMMERCIAL_RULE_SOURCE_INVALID', 'Commercial rule must use the approved server configuration source.');
+    }
+    const config = createFinanceCommercialSecretConfig({getSecret});
+    let calculation;
+    if (descriptor.family === 'QUERY') {
+      if (Object.keys(descriptor).sort().join('|') !== 'family|serviceCode|source' || typeof descriptor.serviceCode !== 'string') {
+        throw new FinanceCommercialConfigError('COMMERCIAL_RULE_DESCRIPTOR_INVALID', 'Query materialization descriptor is invalid.');
+      }
+      calculation = config.materializeQueryCalculation(descriptor.serviceCode);
+    } else {
+      if (Object.keys(descriptor).sort().join('|') !== 'family|source') {
+        throw new FinanceCommercialConfigError('COMMERCIAL_RULE_DESCRIPTOR_INVALID', 'Pass-through materialization descriptor is invalid.');
+      }
+      calculation = config.materializePassThroughCalculation();
+    }
+    return Object.freeze({...structuredClone(rule), calculation});
+  };
+}

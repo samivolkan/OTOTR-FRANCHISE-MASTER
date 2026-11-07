@@ -11,4 +11,6 @@
 
 Oran secret'ı yüzde biçimindedir; materializasyon katmanı hesaplama motorunun kesirli oranına dönüştürür. Tutarlar pozitif, hizmet oranı `0 < oran < 100` olmak zorundadır. Eksik, geçersiz ve bilinmeyen hizmet kodu fail-closed reddedilir.
 
+ERP tarayıcısı `materializeCommercialFeeRule` komutunda yalnız `SERVER_COMMERCIAL_CONFIG` kaynağını, kural ailesini ve onaylı hizmet kodunu gönderir. Tutar ve oran istemciden kabul edilmez. `finance-command`, mevcut `finance.fee-rules.update` yetkisini doğruladıktan sonra kuralı sunucuda materyalize eder ve aynı service-role-only kayıt, idempotency, optimistic concurrency ve maker-checker yaşam döngüsünü kullanır. Resolver veya secret yapılandırması kullanılamazsa komut `COMMERCIAL_CONFIG_UNAVAILABLE` ile 503 döner; hata cevabı secret değerini içermez.
+
 Bu katman vergi kodu belirlemez. Hesaplama kuralının yayımlanması için onaylı vergi kodu sürümü, yürürlük tarihi, vade, maker-checker ve kanıt belgesi ayrıca zorunludur. Yerel testteki %20 oran yalnız kullanıcı kararının sentetik hesap doğrulamasıdır; mali müşavir onayı yerine geçmez.
