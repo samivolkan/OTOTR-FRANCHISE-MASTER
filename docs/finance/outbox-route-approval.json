@@ -32,6 +32,12 @@
     {"role":"Bilgi Güvenliği","status":"PENDING"},
     {"role":"Finans Operasyon","status":"PENDING"}
   ],
+  "stagingTopicInventoryEvidence": "docs/finance/evidence/2026-11-07-staging-outbox-topic-inventory.json",
+  "routeDecision": {
+    "status": "PENDING",
+    "allowedOptions": ["SINGLE_ERP_ENDPOINT", "DOMAIN_ENDPOINTS", "NO_ENDPOINT_YET"],
+    "selectedOption": null
+  },
   "deploymentPolicy": {
     "deployOnlyWhenApproved": true,
     "requireAtLeastOneRoute": true,

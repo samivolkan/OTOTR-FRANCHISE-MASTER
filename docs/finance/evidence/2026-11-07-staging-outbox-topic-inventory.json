@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "module": "OTOTR_FRANCHISE_FINANCE",
+  "target": "ototr-staging",
+  "projectRef": "bsjkohwbtrfwrqcyhsfz",
+  "observedAtUtc": "2026-11-07T05:09:25.2514429Z",
+  "inspectionMode": "AGGREGATE_TOPIC_EVENT_STATUS_ONLY",
+  "payloadsRead": false,
+  "productionDataUsed": false,
+  "status": "PENDING_ROUTE_APPROVAL",
+  "totals": {
+    "pendingMessages": 11,
+    "topics": 6,
+    "eventTypes": 10
+  },
+  "topics": [
+    {"topic":"finance.accounting","pendingMessages":3,"eventTypes":["ACCOUNTING_BATCH_READY","ACCOUNTING_EXPORT_QUEUED","ACCOUNTING_EXPORT_STATUS_CHANGED"]},
+    {"topic":"finance.accrual","pendingMessages":3,"eventTypes":["ACCRUAL_POSTED","ROYALTY_REFUND_REVERSED"]},
+    {"topic":"finance.billing","pendingMessages":1,"eventTypes":["BILLING_BATCH_READY"]},
+    {"topic":"finance.billing.export","pendingMessages":1,"eventTypes":["BILLING_BATCH_EXPORT_QUEUED"]},
+    {"topic":"finance.invoice","pendingMessages":2,"eventTypes":["INVOICE_ACCEPTED","INVOICE_STATUS_CHANGED"]},
+    {"topic":"finance.period","pendingMessages":1,"eventTypes":["HEADQUARTERS_FINANCE_PERIOD_LOCKED"]}
+  ],
+  "routeDecisionOptions": [
+    {"id":"SINGLE_ERP_ENDPOINT","description":"Altı topic aynı onaylı ERP HTTPS endpoint'ine teslim edilir."},
+    {"id":"DOMAIN_ENDPOINTS","description":"Muhasebe, tahakkuk, fatura ve dönem topic'leri ayrı onaylı HTTPS endpoint'lerine ayrılır."},
+    {"id":"NO_ENDPOINT_YET","description":"Worker dağıtılmaz; mesajlar staging kuyruğunda korunur ve yaş alarmı açık kalır."}
+  ],
+  "preProductionDecision": "NO_GO"
+}
