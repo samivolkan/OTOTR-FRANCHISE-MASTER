@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 1,
+  "module": "OTOTR_FRANCHISE_FINANCE",
+  "environment": "ototr-staging",
+  "projectRef": "bsjkohwbtrfwrqcyhsfz",
+  "source": {
+    "branch": "codex/gm-finans-release",
+    "commit": "92626dc",
+    "localMigration": "20261107005125_finance_contract_draft_create_identity_bridge.sql",
+    "hostedMigrationVersion": "20261107005542"
+  },
+  "verification": {
+    "migrationApplied": true,
+    "contractVersionCreateUsesErpIdentity": true,
+    "feeRuleCreateUsesErpIdentity": true,
+    "contractVersionCommitServiceRoleOnly": true,
+    "feeRuleCommitServiceRoleOnly": true,
+    "draftFeeRulesAfterMigration": 0,
+    "businessDataMutated": false,
+    "localAcceptance": "60_OF_60_PASSED"
+  },
+  "stagingInventory": {
+    "franchiseContracts": 2,
+    "contractVersions": 2,
+    "feeRules": 2,
+    "eligibleDealerAccounts": 2,
+    "activeBranches": 2,
+    "eligibleFinanceUsers": 2
+  },
+  "gateImpact": {
+    "FIN-G03": "PENDING",
+    "FIN-G04": "PENDING",
+    "FIN-G05": "PENDING",
+    "preProductionDecision": "NO_GO",
+    "reason": "Identity bridges are active, but an authenticated ERP command path must create a draft and complete commercial rule UAT."
+  },
+  "productionDataUsed": false
+}
