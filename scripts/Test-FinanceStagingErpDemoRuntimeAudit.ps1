@@ -29,7 +29,7 @@ if (-not $audit.interpretation.deploymentVerified -or $audit.preProductionDecisi
 
 $gateDocument = Get-Content -Raw -LiteralPath (Join-Path $root 'docs\finance\uat-preproduction-gates.json') | ConvertFrom-Json -Depth 20
 $gate = $gateDocument.gates | Where-Object id -eq 'FIN-G05'
-if ($gate.status -ne 'PENDING' -or $gate.blockingReason -notmatch 'SCOPE-B1' -or $gate.blockingReason -notmatch 'SCOPE-B2' -or $gate.blockingReason -notmatch '96 TL' -or $gate.blockingReason -notmatch 'PROCESSING') { throw 'FIN-G05 does not reflect the current ERP demo runtime and database blockers.' }
+if ($gate.status -ne 'PENDING' -or $gate.blockingReason -notmatch 'SCOPE-B1' -or $gate.blockingReason -notmatch 'SCOPE-B2' -or $gate.blockingReason -notmatch '96 TL' -or $gate.blockingReason -notmatch 'PROCESSED' -or $gate.blockingReason -notmatch 'v7') { throw 'FIN-G05 does not reflect the current ERP demo runtime and database blockers.' }
 
 $serialized = $audit | ConvertTo-Json -Depth 20
 if ($serialized -match '(?i)service.role.key|worker.password|bearer\s+|sb_secret_|eyJ[A-Za-z0-9_-]{20,}') { throw 'ERP demo runtime audit contains a secret-like value.' }

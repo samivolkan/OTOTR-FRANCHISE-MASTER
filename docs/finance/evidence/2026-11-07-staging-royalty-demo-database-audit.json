@@ -4,8 +4,8 @@
   "target": "STAGING",
   "environment": "ototr-staging",
   "projectRef": "bsjkohwbtrfwrqcyhsfz",
-  "observedAtUtc": "2026-11-07T01:41:46.9043170Z",
-  "repositoryCommitObserved": "8dfd604c3d097492561ebca73b8c6b8afa59069a",
+  "observedAtUtc": "2026-11-07T01:56:22.1114166Z",
+  "repositoryCommitObserved": "a1cf0ddffe042a43973174ee5b50e62495762287",
   "productionDataUsed": false,
   "dataClassification": "SYNTHETIC_AGGREGATE_ONLY",
   "branchResults": [
@@ -32,9 +32,9 @@
   ],
   "scopeB1Trace": {
     "sourceEventSequence": [
-      {"eventType":"customer-payment.settled","grossAmount":"600.00000000","status":"PROCESSING"},
-      {"eventType":"customer-payment.refunded","grossAmount":"200.00000000","status":"PROCESSING"},
-      {"eventType":"customer-payment.settled","grossAmount":"400.00000000","status":"PROCESSING"}
+      {"eventType":"customer-payment.settled","grossAmount":"600.00000000","status":"PROCESSED"},
+      {"eventType":"customer-payment.refunded","grossAmount":"200.00000000","status":"PROCESSED"},
+      {"eventType":"customer-payment.settled","grossAmount":"400.00000000","status":"PROCESSED"}
     ],
     "accrualSequence": [
       {"grossAmount":"72.00000000","status":"POSTED","isReversal":false},
@@ -55,9 +55,18 @@
     "journalBalanced": true,
     "invoiceGrossEqualsOpenItemNet": true
   },
+  "stagingDeployment": {
+    "migration": "finance_source_event_processed_terminal_state",
+    "triggerInstalled": true,
+    "legacyRefundRpcServiceRoleExecute": false,
+    "refundRpcV2ServiceRoleExecute": true,
+    "refundRpcV2AuthenticatedExecute": false,
+    "refundRpcV2AnonExecute": false,
+    "refundWorker": {"version":3,"status":"ACTIVE","verifyJwt":false,"unauthenticatedSmokeStatus":401},
+    "erpDemo": {"version":7,"status":"ACTIVE","verifyJwt":true,"unauthenticatedSmokeStatus":401}
+  },
   "notVerified": [
     "Scenario is recorded under SCOPE-B1, while the planned pilot branch is SCOPE-B2.",
-    "All three source events remain PROCESSING although their accruals are POSTED.",
     "The database rows alone do not prove that the flow was initiated from a real ERP browser session.",
     "Merkez Finans and Şube Yöneticisi authenticated browser views are not verified by this audit."
   ],

@@ -10,10 +10,14 @@ if($null-eq$b1-or$null-eq$b2-or@($e.branchResults).Count-ne 2){throw 'Both stagi
 if([decimal]$b1.settledCollectionGross-ne 1000-or[decimal]$b1.refundedGross-ne 200-or[decimal]$b1.royaltyAccrualGross-ne 96-or[decimal]$b1.openItemNet-ne 96-or[decimal]$b1.billingGross-ne 96){throw 'SCOPE-B1 600/400/200 -> 96 totals are inconsistent.'}
 if([decimal]$b2.settledCollectionGross-ne 0-or[decimal]$b2.royaltyAccrualGross-ne 0){throw 'SCOPE-B2 must remain explicitly unverified.'}
 if([decimal]$e.scopeB1Trace.journalDebit-ne[decimal]$e.scopeB1Trace.journalCredit){throw 'Staging journal is not balanced.'}
-if(@($e.scopeB1Trace.sourceEventSequence|Where-Object { $_.status -ne 'PROCESSING' }).Count-ne 0){throw 'Expected source-event PROCESSING discrepancy changed without evidence refresh.'}
-if(@($e.notVerified).Count-lt 4-or$e.gateImpact.'FIN-G05'-ne'PENDING'-or$e.gateImpact.'FIN-G06'-ne'PENDING'){throw 'Known staging gaps must remain visible.'}
+if(@($e.scopeB1Trace.sourceEventSequence|Where-Object { $_.status -ne 'PROCESSED' }).Count-ne 0){throw 'All posted staging source events must be terminalized as PROCESSED.'}
+$d=$e.stagingDeployment
+if($d.migration-ne'finance_source_event_processed_terminal_state'-or-not$d.triggerInstalled-or$d.legacyRefundRpcServiceRoleExecute-or-not$d.refundRpcV2ServiceRoleExecute-or$d.refundRpcV2AuthenticatedExecute-or$d.refundRpcV2AnonExecute){throw 'Staging migration or refund RPC ACL evidence is invalid.'}
+if($d.refundWorker.version-ne 3-or$d.refundWorker.status-ne'ACTIVE'-or$d.refundWorker.verifyJwt-or$d.refundWorker.unauthenticatedSmokeStatus-ne 401){throw 'Refund worker staging evidence is invalid.'}
+if($d.erpDemo.version-ne 7-or$d.erpDemo.status-ne'ACTIVE'-or-not$d.erpDemo.verifyJwt-or$d.erpDemo.unauthenticatedSmokeStatus-ne 401){throw 'ERP demo staging evidence is invalid.'}
+if(@($e.notVerified).Count-lt 3-or$e.gateImpact.'FIN-G05'-ne'PENDING'-or$e.gateImpact.'FIN-G06'-ne'PENDING'){throw 'Known staging gaps must remain visible.'}
 $raw=$e|ConvertTo-Json -Depth 30
 if($raw-match'(?i)customerName|fullName|phone|email|plate|tckn|vkn|iban|bankAccount|address|password|token'){throw 'Staging evidence contains forbidden sensitive fields.'}
 Write-Host 'FINANCE STAGING ROYALTY DEMO EVIDENCE: PASSED' -ForegroundColor Green
-Write-Host 'SCOPE-B1 600/400/200 -> 96 verified at database level; SCOPE-B2, ERP browser initiation and role views remain explicitly unverified.'
+Write-Host 'SCOPE-B1 600/400/200 -> 96 and PROCESSED lifecycle verified at database level; SCOPE-B2, ERP browser initiation and role views remain explicitly unverified.'
 
