@@ -23,11 +23,19 @@ jobs:
           OTOTR_FINANCE_UAT_BRANCH_MANAGER_PASSWORD: ${{ secrets.OTOTR_FINANCE_UAT_BRANCH_MANAGER_PASSWORD }}
           OTOTR_FINANCE_UAT_PUBLISHABLE_KEY: ${{ secrets.OTOTR_FINANCE_UAT_PUBLISHABLE_KEY }}
         run: node scripts/Invoke-FinanceCredentialAuthenticatedUat.mjs docs/finance/evidence/hosted-authenticated-uat
+      - name: Validate fail-closed UAT evidence
+        shell: pwsh
+        run: scripts/Test-FinanceHostedAuthenticatedUatEvidence.ps1 -EvidenceDirectory docs/finance/evidence/hosted-authenticated-uat
+      - name: Create evidence hash manifest
+        shell: bash
+        run: cd docs/finance/evidence/hosted-authenticated-uat && sha256sum *.json > evidence.sha256
       - name: Upload aggregate-only evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: finance-staging-authenticated-uat
-          path: docs/finance/evidence/hosted-authenticated-uat/*.json
+          path: |
+            docs/finance/evidence/hosted-authenticated-uat/*.json
+            docs/finance/evidence/hosted-authenticated-uat/evidence.sha256
           if-no-files-found: error
           retention-days: 30

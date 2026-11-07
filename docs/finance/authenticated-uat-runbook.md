@@ -19,3 +19,5 @@ Başarılı koşu iki aggregate-only artifact üretir:
 - `authenticated-security-uat.json`: IDOR, export kapsamı, anonim erişim, origin ve veri minimizasyonu kontrolleri.
 
 Artifact sonucu tek başına FIN-G04/07/08 kapılarını geçirmez. Yetkili rol sahiplerinin kanıt hashlerini incelemesi, tarayıcı ekran kabulü ve imzası gerekir.
+
+Workflow, yüklemeden önce `Test-FinanceHostedAuthenticatedUatEvidence.ps1` ile iki rolün farklılığını, şube matrisini, 600/400/200 işlem sırasını, 96 TRY bakiyeyi, çapraz şube `403` sonucunu ve güvenlik kontrollerini doğrular. Kanıt dosyaları için ayrıca `evidence.sha256` manifesti oluşturulur. İçerik doğrulaması veya hash üretimi başarısızsa artifact kabul edilmez.

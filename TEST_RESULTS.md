@@ -1478,3 +1478,10 @@ Sınırlar: otomatik fotogrametri, üretici model kütüphanesi, buluttan ses/vi
 - GitHub `ototr-staging` Environment oluşturuldu ve yalnız `codex/gm-finans-release` branch'iyle sınırlandı.
 - Supabase yayınlanabilir anahtarı değeri açığa çıkarılmadan Environment'a bağlandı; yalnız iki demo role ait dört giriş değeri eksik kaldı.
 - `scripts/Test-FinanceLocalAcceptance.ps1`: PASS, 83/83 checks, `LOCAL_ONLY`, `productionDataUsed: false`.
+
+## 2026-11-07 — Hosted iki-rol UAT kanıt doğrulaması
+
+- Workflow kanıtları upload öncesinde rol ayrılığı, şube görünürlüğü, 600/400/200 işlem sırası, iki rolde 96 TRY ve çapraz kapsam `403` için fail-closed doğrulanır.
+- IDOR, export, anonim erişim, origin ve veri minimizasyonu sonuçları doğrulanmadan artifact kabul edilmez.
+- JSON kanıtlarının SHA-256 manifesti workflow içinde üretilir; credential/raw payload alanları reddedilir.
+- `scripts/Test-FinanceLocalAcceptance.ps1`: PASS, 84/84 checks, `LOCAL_ONLY`, `productionDataUsed: false`.
