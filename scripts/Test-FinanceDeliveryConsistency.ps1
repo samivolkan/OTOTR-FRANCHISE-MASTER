@@ -5,6 +5,8 @@ $ErrorActionPreference = 'Stop'
 $root = Split-Path $PSScriptRoot -Parent
 $gatePath = Join-Path $root 'docs/finance/uat-preproduction-gates.json'
 $coveragePath = Join-Path $root 'docs/finance/erp-ui-coverage.json'
+$acceptancePath = Join-Path $PSScriptRoot 'Test-FinanceLocalAcceptance.ps1'
+$testResultsPath = Join-Path $root 'TEST_RESULTS.md'
 
 $gates = Get-Content -LiteralPath $gatePath -Raw | ConvertFrom-Json
 $coverage = Get-Content -LiteralPath $coveragePath -Raw | ConvertFrom-Json
@@ -32,5 +34,12 @@ foreach ($status in $expected.Keys) {
   if ($actual -ne $expected[$status]) { throw "Finance UI status $status expected $($expected[$status]), got $actual." }
 }
 
+$acceptanceRaw = Get-Content -LiteralPath $acceptancePath -Raw
+$declaredChecks = [regex]::Matches($acceptanceRaw, "(?m)^\s+'Test-[^']+\.ps1',?\s*$").Count
+$resultMatches = [regex]::Matches((Get-Content -LiteralPath $testResultsPath -Raw), 'Test-FinanceLocalAcceptance\.ps1`?: PASS, (\d+)/(\d+) checks')
+if ($resultMatches.Count -eq 0) { throw 'Current finance acceptance count is missing from TEST_RESULTS.md.' }
+$latestResult = $resultMatches[$resultMatches.Count - 1]
+if ([int]$latestResult.Groups[1].Value -ne $declaredChecks -or [int]$latestResult.Groups[2].Value -ne $declaredChecks) { throw "Latest finance acceptance result is stale; expected $declaredChecks/$declaredChecks." }
+
 Write-Host 'FINANCE DELIVERY CONSISTENCY: PASSED' -ForegroundColor Green
-Write-Host '12 gates PENDING/NO_GO; 17-screen coverage 0/2/9/4/2; stale acceptance counters excluded from canonical gates.'
+Write-Host "12 gates PENDING/NO_GO; 17-screen coverage 0/2/9/4/2; latest acceptance $declaredChecks/$declaredChecks; stale counters excluded from canonical gates."

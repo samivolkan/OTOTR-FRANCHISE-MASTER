@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "module": "OTOTR_FRANCHISE_FINANCE",
   "target": "PREPRODUCTION",
-  "updatedAtUtc": "2026-11-07T02:40:31Z",
+  "updatedAtUtc": "2026-11-07T02:43:14Z",
   "policy": {
     "defaultDecision": "NO_GO",
     "allGatesMustPass": true,
@@ -11,7 +11,7 @@
   },
   "gates": [
     {"id":"FIN-G01","name":"Ticari parametre onayı","owner":"Finans Direktörü","approvers":["Franchise Yönetimi","Hukuk"],"status":"PENDING","evidence":[],"blockingReason":"Royalty politikası, TRAMER/KM/TRAMER 360 güvenli fiyat kataloğu ve genel merkez masrafı hizmet oranı + KDV kararı kaydedildi. Giriş franchise, diğer hizmet/opsiyon, kesinti, vade, vergi kodu ve yürürlük alanları tamamlanmadı; Finans Direktörü, Franchise Yönetimi ve Hukuk imzası yok."},
-    {"id":"FIN-G02","name":"Vergi ve muhasebe görüşü","owner":"Mali Müşavir","approvers":["Finans Direktörü"],"status":"PENDING","evidence":[],"blockingReason":"KDV, belge tipi, hesap planı ve ters kayıt muhasebe görüşü bekleniyor."},
+    {"id":"FIN-G02","name":"Vergi ve muhasebe görüşü","owner":"Mali Müşavir","approvers":["Finans Direktörü"],"status":"PENDING","evidence":["docs/finance/tax-accounting-decision.json","docs/finance/tax-accounting-approval-intake.md"],"blockingReason":"Yedi bedel ailesini kapsayan sürümlü karar paketi hazırlandı; royalty ve masraf yansıtma için onaylanmış iş KDV davranışı ile bağlı ters kayıt/provenance ilkeleri kaydedildi. Ancak fatura ve iade belge tipleri, yuvarlama yöntemi, her aile için vergi kodu/sürümü, alacak-gelir-KDV-ters kayıt hesapları ve eksik fatura satır kodları henüz Mali Müşavir tarafından doldurulmadı. Mali Müşavir ile Finans Direktörünün farklı kurumsal kimliklerle imzalı kanıtı bekleniyor."},
     {"id":"FIN-G03","name":"ERP ana veri eşlemesi","owner":"ERP Ürün Sahibi","approvers":["Finans Operasyon"],"status":"PENDING","evidence":["docs/finance/evidence/2026-11-07-staging-erp-finance-mapping-status.json"],"blockingReason":"Staging envanterinde bir GM tüzel kişisi, iki bayi hesabı, iki şube, iki sözleşme/sürüm, iki ücret kuralı ve bir aktif teknik vergi sürümü kaydedildi; iki maskeli kimlik ve 12 kontrol toplamı fark/istisna olmadan eşleşti. Buna karşılık doğrudan finans kullanıcı-şube ataması sıfır, pilot sözleşme ve hizmet kodlarının iş onayı yok, muhasebe hesap eşlemesi kanıtlanmadı ve teknik vergi kaydı Mali Müşavir onayı sayılmıyor. ERP Ürün Sahibi ile Finans Operasyon kabulü bekleniyor."},
     {"id":"FIN-G04","name":"Kimlik, rol ve şube kapsamı","owner":"Bilgi Güvenliği","approvers":["ERP Teknik Lideri"],"status":"PENDING","evidence":[],"blockingReason":"SCOPE-B2 bakiye sorgusunda Merkez Finans erişimi ve Şube Yöneticisinin çapraz şube reddi staging veritabanında doğrulandı. Tarayıcı oturumu, tam rol matrisi, maker-checker ve imza bekleniyor."},
     {"id":"FIN-G05","name":"Gerçek ERP adaptörleri","owner":"Entegrasyon Lideri","approvers":["ERP Teknik Lideri"],"status":"PENDING","evidence":["docs/finance/evidence/2026-11-07-staging-royalty-demo-database-audit.json"],"blockingReason":"Staging veritabanında SCOPE-B1 için 600 ve 400 TL tahsilat, 200 TL iade, bağlı -24 TL ters kayıt ve 96 TL fatura/açık bakiye doğrulandı. Kaynak olaylar PROCESSED durumuna taşındı; refund RPC v2, refund worker v3 ve ERP demo v7 staging'e kuruldu ve yetkisiz erişim 401 ile reddedildi. Planlanan pilot SCOPE-B2 halen boş ve akışın gerçek ERP tarayıcı oturumundan başlatıldığı kanıtlanmadı; SCOPE-B2 ERP akışı ile iki rolün kabulü bekleniyor."},

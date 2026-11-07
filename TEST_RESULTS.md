@@ -1398,8 +1398,14 @@ Sınırlar: otomatik fotogrametri, üretici model kütüphanesi, buluttan ses/vi
 
 ## 2026-11-07 — GM Finans delivery consistency baseline
 
-- `scripts/Test-FinanceLocalAcceptance.ps1`: PASS, 73/73 checks, `LOCAL_ONLY`, `productionDataUsed: false`.
+- `scripts/Test-FinanceLocalAcceptance.ps1`: PASS, 74/74 checks, `LOCAL_ONLY`, `productionDataUsed: false`.
 - Canonical pre-production registry remains `NO_GO`: all 12 gates are `PENDING`; no synthetic, local or technical staging result was promoted to business approval.
 - Official UI inventory contains 17 screens: 0 `SHELL_ONLY`, 2 `PARTIAL_LIVE_READ`, 9 `PARTIAL_LIVE_WRITE`, 4 `LIVE_READ_VERIFIED`, 2 `LIVE_WRITE`.
 - Local recovery verification covers 52 finance tables and 191 API functions. The commercial configuration uses server-side secret names and values are not committed or exposed to browser assets.
 - Limits: hosted commercial-secret inventory, SCOPE-B2 real ERP browser initiation, signed two-role UAT, approved KDV/accounting mapping, staging load targets, outbox consumer binding, managed restore/rollback drill and final approvals remain open.
+
+## 2026-11-07 — FIN-G02 vergi ve muhasebe karar paketi
+
+- Yedi bedel ailesi için tek, sürümlü vergi ve muhasebe karar kaydı oluşturuldu. Royalty brüt tahsilat matrahı, hesaplanan bedele ayrıca yüzde 20 KDV, masraf hizmet bedeli KDV davranışı ve bağlı ters kayıt provenance ilkeleri korundu.
+- Canlı vergi kodu veya hesap planı tahmin edilmedi. Fatura/iade belge tipi, yuvarlama, vergi kodu sürümleri ve muhasebe hesapları boş ve `PENDING_ADVISOR_APPROVAL` durumundadır.
+- Onay için Mali Müşavir ve Finans Direktörü farklı kurumsal kimlikleri, depo içi göreli kanıt yolu, SHA-256 ve imza zamanı zorunludur. FIN-G02 bu koşullar sağlanana kadar `PENDING` ve pre-production `NO_GO` kalır.

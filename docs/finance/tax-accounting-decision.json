@@ -1,0 +1,55 @@
+{
+  "schemaVersion": 1,
+  "module": "OTOTR_FRANCHISE_FINANCE",
+  "gateId": "FIN-G02",
+  "environment": "PREPRODUCTION_CANDIDATE",
+  "status": "PENDING_ADVISOR_APPROVAL",
+  "countryCode": "TR",
+  "currencyCode": "TRY",
+  "documentDecimalScale": 2,
+  "storageDecimalScale": 8,
+  "roundingMode": null,
+  "documentPolicy": {
+    "outboundDocumentType": null,
+    "refundDocumentType": null,
+    "invoiceIssuer": "HEADQUARTERS_LEGAL_ENTITY",
+    "invoiceRecipient": "BRANCH_LEGAL_NAME",
+    "invoiceNumberSource": "ACCOUNTING_PROVIDER_CALLBACK",
+    "accountingExportRequiresBalancedJournal": true,
+    "postedDocumentMutationAllowed": false
+  },
+  "taxPolicy": {
+    "royaltyBasis": "FULL_SETTLED_CUSTOMER_GROSS_INCLUDING_VAT",
+    "royaltyChargeTreatment": "VAT_ADDED_TO_CALCULATED_ROYALTY",
+    "royaltyBusinessRatePercent": 20,
+    "passThroughServiceFeeTreatment": "VAT_ADDED_TO_MARKUP_SERVICE_FEE",
+    "passThroughBusinessRatePercent": 20,
+    "businessRatesAreAccountingApproval": false,
+    "taxCodeVersionRequiredBeforePublishing": true
+  },
+  "reversalPolicy": {
+    "method": "LINKED_REVERSAL_JOURNAL",
+    "directBalanceEditAllowed": false,
+    "preserveOriginalPeriodReference": true,
+    "preserveOriginalAccrualReference": true,
+    "lockedOriginalPeriodPosting": "CURRENT_OPEN_PERIOD",
+    "creditCarryForwardScope": "BRANCH",
+    "crossBranchTransferAllowed": false
+  },
+  "feeFamilyMappings": [
+    {"code":"ROYALTY","taxCode":null,"taxCodeVersionId":null,"receivableAccountCode":null,"revenueAccountCode":null,"taxPayableAccountCode":null,"reversalAccountCode":null,"invoiceLineCode":"ROYALTY_SERVICE_FEE"},
+    {"code":"ENTRY_FRANCHISE","taxCode":null,"taxCodeVersionId":null,"receivableAccountCode":null,"revenueAccountCode":null,"taxPayableAccountCode":null,"reversalAccountCode":null,"invoiceLineCode":null},
+    {"code":"QUERY","taxCode":null,"taxCodeVersionId":null,"receivableAccountCode":null,"revenueAccountCode":null,"taxPayableAccountCode":null,"reversalAccountCode":null,"invoiceLineCode":null},
+    {"code":"EXTERNAL_SERVICE","taxCode":null,"taxCodeVersionId":null,"receivableAccountCode":null,"revenueAccountCode":null,"taxPayableAccountCode":null,"reversalAccountCode":null,"invoiceLineCode":null},
+    {"code":"OPTIONAL_PRODUCT_SERVICE","taxCode":null,"taxCodeVersionId":null,"receivableAccountCode":null,"revenueAccountCode":null,"taxPayableAccountCode":null,"reversalAccountCode":null,"invoiceLineCode":null},
+    {"code":"PASS_THROUGH_EXPENSE","taxCode":null,"taxCodeVersionId":null,"receivableAccountCode":null,"revenueAccountCode":null,"taxPayableAccountCode":null,"reversalAccountCode":null,"invoiceLineCode":null},
+    {"code":"DEDUCTION_CREDIT","taxCode":null,"taxCodeVersionId":null,"receivableAccountCode":null,"revenueAccountCode":null,"taxPayableAccountCode":null,"reversalAccountCode":null,"invoiceLineCode":null}
+  ],
+  "approval": {
+    "financialAdvisorCorporateId": null,
+    "financeDirectorCorporateId": null,
+    "evidencePath": null,
+    "evidenceSha256": null,
+    "signedAtUtc": null
+  }
+}
