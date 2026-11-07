@@ -31,6 +31,8 @@ for(const screen of coverage.screens){
     assert.ok(screen.evidence.length>0,`${screen.id} live status requires evidence`);
     for(const evidence of screen.evidence) await access(join(repoRoot,evidence));
   }
+  if(screen.status.startsWith('PARTIAL_')) assert.ok(screen.remaining.length>0,`${screen.id} partial status must disclose remaining work`);
+  if(['LIVE_READ_VERIFIED','LIVE_WRITE'].includes(screen.status)) assert.equal(screen.remaining.length,0,`${screen.id} complete status cannot retain open work`);
 }
 for(const capability of coverage.crossScreenCapabilities){
   assert.equal(capability.status,'LIVE_READ_VERIFIED');
@@ -39,5 +41,5 @@ for(const capability of coverage.crossScreenCapabilities){
 }
 
 const counts=Object.fromEntries([...allowed].map(status=>[status,coverage.screens.filter(screen=>screen.status===status).length]));
-assert.deepEqual(counts,{SHELL_ONLY:0,PARTIAL_LIVE_READ:2,PARTIAL_LIVE_WRITE:6,LIVE_READ_VERIFIED:4,LIVE_WRITE:5});
+assert.deepEqual(counts,{SHELL_ONLY:0,PARTIAL_LIVE_READ:2,PARTIAL_LIVE_WRITE:9,LIVE_READ_VERIFIED:4,LIVE_WRITE:2});
 console.log(`PASS finance-ui-coverage: 17 screens; liveWrite=${counts.LIVE_WRITE}; verifiedRead=${counts.LIVE_READ_VERIFIED}; partialRead=${counts.PARTIAL_LIVE_READ}; partialWrite=${counts.PARTIAL_LIVE_WRITE}; shell=${counts.SHELL_ONLY}; decision=NO_GO`);

@@ -15,6 +15,7 @@ $checks = @(
   'Test-FinanceStagingOperationalSnapshot.ps1',
   'Test-FinanceStagingRecoveryReadiness.ps1',
   'Test-FinanceStagingErpMappingStatus.ps1',
+  'Test-FinanceUiCoverage.ps1',
   'Test-FinanceLocalReplay.ps1',
   'Test-FinanceRoyaltyE2E.ps1',
   'Test-FinanceRoyaltyRefundIdentityBridgeE2E.ps1',
