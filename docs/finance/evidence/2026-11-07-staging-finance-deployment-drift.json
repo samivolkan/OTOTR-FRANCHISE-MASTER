@@ -3,17 +3,17 @@
   "module": "OTOTR_FRANCHISE_FINANCE",
   "target": "STAGING_DEPLOYMENT_DRIFT",
   "projectRef": "bsjkohwbtrfwrqcyhsfz",
-  "observedAtUtc": "2026-11-07T04:50:00Z",
+  "observedAtUtc": "2026-11-07T04:42:15.4807996Z",
   "productionDataUsed": false,
   "inspectionMode": "READ_ONLY_MANAGEMENT_API_AND_CATALOG",
   "status": "DRIFT",
   "migrationInventory": {
-    "expectedManifestCount": 154,
+    "expectedManifestCount": 156,
     "bundledSourceCount": 138,
-    "expectedPostBundleCount": 16,
-    "matchedPostBundleCount": 16,
+    "expectedPostBundleCount": 18,
+    "matchedPostBundleCount": 18,
     "missing": [],
-    "appliedHostedVersion": "20261107041537",
+    "appliedHostedVersion": "20261107043802",
     "versionRenamesObserved": true,
     "semanticNameMatchesUsed": true
   },
@@ -26,12 +26,12 @@
   "runtimeCorrelation": {
     "pendingOutboxCount": 11,
     "attemptedOutboxCount": 0,
-    "oldestPendingAgeHoursApprox": 25,
+    "oldestPendingAgeHoursApprox": 27.7,
     "inference": "Missing outbox worker deployment is consistent with zero delivery attempts; causal proof requires deployment and a controlled staging dispatch drill."
   },
   "decision": "NO_GO",
   "requiredRemediation": [
-    "The immutable finance_outbox_worker_identity_bridge migration was applied and verified without moving outbox rows.",
+    "All 156 manifest migrations are semantically present; the latest hosted migration is finance_query_service_catalog and no outbox row was moved.",
     "Deploy finance-outbox-worker with approved route and delivery secret names; never commit secret values.",
     "Run controlled lease, ACK, retry and dead-letter drills and capture token-free evidence.",
     "Re-run migration and Edge Function inventory; require zero missing expected items before advancing FIN-G05 or FIN-G10."
