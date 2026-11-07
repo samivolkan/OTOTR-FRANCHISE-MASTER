@@ -3,8 +3,8 @@
   "module": "OTOTR_FRANCHISE_FINANCE",
   "environment": "ototr-staging",
   "projectRef": "bsjkohwbtrfwrqcyhsfz",
-  "observedAtUtc": "2026-11-07T01:10:09.4275537Z",
-  "inspectedCommit": "9862000d3371a1110693c4a47f7d70d5f804cf49",
+  "observedAtUtc": "2026-11-07T01:16:42.1174631Z",
+  "inspectedCommit": "05666a90bc70013ed8486b0eeb4ee04eddc23842",
   "productionDataUsed": false,
   "containsPersonalData": false,
   "projectStatus": "ACTIVE_HEALTHY",
@@ -61,11 +61,25 @@
     "financeErpDemo": {"httpStatus": 401, "message": "Missing authorization header"},
     "interpretation": "All three current staging entry points fail closed without an Authorization header; role and branch authorization still require authenticated UAT."
   },
+  "mutationIsolation": {
+    "financeApiMutationFunctions": 66,
+    "securityDefinerFunctions": 66,
+    "anonExecutableFunctions": 0,
+    "serviceRoleExecutableFunctions": 52,
+    "postgresOnlyFunctions": 12,
+    "authenticatedAllowlist": ["commit_invoice_acceptance", "ingest_source_event"],
+    "unexpectedAuthenticatedFunctions": [],
+    "allowlistedFunctionsRequireActor": true,
+    "allowlistedFunctionsRequireScopeAuthorization": true,
+    "allowlistedFunctionsUseFixedSearchPath": true,
+    "interpretation": "Every detected finance_api mutator is SECURITY DEFINER. No mutator is anon-executable. Authenticated execution is restricted to two named integration entry points that require auth.uid(), server-side scope authorization and an empty fixed search_path; all remaining mutators are service-role or postgres-only."
+  },
   "interpretation": {
     "proven": [
       "Staging project is healthy and contains two branches plus two finance-eligible and two branch-manager ERP identities.",
       "All 52 finance tables have RLS and FORCE RLS enabled.",
       "No finance schema usage or direct finance table/routine grant exists for anon, authenticated or public roles.",
+      "All 66 detected finance_api mutators are isolated from anon; the two authenticated integration entry points are explicitly allowlisted and enforce actor, scope and fixed search_path checks.",
       "One active tax-code version exists; this is technical inventory and is not accounting approval."
     ],
     "notProven": [
