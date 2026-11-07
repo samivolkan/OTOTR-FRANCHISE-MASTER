@@ -1475,4 +1475,5 @@ Sınırlar: otomatik fotogrametri, üretici model kütüphanesi, buluttan ses/vi
 - İki farklı hesap zorunlu; access tokenlar/parolalar kanıt dosyasına veya log özetine yazılmaz ve iki oturum koşu sonunda local logout ile kapatılır.
 - Manuel GitHub Actions workflow'u 96 TRY rol/kapsam senaryosu ile IDOR/export/anon/origin/veri minimizasyonu kontrollerini aynı koşuda yürütür.
 - Repository'de gerekli `ototr-staging` Environment secret adları henüz görünmediğinden hosted koşu yapılmadı; bu sınır FIN-G04/07/08 içinde açıkça korunur.
-- `scripts/Test-FinanceLocalAcceptance.ps1`: PASS, 82/82 checks, `LOCAL_ONLY`, `productionDataUsed: false`.
+- GitHub `ototr-staging` Environment oluşturuldu ve yalnız `codex/gm-finans-release` branch'iyle sınırlandı; gerekli beş güvenli değer henüz eklenmedi.
+- `scripts/Test-FinanceLocalAcceptance.ps1`: PASS, 83/83 checks, `LOCAL_ONLY`, `productionDataUsed: false`.
