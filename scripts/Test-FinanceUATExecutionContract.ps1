@@ -26,7 +26,7 @@ try {
   try { & (Join-Path $PSScriptRoot 'Test-FinanceUATExecution.ps1') -RequirePassed -EvidenceFile $tempEvidence } catch { $rejected = $_.Exception.Message -match 'Maker-checker' }
   if (-not $rejected) { throw 'Same-person UAT approval was not rejected.' }
   Write-Host 'FINANCE UAT EXECUTION CONTRACT: PASSED' -ForegroundColor Green
-  Write-Host 'All 18 scenario signoffs accepted; same-person approval rejected.'
+  Write-Host 'All 19 scenario signoffs accepted; same-person approval rejected.'
 } finally {
   foreach ($path in @($tempEvidence,$tempArtifact)) { if (Test-Path $path) { Remove-Item -LiteralPath $path -Force } }
 }

@@ -8,10 +8,10 @@ $root = (Resolve-Path (Join-Path $PSScriptRoot '..')).Path
 $document = Get-Content -Raw -LiteralPath (Resolve-Path $EvidenceFile) | ConvertFrom-Json -Depth 30
 if ($document.schemaVersion -ne 1 -or $document.module -ne 'OTOTR_FRANCHISE_FINANCE' -or $document.target -ne 'STAGING_UAT') { throw 'Invalid finance UAT execution identity.' }
 if ($document.productionDataUsed -or $document.preProductionDecision -ne 'NO_GO' -or $document.uatDecision -notin @('NOT_SIGNED','FAILED','PASSED')) { throw 'UAT execution policy is invalid.' }
-$roles = @('Finans Operasyon','Finans Operasyon','Finans Kontrol','Mali Müşavir','Franchise Yönetimi','Operasyon','Finans Operasyon','Finans Kontrol','Finans Direktörü','Finans Operasyon','Finans Kontrol','Muhasebe','Mali Müşavir','Finans Direktörü','Pilot Bayi Yetkilisi','Bilgi Güvenliği','ERP Teknik Lideri','KVKK Sorumlusu')
-if (@($document.scenarios).Count -ne 18) { throw 'Expected 18 UAT execution scenarios.' }
+$roles = @('Finans Operasyon','Finans Operasyon','Finans Kontrol','Mali Müşavir','Franchise Yönetimi','Operasyon','Finans Operasyon','Finans Kontrol','Finans Direktörü','Finans Operasyon','Finans Kontrol','Muhasebe','Mali Müşavir','Finans Direktörü','Pilot Bayi Yetkilisi','Bilgi Güvenliği','ERP Teknik Lideri','KVKK Sorumlusu','Franchise Yönetimi')
+if (@($document.scenarios).Count -ne 19) { throw 'Expected 19 UAT execution scenarios.' }
 $ids = @{}
-for ($i = 0; $i -lt 18; $i++) {
+for ($i = 0; $i -lt 19; $i++) {
   $scenario = $document.scenarios[$i]
   $expectedId = 'UAT-FIN-{0:d2}' -f ($i + 1)
   if ($scenario.id -ne $expectedId -or $ids.ContainsKey($scenario.id)) { throw "Invalid or duplicate UAT scenario: $($scenario.id)" }
@@ -38,5 +38,5 @@ if ($document.uatDecision -eq 'PASSED') {
   if ($document.run.deployedCommit -notmatch '^[a-f0-9]{40}$' -or @($document.scenarios | Where-Object status -ne 'PASSED').Count -gt 0) { throw 'UAT cannot pass until all scenarios pass on a full commit SHA.' }
 }
 Write-Host "FINANCE UAT EXECUTION: $($document.uatDecision)" -ForegroundColor $(if ($document.uatDecision -eq 'PASSED') {'Green'} else {'Yellow'})
-Write-Host "Scenarios: 18; passed: $(@($document.scenarios | Where-Object status -eq 'PASSED').Count); productionDataUsed: false; preProductionDecision: NO_GO"
+Write-Host "Scenarios: 19; passed: $(@($document.scenarios | Where-Object status -eq 'PASSED').Count); productionDataUsed: false; preProductionDecision: NO_GO"
 if ($RequirePassed -and $document.uatDecision -ne 'PASSED') { throw 'Finance UAT has not been signed and passed.' }

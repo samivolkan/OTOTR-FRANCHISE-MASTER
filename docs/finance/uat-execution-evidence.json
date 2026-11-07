@@ -23,7 +23,8 @@
     {"id":"UAT-FIN-15","approvalRole":"Pilot Bayi Yetkilisi","status":"NOT_RUN","executorCorporateId":null,"approverCorporateId":null,"executedAtUtc":null,"approvedAtUtc":null,"expectedResultSha256":null,"actualResultSha256":null,"controlTotalsMatch":null,"evidence":[]},
     {"id":"UAT-FIN-16","approvalRole":"Bilgi Güvenliği","status":"NOT_RUN","executorCorporateId":null,"approverCorporateId":null,"executedAtUtc":null,"approvedAtUtc":null,"expectedResultSha256":null,"actualResultSha256":null,"controlTotalsMatch":null,"evidence":[]},
     {"id":"UAT-FIN-17","approvalRole":"ERP Teknik Lideri","status":"NOT_RUN","executorCorporateId":null,"approverCorporateId":null,"executedAtUtc":null,"approvedAtUtc":null,"expectedResultSha256":null,"actualResultSha256":null,"controlTotalsMatch":null,"evidence":[]},
-    {"id":"UAT-FIN-18","approvalRole":"KVKK Sorumlusu","status":"NOT_RUN","executorCorporateId":null,"approverCorporateId":null,"executedAtUtc":null,"approvedAtUtc":null,"expectedResultSha256":null,"actualResultSha256":null,"controlTotalsMatch":null,"evidence":[]}
+    {"id":"UAT-FIN-18","approvalRole":"KVKK Sorumlusu","status":"NOT_RUN","executorCorporateId":null,"approverCorporateId":null,"executedAtUtc":null,"approvedAtUtc":null,"expectedResultSha256":null,"actualResultSha256":null,"controlTotalsMatch":null,"evidence":[]},
+    {"id":"UAT-FIN-19","approvalRole":"Franchise Yönetimi","status":"NOT_RUN","executorCorporateId":null,"approverCorporateId":null,"executedAtUtc":null,"approvedAtUtc":null,"expectedResultSha256":null,"actualResultSha256":null,"controlTotalsMatch":null,"evidence":[]}
   ],
   "preProductionDecision": "NO_GO"
 }

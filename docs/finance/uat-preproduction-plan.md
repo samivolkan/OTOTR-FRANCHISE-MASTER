@@ -43,6 +43,7 @@ Her satır için kaynak olay kimliği, correlation ID, sözleşme/kural sürüm�
 | UAT-FIN-16 | Çapraz bayi/şube erişimi | Başka kapsam için sonuç değil 403/kapalı hata; ham tablo erişimi yok | Bilgi Güvenliği |
 | UAT-FIN-17 | Hata, retry ve duplicate | Timeout/retry aynı finansal sonucu üretir; DLQ ve correlation izi görünür | Teknik Lider |
 | UAT-FIN-18 | Export ve kişisel veri | Yetkisiz export reddedilir; log/çıktıda gizli veya kişisel veri bulunmaz | KVKK Sorumlusu |
+| UAT-FIN-19 | İsteğe bağlı periyodik franchise bedeli | Onaylı sözleşme kuralı olmadan kapalı; aynı dönem tekrarı mükerrer tahakkuk üretmez | Franchise Yönetimi |
 
 ## UAT kayıt şablonu
 

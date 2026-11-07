@@ -1,6 +1,6 @@
 [CmdletBinding(SupportsShouldProcess)]
 param(
-  [Parameter(Mandatory)][ValidatePattern('^UAT-FIN-(0[1-9]|1[0-8])$')][string]$ScenarioId,
+  [Parameter(Mandatory)][ValidatePattern('^UAT-FIN-(0[1-9]|1[0-9])$')][string]$ScenarioId,
   [Parameter(Mandatory)][ValidateSet('PASSED','FAILED')][string]$Status,
   [Parameter(Mandatory)][string]$ExecutorCorporateId,
   [Parameter(Mandatory)][string]$ApproverCorporateId,

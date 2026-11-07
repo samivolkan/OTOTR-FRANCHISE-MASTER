@@ -1522,3 +1522,9 @@ Sınırlar: otomatik fotogrametri, üretici model kütüphanesi, buluttan ses/vi
 - Secret değerlerini hiçbir zaman okumadan yalnız gerekli adları ve izinli branch politikasını atomik kanıta dönüştüren yenileme aracı eklendi.
 - `scripts/Test-FinanceLocalAcceptance.ps1`: PASS, 88/88 checks, `LOCAL_ONLY`, `productionDataUsed: false`.
 - `scripts/Test-FinanceLocalAcceptance.ps1`: PASS, 89/89 checks, `LOCAL_ONLY`, `productionDataUsed: false`.
+
+## 2026-11-07 — UAT-FIN-19 periyodik franchise kabul senaryosu
+
+- Periyodik franchise bedeli UAT envanterine ayrı senaryo olarak eklendi; yerel otomasyon kanıtı ile staging/human signoff ayrımı korundu.
+- Staging sözleşme kuralı, gerçek zamanlayıcı olay teslimi, FIN-C12 kararı ve Franchise Yönetimi imzası tamamlanmadan sonuç `NOT_SIGNED / NO_GO` kalır.
+- UAT kapsamı 19 senaryodur; otomatik yerel başarı pre-production onayı sayılmaz.
