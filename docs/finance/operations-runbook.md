@@ -45,7 +45,7 @@ Yerel restore doğrulaması:
 pwsh -NoProfile -File scripts/Test-FinanceLocalBackupRestore.ps1
 ```
 
-Bu komut ERP kimlik bağımlılıkları ile `finance`, `finance_api` ve `finance_private` şemalarının yerel dump'ını alır; yalnız `ototr_finance_restore_verify` adlı ayrı veritabanını oluşturur, 48 finans tablosu ve 170 API fonksiyonunu karşılaştırır, ardından geçici hedefi ve dump dosyalarını siler. Supabase'in yönetilen `realtime`, storage veya auth sistem şemalarını restore etmez.
+Bu komut ERP kimlik bağımlılıkları ile `finance`, `finance_api` ve `finance_private` şemalarının yerel dump'ını alır; dump SHA-256 değerini üretir; yalnız `ototr_finance_restore_verify` adlı ayrı veritabanını oluşturur; 52 finans tablosu, 191 API fonksiyonu ve tahakkuk, yevmiye, açık kalem, ödeme ve dağıtım kontrol toplamlarını kaynakla karşılaştırır. Ardından geçici hedefi ve dump dosyalarını siler. Supabase'in yönetilen `realtime`, storage veya auth sistem şemalarını restore etmez.
 
 ## Pre-production tatbikat kayıt alanları
 

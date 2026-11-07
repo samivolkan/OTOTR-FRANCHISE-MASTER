@@ -9,7 +9,7 @@ if($p.defaultBranch-ne'main'-or$p.defaultBranchStatus-ne'ACTIVE_HEALTHY'-or$p.de
 $m=$e.migrationState
 if($m.latestAppliedFinanceMigrationVersion-ne'20261107015427'-or$m.localCandidateMigrationVersion-ne'20261107021500'-or$m.localCandidateAppliedToStaging){throw'Staging migration boundary is inconsistent.'}
 $r=$e.recoveryChecks
-if(-not$r.localSeparateDatabaseRestorePassed-or$r.localFinanceTableCount-ne 52-or$r.localFinanceApiFunctionCount-ne 191-or$r.managedBackupHistoryVerified-or$r.stagingRestoreDrillExecuted-or$r.applicationRollbackDrillExecuted-or$r.forwardFixDrillExecuted-or$r.destructiveDownMigrationUsed){throw'Recovery drill evidence must expose all remaining staging gaps.'}
+if(-not$r.localSeparateDatabaseRestorePassed-or$r.localFinanceTableCount-ne 52-or$r.localFinanceApiFunctionCount-ne 191-or-not$r.localBackupHashVerified-or-not$r.localFinancialControlHashMatched-or$r.managedBackupHistoryVerified-or$r.stagingRestoreDrillExecuted-or$r.applicationRollbackDrillExecuted-or$r.forwardFixDrillExecuted-or$r.destructiveDownMigrationUsed){throw'Recovery drill evidence must expose all remaining staging gaps.'}
 $raw=$e|ConvertTo-Json -Depth 30
 if($raw-match'(?i)password|token|authorization|bearer\s+|sb_secret_|eyJ[A-Za-z0-9_-]{20,}|customerName|phone|email|tckn|vkn|iban'){throw'Recovery evidence contains a secret or personal-data field.'}
 Write-Host 'FINANCE STAGING RECOVERY READINESS: ACTION_REQUIRED' -ForegroundColor Yellow

@@ -23,6 +23,8 @@
     "localSeparateDatabaseRestorePassed": true,
     "localFinanceTableCount": 52,
     "localFinanceApiFunctionCount": 191,
+    "localBackupHashVerified": true,
+    "localFinancialControlHashMatched": true,
     "managedBackupHistoryVerified": false,
     "stagingRestoreDrillExecuted": false,
     "applicationRollbackDrillExecuted": false,
