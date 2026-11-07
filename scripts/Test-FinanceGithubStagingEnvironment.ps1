@@ -6,6 +6,8 @@ if($e.schemaVersion-ne 1-or$e.module-ne'OTOTR_FRANCHISE_FINANCE'-or$e.target-ne'
 if($e.productionDataUsed-or$e.hostedExecutionPerformed-or$e.preProductionDecision-ne'NO_GO'){throw'GitHub staging evidence must remain fail-closed.'}
 if(-not$e.customBranchPolicies-or$e.protectedBranchesOnly-or(@($e.allowedDeploymentBranches)-join',')-ne'codex/gm-finans-release'){throw'GitHub staging deployment branch policy is unsafe.'}
 $required=@('OTOTR_FINANCE_UAT_FINANCE_EMAIL','OTOTR_FINANCE_UAT_FINANCE_PASSWORD','OTOTR_FINANCE_UAT_BRANCH_MANAGER_EMAIL','OTOTR_FINANCE_UAT_BRANCH_MANAGER_PASSWORD','OTOTR_FINANCE_UAT_PUBLISHABLE_KEY')
-if((@($e.requiredSecretNames)-join',')-ne($required-join',')-or$e.configuredSecretCount-ne 0){throw'GitHub staging UAT credential inventory changed; refresh evidence.'}
+if((@($e.requiredSecretNames)-join',')-ne($required-join',')-or$e.configuredSecretCount-ne 1-or(@($e.configuredSecretNames)-join',')-ne'OTOTR_FINANCE_UAT_PUBLISHABLE_KEY'){throw'GitHub staging UAT credential inventory changed; refresh evidence.'}
+$missing=$required|Where-Object{$_-ne'OTOTR_FINANCE_UAT_PUBLISHABLE_KEY'}
+if((@($e.missingSecretNames)-join',')-ne($missing-join',')){throw'GitHub staging missing credential inventory is invalid.'}
 Write-Host 'FINANCE GITHUB STAGING ENVIRONMENT: ACTION_REQUIRED' -ForegroundColor Yellow
-Write-Host 'Environment exists and is branch-restricted; five required values remain unconfigured; hosted execution not performed.'
+Write-Host 'Environment exists and is branch-restricted; publishable key is configured; four role credential values remain unconfigured; hosted execution not performed.'

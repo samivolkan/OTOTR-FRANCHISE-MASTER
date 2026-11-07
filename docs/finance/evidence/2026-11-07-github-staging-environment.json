@@ -4,17 +4,24 @@
   "target": "GITHUB_STAGING_ENVIRONMENT",
   "repository": "samivolkan/OTOTR-FRANCHISE-MASTER",
   "environment": "ototr-staging",
-  "observedAtUtc": "2026-11-07T03:31:00Z",
+  "observedAtUtc": "2026-11-07T03:34:00Z",
   "allowedDeploymentBranches": ["codex/gm-finans-release"],
   "protectedBranchesOnly": false,
   "customBranchPolicies": true,
-  "configuredSecretCount": 0,
+  "configuredSecretCount": 1,
+  "configuredSecretNames": ["OTOTR_FINANCE_UAT_PUBLISHABLE_KEY"],
   "requiredSecretNames": [
     "OTOTR_FINANCE_UAT_FINANCE_EMAIL",
     "OTOTR_FINANCE_UAT_FINANCE_PASSWORD",
     "OTOTR_FINANCE_UAT_BRANCH_MANAGER_EMAIL",
     "OTOTR_FINANCE_UAT_BRANCH_MANAGER_PASSWORD",
     "OTOTR_FINANCE_UAT_PUBLISHABLE_KEY"
+  ],
+  "missingSecretNames": [
+    "OTOTR_FINANCE_UAT_FINANCE_EMAIL",
+    "OTOTR_FINANCE_UAT_FINANCE_PASSWORD",
+    "OTOTR_FINANCE_UAT_BRANCH_MANAGER_EMAIL",
+    "OTOTR_FINANCE_UAT_BRANCH_MANAGER_PASSWORD"
   ],
   "productionDataUsed": false,
   "hostedExecutionPerformed": false,

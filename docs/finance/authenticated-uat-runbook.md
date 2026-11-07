@@ -2,13 +2,14 @@
 
 Workflow: `.github/workflows/finance-staging-authenticated-uat.yml`
 
-`ototr-staging` GitHub Environment alanına aşağıdaki beş secret eklenir. Değerler loga, artifact'a veya repository dosyasına yazılmaz:
+`ototr-staging` GitHub Environment alanında Supabase yayınlanabilir anahtarı otomatik olarak yapılandırılmıştır. Aşağıdaki dört demo rol bilgisi yetkili kişi tarafından eklenir. Değerler loga, artifact'a veya repository dosyasına yazılmaz:
 
 - `OTOTR_FINANCE_UAT_FINANCE_EMAIL`
 - `OTOTR_FINANCE_UAT_FINANCE_PASSWORD`
 - `OTOTR_FINANCE_UAT_BRANCH_MANAGER_EMAIL`
 - `OTOTR_FINANCE_UAT_BRANCH_MANAGER_PASSWORD`
-- `OTOTR_FINANCE_UAT_PUBLISHABLE_KEY`
+
+Workflow ayrıca önceden yapılandırılmış `OTOTR_FINANCE_UAT_PUBLISHABLE_KEY` değerini kullanır.
 
 Merkez Finans ve Şube Yöneticisi farklı Auth kullanıcıları olmalıdır. Workflow yalnız manuel `workflow_dispatch` ile çalışır; repository içeriğini değiştirme yetkisi yoktur. Parolalar Supabase Auth üzerinden kısa ömürlü oturumlara çevrilir, access tokenlar kanıta alınmaz ve koşu sonunda iki oturum için local logout çağrısı yapılır.
 
