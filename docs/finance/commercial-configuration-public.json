@@ -58,7 +58,7 @@
     {
       "code": "EXTERNAL_SERVICE",
       "decisionStatus": "PARTIALLY_CONFIRMED",
-      "confirmedBehavior": "Başarılı harici hizmet teslimi, sağlayıcı maliyeti artı yüzdesel hizmet bedeli ve hizmet bedeline ayrıca KDV yöntemiyle yansıtılır. Sağlayıcı maliyeti, hizmet bedeli ve vergi şubeye ayrı gösterilir; oran, yürürlük ve vergi kodu onayı beklenir.",
+      "confirmedBehavior": "Başarılı harici hizmet teslimi, sağlayıcı maliyeti artı yüzdesel hizmet bedeli ve ayrıca KDV yöntemiyle yansıtılır. Sağlayıcı maliyeti, hizmet bedeli ve vergi şubeye ayrı gösterilir; oran, yürürlük, KDV matrahı ve vergi kodu onayı beklenir.",
       "pendingFields": [
         "amountOrRate",
         "effectiveFrom",

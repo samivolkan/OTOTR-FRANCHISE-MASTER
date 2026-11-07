@@ -24,6 +24,9 @@
     "royaltyBusinessRatePercent": 20,
     "passThroughServiceFeeTreatment": "VAT_ADDED_TO_MARKUP_SERVICE_FEE",
     "passThroughBusinessRatePercent": 20,
+    "externalServiceTreatment": "VAT_ADDED_SEPARATELY",
+    "externalServiceTaxBase": null,
+    "externalServiceTaxBaseDecisionStatus": "PENDING_ADVISOR_APPROVAL",
     "businessRatesAreAccountingApproval": false,
     "taxCodeVersionRequiredBeforePublishing": true
   },

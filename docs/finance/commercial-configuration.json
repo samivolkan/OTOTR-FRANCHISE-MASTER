@@ -177,7 +177,8 @@
       "basis": "PROVIDER_COST",
       "amountOrRate": null,
       "providerMarginPolicy": "PERCENTAGE_SERVICE_FEE",
-      "taxTreatment": "VAT_ADDED_TO_SERVICE_FEE",
+      "taxTreatment": "VAT_ADDED_SEPARATELY",
+      "taxBaseDecisionStatus": "PENDING_ADVISOR_APPROVAL",
       "transparencyPolicy": {
         "showProviderCost": true,
         "showServiceFee": true,
