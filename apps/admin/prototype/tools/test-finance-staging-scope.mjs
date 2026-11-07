@@ -17,7 +17,8 @@ function scopeFromEnvironment(name) {
   return {legalEntityId, dealerAccountId, branchId};
 }
 
-async function read(token, scope) {
+async function read(token, scope, operationId = 'getDealerFinanceSummary') {
+  const fixtureDate=process.env.OTOTR_STAGING_FIXTURE_DATE;
   const response = await fetch(base + '/functions/v1/finance-read', {
     method: 'POST',
     signal: AbortSignal.timeout(15000),
@@ -26,16 +27,18 @@ async function read(token, scope) {
       'content-type': 'application/json', 'correlation-id': randomUUID()
     },
     body: JSON.stringify({
-      operationId: 'getDealerFinanceSummary',
+      operationId,
       scope,
       pathParams: {dealerAccountId: scope.dealerAccountId},
-      query: {asOf: process.env.OTOTR_STAGING_FIXTURE_DATE}
+      query: operationId==='exportDealerStatement'
+        ? {from:fixtureDate,to:fixtureDate,currency:'TRY',limit:10000}
+        : {asOf:fixtureDate}
     })
   });
   return {status: response.status, body: await response.json().catch(() => null)};
 }
 
-async function verifyBrowser(publishRoot, branchA, branchB) {
+async function verifyBrowser(publishRoot, branchA, branchB, financeToken, managerToken) {
   const {chromium} = await import('playwright');
   const {createFinanceDemoServer} = await import('./finance-demo-server.mjs');
   const server = await createFinanceDemoServer({port: 42733, staticRoot: publishRoot});
@@ -107,12 +110,21 @@ try {
     assert.ok(result.body?.data?.accrued?.grossAmount != null, label + ' returned no fixture balance');
     assertFinanceDataMinimized(result.body.data,label);
     console.log('PASS ' + label);
+    const exported=await read(token,scope,'exportDealerStatement');
+    assert.equal(exported.status,200,label+' export expected HTTP 200');
+    assert.equal(exported.body?.data?.documentType,'OTOTR_FINANCE_DEALER_STATEMENT_EXPORT',label+' returned an unexpected export contract');
+    assertFinanceDataMinimized(exported.body.data,label+' export');
+    console.log('PASS '+label+' export');
   }
   const denied = await read(managerToken, branchB);
   assert.equal(denied.status, 403, 'Cross-branch request expected HTTP 403');
   assert.equal(denied.body?.error?.code, 'SCOPE_DENIED');
   console.log('PASS manager cross-branch access rejected');
-  if (process.argv[2]) await verifyBrowser(process.argv[2], branchA, branchB);
+  const deniedExport=await read(managerToken,branchB,'exportDealerStatement');
+  assert.equal(deniedExport.status,403,'Cross-branch export expected HTTP 403');
+  assert.equal(deniedExport.body?.error?.code,'SCOPE_DENIED');
+  console.log('PASS manager cross-branch export rejected');
+  if (process.argv[2]) await verifyBrowser(process.argv[2], branchA, branchB, financeToken, managerToken);
 } catch (error) {
   console.error(error.message);
   process.exitCode = 1;

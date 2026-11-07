@@ -65,6 +65,8 @@ node apps/admin/prototype/tools/test-finance-staging-scope.mjs apps/admin/protot
 
 Parola, token ve servis anahtarı repository dosyasına, terminal geçmişine, ekran görüntüsüne veya UAT kanıtına eklenmez. Kanıt yalnız rol, kapsam, HTTP sonucu, correlation kimliği ve kişisel veri içermeyen kontrol toplamlarını içerir.
 
+Bu koşu yalnız ekran açılışını kontrol etmez. Merkez Finans için iki şubede özet ve ekstre export çağrısı `200`; Şube Yöneticisi için kendi şubesinde aynı çağrılar `200`, diğer şubede hem özet hem export `403 SCOPE_DENIED` olmalıdır. Başarılı API yanıtları ve ERP DOM’u ham payload/context, depolama anahtarı, müşteri PII’si, kart alanı ve token örüntülerine karşı fail-closed taranır.
+
 - Staging Supabase proje referansı veya eşdeğer veritabanı hedefi;
 - ERP test tenant/base URL;
 - secret manager ve secret adları (değerler değil);
