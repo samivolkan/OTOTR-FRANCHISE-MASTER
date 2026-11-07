@@ -10,7 +10,7 @@
     "productionDataAllowed": false
   },
   "gates": [
-    {"id":"FIN-G01","name":"Ticari parametre onayı","owner":"Finans Direktörü","approvers":["Franchise Yönetimi","Hukuk"],"status":"PENDING","evidence":[],"blockingReason":"Royalty, giriş franchise, sorgu, hizmet, opsiyon, kesinti ve masraf yansıtma oran/vade/KDV matrisi imzalanmadı."},
+    {"id":"FIN-G01","name":"Ticari parametre onayı","owner":"Finans Direktörü","approvers":["Franchise Yönetimi","Hukuk"],"status":"PENDING","evidence":[],"blockingReason":"Royalty politikası, TRAMER/KM/TRAMER 360 güvenli fiyat kataloğu ve genel merkez masrafı hizmet oranı + KDV kararı kaydedildi. Giriş franchise, diğer hizmet/opsiyon, kesinti, vade, vergi kodu ve yürürlük alanları tamamlanmadı; Finans Direktörü, Franchise Yönetimi ve Hukuk imzası yok."},
     {"id":"FIN-G02","name":"Vergi ve muhasebe görüşü","owner":"Mali Müşavir","approvers":["Finans Direktörü"],"status":"PENDING","evidence":[],"blockingReason":"KDV, belge tipi, hesap planı ve ters kayıt muhasebe görüşü bekleniyor."},
     {"id":"FIN-G03","name":"ERP ana veri eşlemesi","owner":"ERP Ürün Sahibi","approvers":["Finans Operasyon"],"status":"PENDING","evidence":[],"blockingReason":"SCOPE-B2 ERP şubesi, bayi hesabı ve finans şubesi staging üzerinde eşlendi. Pilotun tüm sözleşme, hizmet ve muhasebe kodlarının eşlemesi ile kabul onayı bekleniyor."},
     {"id":"FIN-G04","name":"Kimlik, rol ve şube kapsamı","owner":"Bilgi Güvenliği","approvers":["ERP Teknik Lideri"],"status":"PENDING","evidence":[],"blockingReason":"SCOPE-B2 bakiye sorgusunda Merkez Finans erişimi ve Şube Yöneticisinin çapraz şube reddi staging veritabanında doğrulandı. Tarayıcı oturumu, tam rol matrisi, maker-checker ve imza bekleniyor."},

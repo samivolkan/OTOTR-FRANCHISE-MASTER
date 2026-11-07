@@ -23,10 +23,10 @@ Her satır için `UYGULANMAZ` veya açık değer girilmelidir.
 |---|---|---|---|---|---|---|---|
 | ROYALTY | Kesinleşmiş tahsilat parçası | Varsayılan oran kararı alındı; değer yalnız secret manager'da tutulacak; şube bazında esnetilebilir | Evet, tahsil edilen KDV dahil brüt matrah; hesaplanan royalty bedeline ayrıca %20 KDV | Oran %20 onaylandı; muhasebe vergi kodu eşlemesi bekliyor | Ertesi takvim günü | İade oranında ters kayıt; orijinal dönem/tahakkuk korunur | ROYALTY_SERVICE_FEE — Royalty Hizmet Bedeli |
 | ENTRY_FRANCHISE | Şube açılışında, açılış referansıyla şube başına tek sefer; tekrar reddedilir, geriye dönük oluşturulmaz | Sabit/kademeli tutar bekleniyor | Bekleniyor | Bekleniyor | Bekleniyor | Bekleniyor | Bekleniyor |
-| QUERY | Başarılı ücretli sorgu | Hizmet bazlı fiyat bekleniyor | Bekleniyor | Bekleniyor | Bekleniyor | Teknik tekrar/ücretsiz hak kararı bekleniyor | Bekleniyor |
+| QUERY | Başarılı ücretli sorgu | TRAMER, KM ve TRAMER 360 için sabit TRY tutarları kullanıcı tarafından kararlaştırıldı; değerler public repoya yazılmadan secret manager'da tutulacak | Bekleniyor | Bekleniyor | Bekleniyor | Teknik tekrar/ücretsiz hak kararı bekleniyor | Bekleniyor |
 | EXTERNAL_SERVICE | Başarılı hizmet kullanımı | Hizmet bazlı fiyat/marj bekleniyor | Bekleniyor | Bekleniyor | Bekleniyor | Sağlayıcı iptal/iade kuralı bekleniyor | Bekleniyor |
 | OPTIONAL_PRODUCT_SERVICE | Satış/kullanım | Ürün bazlı fiyat bekleniyor | Bekleniyor | Bekleniyor | Bekleniyor | Bekleniyor | Bekleniyor |
-| PASS_THROUGH_EXPENSE | Onaylı kaynak masraf | Dağıtım anahtarı bekleniyor | Bekleniyor | Bekleniyor | Bekleniyor | Belge ve maker-checker ile ters kayıt | Bekleniyor |
+| PASS_THROUGH_EXPENSE | Onaylı kaynak masraf | Kaynak masraf + güvenli backend oranından hizmet bedeli + %20 KDV; kaynak, hizmet ve vergi şubeye ayrı gösterilir. Şubeler arası dağıtım anahtarı bekleniyor | Hayır; KDV hizmet bedeline ayrı eklenir | Oran %20 onaylandı; muhasebe vergi kodu bekleniyor | Bekleniyor | Belge ve maker-checker ile ters kayıt | Bekleniyor |
 | DEDUCTION/CREDIT | Onaylı itiraz/karar | Sabit veya bağlı kalem oranı bekleniyor | Bekleniyor | Bekleniyor | Bekleniyor | Doğrudan bakiye düzenleme yasak | Bekleniyor |
 
 ## 3. Royalty için zorunlu cevaplar

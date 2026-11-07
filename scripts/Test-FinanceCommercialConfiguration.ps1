@@ -28,12 +28,19 @@ if ($royalty.refundCashPayoutPolicy -ne 'DISABLED_CARRY_FORWARD_ONLY') { throw '
 if ($royalty.waiverPolicy.scope -ne 'BRANCH' -or @($royalty.waiverPolicy.allowedTypes) -notcontains 'NEW_DEALER_INTRODUCTORY' -or @($royalty.waiverPolicy.allowedTypes) -notcontains 'FINANCIAL_HARDSHIP' -or (@($royalty.waiverPolicy.introductoryDurationsMonths) -join ',') -ne '6,12' -or -not $royalty.waiverPolicy.requiresEffectiveDateRange -or -not $royalty.waiverPolicy.requiresMakerCheckerApproval -or -not $royalty.waiverPolicy.financialHardshipReviewRequired -or $royalty.waiverPolicy.shiftSystemDependency -ne $false) { throw 'Confirmed branch waiver policy was changed.' }
 $entryFranchise = $d.feeFamilies | Where-Object code -eq 'ENTRY_FRANCHISE'
 if ($entryFranchise.decisionStatus -notin @('PARTIALLY_CONFIRMED','APPROVED') -or $entryFranchise.trigger -ne 'BRANCH_OPENING' -or $entryFranchise.accrualOccurrence -ne 'ONCE_PER_BRANCH' -or $entryFranchise.duplicateAccrualPolicy -ne 'REJECT' -or $entryFranchise.retroactiveAccrual -ne $false -or -not $entryFranchise.requiresBranchOpeningReference) { throw 'Confirmed one-time branch-opening entry franchise policy was changed.' }
+$queryFamily = $d.feeFamilies | Where-Object code -eq 'QUERY'
+$queryCodes = @($queryFamily.priceCatalog | ForEach-Object serviceCode)
+if ($queryFamily.decisionStatus -notin @('PARTIALLY_CONFIRMED','APPROVED') -or $queryFamily.calculationMethod -ne 'FIXED_AMOUNT_PER_SUCCESSFUL_QUERY' -or $null -ne $queryFamily.amountOrRate -or $queryFamily.priceDecisionStatus -ne 'CONFIRMED_SECURE_VALUES' -or $queryFamily.priceSource -ne 'SECRET_MANAGER' -or $queryFamily.currencyCode -ne 'TRY' -or (@($queryCodes) -join ',') -ne 'TRAMER_QUERY,KM_QUERY,TRAMER_360_QUERY') { throw 'Confirmed secure query price catalog policy was changed.' }
+foreach ($item in $queryFamily.priceCatalog) { if ($item.amountSecretName -notmatch '^FINANCE_QUERY_[A-Z0-9_]+_TRY_AMOUNT$' -or $item.PSObject.Properties.Name -contains 'amount') { throw 'Query price catalog must contain secret names only.' } }
+$expenseFamily = $d.feeFamilies | Where-Object code -eq 'PASS_THROUGH_EXPENSE'
+if ($expenseFamily.decisionStatus -notin @('PARTIALLY_CONFIRMED','APPROVED') -or $expenseFamily.calculationMethod -ne 'COST_PLUS_PERCENTAGE_SERVICE_FEE' -or $expenseFamily.basis -ne 'APPROVED_SOURCE_EXPENSE_GROSS' -or $null -ne $expenseFamily.markupRatePercent -or $expenseFamily.markupRateDecisionStatus -ne 'CONFIRMED_SECURE_VALUE' -or $expenseFamily.markupRateSource -ne 'SECRET_MANAGER' -or $expenseFamily.markupRateSecretName -ne 'FINANCE_PASS_THROUGH_MARKUP_RATE_PERCENT' -or $expenseFamily.taxTreatment -ne 'VAT_ADDED_TO_MARKUP_SERVICE_FEE' -or [decimal]$expenseFamily.taxRatePercent -ne 20 -or $expenseFamily.taxRateDecisionStatus -ne 'CONFIRMED') { throw 'Confirmed transparent pass-through expense service-fee policy was changed.' }
+if (-not $expenseFamily.transparencyPolicy.showSourceExpense -or -not $expenseFamily.transparencyPolicy.showServiceFee -or -not $expenseFamily.transparencyPolicy.showTaxSeparately -or -not $expenseFamily.transparencyPolicy.retainSourceDocumentTrace) { throw 'Pass-through expense transparency policy was changed.' }
 $deduction = $d.feeFamilies | Where-Object code -eq 'DEDUCTION_CREDIT'
 if ($deduction.directBalanceEditAllowed -ne $false) { throw 'Direct balance editing must remain forbidden.' }
 $publicRaw = Get-Content -Raw -LiteralPath (Resolve-Path $PublicProjectionFile)
 $public = $publicRaw | ConvertFrom-Json -Depth 20
 if ($public.schemaVersion -ne 1 -or $public.module -ne $d.module -or $public.projection -ne 'COMMERCIAL_DECISION_STATUS_PUBLIC' -or $public.productionValuesExposed -ne $false -or $public.approvalIdentitiesExposed -ne $false -or $public.evidenceMetadataExposed -ne $false) { throw 'Invalid commercial public projection identity.' }
-if ($publicRaw -match 'financeDirector|financialAdvisor|franchiseManagement|evidencePath|evidenceSha256|signedAtUtc|ratePercent\s*"\s*:|amountOrRate\s*"\s*:') { throw 'Commercial public projection exposes protected approval, evidence or production values.' }
+if ($publicRaw -match 'financeDirector|financialAdvisor|franchiseManagement|evidencePath|evidenceSha256|signedAtUtc|ratePercent\s*"\s*:|amountOrRate\s*"\s*:|FINANCE_QUERY_|FINANCE_PASS_THROUGH_') { throw 'Commercial public projection exposes protected approval, evidence or production values.' }
 if (@($public.feeFamilies).Count -ne 7) { throw 'Commercial public projection fee family inventory is incomplete.' }
 foreach ($sourceFamily in $d.feeFamilies) {
  $projected = @($public.feeFamilies | Where-Object code -eq $sourceFamily.code)
@@ -68,5 +75,5 @@ if ($approved) {
 }
 $decision=if($approved){'APPROVED'}else{'PENDING_DECISIONS'}
 Write-Host "FINANCE COMMERCIAL CONFIGURATION: $decision" -ForegroundColor $(if($approved){'Green'}else{'Yellow'})
-Write-Host ("Fee families: 7; royalty rate: confirmed secret-backed value plus VAT; dealer waiver policy: confirmed; production values exposed: false")
+Write-Host ("Fee families: 7; royalty, query catalog and pass-through markup: confirmed secret-backed decisions; production values exposed: false")
 if ($RequireApproved -and -not $approved) { throw 'Commercial configuration is not approved.' }

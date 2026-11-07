@@ -127,10 +127,27 @@
     },
     {
       "code": "QUERY",
-      "decisionStatus": "PENDING",
+      "decisionStatus": "PARTIALLY_CONFIRMED",
       "trigger": "SUCCESSFUL_CHARGEABLE_QUERY",
-      "calculationMethod": null,
+      "calculationMethod": "FIXED_AMOUNT_PER_SUCCESSFUL_QUERY",
       "amountOrRate": null,
+      "priceDecisionStatus": "CONFIRMED_SECURE_VALUES",
+      "priceSource": "SECRET_MANAGER",
+      "currencyCode": "TRY",
+      "priceCatalog": [
+        {
+          "serviceCode": "TRAMER_QUERY",
+          "amountSecretName": "FINANCE_QUERY_TRAMER_TRY_AMOUNT"
+        },
+        {
+          "serviceCode": "KM_QUERY",
+          "amountSecretName": "FINANCE_QUERY_KM_TRY_AMOUNT"
+        },
+        {
+          "serviceCode": "TRAMER_360_QUERY",
+          "amountSecretName": "FINANCE_QUERY_TRAMER_360_TRY_AMOUNT"
+        }
+      ],
       "freeEntitlementPolicy": null,
       "technicalRepeatPolicy": null,
       "effectiveFrom": null,
@@ -163,9 +180,23 @@
     },
     {
       "code": "PASS_THROUGH_EXPENSE",
-      "decisionStatus": "PENDING",
+      "decisionStatus": "PARTIALLY_CONFIRMED",
       "trigger": "APPROVED_SOURCE_EXPENSE",
-      "calculationMethod": null,
+      "calculationMethod": "COST_PLUS_PERCENTAGE_SERVICE_FEE",
+      "basis": "APPROVED_SOURCE_EXPENSE_GROSS",
+      "markupRatePercent": null,
+      "markupRateDecisionStatus": "CONFIRMED_SECURE_VALUE",
+      "markupRateSource": "SECRET_MANAGER",
+      "markupRateSecretName": "FINANCE_PASS_THROUGH_MARKUP_RATE_PERCENT",
+      "taxTreatment": "VAT_ADDED_TO_MARKUP_SERVICE_FEE",
+      "taxRatePercent": 20,
+      "taxRateDecisionStatus": "CONFIRMED",
+      "transparencyPolicy": {
+        "showSourceExpense": true,
+        "showServiceFee": true,
+        "showTaxSeparately": true,
+        "retainSourceDocumentTrace": true
+      },
       "allocationPolicy": null,
       "effectiveFrom": null,
       "dueRule": null,

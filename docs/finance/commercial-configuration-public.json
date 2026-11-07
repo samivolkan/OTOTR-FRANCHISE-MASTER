@@ -30,11 +30,9 @@
     },
     {
       "code": "QUERY",
-      "decisionStatus": "PENDING",
-      "confirmedBehavior": "Başarılı ve ücretlendirilebilir sorgu tetikleyicisi tanımlı.",
+      "decisionStatus": "PARTIALLY_CONFIRMED",
+      "confirmedBehavior": "Başarılı ve ücretlendirilebilir sorgu başına sabit tutar uygulanır. TRAMER, KM ve TRAMER 360 hizmet kodlarının kullanıcı tarafından kararlaştırılan tutarları yalnız güvenli backend yapılandırmasında tutulur; public projeksiyon ticari tutar açıklamaz.",
       "pendingFields": [
-        "calculationMethod",
-        "amountOrRate",
         "freeEntitlementPolicy",
         "technicalRepeatPolicy",
         "effectiveFrom",
@@ -72,10 +70,9 @@
     },
     {
       "code": "PASS_THROUGH_EXPENSE",
-      "decisionStatus": "PENDING",
-      "confirmedBehavior": "Onaylı kaynak masraf ve maker-checker akışı tanımlı.",
+      "decisionStatus": "PARTIALLY_CONFIRMED",
+      "confirmedBehavior": "Onaylı genel merkez kaynak masrafına güvenli backend yapılandırmasındaki hizmet oranı ve ayrıca KDV uygulanır. Kaynak masraf, hizmet bedeli ve vergi şubeye ayrı ve izlenebilir gösterilir; belge izi ile maker-checker korunur.",
       "pendingFields": [
-        "calculationMethod",
         "allocationPolicy",
         "effectiveFrom",
         "dueRule",
