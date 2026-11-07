@@ -3,7 +3,11 @@
   "module": "OTOTR_FRANCHISE_FINANCE",
   "target": "FIN_G01_BUSINESS_DECISIONS",
   "status": "PENDING_RESPONSES",
-  "allowedResponses": ["EVET", "HAYIR", "YORUM"],
+  "allowedResponses": [
+    "EVET",
+    "HAYIR",
+    "YORUM"
+  ],
   "policy": {
     "noInferredCommercialValues": true,
     "commentRequiredForYorum": true,
@@ -11,18 +15,126 @@
     "prospectiveOnlyUntilExplicitlyChanged": true
   },
   "questions": [
-    {"id":"FIN-C01","owner":"Finans Direktörü","family":"GENERAL","question":"Tüm finans sözleşmeleri ve bedelleri için ana para birimi TRY olsun mu?","yesEffect":"currencyCode=TRY","noEffect":"Alternatif para birimi ve kur politikası yorumda belirtilir.","response":null,"comment":null},
-    {"id":"FIN-C02","owner":"Finans Direktörü","family":"ENTRY_FRANCHISE","question":"Giriş franchise bedeli şube açılışında şube başına sabit tutar olarak mı belirlenmeli?","yesEffect":"calculationMethod=FIXED_AMOUNT_PER_BRANCH","noEffect":"Oran veya başka hesaplama yöntemi yorumda belirtilir.","response":null,"comment":null},
-    {"id":"FIN-C03","owner":"Finans Direktörü","family":"ENTRY_FRANCHISE","question":"Giriş franchise bedelinin vadesi royalty gibi ertesi takvim günü ve ödeme yöntemi kredi kartı olsun mu?","yesEffect":"dueRule=NEXT_CALENDAR_DAY_CREDIT_CARD","noEffect":"Farklı vade ve ödeme yöntemi yorumda belirtilir.","response":null,"comment":null},
-    {"id":"FIN-C04","owner":"Franchise Yönetimi","family":"QUERY","question":"Sözleşme veya kampanya ile şubeye ücretsiz sorgu hakkı tanımlanabilsin mi?","yesEffect":"freeEntitlementPolicy=CONTRACT_OR_CAMPAIGN_ALLOWANCE","noEffect":"Tüm başarılı sorgular ücretlendirilir.","response":null,"comment":null},
-    {"id":"FIN-C05","owner":"Finans Operasyon","family":"QUERY","question":"Teknik hata nedeniyle aynı işlem için tekrarlanan sorgular ücretsiz sayılsın mı?","yesEffect":"technicalRepeatPolicy=NO_CHARGE_WITH_LINKED_ORIGINAL","noEffect":"Her başarılı tekrar ücretlendirilir.","response":null,"comment":null},
-    {"id":"FIN-C06","owner":"Finans Direktörü","family":"EXTERNAL_SERVICE","question":"Harici hizmetler sağlayıcı maliyeti artı hizmet oranı ve ayrıca KDV yöntemiyle yansıtılsın mı?","yesEffect":"calculationMethod=COST_PLUS_PERCENTAGE_SERVICE_FEE","noEffect":"Sabit katalog veya farklı yöntem yorumda belirtilir.","response":null,"comment":null},
-    {"id":"FIN-C07","owner":"Franchise Yönetimi","family":"OPTIONAL_PRODUCT_SERVICE","question":"Opsiyonel ürün ve hizmetler aktivasyon başına sabit fiyat kataloğundan tahakkuk etsin mi?","yesEffect":"calculationMethod=FIXED_CATALOG_PER_ACTIVATION","noEffect":"Oran veya kullanım bazlı yöntem yorumda belirtilir.","response":null,"comment":null},
-    {"id":"FIN-C08","owner":"Finans Operasyon","family":"PASS_THROUGH_EXPENSE","question":"Masraf dağıtım yöntemi her masrafta eşit, sabit veya adet bazlı seçeneklerinden manuel seçilsin mi?","yesEffect":"allocationPolicy=PER_EXPENSE_APPROVED_METHOD","noEffect":"Tek zorunlu dağıtım yöntemi yorumda belirtilir.","response":null,"comment":null},
-    {"id":"FIN-C09","owner":"Finans Direktörü","family":"DEDUCTION_CREDIT","question":"Onaylanan itiraz ve kesintiler doğrudan bakiye düzenlemek yerine izlenebilir kredi belgesi olarak işlensin mi?","yesEffect":"calculationMethod=APPROVED_CREDIT_DOCUMENT","noEffect":"Alternatif kontrollü düzeltme yöntemi yorumda belirtilir; doğrudan bakiye düzenleme yine yasaktır.","response":null,"comment":null},
-    {"id":"FIN-C10","owner":"Finans Direktörü","family":"GENERAL","question":"Royalty dışındaki tüm ticari kural değişiklikleri de yalnız yürürlük tarihinden sonraki işlemlere uygulansın mı?","yesEffect":"changePolicy=PROSPECTIVE_VERSION_ONLY","noEffect":"Geriye dönük uygulanabilecek aileler ve sınırlar yorumda belirtilir.","response":null,"comment":null},
-    {"id":"FIN-C11","owner":"Finans Operasyon","family":"GENERAL","question":"Her bedel ailesi faturada ayrı satır kodu ve açıklamayla gösterilsin mi?","yesEffect":"invoicePresentation=SEPARATE_LINE_PER_FEE_FAMILY","noEffect":"Birleştirilecek aileler yorumda belirtilir.","response":null,"comment":null},
-    {"id":"FIN-C12","owner":"Finans Direktörü","family":"PERIODIC_FRANCHISE","question":"Royalty ve giriş bedelinden bağımsız periyodik franchise bedeli, yalnız sözleşmeyle etkinleştirilebilen ayrı bir bedel ailesi olarak desteklensin mi?","yesEffect":"periodicFranchisePolicy=CONTRACT_RULE_OPT_IN","noEffect":"PERIODIC_FRANCHISE devre dışı kalır.","response":null,"comment":null}
+    {
+      "id": "FIN-C01",
+      "owner": "Finans Direktörü",
+      "family": "GENERAL",
+      "question": "Tüm finans sözleşmeleri ve bedelleri için ana para birimi TRY olsun mu?",
+      "yesEffect": "currencyCode=TRY",
+      "noEffect": "Alternatif para birimi ve kur politikası yorumda belirtilir.",
+      "response": null,
+      "comment": null
+    },
+    {
+      "id": "FIN-C02",
+      "owner": "Finans Direktörü",
+      "family": "ENTRY_FRANCHISE",
+      "question": "Giriş franchise bedeli şube açılışında şube başına sabit tutar olarak mı belirlenmeli?",
+      "yesEffect": "calculationMethod=FIXED_AMOUNT_PER_BRANCH",
+      "noEffect": "Oran veya başka hesaplama yöntemi yorumda belirtilir.",
+      "response": null,
+      "comment": null
+    },
+    {
+      "id": "FIN-C03",
+      "owner": "Finans Direktörü",
+      "family": "ENTRY_FRANCHISE",
+      "question": "Giriş franchise bedelinin vadesi royalty gibi ertesi takvim günü ve ödeme yöntemi kredi kartı olsun mu?",
+      "yesEffect": "dueRule=NEXT_CALENDAR_DAY_CREDIT_CARD",
+      "noEffect": "Farklı vade ve ödeme yöntemi yorumda belirtilir.",
+      "response": null,
+      "comment": null
+    },
+    {
+      "id": "FIN-C04",
+      "owner": "Franchise Yönetimi",
+      "family": "QUERY",
+      "question": "Sözleşme veya kampanya ile şubeye ücretsiz sorgu hakkı tanımlanabilsin mi?",
+      "yesEffect": "freeEntitlementPolicy=CONTRACT_OR_CAMPAIGN_ALLOWANCE",
+      "noEffect": "Tüm başarılı sorgular ücretlendirilir.",
+      "response": null,
+      "comment": null
+    },
+    {
+      "id": "FIN-C05",
+      "owner": "Finans Operasyon",
+      "family": "QUERY",
+      "question": "Teknik hata nedeniyle aynı işlem için tekrarlanan sorgular ücretsiz sayılsın mı?",
+      "yesEffect": "technicalRepeatPolicy=NO_CHARGE_WITH_LINKED_ORIGINAL",
+      "noEffect": "Her başarılı tekrar ücretlendirilir.",
+      "response": null,
+      "comment": null
+    },
+    {
+      "id": "FIN-C06",
+      "owner": "Finans Direktörü",
+      "family": "EXTERNAL_SERVICE",
+      "question": "Harici hizmetler sağlayıcı maliyeti artı hizmet oranı ve ayrıca KDV yöntemiyle yansıtılsın mı?",
+      "yesEffect": "calculationMethod=COST_PLUS_PERCENTAGE_SERVICE_FEE",
+      "noEffect": "Sabit katalog veya farklı yöntem yorumda belirtilir.",
+      "response": "EVET",
+      "comment": null
+    },
+    {
+      "id": "FIN-C07",
+      "owner": "Franchise Yönetimi",
+      "family": "OPTIONAL_PRODUCT_SERVICE",
+      "question": "Opsiyonel ürün ve hizmetler aktivasyon başına sabit fiyat kataloğundan tahakkuk etsin mi?",
+      "yesEffect": "calculationMethod=FIXED_CATALOG_PER_ACTIVATION",
+      "noEffect": "Oran veya kullanım bazlı yöntem yorumda belirtilir.",
+      "response": null,
+      "comment": null
+    },
+    {
+      "id": "FIN-C08",
+      "owner": "Finans Operasyon",
+      "family": "PASS_THROUGH_EXPENSE",
+      "question": "Masraf dağıtım yöntemi her masrafta eşit, sabit veya adet bazlı seçeneklerinden manuel seçilsin mi?",
+      "yesEffect": "allocationPolicy=PER_EXPENSE_APPROVED_METHOD",
+      "noEffect": "Tek zorunlu dağıtım yöntemi yorumda belirtilir.",
+      "response": null,
+      "comment": null
+    },
+    {
+      "id": "FIN-C09",
+      "owner": "Finans Direktörü",
+      "family": "DEDUCTION_CREDIT",
+      "question": "Onaylanan itiraz ve kesintiler doğrudan bakiye düzenlemek yerine izlenebilir kredi belgesi olarak işlensin mi?",
+      "yesEffect": "calculationMethod=APPROVED_CREDIT_DOCUMENT",
+      "noEffect": "Alternatif kontrollü düzeltme yöntemi yorumda belirtilir; doğrudan bakiye düzenleme yine yasaktır.",
+      "response": null,
+      "comment": null
+    },
+    {
+      "id": "FIN-C10",
+      "owner": "Finans Direktörü",
+      "family": "GENERAL",
+      "question": "Royalty dışındaki tüm ticari kural değişiklikleri de yalnız yürürlük tarihinden sonraki işlemlere uygulansın mı?",
+      "yesEffect": "changePolicy=PROSPECTIVE_VERSION_ONLY",
+      "noEffect": "Geriye dönük uygulanabilecek aileler ve sınırlar yorumda belirtilir.",
+      "response": null,
+      "comment": null
+    },
+    {
+      "id": "FIN-C11",
+      "owner": "Finans Operasyon",
+      "family": "GENERAL",
+      "question": "Her bedel ailesi faturada ayrı satır kodu ve açıklamayla gösterilsin mi?",
+      "yesEffect": "invoicePresentation=SEPARATE_LINE_PER_FEE_FAMILY",
+      "noEffect": "Birleştirilecek aileler yorumda belirtilir.",
+      "response": "YORUM",
+      "comment": "Royalty, giriş franchise, periyodik franchise, TRAMER, KM, TRAMER 360, harici hizmet, opsiyon, masraf yansıtma ve kesinti/kredi kalemleri şubeye şeffaf ve ayrı kalemler olarak gösterilir; resmi fatura satır kodları vergi ve muhasebe onayıyla kesinleşir."
+    },
+    {
+      "id": "FIN-C12",
+      "owner": "Finans Direktörü",
+      "family": "PERIODIC_FRANCHISE",
+      "question": "Royalty ve giriş bedelinden bağımsız periyodik franchise bedeli, yalnız sözleşmeyle etkinleştirilebilen ayrı bir bedel ailesi olarak desteklensin mi?",
+      "yesEffect": "periodicFranchisePolicy=CONTRACT_RULE_OPT_IN",
+      "noEffect": "PERIODIC_FRANCHISE devre dışı kalır.",
+      "response": null,
+      "comment": null
+    }
   ],
   "remainingAfterResponses": [
     "Tutar ve oranların güvenli üretim yapılandırmasına girilmesi",
