@@ -1528,3 +1528,10 @@ Sınırlar: otomatik fotogrametri, üretici model kütüphanesi, buluttan ses/vi
 - Periyodik franchise bedeli UAT envanterine ayrı senaryo olarak eklendi; yerel otomasyon kanıtı ile staging/human signoff ayrımı korundu.
 - Staging sözleşme kuralı, gerçek zamanlayıcı olay teslimi, FIN-C12 kararı ve Franchise Yönetimi imzası tamamlanmadan sonuç `NOT_SIGNED / NO_GO` kalır.
 - UAT kapsamı 19 senaryodur; otomatik yerel başarı pre-production onayı sayılmaz.
+
+## 2026-11-07 — ERP operasyon rotası finans erişim kaydı
+
+- Şube operasyon rotalarını sabit capability ile ilan eden, kayıtsız/handlersız/mükerrer rotayı uygulama başlangıcında reddeden kapalı sunucu kaydı eklendi.
+- Actor ve şube kapsamının request body yerine yalnız doğrulanmış ERP oturum çözücüsünden gelmesi; kilitli şubede operasyon handler'ının çalışmaması yerel sözleşme testiyle doğrulandı.
+- Gerçek ERP server framework bağlantısı ve yayımlanmış ortam rol testi henüz yapılmadığı için UAT-FIN-16 `PARTIAL_AUTOMATION`, pre-production ise `NO_GO` kalır.
+- `scripts/Test-FinanceLocalAcceptance.ps1`: PASS, 90/90 checks, `LOCAL_ONLY`, `productionDataUsed: false`.
