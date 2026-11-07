@@ -2,7 +2,7 @@
   "manifestId": "OTOTR-FINANCE-LOCAL-MIGRATION-PROMOTION-V1",
   "generatedAtUtc": "2026-11-03T08:30:00.0000000+00:00",
   "sourceRoot": "ototr-finans-modulu/database/supabase",
-  "migrationCount": 145,
+  "migrationCount": 150,
   "applyTarget": "LOCAL_ONLY",
   "stagingApplied": false,
   "productionApplied": false,
@@ -1166,6 +1166,46 @@
       "sourceSha256": "8D7A91E2E70EE483B2CBB7C5AD8A33982464E3785C8CD2AC2D178447CBA3673E",
       "migration": "20261106005408_finance_royalty_open_balance.sql",
       "migrationSha256": "8D7A91E2E70EE483B2CBB7C5AD8A33982464E3785C8CD2AC2D178447CBA3673E"
+    },
+    {
+      "version": "20261106231638",
+      "kind": "RPC",
+      "source": "internal-review-finance-headquarters-period-close",
+      "sourceSha256": "B87C41190118878BB997F0814178E738525F3C7C57F2990CC711E1AAF01299DC",
+      "migration": "20261106231638_finance_headquarters_period_close.sql",
+      "migrationSha256": "B87C41190118878BB997F0814178E738525F3C7C57F2990CC711E1AAF01299DC"
+    },
+    {
+      "version": "20261106232012",
+      "kind": "RPC",
+      "source": "internal-review-finance-accounting-batch-child-period-entries",
+      "sourceSha256": "F0BB3DFCF5CFDBE5814BC89BFBBD7C06396BAA2226CBA737C279AAACAE7FF46A",
+      "migration": "20261106232012_finance_accounting_batch_child_period_entries.sql",
+      "migrationSha256": "F0BB3DFCF5CFDBE5814BC89BFBBD7C06396BAA2226CBA737C279AAACAE7FF46A"
+    },
+    {
+      "version": "20261106232226",
+      "kind": "RPC",
+      "source": "internal-review-finance-accounting-package-scope-derivation",
+      "sourceSha256": "8255AA8C82EAA78CC205E008E06F70DF9321F6BD7C4DE87A4A3CAE20B98A9887",
+      "migration": "20261106232226_finance_accounting_package_scope_derivation.sql",
+      "migrationSha256": "8255AA8C82EAA78CC205E008E06F70DF9321F6BD7C4DE87A4A3CAE20B98A9887"
+    },
+    {
+      "version": "20261107000100",
+      "kind": "SECURITY",
+      "source": "internal-review-finance-invoice-dispatch-identity-bridge",
+      "sourceSha256": "0E6AFA13538082AADB469722741899A2B8F3CD93C8F3E55F52B4B1BA9AA73643",
+      "migration": "20261107000100_finance_invoice_dispatch_identity_bridge.sql",
+      "migrationSha256": "0E6AFA13538082AADB469722741899A2B8F3CD93C8F3E55F52B4B1BA9AA73643"
+    },
+    {
+      "version": "20261107000325",
+      "kind": "RPC",
+      "source": "regression-fix-restore-accrual-rule-exception-precedence",
+      "sourceSha256": "74A3D2CB993CDC12389665C3C537C47AD109D77C6E63D4BC81089F489E489A36",
+      "migration": "20261107000325_restore_accrual_rule_exception_precedence.sql",
+      "migrationSha256": "74A3D2CB993CDC12389665C3C537C47AD109D77C6E63D4BC81089F489E489A36"
     }
   ]
 }

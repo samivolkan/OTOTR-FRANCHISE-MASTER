@@ -26,7 +26,7 @@ select 'migration_count=' || count(*)
   from supabase_migrations.schema_migrations;
 select 'finance_migration_count=' || count(*)
   from supabase_migrations.schema_migrations
-where version between '20261103010000' and '20261103010137';
+where version >= '20261103010000';
 select 'finance_tables=' || count(*)
   from information_schema.tables
  where table_schema='finance' and table_type='BASE TABLE';
@@ -93,12 +93,14 @@ foreach ($line in $lines) {
   }
 }
 
+$manifest = Get-Content -Raw -LiteralPath (Join-Path $PSScriptRoot '..\supabase\finance-migration-promotion.json') | ConvertFrom-Json -Depth 10
+$migrationFiles = @(Get-ChildItem -LiteralPath (Join-Path $PSScriptRoot '..\supabase\migrations') -Filter '*.sql' -File)
 $expected = [ordered]@{
-  migration_count = '166'
-  finance_migration_count = '145'
+  migration_count = [string]$migrationFiles.Count
+  finance_migration_count = [string]$manifest.migrationCount
   finance_tables = '52'
   finance_private_tables = '2'
-  finance_api_functions = '183'
+  finance_api_functions = '189'
   finance_rls_enabled = '52'
   finance_rls_forced = '52'
   raw_client_table_grants = '0'
