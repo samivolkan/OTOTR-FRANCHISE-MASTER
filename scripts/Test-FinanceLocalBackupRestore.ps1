@@ -33,7 +33,7 @@ try{
 
   $source=@(Invoke-ContainerCommand @('psql','-X','-At','-U','postgres','-d','postgres','-c',"select count(*)||'|'||(select count(*) from information_schema.routines where routine_schema='finance_api') from information_schema.tables where table_schema='finance' and table_type='BASE TABLE';") 'Source catalog verification failed.')
   $restored=@(Invoke-ContainerCommand @('psql','-X','-At','-U','postgres','-d',$restoreDatabase,'-c',"select count(*)||'|'||(select count(*) from information_schema.routines where routine_schema='finance_api') from information_schema.tables where table_schema='finance' and table_type='BASE TABLE';") 'Restored catalog verification failed.')
-  if($source.Count-ne 1-or$restored.Count-ne 1-or$source[0]-ne$restored[0]-or$source[0]-ne'52|192'){throw "Restored finance catalog mismatch: source=$($source-join',') restored=$($restored-join',')"}
+  if($source.Count-ne 1-or$restored.Count-ne 1-or$source[0]-ne$restored[0]-or$source[0]-ne'52|193'){throw "Restored finance catalog mismatch: source=$($source-join',') restored=$($restored-join',')"}
   $controlSql="select jsonb_build_object('accrual_count',(select count(*) from finance.accruals),'accrual_gross',(select coalesce(sum(gross_amount),0)::text from finance.accruals),'journal_line_count',(select count(*) from finance.journal_lines),'journal_debit',(select coalesce(sum(debit_amount),0)::text from finance.journal_lines),'journal_credit',(select coalesce(sum(credit_amount),0)::text from finance.journal_lines),'open_item_count',(select count(*) from finance.open_items),'open_item_open',(select coalesce(sum(open_amount),0)::text from finance.open_items),'payment_count',(select count(*) from finance.payments),'allocation_count',(select count(*) from finance.payment_allocations))::text;"
   $sourceControl=@(Invoke-ContainerCommand @('psql','-X','-At','-U','postgres','-d','postgres','-c',$controlSql) 'Source financial control creation failed.')
   $restoredControl=@(Invoke-ContainerCommand @('psql','-X','-At','-U','postgres','-d',$restoreDatabase,'-c',$controlSql) 'Restored financial control creation failed.')
@@ -41,7 +41,7 @@ try{
   $controlBytes=[Text.Encoding]::UTF8.GetBytes($sourceControl[0])
   $controlSha256=[Convert]::ToHexString([Security.Cryptography.SHA256]::HashData($controlBytes)).ToLowerInvariant()
   Write-Host 'FINANCE LOCAL BACKUP RESTORE: PASSED' -ForegroundColor Green
-  Write-Host "Separate restore target verified: 52 finance tables; 192 finance API functions; backupSha256: $backupSha256; financialControlSha256: $controlSha256; productionDataUsed: false."
+  Write-Host "Separate restore target verified: 52 finance tables; 193 finance API functions; backupSha256: $backupSha256; financialControlSha256: $controlSha256; productionDataUsed: false."
 }finally{
   & $dockerPath exec $ContainerName dropdb -U postgres --if-exists $restoreDatabase 2>$null | Out-Null
   & $dockerPath exec $ContainerName rm -f $dependencyDumpPath $financeDumpPath 2>$null | Out-Null

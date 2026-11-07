@@ -1542,3 +1542,12 @@ Sınırlar: otomatik fotogrametri, üretici model kütüphanesi, buluttan ses/vi
 - Yeni RPC ototr-staging'e uygulandı; katalog kontrolünde yalnız `service_role` çalıştırabiliyor, `authenticated` ve `anon` çalıştıramıyor. İki aktif şube yöneticisi ve üç aktif eşleme yalnız toplam sayı olarak kaydedildi; token, e-posta ve kişisel veri kanıta yazılmadı.
 - Yerel ayrı hedef restore 52 finans tablosu ve 192 finans API fonksiyonuyla geçti. Gerçek ERP server/BFF rota bağlaması ve yayımlanmış rol/403 testi tamamlanmadığından UAT-FIN-16 `PARTIAL_AUTOMATION`, pre-production `NO_GO` kalır.
 - `scripts/Test-FinanceLocalAcceptance.ps1`: PASS, 92/92 checks, `LOCAL_ONLY`, `productionDataUsed: false`.
+
+## 2026-11-07 — ERP iş emri için atomik finans erişim kapısı
+
+- Gerçek ERP mobil akışının kullandığı `public.create_branch_work_order` zinciri, `app_private` içinde sunucu tarafı finans kontrolüyle sarıldı; kontrolsüz eski uygulama fonksiyonu tarayıcı rollerine kapatıldı.
+- Aktif ERP oturumu ve tekil şube-finans eşlemesi zorunlu. Kesilmiş ve vadesi geçmiş royalty faturası açıkken `WORK_ORDER_CREATE` reddedilir; merkez rolleri ile ödeme, fatura/ekstre görüntüleme, destek ve çıkış yetenekleri korunur.
+- Doğrudan iç-kapı çağrısı ve kontrolsüz fonksiyona erişim reddi, korumalı giriş noktası, mevcut gecikmiş royalty davranışı ve ayrı hedef restore doğrulandı. Katalog 52 finans tablosu ve 193 finans API fonksiyonudur.
+- `scripts/Test-FinanceLocalAcceptance.ps1`: PASS, 93/93 checks, `LOCAL_ONLY`, `productionDataUsed: false`.
+- Migration `ototr-staging` ortamına uygulandı. İki aktif Şube Yöneticisinin ikisi de finans kapsamına bağlı; üç aktif eşlemenin biri açık, ikisi gecikmiş royalty nedeniyle kilitli görünüyor. `authenticated` rolü korumalı iş emri fonksiyonunu çalıştırabilirken iç kontrolü ve kontrolsüz fonksiyonu doğrudan çalıştıramıyor; güvenlik danışmanında yeni kapıya özel bulgu yok.
+- Bu turda yetkili staging kullanıcı JWT'si kullanılmadığından gerçek oturumla açık/kilitli iş emri çağrısı yapılmadı; pre-production kararı `NO_GO` kalır.

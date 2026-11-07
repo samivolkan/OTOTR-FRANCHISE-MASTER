@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "module": "OTOTR_FRANCHISE_FINANCE",
+  "target": "ototr-staging",
+  "observedAtUtc": "2026-11-07T04:28:43.7348428Z",
+  "migration": "finance_erp_work_order_access_gate",
+  "deployment": "APPLIED",
+  "catalog": {
+    "gateFunctionCount": 1,
+    "authenticatedDirectGateExecute": false,
+    "authenticatedUncheckedWorkOrderExecute": false,
+    "authenticatedGuardedWorkOrderExecute": true
+  },
+  "scopeInventory": {
+    "activeBranchManagerCount": 2,
+    "mappedBranchManagerCount": 2,
+    "activeMappedBranchCount": 3,
+    "openBranchCount": 1,
+    "lockedOverdueBranchCount": 2
+  },
+  "securityAdvisor": {
+    "gateSpecificFindingCount": 0
+  },
+  "acceptance": {
+    "localChecksPassed": 93,
+    "localChecksTotal": 93,
+    "productionDataUsed": false,
+    "authenticatedBehavioralProbeExecuted": false,
+    "behavioralProbeBlocker": "No authorized staging user session token was used in this run."
+  },
+  "preProductionDecision": "NO_GO"
+}

@@ -34,6 +34,7 @@ $checks = @(
   'Test-FinanceBranchAccessMiddleware.ps1',
   'Test-FinanceErpOperationGuardRegistry.ps1',
   'Test-FinanceErpSessionScopeResolver.ps1',
+  'Test-FinanceErpWorkOrderAccessGate.ps1',
   'Test-FinanceRefundWorker.ps1',
   'Test-FinanceOutboxWorker.ps1',
   'Test-FinanceOutboxWorkerE2E.ps1',
