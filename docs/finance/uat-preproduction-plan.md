@@ -100,6 +100,8 @@ Kayıtlar `docs/finance/` dizinindedir. Staging başlamadan önce ERP test tenan
 
 FIN-G06 kanıtı elle hesaplanmaz. Kişisel veri içermeyen, `SYNTHETIC_OR_ANONYMIZED` olarak işaretlenmiş kaynak ve hedef özetleri aşağıdaki araçla karşılaştırılır. Araç kimlik eşleşmesini, 12 kontrol toplamını ve iki snapshot SHA-256 değerini üretir; fark varsa `MISMATCH` kaydı oluşturur ve release kapısı kapalı kalır.
 
+Staging hedef özeti `scripts/sql/finance-staging-target-snapshot.sql` ile çıkarılır. Sorgu yalnız maskeli `BRANCH:<kod>` referanslarını ve toplulaştırılmış kontrol toplamlarını döndürür; kaynak olay payloadı, müşteri, plaka veya iletişim alanı döndürmez. `environment_id`, tam deployment commit'i, UTC kesim zamanı ve virgülle ayrılmış pilot şube kodları `psql -v` ile yetkili pipeline tarafından verilir. Veritabanı bağlantı bilgisi komut satırına veya kanıt dosyasına yazılmaz.
+
 ```powershell
 pwsh -NoProfile -File scripts/New-FinanceStagingReconciliationEvidence.ps1 `
   -SourceSnapshotFile <maskeli-kaynak.json> `
