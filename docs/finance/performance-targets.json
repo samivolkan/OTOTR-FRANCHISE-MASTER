@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 1,
+  "module": "OTOTR_FRANCHISE_FINANCE",
+  "target": "PREPRODUCTION_PERFORMANCE_TARGETS",
+  "environment": "ototr-staging",
+  "status": "PENDING_APPROVAL",
+  "workloads": [
+    {"id":"PERF-FIN-01","name":"Genel merkez özet ve yönetişim okumaları","datasetRows":null,"concurrency":null,"requests":null,"p95Ms":null,"p99Ms":null,"maxErrorRatePct":null,"timeoutBudgetMs":null},
+    {"id":"PERF-FIN-02","name":"Bayi hesap özeti ve ekstre okumaları","datasetRows":null,"concurrency":null,"requests":null,"p95Ms":null,"p99Ms":null,"maxErrorRatePct":null,"timeoutBudgetMs":null},
+    {"id":"PERF-FIN-03","name":"Finans komut ve onay yazmaları","datasetRows":null,"concurrency":null,"requests":null,"p95Ms":null,"p99Ms":null,"maxErrorRatePct":null,"timeoutBudgetMs":null},
+    {"id":"PERF-FIN-04","name":"Entegrasyon worker timeout retry ve duplicate","datasetRows":null,"concurrency":null,"requests":null,"p95Ms":null,"p99Ms":null,"maxErrorRatePct":null,"timeoutBudgetMs":null}
+  ],
+  "approval": {
+    "platformLeadIdentitySha256": null,
+    "erpTechnicalLeadIdentitySha256": null,
+    "evidencePath": null,
+    "evidenceSha256": null,
+    "approvedAtUtc": null
+  }
+}

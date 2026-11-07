@@ -31,9 +31,14 @@ for ($i = 0; $i -lt 4; $i++) {
 if ($d.status -eq 'PASSED') {
   foreach ($name in @('environmentId','deployedCommit','startedAtUtc','completedAtUtc','executedByCorporateId','approvedByCorporateId','loadTool','loadToolVersion')) { if ([string]::IsNullOrWhiteSpace($d.run.$name)) { throw "Passed performance run metadata missing: $name" } }
   if ($d.run.deployedCommit -notmatch '^[a-f0-9]{40}$' -or $d.run.executedByCorporateId -eq $d.run.approvedByCorporateId -or @($d.workloads | Where-Object status -ne 'PASSED').Count -gt 0) { throw 'Performance commit, maker-checker or workload state is invalid.' }
-  foreach ($name in @('approvedBy','approvedAtUtc','evidencePath','evidenceSha256')) { if ([string]::IsNullOrWhiteSpace($d.targetApproval.$name)) { throw "Target approval missing: $name" } }
+  foreach ($name in @('approvedBy','approvedAtUtc','evidencePath','evidenceSha256','registryPath','registrySha256')) { if ([string]::IsNullOrWhiteSpace($d.targetApproval.$name)) { throw "Target approval missing: $name" } }
   $approvalPath = [IO.Path]::GetFullPath((Join-Path $root $d.targetApproval.evidencePath))
   if (-not $approvalPath.StartsWith($root, [StringComparison]::OrdinalIgnoreCase) -or -not (Test-Path $approvalPath -PathType Leaf) -or (Get-FileHash $approvalPath -Algorithm SHA256).Hash.ToLowerInvariant() -ne $d.targetApproval.evidenceSha256) { throw 'Performance target approval evidence is invalid.' }
+  $registryPath=[IO.Path]::GetFullPath((Join-Path $root $d.targetApproval.registryPath))
+  if(-not$registryPath.StartsWith($root,[StringComparison]::OrdinalIgnoreCase)-or-not(Test-Path -LiteralPath $registryPath -PathType Leaf)-or(Get-FileHash -LiteralPath $registryPath -Algorithm SHA256).Hash.ToLowerInvariant()-ne$d.targetApproval.registrySha256){throw'Performance target registry hash is invalid.'}
+  & (Join-Path $PSScriptRoot 'Test-FinancePerformanceTargets.ps1') -RequireApproved -TargetFile $registryPath
+  $registry=Get-Content -LiteralPath $registryPath -Raw|ConvertFrom-Json -Depth 20
+  foreach($w in $d.workloads){$approvedTarget=$registry.workloads|Where-Object id -eq $w.id;if($null-eq$approvedTarget){throw"Approved target missing: $($w.id)"};foreach($field in @('datasetRows','concurrency','requests','p95Ms','p99Ms','maxErrorRatePct','timeoutBudgetMs')){if([decimal]$w.target.$field-ne[decimal]$approvedTarget.$field){throw"Performance target differs from approved registry: $($w.id).$field"}}}
 }
 Write-Host "FINANCE STAGING PERFORMANCE: $($d.status)" -ForegroundColor $(if ($d.status -eq 'PASSED') {'Green'} else {'Yellow'})
 Write-Host "Workloads: 4; passed: $(@($d.workloads | Where-Object status -eq 'PASSED').Count); productionDataUsed: false; targetsInferred: false"

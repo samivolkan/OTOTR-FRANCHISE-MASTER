@@ -5,7 +5,7 @@
   "status": "NOT_RUN",
   "productionDataUsed": false,
   "run": {"environmentId":null,"deployedCommit":null,"startedAtUtc":null,"completedAtUtc":null,"executedByCorporateId":null,"approvedByCorporateId":null,"loadTool":null,"loadToolVersion":null},
-  "targetApproval": {"approvedBy":null,"approvedAtUtc":null,"evidencePath":null,"evidenceSha256":null},
+  "targetApproval": {"approvedBy":null,"approvedAtUtc":null,"evidencePath":null,"evidenceSha256":null,"registryPath":"docs/finance/performance-targets.json","registrySha256":null},
   "workloads": [
     {"id":"PERF-FIN-01","name":"Genel merkez özet ve yönetişim okumaları","status":"NOT_RUN","target":{"datasetRows":null,"concurrency":null,"requests":null,"p95Ms":null,"p99Ms":null,"maxErrorRatePct":null,"timeoutBudgetMs":null},"observed":{"datasetRows":null,"concurrency":null,"requests":null,"p50Ms":null,"p95Ms":null,"p99Ms":null,"errorRatePct":null,"maxMs":null,"idempotencyViolations":null,"financialMismatchCount":null,"timeoutRetryRecovered":null},"evidence":[]},
     {"id":"PERF-FIN-02","name":"Bayi hesap özeti ve ekstre okumaları","status":"NOT_RUN","target":{"datasetRows":null,"concurrency":null,"requests":null,"p95Ms":null,"p99Ms":null,"maxErrorRatePct":null,"timeoutBudgetMs":null},"observed":{"datasetRows":null,"concurrency":null,"requests":null,"p50Ms":null,"p95Ms":null,"p99Ms":null,"errorRatePct":null,"maxMs":null,"idempotencyViolations":null,"financialMismatchCount":null,"timeoutRetryRecovered":null},"evidence":[]},
