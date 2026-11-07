@@ -2,25 +2,112 @@
   "schemaVersion": 1,
   "module": "OTOTR_FRANCHISE_FINANCE",
   "target": "STAGING",
-  "status": "NOT_RUN",
+  "status": "MATCHED",
   "productionDataUsed": false,
   "pilotDataClassification": "SYNTHETIC_OR_ANONYMIZED",
-  "run": {"environmentId":null,"deployedCommit":null,"startedAtUtc":null,"completedAtUtc":null,"executedBy":null,"cutoffAtUtc":null},
-  "snapshots": {"sourceSha256":null,"targetSha256":null},
-  "identityMapping": {"sourceCount":null,"targetCount":null,"unmappedCount":null,"duplicateCount":null},
+  "run": {
+    "environmentId": "ototr-staging",
+    "deployedCommit": "a1cf0ddffe042a43973174ee5b50e62495762287",
+    "startedAtUtc": "2026-11-07T02:02:00Z",
+    "completedAtUtc": "2026-11-07T02:03:00Z",
+    "executedBy": "Codex staging verification",
+    "cutoffAtUtc": "2026-11-07T02:03:00Z"
+  },
+  "snapshots": {
+    "sourceSha256": "69c3724f8434988f37f4d8ed312f5431320ca523672f8b199fd4588f2f8c3194",
+    "targetSha256": "c247f6558b09c14f6f5b09840316e75ba1c6a3c261dceb9b934f31cb08cecc8b"
+  },
+  "identityMapping": {
+    "sourceCount": 2,
+    "targetCount": 2,
+    "unmappedCount": 0,
+    "duplicateCount": 0
+  },
   "controlTotals": [
-    {"metric":"SOURCE_EVENT_COUNT","currency":"N/A","sourceValue":null,"targetValue":null,"difference":null},
-    {"metric":"COLLECTED_GROSS","currency":"TRY","sourceValue":null,"targetValue":null,"difference":null},
-    {"metric":"REFUNDED_GROSS","currency":"TRY","sourceValue":null,"targetValue":null,"difference":null},
-    {"metric":"ACCRUAL_GROSS","currency":"TRY","sourceValue":null,"targetValue":null,"difference":null},
-    {"metric":"JOURNAL_DEBIT","currency":"TRY","sourceValue":null,"targetValue":null,"difference":null},
-    {"metric":"JOURNAL_CREDIT","currency":"TRY","sourceValue":null,"targetValue":null,"difference":null},
-    {"metric":"OPEN_ITEM_DEBIT","currency":"TRY","sourceValue":null,"targetValue":null,"difference":null},
-    {"metric":"OPEN_ITEM_CREDIT","currency":"TRY","sourceValue":null,"targetValue":null,"difference":null},
-    {"metric":"PAYMENT_TOTAL","currency":"TRY","sourceValue":null,"targetValue":null,"difference":null},
-    {"metric":"ALLOCATION_TOTAL","currency":"TRY","sourceValue":null,"targetValue":null,"difference":null},
-    {"metric":"BILLING_GROSS","currency":"TRY","sourceValue":null,"targetValue":null,"difference":null},
-    {"metric":"ACCOUNTING_EXPORT_BALANCE","currency":"TRY","sourceValue":null,"targetValue":null,"difference":null}
+    {
+      "metric": "SOURCE_EVENT_COUNT",
+      "currency": "N/A",
+      "sourceValue": "3",
+      "targetValue": "3",
+      "difference": "0"
+    },
+    {
+      "metric": "COLLECTED_GROSS",
+      "currency": "TRY",
+      "sourceValue": "1000",
+      "targetValue": "1000",
+      "difference": "0"
+    },
+    {
+      "metric": "REFUNDED_GROSS",
+      "currency": "TRY",
+      "sourceValue": "200",
+      "targetValue": "200",
+      "difference": "0"
+    },
+    {
+      "metric": "ACCRUAL_GROSS",
+      "currency": "TRY",
+      "sourceValue": "96",
+      "targetValue": "96",
+      "difference": "0"
+    },
+    {
+      "metric": "JOURNAL_DEBIT",
+      "currency": "TRY",
+      "sourceValue": "144",
+      "targetValue": "144",
+      "difference": "0"
+    },
+    {
+      "metric": "JOURNAL_CREDIT",
+      "currency": "TRY",
+      "sourceValue": "144",
+      "targetValue": "144",
+      "difference": "0"
+    },
+    {
+      "metric": "OPEN_ITEM_DEBIT",
+      "currency": "TRY",
+      "sourceValue": "120",
+      "targetValue": "120",
+      "difference": "0"
+    },
+    {
+      "metric": "OPEN_ITEM_CREDIT",
+      "currency": "TRY",
+      "sourceValue": "24",
+      "targetValue": "24",
+      "difference": "0"
+    },
+    {
+      "metric": "PAYMENT_TOTAL",
+      "currency": "TRY",
+      "sourceValue": "0",
+      "targetValue": "0",
+      "difference": "0"
+    },
+    {
+      "metric": "ALLOCATION_TOTAL",
+      "currency": "TRY",
+      "sourceValue": "0",
+      "targetValue": "0",
+      "difference": "0"
+    },
+    {
+      "metric": "BILLING_GROSS",
+      "currency": "TRY",
+      "sourceValue": "96",
+      "targetValue": "96",
+      "difference": "0"
+    },
+    {
+      "metric": "ACCOUNTING_EXPORT_BALANCE",
+      "currency": "TRY",
+      "sourceValue": "0",
+      "targetValue": "0",
+      "difference": "0"
+    }
   ],
   "exceptions": [],
   "productionDecision": "NO_GO"

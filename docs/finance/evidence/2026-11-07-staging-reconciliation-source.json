@@ -1,0 +1,28 @@
+{
+  "schemaVersion": 1,
+  "dataClassification": "SYNTHETIC_OR_ANONYMIZED",
+  "productionDataUsed": false,
+  "environmentId": "ototr-staging",
+  "deployedCommit": "a1cf0ddffe042a43973174ee5b50e62495762287",
+  "cutoffAtUtc": "2026-11-07T02:03:00Z",
+  "identityReferences": ["BRANCH:SCOPE-B1", "BRANCH:SCOPE-B2"],
+  "provenance": {
+    "kind": "SYNTHETIC_SCENARIO_EXPECTATION",
+    "scenario": "SCOPE-B1 600+400 collection, 200 refund; SCOPE-B2 empty",
+    "rawPersonalDataIncluded": false
+  },
+  "controlTotals": {
+    "SOURCE_EVENT_COUNT": "3",
+    "COLLECTED_GROSS": "1000.00000000",
+    "REFUNDED_GROSS": "200.00000000",
+    "ACCRUAL_GROSS": "96.00000000",
+    "JOURNAL_DEBIT": "144.00000000",
+    "JOURNAL_CREDIT": "144.00000000",
+    "OPEN_ITEM_DEBIT": "120.00000000",
+    "OPEN_ITEM_CREDIT": "24.00000000",
+    "PAYMENT_TOTAL": "0",
+    "ALLOCATION_TOTAL": "0",
+    "BILLING_GROSS": "96.00000000",
+    "ACCOUNTING_EXPORT_BALANCE": "0.00000000"
+  }
+}
