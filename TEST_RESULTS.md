@@ -1575,3 +1575,12 @@ Sınırlar: otomatik fotogrametri, üretici model kütüphanesi, buluttan ses/vi
 - Statik güvenlik sözleşmesi; farklı iki rol, beş gerekli secret adı, dosyaya yazmama ve değerleri ekrana basmama kurallarını doğruladı.
 - `scripts/Test-FinanceLocalAcceptance.ps1`: PASS, 95/95 checks, `LOCAL_ONLY`, `productionDataUsed: false`.
 - Gerçek hesap parolaları yetkili tarafından girilmeden hosted UAT çalıştırılmaz ve pre-production kararı `NO_GO` kalır.
+
+## 2026-11-07 — Fatura paketinde şeffaf bedel satırları
+
+- Faturalama paket detayı bedel ailesi, bedel kodu ve bedel adıyla birlikte net, KDV ve brüt tutarları ayrı kolonlarda gösterecek şekilde genişletildi.
+- Projeksiyon yalnız mevcut tahakkuk ve bedel tanımından güvenli alanları okur; resmî fatura/muhasebe satır kodu uydurmaz ve Mali Müşavir onay sınırını korur.
+- Veritabanı E2E testi `EXTERNAL_SERVICE / SYNTHETIC-BILLING` satırında 120 net, 20 KDV ve 140 brüt ayrımını; tarayıcı E2E testi de aynı kolonların ekranda göründüğünü doğruladı.
+- Migration `ototr-staging` ortamına uygulandı; fonksiyon `authenticated` için yetkili, `anon` için kapalı ve genel merkez kapsam kontrolü korunmuş durumda.
+- `scripts/Test-FinanceLocalAcceptance.ps1`: PASS, 95/95 checks, `LOCAL_ONLY`, `productionDataUsed: false`.
+- Gerçek muhasebe sağlayıcı callback/export teslimi ve Mali Müşavir imzası tamamlanmadan SCR-13 `PARTIAL_LIVE_WRITE`, pre-production `NO_GO` kalır.

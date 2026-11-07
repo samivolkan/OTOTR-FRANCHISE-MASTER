@@ -1,0 +1,20 @@
+-- Add safe fee-family context to billing package detail projections.
+-- Official invoice/accounting line codes remain outside this projection until approved.
+
+create or replace function finance_api.get_finance_export_package(p_legal_entity_id uuid,p_package_type text,p_package_id uuid)
+returns jsonb language plpgsql stable security definer set search_path=pg_catalog,finance,finance_api as $$
+declare v_result jsonb;
+begin
+  if not finance_api.authorize_headquarters_scope(p_legal_entity_id,'getFinanceExportPackage') then raise exception using errcode='42501',message='headquarters finance scope denied';end if;
+  if p_package_type='BILLING' then
+    select pg_catalog.jsonb_build_object('packageId',b.id,'packageType','BILLING','batchNo',b.batch_no,'status',b.status,'financePeriodId',b.finance_period_id,'dealerAccountId',b.dealer_account_id,'branchId',b.branch_id,'groupingProfileCode',b.grouping_profile_code,'currency',b.currency_code,'totals',pg_catalog.jsonb_build_object('netAmount',b.control_net::text,'taxAmount',b.control_tax::text,'grossAmount',b.control_gross::text),'contentHash',b.content_hash,'mappingVersion',b.mapping_version,'targetAdapterCode',b.target_adapter_code,'exportJobId',b.export_job_id,'exportQueuedAtUtc',b.export_queued_at_utc,
+      'items',coalesce((select pg_catalog.jsonb_agg(pg_catalog.jsonb_build_object('itemId',i.id,'accrualId',i.accrual_id,'feeFamily',fd.fee_family,'feeCode',fd.code,'feeName',fd.name,'netAmount',i.net_amount::text,'taxAmount',i.tax_amount::text,'grossAmount',i.gross_amount::text,'status',i.status)order by fd.fee_family,fd.code,i.id)from finance.billing_batch_items i join finance.accruals ac on ac.id=i.accrual_id join finance.fee_definitions fd on fd.id=ac.fee_definition_id where i.billing_batch_id=b.id and i.status='ACTIVE'),'[]'::jsonb),
+      'externalInvoice',(select pg_catalog.jsonb_build_object('invoiceId',ei.id,'externalSystem',ei.external_system,'externalInvoiceId',ei.external_invoice_id,'invoiceNumber',ei.invoice_number,'invoiceDate',ei.invoice_date,'status',ei.status,'netAmount',ei.net_amount::text,'taxAmount',ei.tax_amount::text,'grossAmount',ei.gross_amount::text,'currency',ei.currency_code)from finance.external_invoices ei where ei.billing_batch_id=b.id),'version',b.version,'createdAtUtc',b.created_at_utc,'correlationId',b.correlation_id) into v_result from finance.billing_batches b where b.id=p_package_id and b.legal_entity_id=p_legal_entity_id;
+  elsif p_package_type='ACCOUNTING' then
+    select pg_catalog.jsonb_build_object('packageId',a.id,'packageType','ACCOUNTING','batchNo',a.batch_no,'status',a.status,'financePeriodId',a.finance_period_id,'currency',a.currency_code,'totals',pg_catalog.jsonb_build_object('debitAmount',a.debit_total::text,'creditAmount',a.credit_total::text),'contentHash',a.content_hash,'mappingVersion',a.mapping_version,'targetAdapterCode',a.target_adapter_code,'exportJobId',a.export_job_id,'exportQueuedAtUtc',a.export_queued_at_utc,'externalBatchId',a.external_batch_id,'packages',coalesce((select pg_catalog.jsonb_agg(pg_catalog.jsonb_build_object('packageId',p.id,'dealerAccountId',p.dealer_account_id,'branchId',p.branch_id,'packageOrder',p.package_order,'debitAmount',p.debit_total::text,'creditAmount',p.credit_total::text,'contentHash',p.content_hash,'externalPackageId',p.external_package_id,'status',p.status,'safeErrorCode',p.safe_error_code,'entryCount',(select count(*) from finance.accounting_batch_entries e where e.accounting_batch_package_id=p.id and e.status='ACTIVE'))order by p.package_order)from finance.accounting_batch_packages p where p.accounting_batch_id=a.id),'[]'::jsonb),'version',a.version,'createdAtUtc',a.created_at_utc,'correlationId',a.correlation_id) into v_result from finance.accounting_batches a where a.id=p_package_id and a.legal_entity_id=p_legal_entity_id;
+  else raise exception using errcode='22023',message='invalid export package type';end if;
+  return v_result;
+end$$;
+
+revoke all on function finance_api.get_finance_export_package(uuid,text,uuid) from public,anon;
+grant execute on function finance_api.get_finance_export_package(uuid,text,uuid) to authenticated;

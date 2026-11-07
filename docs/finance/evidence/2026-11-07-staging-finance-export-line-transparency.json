@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "module": "OTOTR_FRANCHISE_FINANCE",
+  "target": "STAGING_EXPORT_LINE_TRANSPARENCY",
+  "projectRef": "bsjkohwbtrfwrqcyhsfz",
+  "observedAtUtc": "2026-11-07T05:35:52Z",
+  "productionDataUsed": false,
+  "migration": {
+    "semanticName": "finance_export_fee_line_transparency",
+    "hostedVersion": "20261107053552",
+    "status": "APPLIED"
+  },
+  "projection": {
+    "feeFamilyExposed": true,
+    "feeCodeExposed": true,
+    "feeNameExposed": true,
+    "netTaxGrossSeparated": true,
+    "officialAccountingLineCodesInferred": false
+  },
+  "authorization": {
+    "authenticatedExecute": true,
+    "anonymousExecute": false,
+    "headquartersScopeCheckPreserved": true
+  },
+  "verification": {
+    "databaseE2e": "PASSED",
+    "browserE2e": "PASSED",
+    "preProductionDecision": "NO_GO"
+  }
+}

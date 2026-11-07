@@ -185,7 +185,13 @@ begin
   package_detail:=finance_api.get_finance_export_package(hq,'BILLING',batch_id);
   if package_detail#>>'{externalInvoice,status}'<>'ISSUED'
      or package_detail#>>'{externalInvoice,invoiceNumber}'<>'OTOTR-2026-000001'
-     or pg_catalog.jsonb_array_length(package_detail->'items')<>1 then
+     or pg_catalog.jsonb_array_length(package_detail->'items')<>1
+     or package_detail#>>'{items,0,feeFamily}'<>'EXTERNAL_SERVICE'
+     or package_detail#>>'{items,0,feeCode}'<>'SYNTHETIC-BILLING'
+     or package_detail#>>'{items,0,feeName}'<>'Sentetik Faturalama'
+     or package_detail#>>'{items,0,netAmount}'<>'120.00000000'
+     or package_detail#>>'{items,0,taxAmount}'<>'20.00000000'
+     or package_detail#>>'{items,0,grossAmount}'<>'140.00000000' then
     raise exception 'billing export package detail mismatch: %',package_detail;
   end if;
   package_detail:=finance_api.get_finance_export_package(hq,'ACCOUNTING',export_accounting_batch_id);
