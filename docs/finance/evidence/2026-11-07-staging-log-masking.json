@@ -1,0 +1,43 @@
+{
+  "schemaVersion": 1,
+  "module": "OTOTR_FRANCHISE_FINANCE",
+  "controlId": "SEC-FIN-05",
+  "environment": "ototr-staging",
+  "projectRef": "bsjkohwbtrfwrqcyhsfz",
+  "observedAtUtc": "2026-11-07T01:19:32.4360483Z",
+  "inspectedCommit": "c25791ae101d3ed96b557d1fb6945eb3ccbc3437",
+  "productionDataUsed": false,
+  "rawLogMessagesRead": false,
+  "containsPersonalData": false,
+  "liveAggregateScan": {
+    "windowHours": 24,
+    "financeRuntimeEvents": 31,
+    "secretOrTokenPatternEvents": 0,
+    "passwordOrRawPaymentKeyEvents": 0,
+    "emailPatternMessageEvents": 0
+  },
+  "sourceAndContractVerification": {
+    "runtimeFilesScanned": 34,
+    "directRuntimeConsoleLoggingMatches": 0,
+    "safeErrorContractTestsPassed": 9,
+    "safeErrorContractTestsFailed": 0,
+    "tests": [
+      "test-finance-read-edge.mjs",
+      "test-finance-command-edge.mjs",
+      "test-finance-accounting-export-worker.mjs",
+      "test-finance-branch-access-worker.mjs",
+      "test-finance-invoice-callback-worker.mjs",
+      "test-finance-payment-callback-worker.mjs",
+      "test-finance-payment-ingestion-worker.mjs",
+      "test-finance-refund-worker.mjs",
+      "test-finance-service-usage-worker.mjs"
+    ]
+  },
+  "limitations": [
+    "The aggregate log scan does not expose or retain raw log messages.",
+    "The 24-hour sample contains 31 finance runtime events and does not replace authenticated role UAT or KVKK approval.",
+    "Future deployments must rerun the source and live aggregate checks."
+  ],
+  "result": "PASSED",
+  "preProductionDecision": "NO_GO"
+}
