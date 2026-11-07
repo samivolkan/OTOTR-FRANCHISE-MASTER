@@ -11,7 +11,7 @@
   },
   "migrationManifest": {
     "path": "supabase/finance-migration-promotion.json",
-    "sha256": "f24a15fe677663e798a63f6a1a136b9357c51c6ccf50f5da57035372f85d5068"
+    "sha256": "7992d49d2b52f728b413336a8aa4afff6f79037061e6c7cbe4962d25bfcd1b8d"
   },
   "functions": [
     {"name":"finance-read","verifyJwt":true,"files":["core.mjs","index.ts","README.md","supabase-adapter.mjs"],"packageSha256":"aa09149d90011535b15f5aabb7ddbf4a6f86f51ba6623bd23eb6df52339bfad8","requiredSecretNames":["SUPABASE_URL","SUPABASE_PUBLISHABLE_KEYS","OTOTR_FINANCE_ALLOWED_ORIGINS"]},

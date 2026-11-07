@@ -8,12 +8,12 @@
   "inspectionMode": "READ_ONLY_MANAGEMENT_API_AND_CATALOG",
   "status": "DRIFT",
   "migrationInventory": {
-    "expectedManifestCount": 153,
+    "expectedManifestCount": 154,
     "bundledSourceCount": 138,
-    "expectedPostBundleCount": 15,
-    "matchedPostBundleCount": 15,
+    "expectedPostBundleCount": 16,
+    "matchedPostBundleCount": 16,
     "missing": [],
-    "appliedHostedVersion": "20261107031541",
+    "appliedHostedVersion": "20261107041537",
     "versionRenamesObserved": true,
     "semanticNameMatchesUsed": true
   },

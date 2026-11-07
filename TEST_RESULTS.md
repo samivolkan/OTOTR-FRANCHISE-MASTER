@@ -1535,3 +1535,10 @@ Sınırlar: otomatik fotogrametri, üretici model kütüphanesi, buluttan ses/vi
 - Actor ve şube kapsamının request body yerine yalnız doğrulanmış ERP oturum çözücüsünden gelmesi; kilitli şubede operasyon handler'ının çalışmaması yerel sözleşme testiyle doğrulandı.
 - Gerçek ERP server framework bağlantısı ve yayımlanmış ortam rol testi henüz yapılmadığı için UAT-FIN-16 `PARTIAL_AUTOMATION`, pre-production ise `NO_GO` kalır.
 - `scripts/Test-FinanceLocalAcceptance.ps1`: PASS, 90/90 checks, `LOCAL_ONLY`, `productionDataUsed: false`.
+
+## 2026-11-07 — ERP oturumundan şube-finans kapsamı çözümleme
+
+- Bearer kullanıcı JWT'sini Supabase Auth ile doğrulayan ve actor/şube kapsamını browser payload'ından değil tek aktif ERP eşlemesinden alan server-only çözümleyici eklendi.
+- Yeni RPC ototr-staging'e uygulandı; katalog kontrolünde yalnız `service_role` çalıştırabiliyor, `authenticated` ve `anon` çalıştıramıyor. İki aktif şube yöneticisi ve üç aktif eşleme yalnız toplam sayı olarak kaydedildi; token, e-posta ve kişisel veri kanıta yazılmadı.
+- Yerel ayrı hedef restore 52 finans tablosu ve 192 finans API fonksiyonuyla geçti. Gerçek ERP server/BFF rota bağlaması ve yayımlanmış rol/403 testi tamamlanmadığından UAT-FIN-16 `PARTIAL_AUTOMATION`, pre-production `NO_GO` kalır.
+- `scripts/Test-FinanceLocalAcceptance.ps1`: PASS, 92/92 checks, `LOCAL_ONLY`, `productionDataUsed: false`.

@@ -22,7 +22,7 @@
   "recoveryChecks": {
     "localSeparateDatabaseRestorePassed": true,
     "localFinanceTableCount": 52,
-    "localFinanceApiFunctionCount": 191,
+    "localFinanceApiFunctionCount": 192,
     "localBackupHashVerified": true,
     "localFinancialControlHashMatched": true,
     "managedBackupHistoryVerified": false,

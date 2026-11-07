@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 1,
+  "module": "OTOTR_FRANCHISE_FINANCE",
+  "target": "STAGING_ERP_SESSION_SCOPE_RESOLVER",
+  "projectRef": "bsjkohwbtrfwrqcyhsfz",
+  "observedAtUtc": "2026-11-07T04:15:37Z",
+  "productionDataUsed": false,
+  "migration": {
+    "hostedVersion": "20261107041537",
+    "name": "finance_erp_session_scope_resolver",
+    "applied": true
+  },
+  "controls": {
+    "functionPresent": true,
+    "serviceRoleExecute": true,
+    "authenticatedExecute": false,
+    "anonExecute": false,
+    "activeBranchManagerCount": 2,
+    "activeMappingCount": 3,
+    "scopeInputFromBrowser": false,
+    "actorBoundToVerifiedAuthUser": true
+  },
+  "securityAdvisor": {
+    "resolverFindingCount": 0,
+    "projectWideExistingWarningsUnchanged": true,
+    "remediationReference": "https://supabase.com/docs/guides/database/database-linter"
+  },
+  "status": "STAGING_DATABASE_VERIFIED",
+  "remaining": [
+    "Bind the resolver and fixed-capability registry to the real ERP server/BFF framework.",
+    "Run authenticated branch-manager allow, locked deny, payment allowance and cross-branch 403 tests through the published ERP route.",
+    "Obtain Information Security and ERP Technical Lead signoff."
+  ],
+  "preProductionDecision": "NO_GO"
+}
