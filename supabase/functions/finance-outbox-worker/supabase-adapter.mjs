@@ -1,4 +1,7 @@
 const TOPIC = /^[a-z][a-z0-9]*(?:[._-][a-z0-9]+)*$/;
+const FORBIDDEN_PAYLOAD_KEY = /^(rawPayload|rawContext|safeContext|email|phone|customerName|customerEmail|customerPhone|taxNumber|tckn|vkn|cardNumber|card_number|pan|cvv|cvc|accessToken|access_token|refreshToken|refresh_token|password|serviceRoleKey|service_role|authorization|cookie|secret|token)$/i;
+const SECRET_VALUE = /^(?:Bearer\s+\S+|eyJ[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,})$/;
+const EMAIL_VALUE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 const call = async ({ supabaseUrl, serviceRoleKey, fetchImpl }, rpc, body) => {
   const response = await fetchImpl(`${supabaseUrl}/rest/v1/rpc/${rpc}`, {
@@ -58,12 +61,31 @@ function validateRoutes(routes) {
   return Object.freeze(validated);
 }
 
+function assertSafePayload(value, path = 'payload', depth = 0) {
+  if (depth > 12) throw Object.assign(new Error('payload depth invalid'), { code: 'PAYLOAD_DATA_MINIMIZATION_FAILED', retryable: false });
+  if (typeof value === 'string' && (SECRET_VALUE.test(value) || EMAIL_VALUE.test(value))) {
+    throw Object.assign(new Error(`unsafe payload value at ${path}`), { code: 'PAYLOAD_DATA_MINIMIZATION_FAILED', retryable: false });
+  }
+  if (!value || typeof value !== 'object') return;
+  if (Array.isArray(value)) {
+    value.forEach((item, index) => assertSafePayload(item, `${path}[${index}]`, depth + 1));
+    return;
+  }
+  for (const [key, item] of Object.entries(value)) {
+    if (FORBIDDEN_PAYLOAD_KEY.test(key)) {
+      throw Object.assign(new Error(`unsafe payload key at ${path}.${key}`), { code: 'PAYLOAD_DATA_MINIMIZATION_FAILED', retryable: false });
+    }
+    assertSafePayload(item, `${path}.${key}`, depth + 1);
+  }
+}
+
 export function createFinanceOutboxPublisher({ routes, deliveryToken, fetchImpl = fetch }) {
   if (typeof deliveryToken !== 'string' || deliveryToken.length < 32) throw new Error('delivery token required');
   const validatedRoutes = validateRoutes(routes);
   return async message => {
     const route = validatedRoutes[message.topic];
     if (!route) throw Object.assign(new Error('route missing'), { code: 'ROUTE_NOT_CONFIGURED', retryable: false });
+    assertSafePayload(message.payload);
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), 10000);
     try {

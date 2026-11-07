@@ -13,6 +13,6 @@ if($d.status-eq'APPROVED'){
 }elseif(@($d.routes).Count-ne 0-or@($d.requiredApprovals|Where-Object status -ne 'PENDING').Count-ne 0){throw'Pending outbox approval must not imply a configured route or signature.'}
 if(-not$d.deploymentPolicy.deployOnlyWhenApproved-or-not$d.deploymentPolicy.requireAtLeastOneRoute-or-not$d.deploymentPolicy.requireTokenFreeEvidence-or-not$d.deploymentPolicy.requireControlledAckRetryDeadLetterDrill){throw'Outbox deployment policy is incomplete.'}
 $h=$d.predeploymentHardening
-if($h.packageSha256-notmatch'^[a-f0-9]{64}$'-or$h.missingWorkerIdentityStatus-ne 401-or$h.invalidConfigurationStatus-ne 503-or-not$h.allRoutesValidatedBeforeMessageClaim-or$h.invalidRouteNetworkCalls-ne 0-or$h.unconfiguredTopicRetryable){throw'Outbox predeployment hardening evidence is incomplete.'}
+if($h.packageSha256-notmatch'^[a-f0-9]{64}$'-or$h.missingWorkerIdentityStatus-ne 401-or$h.invalidConfigurationStatus-ne 503-or-not$h.allRoutesValidatedBeforeMessageClaim-or$h.invalidRouteNetworkCalls-ne 0-or$h.personalDataOrSecretPayloadNetworkCalls-ne 0-or$h.unsafePayloadRetryable-or$h.unconfiguredTopicRetryable){throw'Outbox predeployment hardening evidence is incomplete.'}
 Write-Host "FINANCE OUTBOX ROUTE APPROVAL: $($d.status)" -ForegroundColor $(if($d.status-eq'APPROVED'){'Green'}else{'Yellow'})
 Write-Host "Routes: $(@($d.routes).Count); secrets in repository: false; preProductionDecision: NO_GO"

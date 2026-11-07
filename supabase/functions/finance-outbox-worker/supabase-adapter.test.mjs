@@ -62,3 +62,25 @@ test('rejects an unconfigured topic without a network call', async () => {
   });
   assert.equal(calls, 0);
 });
+
+test('rejects personal data and secrets without a network call', async () => {
+  let calls = 0;
+  const publish = createFinanceOutboxPublisher({
+    routes: { 'finance.erp': { endpoint: 'https://erp.example.test/events' } },
+    deliveryToken: token,
+    fetchImpl: async () => { calls++; return new Response(); },
+  });
+  for (const payload of [
+    { customerEmail: 'customer@example.test' },
+    { nested: { accessToken: 'eyJabcdefghijk.abcdefghijk.abcdefghijk' } },
+    { actor: 'person@example.test' },
+    { nested: { authorization: 'Bearer private-value' } },
+  ]) {
+    await assert.rejects(() => publish({ ...message, payload }), error => {
+      assert.equal(error.code, 'PAYLOAD_DATA_MINIMIZATION_FAILED');
+      assert.equal(error.retryable, false);
+      return true;
+    });
+  }
+  assert.equal(calls, 0);
+});
