@@ -532,7 +532,7 @@ try {
   assert.match(await page.locator('[data-finance-export-package-detail]').innerText(),/ISSUED/);
   assert.match(await page.locator('[data-finance-export-package-detail]').innerText(),/EINVOICE-V1/);
   assert.match(await page.locator('[data-finance-export-package-rows]').innerText(),/ROYALTY_STANDARD/);
-  assert.match(await page.locator('[data-finance-export-package-rows]').innerText(),/ROYALTY · Royalty Bedeli/);
+  assert.match(await page.locator('[data-finance-export-package-rows]').innerText(),/Royalty \(ROYALTY\) · Royalty Bedeli/);
   assert.match(await page.locator('[data-finance-export-package-rows]').innerText(),/120,00000000 TRY/);
   assert.match(await page.locator('[data-finance-export-package-rows]').innerText(),/20,00000000 TRY/);
   assert.match(await page.locator('[data-finance-export-package-rows]').innerText(),/140,00000000 TRY/);

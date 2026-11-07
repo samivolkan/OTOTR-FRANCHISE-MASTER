@@ -272,6 +272,17 @@
     return `${canonicalDecimal(value)} ${currency}`;
   };
 
+  const feeFamilyLabels = Object.freeze({
+    ROYALTY:'Royalty',ENTRY_FRANCHISE:'Giriş Franchise',PERIODIC_FRANCHISE:'Periyodik Franchise',
+    QUERY:'Sorgu Hizmeti',EXTERNAL_SERVICE:'Harici Hizmet',OPTIONAL_PRODUCT_SERVICE:'Opsiyonel Ürün / Hizmet',
+    PASS_THROUGH_EXPENSE:'Masraf Yansıtma',DEDUCTION_CREDIT:'Kesinti / Kredi',ADJUSTMENT:'Kesinti / Kredi'
+  });
+  const feeFamilyLabel = value => {
+    if(typeof value!=='string'||!feeFamilyLabels[value])throw new Error('INVALID_FEE_FAMILY');
+    const businessCode=value==='ADJUSTMENT'?'DEDUCTION_CREDIT':value;
+    return `${feeFamilyLabels[value]} (${businessCode})`;
+  };
+
   const statementStatuses = Object.freeze({OPEN:'Açık',PARTIALLY_ALLOCATED:'Kısmi tahsis',CLOSED:'Kapalı',DISPUTED:'İtirazlı',REVERSED:'Ters kayıt'});
   const paymentStatuses = Object.freeze({PENDING_VERIFICATION:'Doğrulama bekliyor',VERIFIED:'Doğrulandı',PARTIALLY_ALLOCATED:'Kısmi tahsis',ALLOCATED:'Tam tahsis',REVERSED:'Ters kayıt',REJECTED:'Reddedildi'});
   const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -313,7 +324,7 @@
       const tr = document.createElement('tr');
       const fee = document.createElement('div'); fee.className = 'finance-statement-fee'; fee.textContent = item.feeCode;
       const source = document.createElement('small'); source.textContent = item.sourceReference || 'Kaynak referansı yok';
-      if(item.feeFamily)source.textContent+=` · ${item.feeFamily}`;
+      if(item.feeFamily)source.textContent+=` · ${feeFamilyLabel(item.feeFamily)}`;
       if(item.financePeriod?.status)source.textContent+=` · Dönem: ${item.financePeriod.status}`;
       if (item.externalInvoiceNumber) source.textContent += ` · Fatura: ${item.externalInvoiceNumber}`;
       const descriptor = document.createElement('td'); descriptor.append(fee, source);
@@ -523,7 +534,7 @@
         if(typeof item.feeFamily!=='string'||typeof item.feeCode!=='string'||typeof item.feeName!=='string'||typeof item.netAmount!=='string'||typeof item.taxAmount!=='string'||typeof item.grossAmount!=='string')throw new Error('INVALID_BILLING_PACKAGE_LINE');
         const descriptor=document.createElement('td');
         const code=document.createElement('div');code.className='finance-statement-fee';code.textContent=item.feeCode;
-        const family=document.createElement('small');family.textContent=`${item.feeFamily} · ${item.feeName}`;
+        const family=document.createElement('small');family.textContent=`${feeFamilyLabel(item.feeFamily)} · ${item.feeName}`;
         descriptor.append(code,family);
         tr.append(descriptor,cell(item.accrualId),cell(amount(item.netAmount,payload.currency)),cell(amount(item.taxAmount,payload.currency)),cell(amount(item.grossAmount,payload.currency)),cell(item.status));
       }else{
@@ -714,7 +725,7 @@
     if (calculatedAt && Number.isNaN(calculatedAt.getTime())) throw new Error('INVALID_FINANCE_TIMESTAMP');
     freshness.textContent = calculatedAt ? calculatedAt.toLocaleString('tr-TR') : 'Bilinmiyor';
     if(!Array.isArray(summary.feeFamilies)||!Array.isArray(summary.branchBreakdown)||!summary.operationalContribution||!['SOURCE_NOT_CONNECTED','CALCULATED'].includes(summary.operationalContribution.status))throw new Error('INVALID_FINANCE_DEALER_BREAKDOWN');
-    const familyRows=summary.feeFamilies.map(item=>{if(!item||typeof item.feeFamily!=='string'||item.currency!==summary.currencyCode)throw new Error('INVALID_FINANCE_DEALER_FAMILY');const tr=document.createElement('tr');tr.append(cell(item.feeFamily),cell(amount(item.netAmount,item.currency)),cell(amount(item.taxAmount,item.currency)),cell(amount(item.grossAmount,item.currency)));return tr;});
+    const familyRows=summary.feeFamilies.map(item=>{if(!item||typeof item.feeFamily!=='string'||item.currency!==summary.currencyCode)throw new Error('INVALID_FINANCE_DEALER_FAMILY');const tr=document.createElement('tr');tr.append(cell(feeFamilyLabel(item.feeFamily)),cell(amount(item.netAmount,item.currency)),cell(amount(item.taxAmount,item.currency)),cell(amount(item.grossAmount,item.currency)));return tr;});
     const branchRows=summary.branchBreakdown.map(item=>{if(!item||!uuidPattern.test(item.branchId||'')||typeof item.branchCode!=='string'||item.currency!==summary.currencyCode)throw new Error('INVALID_FINANCE_DEALER_BRANCH');const tr=document.createElement('tr');tr.append(cell(item.branchCode),cell(amount(item.accruedGrossAmount,item.currency)),cell(amount(item.collectedGrossAmount,item.currency)),cell(amount(item.openGrossAmount,item.currency)),cell(amount(item.overdueGrossAmount,item.currency)));return tr;});
     dealerFamilies.replaceChildren(...familyRows);dealerBranches.replaceChildren(...branchRows);dealerFamiliesTable.hidden=!familyRows.length;dealerBranchesTable.hidden=!branchRows.length;dealerBreakdownEmpty.hidden=familyRows.length>0||branchRows.length>0;dealerBreakdownState.textContent='READY · BRANCH-SCOPED PROJECTION';
     const contribution=summary.operationalContribution;
@@ -733,7 +744,7 @@
     if(summary===null){resetHeadquartersSummary('Seçili tarih ve para biriminde genel merkez snapshotı bulunamadı.');return;}
     if(!summary||!uuidPattern.test(summary.legalEntityId||'')||!/^\d{4}-\d{2}-\d{2}$/.test(summary.asOf||'')||!/^[A-Z]{3}$/.test(summary.currency||'')||!Number.isInteger(summary.dealerCount)||!Number.isInteger(summary.branchCount)||!Array.isArray(summary.feeFamilies)||!Array.isArray(summary.dealerRanking)) throw new Error('INVALID_HEADQUARTERS_SUMMARY');
     for(const key of ['accrued','invoiced','collected','open','overdue','refunded','disputed']) money(summary[key]);
-    const familyRows=summary.feeFamilies.map(item=>{if(!item||typeof item.feeFamily!=='string'||item.currency!==summary.currency) throw new Error('INVALID_HEADQUARTERS_FAMILY');const tr=document.createElement('tr');tr.append(cell(item.feeFamily),cell(amount(item.netAmount,item.currency)),cell(amount(item.taxAmount,item.currency)),cell(amount(item.grossAmount,item.currency)));return tr;});
+    const familyRows=summary.feeFamilies.map(item=>{if(!item||typeof item.feeFamily!=='string'||item.currency!==summary.currency) throw new Error('INVALID_HEADQUARTERS_FAMILY');const tr=document.createElement('tr');tr.append(cell(feeFamilyLabel(item.feeFamily)),cell(amount(item.netAmount,item.currency)),cell(amount(item.taxAmount,item.currency)),cell(amount(item.grossAmount,item.currency)));return tr;});
     const rankingRows=summary.dealerRanking.map(item=>{if(!item||!uuidPattern.test(item.dealerAccountId||'')||!uuidPattern.test(item.branchId||'')||item.currency!==summary.currency) throw new Error('INVALID_HEADQUARTERS_RANKING');const descriptor=document.createElement('td');const dealer=document.createElement('div');dealer.className='finance-statement-fee';dealer.textContent=`${item.dealerCode} · ${item.dealerName}`;const branch=document.createElement('small');branch.textContent=item.branchCode;descriptor.append(dealer,branch);const tr=document.createElement('tr');tr.append(descriptor,cell(amount(item.accruedGrossAmount,item.currency)),cell(amount(item.collectedGrossAmount,item.currency)),cell(amount(item.openGrossAmount,item.currency)),cell(amount(item.overdueGrossAmount,item.currency)));return tr;});
     cachedHeadquartersSummary=summary;headquartersDealers.textContent=String(summary.dealerCount);headquartersBranches.textContent=String(summary.branchCount);headquartersRefunded.textContent=money(summary.refunded);headquartersDisputed.textContent=money(summary.disputed);headquartersFamilies.replaceChildren(...familyRows);headquartersRanking.replaceChildren(...rankingRows);headquartersCounts.hidden=false;headquartersFamiliesTable.hidden=!familyRows.length;headquartersRankingTable.hidden=!rankingRows.length;headquartersEmpty.hidden=true;headquarters.dataset.state='READY';headquartersState.textContent='READY · HEADQUARTERS AGGREGATION';if(activeScreenId==='SCR-01') applySummaryKpis(summary);
   };

@@ -1574,6 +1574,13 @@ Sınırlar: otomatik fotogrametri, üretici model kütüphanesi, buluttan ses/vi
 - Parolalar `SecureString` olarak alınır, yalnız standart girdiyle `gh secret set` komutuna verilir ve bellek işaretçisi işlem sonunda sıfırlanır. Son kontrol yalnız secret adlarını okur.
 - Statik güvenlik sözleşmesi; farklı iki rol, beş gerekli secret adı, dosyaya yazmama ve değerleri ekrana basmama kurallarını doğruladı.
 - `scripts/Test-FinanceLocalAcceptance.ps1`: PASS, 95/95 checks, `LOCAL_ONLY`, `productionDataUsed: false`.
+
+## 2026-11-07 — Kullanıcı dostu bedel ailesi adları
+
+- Finans özetleri, tahakkuk satırları ve fatura paket detayı teknik bedel kodlarını Türkçe iş adlarıyla gösterir; izlenebilirlik için kanonik kod parantez içinde korunur.
+- `ADJUSTMENT` teknik kodu ekranda `Kesinti / Kredi (DEDUCTION_CREDIT)` olarak normalize edilir; diğer ailelerin iş kodları değiştirilmez.
+- Tarayıcı E2E testi fatura satırındaki `Royalty (ROYALTY)` etiketi ile net/KDV/brüt kolonlarını doğruladı.
+- `scripts/Test-FinanceLocalAcceptance.ps1`: PASS, 95/95 checks, `LOCAL_ONLY`, `productionDataUsed: false`.
 - Gerçek hesap parolaları yetkili tarafından girilmeden hosted UAT çalıştırılmaz ve pre-production kararı `NO_GO` kalır.
 
 ## 2026-11-07 — Fatura paketinde şeffaf bedel satırları
