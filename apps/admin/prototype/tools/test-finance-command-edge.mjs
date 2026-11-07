@@ -14,11 +14,16 @@ const billingBatchId='18181818-1818-4818-8818-181818181818';
 const accountingBatchId='19191919-1919-4919-8919-191919191919',journalEntryId='20202020-2020-4020-8020-202020202020';
 const sourceEventId='21212121-2121-4121-8121-212121212121',serviceExceptionId='22222222-2222-4222-8222-222222222223';
 const slaPolicyId='23232323-2323-4232-8232-232323232323';
+const contractId='24242424-2424-4242-8242-242424242424',contractDocumentId='25252525-2525-4252-8252-252525252525';
 const token=`user-token-${'x'.repeat(32)}`;let commitInput;
 const commercialSecrets={FINANCE_QUERY_TRAMER_TRY_AMOUNT:'250.00',FINANCE_QUERY_KM_TRY_AMOUNT:'350.00',FINANCE_QUERY_TRAMER_360_TRY_AMOUNT:'750.00',FINANCE_PASS_THROUGH_MARKUP_RATE_PERCENT:'10.00'};
 const materializeCommercialRule=createFinanceCommercialRuleMaterializer({getSecret:name=>commercialSecrets[name]});
 const ports={
   authenticate:async value=>({id:actorId,token:value}),
+  authorizeContractVersionCreate:async()=>({allowed:true,...ids,dealerLegalEntityId}),
+  commitContractVersionCreate:async value=>{commitInput=value;return {outcome:'CREATED',versionId:contractVersionId,contractId,versionNo:2,status:'DRAFT',version:1};},
+  authorizeFeeRuleCreate:async()=>({allowed:true,...ids,dealerLegalEntityId}),
+  commitFeeRuleCreate:async value=>{commitInput=value;return {outcome:'CREATED',resource:{feeRuleId,code:value.rule.code,status:'DRAFT',configurationStatus:'UNCONFIGURED',version:1}};},
   authorizeAccountingBatchCreate:async()=>({allowed:true,...ids}),
   commitAccountingBatchCreate:async value=>{commitInput=value;return {outcome:'CREATED',batchId:accountingBatchId,status:'READY',debitTotal:'140.00',creditTotal:'140.00',version:1};},
   authorizeAccountingExport:async()=>({allowed:true,...ids}),
@@ -126,6 +131,8 @@ assert.equal((await handler(request({...command,command:{...command.command,unex
 assert.equal((await handler(request(command,{origin:'https://evil.test'}))).status,403);
 assert.equal((await handler(request(command,{method:'GET'}))).status,405);
 const disputeCommand={operationId:'createDispute',scope:ids,command:{targetRecordType:'ACCRUAL',targetRecordId:disputeTargetId,disputedAmount:'25.50',currencyCode:'TRY',reasonCode:'AMOUNT_MISMATCH',statementHash:null,documentIds:[],idempotencyKey:'dispute:create:001'}};response=await handler(request(disputeCommand));assert.equal(response.status,200);payload=await response.json();assert.equal(payload.data.disputeId,disputeId);assert.equal(commitInput.targetRecordId,disputeTargetId);assert.match(commitInput.intentHash,/^[a-f0-9]{64}$/);assert.equal((await handler(request({...disputeCommand,command:{...disputeCommand.command,disputedAmount:'0'}}))).status,400);
+const contractDraft={operationId:'createContractVersionDraft',scope:ids,command:{contractId,effectiveFrom:'2026-12-01',effectiveTo:null,currencyCode:'TRY',documentIds:[contractDocumentId],contentHash:'a'.repeat(64),note:'Yeni ticari kural taslağı.',idempotencyKey:'contract:draft:001'}};response=await handler(request(contractDraft));assert.equal(response.status,200);payload=await response.json();assert.equal(payload.data.versionId,contractVersionId);assert.equal(commitInput.note,undefined);assert.match(commitInput.noteHash,/^[a-f0-9]{64}$/);
+const feeRuleDraft={operationId:'createContractFeeRuleDraft',scope:ids,command:{contractVersionId,feeDefinitionId,code:'KM_QUERY',idempotencyKey:'fee-rule:draft:001'}};response=await handler(request(feeRuleDraft));assert.equal(response.status,200);payload=await response.json();assert.equal(payload.data.resource.configurationStatus,'UNCONFIGURED');assert.equal(commitInput.rule.calculation,null);assert.deepEqual(commitInput.rule.exceptions,[]);
 const rule={basis:{kind:'COLLECTED_GROSS'},calculation:{method:'PERCENTAGE',parameters:{rate:'10.00'},currency:'TRY',decimalScale:2,roundingMode:'HALF_UP'},cancellationPolicy:{refund:'PROPORTIONAL_REVERSAL'},code:'ROYALTY_STANDARD',configurationStatus:'CONFIGURED',evidenceDocumentId:null,exceptions:[],feeDefinitionId,tax:{taxCodeVersionId:'cccccccc-cccc-4ccc-8ccc-cccccccccccc',priceIncludesTax:true},trigger:{eventType:'PAYMENT_FINALIZED',conditions:[]},due:{kind:'IMMEDIATE'}};
 const updateCommand={operationId:'updateContractFeeRule',scope:ids,command:{contractVersionId,feeRuleId,expectedVersion:1,rule,idempotencyKey:'fee-rule:update:001'}};
 response=await handler(request(updateCommand));assert.equal(response.status,200);payload=await response.json();assert.equal(payload.data.outcome,'UPDATED');assert.equal(payload.data.resource.feeRuleId,feeRuleId);
