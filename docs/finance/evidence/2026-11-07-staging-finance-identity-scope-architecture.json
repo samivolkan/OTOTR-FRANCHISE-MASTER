@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "module": "OTOTR_FRANCHISE_FINANCE",
+  "target": "STAGING_IDENTITY_SCOPE_ARCHITECTURE",
+  "projectRef": "bsjkohwbtrfwrqcyhsfz",
+  "observedAtUtc": "2026-11-07T05:10:00Z",
+  "productionDataUsed": false,
+  "inspectionMode": "READ_ONLY_AGGREGATE_METADATA",
+  "erpRoleCounts": {"FINANCE":1,"BRANCH_MANAGER":2},
+  "activeErpBranchMappings": 3,
+  "mappedFinanceBranches": [
+    {"branchCode":"SCOPE-B1","activeMappingCount":2},
+    {"branchCode":"SCOPE-B2","activeMappingCount":1}
+  ],
+  "activeActorScopeGrants": 0,
+  "activeLegacyBranchAssignments": 0,
+  "duplicateActiveErpMappings": 0,
+  "duplicateActiveActorGrants": 0,
+  "authorizationModel": {
+    "FINANCE": "ROLE_WIDE_LEGAL_ENTITY_SCOPE",
+    "BRANCH_MANAGER": "ERP_BRANCH_TO_FINANCE_SCOPE_MAPPING",
+    "QUALITY_AUDITOR_AND_LEGAL": "EXPLICIT_ACTOR_SCOPE_GRANT",
+    "financeBranchAssignmentsPurpose": "BRANCH_TO_DEALER_LEGAL_ENTITY_MASTER_DATA_NOT_USER_AUTHORIZATION"
+  },
+  "conclusion": "ZERO_ACTOR_SCOPE_GRANTS_IS_EXPECTED_WITHOUT_AUDITOR_OR_LEGAL_PILOT_USERS",
+  "remaining": [
+    "Run authenticated browser/API acceptance with one FINANCE and one BRANCH_MANAGER identity.",
+    "Obtain ERP Product Owner and Finance Operations acceptance for the pilot mappings.",
+    "Approve pilot contracts, service codes and accounting mappings."
+  ],
+  "preProductionDecision": "NO_GO"
+}

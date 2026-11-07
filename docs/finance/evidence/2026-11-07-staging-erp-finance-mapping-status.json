@@ -12,7 +12,7 @@
     {"id":"MAP-FIN-01","source":"ERP_HEADQUARTERS_LEGAL_ENTITY","target":"finance.legal_entities","status":"TECHNICALLY_PRESENT","observedCount":1,"remaining":"ERP product-owner canonical key approval"},
     {"id":"MAP-FIN-02","source":"ERP_DEALER_ACCOUNT","target":"finance.dealer_accounts","status":"TECHNICALLY_PRESENT","observedCount":2,"remaining":"Pilot dealer code and canonical key approval"},
     {"id":"MAP-FIN-03","source":"ERP_BRANCH","target":"finance.branches","status":"TECHNICALLY_PRESENT","observedCount":2,"remaining":"SCOPE-B1 and SCOPE-B2 pilot-code approval"},
-    {"id":"MAP-FIN-04","source":"ERP_USER_ROLE_SCOPE","target":"app_users plus finance branch scope","status":"INCOMPLETE","observedEligibleUserCount":2,"observedBranchManagerCount":2,"observedFinanceBranchAssignmentCount":0,"remaining":"Authenticated role matrix, explicit branch assignment and cross-branch 403 evidence"},
+    {"id":"MAP-FIN-04","source":"ERP_USER_ROLE_SCOPE","target":"app_users plus finance_private.erp_branch_scope_mappings","status":"TECHNICALLY_PRESENT_PENDING_SESSION","observedFinanceRoleCount":1,"observedBranchManagerCount":2,"observedActiveErpBranchMappingCount":3,"observedDuplicateMappingCount":0,"remaining":"Authenticated role matrix and cross-branch 403 browser/API evidence"},
     {"id":"MAP-FIN-05","source":"FRANCHISE_CONTRACT","target":"finance.franchise_contracts and contract_versions","status":"TECHNICALLY_PRESENT","observedContractCount":2,"observedVersionCount":2,"remaining":"Pilot contract reference, active-version and commercial approval"},
     {"id":"MAP-FIN-06","source":"ERP_SERVICE_QUERY_CODE","target":"finance.fee_definitions and contract fee rules","status":"PARTIAL","observedFeeRuleCount":2,"remaining":"TRAMER, KM, TRAMER 360 and all pilot service-code mapping approval"},
     {"id":"MAP-FIN-07","source":"ERP_TAX_CODE","target":"finance.tax_codes and tax_code_versions","status":"TECHNICALLY_PRESENT_NOT_APPROVED","observedTaxCodeCount":1,"observedActiveVersionCount":1,"remaining":"Mali Musavir accounting and tax-code approval"},
@@ -29,6 +29,7 @@
   },
   "evidenceSources": [
     "docs/finance/evidence/2026-11-07-staging-identity-and-grant-inventory.json",
+    "docs/finance/evidence/2026-11-07-staging-finance-identity-scope-architecture.json",
     "docs/finance/staging-reconciliation-evidence.json"
   ],
   "decision": "NO_GO"

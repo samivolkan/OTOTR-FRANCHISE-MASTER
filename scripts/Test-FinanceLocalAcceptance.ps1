@@ -11,6 +11,7 @@ $checks = @(
   'Test-FinanceScopeB2AuthenticatedUat.ps1',
   'Test-FinanceAuthenticatedSecurityUat.ps1',
   'Test-FinanceStagingReconciliationContract.ps1',
+  'Test-FinanceStagingIdentityScopeArchitecture.ps1',
   'Test-FinanceStagingReconciliationGenerator.ps1',
   'Test-FinanceStagingTargetSnapshot.ps1',
   'Test-FinanceStagingRoyaltyDemoEvidence.ps1',

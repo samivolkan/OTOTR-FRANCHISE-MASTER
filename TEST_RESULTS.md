@@ -1461,3 +1461,10 @@ Sınırlar: otomatik fotogrametri, üretici model kütüphanesi, buluttan ses/vi
 - Supabase migration geçmişi ile 153 kayıtlı finans manifesti karşılaştırıldı. İlk 138 migration staging bundle'ında; sonraki 15 patch'in tamamı semantik ad eşlemesiyle mevcut. Eksik `finance_outbox_worker_identity_bridge` migration'ı staging'e uygulandı; `anon/authenticated` execute kapalı, `service_role` açık ve hiçbir outbox satırı hareket etmedi.
 - Beklenen 13 finans Edge Function paketinin 12'si aktif; `finance-outbox-worker` staging'de yok. Bu bulgu 11 PENDING outbox kaydında attempt sayısının sıfır olmasıyla tutarlıdır, ancak nedensellik kontrollü deployment/tatbikat yapılmadan iddia edilmez.
 - Eksik worker güvenli route/teslim ayarlarıyla dağıtılıp lease/ACK/retry/dead-letter tatbikatı kanıtlanana kadar FIN-G05 ve FIN-G10 `PENDING`, pre-production `NO_GO` kalır.
+
+## 2026-11-07 — FIN-G03/04 ERP kimlik ve şube kapsamı mimarisi
+
+- `scripts/Test-FinanceLocalAcceptance.ps1`: PASS, 81/81 checks, `LOCAL_ONLY`, `productionDataUsed: false`.
+- Staging toplulaştırılmış metadata denetiminde 1 aktif FINANCE, 2 aktif BRANCH_MANAGER, SCOPE-B1 için 2 ve SCOPE-B2 için 1 aktif ERP→finans şube mapping'i bulundu; çakışan aktif mapping yok.
+- `actor_scope_grants=0` mimari hata değildir: Merkez Finans kapsamı rol seviyesinde, Şube Yöneticisi kapsamı ERP şube köprüsüyle, denetçi/hukuk istisnaları ise explicit actor grant ile çözülür. Pilot denetçi/hukuk kullanıcısı olmadığından sıfır beklenir.
+- `finance.branch_assignments` bir kullanıcı yetki tablosu değil, şube–bayi tüzel kişi ana veri tablosudur. FIN-G03'teki yanlış “doğrudan finans kullanıcı-şube ataması” engeli kaldırıldı; gerçek oturum kabulü ve iş/muhasebe onayları halen açıktır.
