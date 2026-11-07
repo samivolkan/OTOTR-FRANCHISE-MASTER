@@ -1,0 +1,72 @@
+{
+  "schemaVersion": 1,
+  "module": "OTOTR_FRANCHISE_FINANCE",
+  "target": "STAGING",
+  "environment": "ototr-staging",
+  "projectRef": "bsjkohwbtrfwrqcyhsfz",
+  "observedAtUtc": "2026-11-07T01:41:46.9043170Z",
+  "repositoryCommitObserved": "8dfd604c3d097492561ebca73b8c6b8afa59069a",
+  "productionDataUsed": false,
+  "dataClassification": "SYNTHETIC_AGGREGATE_ONLY",
+  "branchResults": [
+    {
+      "branchReference": "BRANCH:SCOPE-B1",
+      "sourceEventCount": 3,
+      "settledCollectionGross": "1000.00000000",
+      "refundedGross": "200.00000000",
+      "accrualCount": 3,
+      "royaltyAccrualGross": "96.00000000",
+      "openItemNet": "96.00000000",
+      "billingGross": "96.00000000"
+    },
+    {
+      "branchReference": "BRANCH:SCOPE-B2",
+      "sourceEventCount": 0,
+      "settledCollectionGross": "0.00000000",
+      "refundedGross": "0.00000000",
+      "accrualCount": 0,
+      "royaltyAccrualGross": "0.00000000",
+      "openItemNet": "0.00000000",
+      "billingGross": "0.00000000"
+    }
+  ],
+  "scopeB1Trace": {
+    "sourceEventSequence": [
+      {"eventType":"customer-payment.settled","grossAmount":"600.00000000","status":"PROCESSING"},
+      {"eventType":"customer-payment.refunded","grossAmount":"200.00000000","status":"PROCESSING"},
+      {"eventType":"customer-payment.settled","grossAmount":"400.00000000","status":"PROCESSING"}
+    ],
+    "accrualSequence": [
+      {"grossAmount":"72.00000000","status":"POSTED","isReversal":false},
+      {"grossAmount":"-24.00000000","status":"POSTED","isReversal":true,"originalAccrualReferencePreserved":true},
+      {"grossAmount":"48.00000000","status":"POSTED","isReversal":false}
+    ],
+    "journalDebit": "144.00000000",
+    "journalCredit": "144.00000000",
+    "billing": {"status":"INVOICED","net":"80.00000000","tax":"16.00000000","gross":"96.00000000"}
+  },
+  "verified": {
+    "grossCollectionsEqual1000": true,
+    "refundEquals200": true,
+    "royaltyNetBeforeTaxEquals80": true,
+    "taxEquals16": true,
+    "royaltyGrossEquals96": true,
+    "proportionalReversalLinked": true,
+    "journalBalanced": true,
+    "invoiceGrossEqualsOpenItemNet": true
+  },
+  "notVerified": [
+    "Scenario is recorded under SCOPE-B1, while the planned pilot branch is SCOPE-B2.",
+    "All three source events remain PROCESSING although their accruals are POSTED.",
+    "The database rows alone do not prove that the flow was initiated from a real ERP browser session.",
+    "Merkez Finans and Şube Yöneticisi authenticated browser views are not verified by this audit."
+  ],
+  "gateImpact": {
+    "FIN-G05": "PENDING",
+    "FIN-G06": "PENDING",
+    "FIN-G07": "PENDING",
+    "FIN-G08": "PENDING",
+    "preProductionDecision": "NO_GO"
+  }
+}
+
