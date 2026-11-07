@@ -1492,3 +1492,9 @@ Sınırlar: otomatik fotogrametri, üretici model kütüphanesi, buluttan ses/vi
 - Her soru yalnız `EVET`, `HAYIR` veya açıklamalı `YORUM` kabul eder; cevap verilmeden ticari değer türetilmez.
 - Vergi/muhasebe kararı ve yetkili imzalar ticari cevaplardan ayrı kapı olarak korunur.
 - `scripts/Test-FinanceLocalAcceptance.ps1`: PASS, 85/85 checks, `LOCAL_ONLY`, `productionDataUsed: false`.
+
+## 2026-11-07 — FIN-G01 karar kayıt aracı
+
+- `EVET`, `HAYIR` ve açıklaması zorunlu `YORUM` cevaplarını kanonik ankete kaydeden araç eklendi.
+- Araç bilinmeyen soru, açıklamasız `YORUM` ve `EVET/HAYIR` ile gönderilen serbest açıklamayı reddeder; 11/11 cevapta durumu otomatik tamamlar.
+- `scripts/Test-FinanceLocalAcceptance.ps1`: PASS, 86/86 checks, `LOCAL_ONLY`, `productionDataUsed: false`.
