@@ -7,6 +7,7 @@ param(
 $ErrorActionPreference = 'Stop'
 
 $secretNames = @(
+  'FINANCE_ROYALTY_DEFAULT_RATE_PERCENT',
   'FINANCE_QUERY_TRAMER_TRY_AMOUNT',
   'FINANCE_QUERY_KM_TRY_AMOUNT',
   'FINANCE_QUERY_TRAMER_360_TRY_AMOUNT',
@@ -24,7 +25,7 @@ function Get-RequiredDecimalSecret([string]$Name, [switch]$Percent) {
 }
 
 $values = [ordered]@{}
-foreach ($name in $secretNames) { $values[$name] = Get-RequiredDecimalSecret $name -Percent:($name -eq 'FINANCE_PASS_THROUGH_MARKUP_RATE_PERCENT') }
+foreach ($name in $secretNames) { $values[$name] = Get-RequiredDecimalSecret $name -Percent:($name -in @('FINANCE_ROYALTY_DEFAULT_RATE_PERCENT','FINANCE_PASS_THROUGH_MARKUP_RATE_PERCENT')) }
 $result = [ordered]@{ projectRef = $ProjectRef; secretNames = $secretNames; valuesExposed = $false; validated = $true; applied = $false }
 if ($ValidateOnly) { $result | ConvertTo-Json -Depth 4; return }
 

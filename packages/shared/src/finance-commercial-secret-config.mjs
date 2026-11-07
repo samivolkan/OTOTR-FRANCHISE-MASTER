@@ -10,6 +10,7 @@ const ZERO = parseDecimal('0');
 const ONE_HUNDRED = parseDecimal('100');
 
 export const FINANCE_COMMERCIAL_SECRET_NAMES = Object.freeze({
+  royaltyDefaultPercent: 'FINANCE_ROYALTY_DEFAULT_RATE_PERCENT',
   queryAmounts: Object.freeze({
     TRAMER_QUERY: 'FINANCE_QUERY_TRAMER_TRY_AMOUNT',
     KM_QUERY: 'FINANCE_QUERY_KM_TRY_AMOUNT',
@@ -61,8 +62,13 @@ export function createFinanceCommercialSecretConfig({getSecret} = {}) {
   ]));
   const markupPercent = readDecimal(getSecret, FINANCE_COMMERCIAL_SECRET_NAMES.passThroughMarkupPercent, {maximumExclusive: ONE_HUNDRED});
   const markupRate = decimalToString(divideDecimal(markupPercent, ONE_HUNDRED, 8, 'HALF_UP'));
+  const royaltyPercent = readDecimal(getSecret, FINANCE_COMMERCIAL_SECRET_NAMES.royaltyDefaultPercent, {maximumExclusive: ONE_HUNDRED});
+  const royaltyRate = decimalToString(divideDecimal(royaltyPercent, ONE_HUNDRED, 8, 'HALF_UP'));
 
   return Object.freeze({
+    materializeDefaultRoyaltyCalculation() {
+      return immutableCalculation('PERCENTAGE', {rate: royaltyRate});
+    },
     materializeQueryCalculation(serviceCode) {
       if (!queryAmounts.has(serviceCode)) {
         throw new FinanceCommercialConfigError('QUERY_SERVICE_NOT_CONFIGURED', 'Query service code is not configured.');
@@ -77,6 +83,7 @@ export function createFinanceCommercialSecretConfig({getSecret} = {}) {
         queryServiceCodes: Object.freeze([...queryAmounts.keys()]),
         queryAmountsConfigured: queryAmounts.size === Object.keys(FINANCE_COMMERCIAL_SECRET_NAMES.queryAmounts).length,
         passThroughMarkupConfigured: true,
+        royaltyDefaultConfigured: true,
         currency: 'TRY',
         productionValuesExposed: false,
       });
@@ -90,12 +97,17 @@ export function createFinanceCommercialRuleMaterializer({getSecret} = {}) {
       throw new FinanceCommercialConfigError('COMMERCIAL_RULE_INVALID', 'Commercial rule and server materialization descriptor are required.');
     }
     const descriptor = rule.calculation;
-    if (descriptor.source !== 'SERVER_COMMERCIAL_CONFIG' || !['QUERY', 'PASS_THROUGH_EXPENSE'].includes(descriptor.family)) {
+    if (descriptor.source !== 'SERVER_COMMERCIAL_CONFIG' || !['ROYALTY', 'QUERY', 'PASS_THROUGH_EXPENSE'].includes(descriptor.family)) {
       throw new FinanceCommercialConfigError('COMMERCIAL_RULE_SOURCE_INVALID', 'Commercial rule must use the approved server configuration source.');
     }
     const config = createFinanceCommercialSecretConfig({getSecret});
     let calculation;
-    if (descriptor.family === 'QUERY') {
+    if (descriptor.family === 'ROYALTY') {
+      if (Object.keys(descriptor).sort().join('|') !== 'family|source') {
+        throw new FinanceCommercialConfigError('COMMERCIAL_RULE_DESCRIPTOR_INVALID', 'Royalty materialization descriptor is invalid.');
+      }
+      calculation = config.materializeDefaultRoyaltyCalculation();
+    } else if (descriptor.family === 'QUERY') {
       if (Object.keys(descriptor).sort().join('|') !== 'family|serviceCode|source' || typeof descriptor.serviceCode !== 'string') {
         throw new FinanceCommercialConfigError('COMMERCIAL_RULE_DESCRIPTOR_INVALID', 'Query materialization descriptor is invalid.');
       }

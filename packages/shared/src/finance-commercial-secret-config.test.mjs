@@ -8,6 +8,7 @@ import {
 import {evaluateFeeRule} from './finance-rule-engine.mjs';
 
 const secrets = new Map([
+  ['FINANCE_ROYALTY_DEFAULT_RATE_PERCENT', '10'],
   ['FINANCE_QUERY_TRAMER_TRY_AMOUNT', '250'],
   ['FINANCE_QUERY_KM_TRY_AMOUNT', '350'],
   ['FINANCE_QUERY_TRAMER_360_TRY_AMOUNT', '750'],
@@ -57,12 +58,22 @@ test('secure catalog materializes fixed query amounts without public value expos
   assert.deepEqual(requested, [
     ...Object.values(FINANCE_COMMERCIAL_SECRET_NAMES.queryAmounts),
     FINANCE_COMMERCIAL_SECRET_NAMES.passThroughMarkupPercent,
+    FINANCE_COMMERCIAL_SECRET_NAMES.royaltyDefaultPercent,
   ]);
   const result = evaluateFeeRule(rule(config.materializeQueryCalculation('TRAMER_QUERY'), 'QUERY'), input());
   assert.deepEqual(result.amounts, {calculatedAmount: '250.00', netAmount: '250.00', taxAmount: '50.00', grossAmount: '300.00', currency: 'TRY'});
   const status = JSON.stringify(config.publicStatus());
   for (const value of secrets.values()) assert.equal(status.includes(value), false);
   assert.equal(config.publicStatus().productionValuesExposed, false);
+});
+
+test('default royalty percentage is materialized only from server configuration', () => {
+  const config = createFinanceCommercialSecretConfig({getSecret: name => secrets.get(name)});
+  const result = evaluateFeeRule(
+    rule(config.materializeDefaultRoyaltyCalculation(), 'ROYALTY'),
+    input({basisAmount: '1000'}),
+  );
+  assert.deepEqual(result.amounts, {calculatedAmount: '100.00', netAmount: '100.00', taxAmount: '20.00', grossAmount: '120.00', currency: 'TRY'});
 });
 
 test('secure pass-through markup materializes COST_PLUS and adds tax separately', () => {
@@ -93,4 +104,10 @@ test('server materializer replaces only approved descriptors and rejects browser
   assert.deepEqual(base.calculation, {source: 'SERVER_COMMERCIAL_CONFIG', family: 'QUERY', serviceCode: 'KM_QUERY'});
   assert.throws(() => materialize({...base, calculation: {...base.calculation, amount: '1'}}), {code: 'COMMERCIAL_RULE_DESCRIPTOR_INVALID'});
   assert.throws(() => materialize({...base, calculation: {source: 'BROWSER', family: 'QUERY', serviceCode: 'KM_QUERY'}}), {code: 'COMMERCIAL_RULE_SOURCE_INVALID'});
+  const royalty = rule({source: 'SERVER_COMMERCIAL_CONFIG', family: 'ROYALTY'}, 'ROYALTY');
+  assert.deepEqual(materialize(royalty).calculation, {
+    method: 'PERCENTAGE', parameters: {rate: '0.10000000'}, minimumAmount: null, maximumAmount: null,
+    currency: 'TRY', decimalScale: 2, roundingMode: 'HALF_UP',
+  });
+  assert.throws(() => materialize({...royalty, calculation: {...royalty.calculation, rate: '0.01'}}), {code: 'COMMERCIAL_RULE_DESCRIPTOR_INVALID'});
 });

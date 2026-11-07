@@ -16,7 +16,7 @@ const sourceEventId='21212121-2121-4121-8121-212121212121',serviceExceptionId='2
 const slaPolicyId='23232323-2323-4232-8232-232323232323';
 const contractId='24242424-2424-4242-8242-242424242424',contractDocumentId='25252525-2525-4252-8252-252525252525';
 const token=`user-token-${'x'.repeat(32)}`;let commitInput;
-const commercialSecrets={FINANCE_QUERY_TRAMER_TRY_AMOUNT:'250.00',FINANCE_QUERY_KM_TRY_AMOUNT:'350.00',FINANCE_QUERY_TRAMER_360_TRY_AMOUNT:'750.00',FINANCE_PASS_THROUGH_MARKUP_RATE_PERCENT:'10.00'};
+const commercialSecrets={FINANCE_ROYALTY_DEFAULT_RATE_PERCENT:'10.00',FINANCE_QUERY_TRAMER_TRY_AMOUNT:'250.00',FINANCE_QUERY_KM_TRY_AMOUNT:'350.00',FINANCE_QUERY_TRAMER_360_TRY_AMOUNT:'750.00',FINANCE_PASS_THROUGH_MARKUP_RATE_PERCENT:'10.00'};
 const materializeCommercialRule=createFinanceCommercialRuleMaterializer({getSecret:name=>commercialSecrets[name]});
 const ports={
   authenticate:async value=>({id:actorId,token:value}),
@@ -142,6 +142,9 @@ const materializeCommand={operationId:'materializeCommercialFeeRule',scope:ids,c
 response=await handler(request(materializeCommand));assert.equal(response.status,200);payload=await response.json();assert.equal(payload.data.outcome,'UPDATED');
 assert.deepEqual(commitInput.rule.calculation,{method:'FIXED',parameters:{amount:'350.00'},minimumAmount:null,maximumAmount:null,currency:'TRY',decimalScale:2,roundingMode:'HALF_UP'});
 assert.equal(JSON.stringify(materializeCommand).includes('350.00'),false);
+const royaltyCommercialRule={...rule,calculation:{source:'SERVER_COMMERCIAL_CONFIG',family:'ROYALTY'}};
+const royaltyMaterializeCommand={operationId:'materializeCommercialFeeRule',scope:ids,command:{contractVersionId,feeRuleId,expectedVersion:3,rule:royaltyCommercialRule,idempotencyKey:'fee-rule:materialize:royalty:001'}};
+response=await handler(request(royaltyMaterializeCommand));assert.equal(response.status,200);assert.deepEqual(commitInput.rule.calculation,{method:'PERCENTAGE',parameters:{rate:'0.10000000'},minimumAmount:null,maximumAmount:null,currency:'TRY',decimalScale:2,roundingMode:'HALF_UP'});assert.equal(JSON.stringify(royaltyMaterializeCommand).includes('0.10'),false);
 response=await handler(request({...materializeCommand,command:{...materializeCommand.command,rule:{...commercialRule,calculation:{...commercialRule.calculation,amount:'1.00'}}}}));assert.equal(response.status,503);payload=await response.json();assert.equal(payload.error.code,'COMMERCIAL_CONFIG_UNAVAILABLE');assert.equal(JSON.stringify(payload).includes('1.00'),false);
 for(const [operationId,outcome] of [['submitContractVersion','SUBMITTED'],['approveContractVersion','APPROVED'],['publishContractVersion','CREATED']]){const lifecycle={operationId,scope:ids,command:{contractVersionId,expectedVersion:2,reasonCode:'CONFIGURATION_REVIEWED',note:'Sözleşme kural ve kanıtları incelendi.',idempotencyKey:`contract:${operationId}:001`}};response=await handler(request(lifecycle));assert.equal(response.status,200);assert.equal((await response.json()).data.outcome,outcome);}
 const closeRequest={operationId:'requestFinancePeriodClose',scope:ids,command:{periodId,expectedVersion:4,reasonCode:'PERIOD_RECONCILED',note:'Mutabakat ve zorunlu kontroller tamamlandı.',idempotencyKey:'period:close:request:001'}};response=await handler(request(closeRequest));assert.equal(response.status,200);assert.equal((await response.json()).data.outcome,'CREATED');assert.match(commitInput.noteHash,/^[a-f0-9]{64}$/);assert.doesNotMatch(JSON.stringify(commitInput),/zorunlu kontroller/);
