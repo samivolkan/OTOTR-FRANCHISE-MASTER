@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 1,
+  "module": "OTOTR_FRANCHISE_FINANCE",
+  "target": "STAGING",
+  "environment": "ototr-staging",
+  "projectRef": "bsjkohwbtrfwrqcyhsfz",
+  "checkedAtUtc": "2026-11-07T00:25:37Z",
+  "projectStatus": "ACTIVE_HEALTHY",
+  "function": {
+    "name": "finance-erp-demo",
+    "id": "41f34c11-4a23-4db5-af36-725c82b3f72b",
+    "version": 6,
+    "status": "ACTIVE",
+    "verifyJwt": true,
+    "deploymentPackageSha256": "a981850bc64b8fe4647b0a941baafbd0034737e3c561a92eaef5bdf1110b7667"
+  },
+  "runtimeWindow": {
+    "lookbackHours": 24,
+    "version6RequestCount": 0,
+    "version6RuntimeEventCount": 0,
+    "latestObservedVersion": 4,
+    "latestObservedAtUtc": "2026-11-06T08:42:50.600Z"
+  },
+  "interpretation": {
+    "deploymentVerified": true,
+    "runtimeInvocationVerified": false,
+    "erpEndToEndScenarioVerified": false,
+    "scopeB2RoyaltyBalanceVerified": false,
+    "reason": "Version 6 is deployed and active, but no version 6 request or runtime event exists in the inspected hosted log window."
+  },
+  "security": {
+    "healthAdvisorFindings": 0,
+    "knownBlockingWarning": "AUTH_LEAKED_PASSWORD_PROTECTION_DISABLED",
+    "productionDataUsed": false,
+    "secretValuesRecorded": false
+  },
+  "preProductionDecision": "NO_GO"
+}
