@@ -1433,3 +1433,10 @@ Sınırlar: otomatik fotogrametri, üretici model kütüphanesi, buluttan ses/vi
 - Vardiya sistemi bağımlılığı kaldırıldı. İlk 24 saat kontrolü, ayrı bir vardiya modülü yerine birincil/yedek sorumluların yazılı sorumluluk ve devir planı olarak modellendi.
 - Alarm/destek kanallarının yalnız secret adları, nöbetçi kimlik hashleri, destek SLA belgesi ve altı tatbikat hedefi kanonik politikaya alındı. Özel kanal/iletişim/secret değerleri depoya alınmaz.
 - Staging tatbikat sonucu onaylı operasyon politikası hashini ve altı süre hedefini birebir taşımak zorundadır. Operasyon Lideri ve Finans Operasyon imzaları ile gerçek dispatcher/alarm tatbikatları tamamlanana kadar FIN-G10 `PENDING` kalır.
+
+## 2026-11-07 — FIN-G07 UAT senaryo kayıt aracı
+
+- `scripts/Test-FinanceLocalAcceptance.ps1`: PASS, 78/78 checks, `LOCAL_ONLY`, `productionDataUsed: false`.
+- UAT sonucu artık JSON elle değiştirilmeden repository-relative beklenen, gerçek ve ek kanıt dosyalarından SHA-256 üretilerek kaydedilir.
+- Aynı kişinin uygulayan ve onaylayan olması, kontrol toplamı uyuşmayan bir sonucun `PASSED` yapılması ve kesinleşmiş senaryonun tekrar yazılması reddedilir.
+- Bu araç gerçek kullanıcı UAT'sinin yerine geçmez. On sekiz staging senaryosu ve yetkili imzalar tamamlanana kadar FIN-G07 `PENDING`, pre-production `NO_GO` kalır.

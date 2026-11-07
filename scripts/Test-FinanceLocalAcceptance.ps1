@@ -66,6 +66,7 @@ $checks = @(
   'Test-GMFinanceDemoEnvironment.ps1',
   'Test-FinanceUATCoverage.ps1',
   'Test-FinanceUATExecutionContract.ps1',
+  'Test-FinanceUATScenarioResult.ps1',
   'Test-FinanceStagingSecurityContract.ps1',
   'Test-FinanceStagingPerformanceContract.ps1',
   'Test-FinancePerformanceTargets.ps1',

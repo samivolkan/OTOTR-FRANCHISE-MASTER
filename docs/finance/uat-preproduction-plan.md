@@ -65,6 +65,20 @@ Her çalıştırma için aşağıdaki alanlar zorunludur:
 - uygulayan ve onaylayan kişinin adı, rolü, UTC imza zamanı;
 - kanıt dosyasının repository-relative yolu ve SHA-256 değeri.
 
+Senaryo sonucu JSON elle düzenlenerek kaydedilmez. Beklenen ve gerçek sonuç dosyaları ile ek kanıtlar repository içinde, kişisel veri ve gizli değer içermeden hazırlanır; araç hash'leri kendisi hesaplar ve uygulayan/onaylayan ayrımını zorunlu tutar:
+
+```powershell
+pwsh -NoProfile -File scripts/Set-FinanceUATScenarioResult.ps1 `
+  -ScenarioId UAT-FIN-01 -Status PASSED `
+  -ExecutorCorporateId <maskeli-uygulayan-id> `
+  -ApproverCorporateId <maskeli-onaylayan-id> `
+  -ExpectedResultFile docs/finance/evidence/<beklenen.json> `
+  -ActualResultFile docs/finance/evidence/<gercek.json> `
+  -EvidencePath docs/finance/evidence/<ek-kanit.json> `
+  -ControlTotalsMatch $true `
+  -ExecutedAtUtc <utc> -ApprovedAtUtc <utc>
+```
+
 ## Pre-production teknik kapısı
 
 Güvenlik yürütme kaydı `docs/finance/staging-security-evidence.json` dosyasıdır. Sekiz kontrolün tamamı hash’li kanıtla geçmeden, uygulayan ve onaylayan kurumsal kimlikler ayrışmadan ve kritik/yüksek/çözülmemiş/kabul edilmiş risk sayıları sıfır olmadan aşağıdaki kapı geçmez:
