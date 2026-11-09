@@ -9,7 +9,7 @@ if ($source.schemaVersion -ne 1 -or $source.module -ne 'OTOTR_FRANCHISE_FINANCE'
 $codes = @('ROYALTY','ENTRY_FRANCHISE','PERIODIC_FRANCHISE','QUERY','EXTERNAL_SERVICE','OPTIONAL_PRODUCT_SERVICE','PASS_THROUGH_EXPENSE','DEDUCTION_CREDIT')
 $behaviors = [ordered]@{
   ROYALTY = 'Varsayılan oran güvenli backend yapılandırmasında onaylıdır; matrah müşteriden tahsil edilen KDV dahil brüt tutarın tamamıdır ve gider/kart komisyonu düşülmez; hesaplanan bedele ayrıca %20 KDV uygulanır. Şube açılışında ticari değer, süre ve günlük/haftalık/aylık fatura periyodu manuel seçilir; değişiklikler yalnız ileriye uygulanır. Dönem tahakkukları faturada Royalty Hizmet Bedeli adıyla tek satırda toplanır; müşteri iadesi ters kayıtları sonraki aynı satırda eksi mahsup edilir. Fazla eksi bakiye aynı şubenin sonraki dönemlerine süresiz kredi olarak devreder; şubeler arasında aktarılamaz ve alt hesaplama izi korunur. Fatura ertesi gün kredi kartıyla ödenir; doğrulanmış tam ödeme yoksa operasyon erişimi kilitlenir, ödeme ve destek erişimi açık kalır. 6/12 ay yeni şube ve onaylı mali zorluk muafiyeti desteklenir.'
-  ENTRY_FRANCHISE = 'Giriş franchise bedeli şube açılışında her şube için ayrı sabit tutar olarak manuel ve maker-checker onaylı belirlenir; global sabit değildir. Açılış referansıyla şube başına yalnız bir kez tahakkuk eder; tekrar tahakkuk reddedilir, değişiklikler ileriye uygulanır ve geriye dönük oluşturulmaz.'
+  ENTRY_FRANCHISE = 'Giriş franchise bedeli şube açılışında her şube için ayrı sabit tutar olarak manuel ve maker-checker onaylı belirlenir; global sabit değildir. Açılış referansıyla şube başına yalnız bir kez tahakkuk eder; tekrar tahakkuk reddedilir, değişiklikler ileriye uygulanır ve geriye dönük oluşturulmaz. Vade şube veya sözleşme bazında ayarlanır; kredi kartı desteklenen seçeneklerden biridir fakat tek zorunlu yöntem değildir.'
   PERIODIC_FRANCHISE = 'Periyodik franchise bedeli varsayılan olarak kapalıdır; yalnız onaylı ve sürümlü sözleşme kuralıyla etkinleşebilir.'
   QUERY = 'Başarılı ve ücretlendirilebilir sorgu başına sabit tutar uygulanır. TRAMER, KM ve TRAMER 360 hizmet kodlarının kullanıcı tarafından kararlaştırılan tutarları yalnız güvenli backend yapılandırmasında tutulur; public projeksiyon ticari tutar açıklamaz.'
   EXTERNAL_SERVICE = 'Başarılı harici hizmet teslimi, sağlayıcı maliyeti artı yüzdesel hizmet bedeli ve ayrıca KDV yöntemiyle yansıtılır. Sağlayıcı maliyeti, hizmet bedeli ve vergi şubeye ayrı gösterilir; oran, yürürlük, KDV matrahı ve vergi kodu onayı beklenir.'
@@ -19,7 +19,7 @@ $behaviors = [ordered]@{
 }
 $decisionFields = [ordered]@{
   ROYALTY = @('taxCode','refundCashPayoutPolicy')
-  ENTRY_FRANCHISE = @('amountOrRate','effectiveFrom','dueRule','taxCode','invoiceLineCode')
+  ENTRY_FRANCHISE = @('amountOrRate','effectiveFrom','additionalPaymentMethods','taxCode','invoiceLineCode')
   PERIODIC_FRANCHISE = @('calculationMethod','amountOrRate','billingFrequency','effectiveFrom','dueRule','taxCode','invoiceLineCode')
   QUERY = @('freeEntitlementPolicy','technicalRepeatPolicy','effectiveFrom','dueRule','taxCode','invoiceLineCode')
   EXTERNAL_SERVICE = @('calculationMethod','amountOrRate','providerMarginPolicy','effectiveFrom','dueRule','taxCode','invoiceLineCode')

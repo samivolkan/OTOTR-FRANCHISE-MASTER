@@ -75,11 +75,11 @@
     {
       "code": "ENTRY_FRANCHISE",
       "decisionStatus": "PARTIALLY_CONFIRMED",
-      "confirmedBehavior": "Giriş franchise bedeli şube açılışında her şube için ayrı sabit tutar olarak manuel ve maker-checker onaylı belirlenir; global sabit değildir. Açılış referansıyla şube başına yalnız bir kez tahakkuk eder; tekrar tahakkuk reddedilir, değişiklikler ileriye uygulanır ve geriye dönük oluşturulmaz.",
+      "confirmedBehavior": "Giriş franchise bedeli şube açılışında her şube için ayrı sabit tutar olarak manuel ve maker-checker onaylı belirlenir; global sabit değildir. Açılış referansıyla şube başına yalnız bir kez tahakkuk eder; tekrar tahakkuk reddedilir, değişiklikler ileriye uygulanır ve geriye dönük oluşturulmaz. Vade şube veya sözleşme bazında ayarlanır; kredi kartı desteklenen seçeneklerden biridir fakat tek zorunlu yöntem değildir.",
       "pendingFields": [
         "amountOrRate",
         "effectiveFrom",
-        "dueRule",
+        "additionalPaymentMethods",
         "taxCode",
         "invoiceLineCode"
       ]

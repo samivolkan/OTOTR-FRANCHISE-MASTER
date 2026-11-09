@@ -42,8 +42,8 @@
       "question": "Giriş franchise bedelinin vadesi royalty gibi ertesi takvim günü ve ödeme yöntemi kredi kartı olsun mu?",
       "yesEffect": "dueRule=NEXT_CALENDAR_DAY_CREDIT_CARD",
       "noEffect": "Farklı vade ve ödeme yöntemi yorumda belirtilir.",
-      "response": null,
-      "comment": null
+      "response": "YORUM",
+      "comment": "Vade şube veya sözleşme bazında ayarlanmalıdır. Kredi kartı desteklenen ödeme seçeneklerinden biri olabilir; tek zorunlu ödeme yöntemi değildir. Diğer ödeme yöntemleri ayrıca onaylanacaktır."
     },
     {
       "id": "FIN-C04",

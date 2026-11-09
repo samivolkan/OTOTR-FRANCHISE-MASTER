@@ -159,7 +159,17 @@
       },
       "amountOrRate": null,
       "effectiveFrom": null,
-      "dueRule": null,
+      "dueRule": {
+        "type": "CONFIGURABLE_PER_BRANCH_OR_CONTRACT",
+        "manualSelectionRequired": true,
+        "requiresMakerCheckerApproval": true,
+        "changePolicy": "PROSPECTIVE_VERSION_ONLY"
+      },
+      "supportedPaymentMethods": [
+        "CREDIT_CARD"
+      ],
+      "creditCardExclusive": false,
+      "additionalPaymentMethods": null,
       "taxCode": null,
       "invoiceLineCode": null
     },

@@ -1613,3 +1613,10 @@ Sınırlar: otomatik fotogrametri, üretici model kütüphanesi, buluttan ses/vi
 - Her şubenin tutarı şube açılışında manuel ve maker-checker onaylı belirlenir; tahakkuk aynı açılış referansı için yalnız bir kez oluşur, tekrar reddedilir ve değişiklikler geriye dönük uygulanmaz.
 - Tutar, vade, KDV/vergi kodu ve resmi fatura satır kodu henüz belirlenmedi; pre-production kararı `NO_GO` kalır.
 - `scripts/Test-FinanceLocalAcceptance.ps1`: PASS, 95/95 checks, `LOCAL_ONLY`, `productionDataUsed: false`.
+
+## 2026-11-10 — FIN-C03 ayarlanabilir vade ve kredi kartı seçeneği
+
+- Kullanıcı `FIN-C03=YORUM` kararıyla giriş franchise bedeli vadesinin şube veya sözleşme bazında ayarlanmasını ve kredi kartının desteklenen seçeneklerden biri olmasını onayladı; cevaplanan ticari karar sayısı 5/12 oldu.
+- Kredi kartı tek zorunlu yöntem değildir. Kullanıcı onayı alınmamış diğer ödeme yöntemleri yapılandırmaya eklenmedi ve bekleyen karar olarak bırakıldı.
+- Vade seçimi maker-checker onaylı ve yalnız ileriye dönük sürümlenir; vergi ve muhasebe onayları tamamlanmadığından pre-production kararı `NO_GO` kalır.
+- `scripts/Test-FinanceLocalAcceptance.ps1`: PASS, 95/95 checks, `LOCAL_ONLY`, `productionDataUsed: false`.
