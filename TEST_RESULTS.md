@@ -1606,3 +1606,10 @@ Sınırlar: otomatik fotogrametri, üretici model kütüphanesi, buluttan ses/vi
 - Ana ticari yapılandırma, güvenli public projeksiyon ve ERP finans arayüzü aynı `TRY` değerini fail-closed doğrular; anket ile yapılandırma arasındaki tutarsızlık kabul testini durdurur.
 - Bu karar vergi kodu, muhasebe hesapları, yuvarlama yöntemi, yabancı para/kur politikası veya Mali Müşavir onayı yerine geçmez. Vergi ve muhasebe paketi `PENDING_ADVISOR_APPROVAL`, pre-production kararı `NO_GO` kalır.
 - `scripts/Test-FinanceLocalAcceptance.ps1`: PASS, 95/95 checks, `LOCAL_ONLY`, `productionDataUsed: false`.
+
+## 2026-11-10 — FIN-C02 şube bazlı giriş franchise bedeli
+
+- Kullanıcı `FIN-C02=HAYIR` kararıyla giriş franchise bedelinin global sabit olmayacağını, şube bazında değişebileceğini onayladı; cevaplanan ticari karar sayısı 4/12 oldu.
+- Her şubenin tutarı şube açılışında manuel ve maker-checker onaylı belirlenir; tahakkuk aynı açılış referansı için yalnız bir kez oluşur, tekrar reddedilir ve değişiklikler geriye dönük uygulanmaz.
+- Tutar, vade, KDV/vergi kodu ve resmi fatura satır kodu henüz belirlenmedi; pre-production kararı `NO_GO` kalır.
+- `scripts/Test-FinanceLocalAcceptance.ps1`: PASS, 95/95 checks, `LOCAL_ONLY`, `productionDataUsed: false`.

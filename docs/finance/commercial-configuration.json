@@ -150,7 +150,13 @@
       "duplicateAccrualPolicy": "REJECT",
       "retroactiveAccrual": false,
       "requiresBranchOpeningReference": true,
-      "calculationMethod": null,
+      "calculationMethod": "BRANCH_SPECIFIC_FIXED_AMOUNT",
+      "scopeVariability": "BRANCH",
+      "branchOpeningConfiguration": {
+        "manualAmountRequired": true,
+        "requiresMakerCheckerApproval": true,
+        "changePolicy": "PROSPECTIVE_VERSION_ONLY"
+      },
       "amountOrRate": null,
       "effectiveFrom": null,
       "dueRule": null,

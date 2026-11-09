@@ -32,7 +32,7 @@
       "question": "Giriş franchise bedeli şube açılışında şube başına sabit tutar olarak mı belirlenmeli?",
       "yesEffect": "calculationMethod=FIXED_AMOUNT_PER_BRANCH",
       "noEffect": "Oran veya başka hesaplama yöntemi yorumda belirtilir.",
-      "response": null,
+      "response": "HAYIR",
       "comment": null
     },
     {

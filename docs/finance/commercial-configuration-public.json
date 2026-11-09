@@ -75,9 +75,8 @@
     {
       "code": "ENTRY_FRANCHISE",
       "decisionStatus": "PARTIALLY_CONFIRMED",
-      "confirmedBehavior": "Giriş franchise bedeli şube açılışında, açılış referansıyla şube başına yalnız bir kez tahakkuk eder; tekrar tahakkuk reddedilir ve geriye dönük oluşturulmaz.",
+      "confirmedBehavior": "Giriş franchise bedeli şube açılışında her şube için ayrı sabit tutar olarak manuel ve maker-checker onaylı belirlenir; global sabit değildir. Açılış referansıyla şube başına yalnız bir kez tahakkuk eder; tekrar tahakkuk reddedilir, değişiklikler ileriye uygulanır ve geriye dönük oluşturulmaz.",
       "pendingFields": [
-        "calculationMethod",
         "amountOrRate",
         "effectiveFrom",
         "dueRule",
