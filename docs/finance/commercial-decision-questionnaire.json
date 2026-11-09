@@ -52,7 +52,7 @@
       "question": "Sözleşme veya kampanya ile şubeye ücretsiz sorgu hakkı tanımlanabilsin mi?",
       "yesEffect": "freeEntitlementPolicy=CONTRACT_OR_CAMPAIGN_ALLOWANCE",
       "noEffect": "Tüm başarılı sorgular ücretlendirilir.",
-      "response": null,
+      "response": "HAYIR",
       "comment": null
     },
     {

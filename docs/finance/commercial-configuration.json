@@ -210,7 +210,7 @@
           "amountSecretName": "FINANCE_QUERY_TRAMER_360_TRY_AMOUNT"
         }
       ],
-      "freeEntitlementPolicy": null,
+      "freeEntitlementPolicy": "DISABLED_ALL_SUCCESSFUL_CHARGEABLE_QUERIES_BILLED",
       "technicalRepeatPolicy": null,
       "effectiveFrom": null,
       "dueRule": null,

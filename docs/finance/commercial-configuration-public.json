@@ -101,9 +101,8 @@
     {
       "code": "QUERY",
       "decisionStatus": "PARTIALLY_CONFIRMED",
-      "confirmedBehavior": "Başarılı ve ücretlendirilebilir sorgu başına sabit tutar uygulanır. TRAMER, KM ve TRAMER 360 hizmet kodlarının kullanıcı tarafından kararlaştırılan tutarları yalnız güvenli backend yapılandırmasında tutulur; public projeksiyon ticari tutar açıklamaz.",
+      "confirmedBehavior": "Başarılı ve ücretlendirilebilir sorgu başına sabit tutar uygulanır. Sözleşme veya kampanya üzerinden ücretsiz sorgu hakkı tanımlanmaz. TRAMER, KM ve TRAMER 360 hizmet kodlarının kullanıcı tarafından kararlaştırılan tutarları yalnız güvenli backend yapılandırmasında tutulur; public projeksiyon ticari tutar açıklamaz. Teknik tekrar davranışı ayrı karar bekler.",
       "pendingFields": [
-        "freeEntitlementPolicy",
         "technicalRepeatPolicy",
         "effectiveFrom",
         "dueRule",

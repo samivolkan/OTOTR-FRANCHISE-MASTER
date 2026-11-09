@@ -1620,3 +1620,10 @@ Sınırlar: otomatik fotogrametri, üretici model kütüphanesi, buluttan ses/vi
 - Kredi kartı tek zorunlu yöntem değildir. Kullanıcı onayı alınmamış diğer ödeme yöntemleri yapılandırmaya eklenmedi ve bekleyen karar olarak bırakıldı.
 - Vade seçimi maker-checker onaylı ve yalnız ileriye dönük sürümlenir; vergi ve muhasebe onayları tamamlanmadığından pre-production kararı `NO_GO` kalır.
 - `scripts/Test-FinanceLocalAcceptance.ps1`: PASS, 95/95 checks, `LOCAL_ONLY`, `productionDataUsed: false`.
+
+## 2026-11-10 — FIN-C04 ücretsiz sorgu hakkı kararı
+
+- Kullanıcı `FIN-C04=HAYIR` kararıyla sözleşme veya kampanya üzerinden ücretsiz sorgu hakkı tanımlanmayacağını onayladı; cevaplanan ticari karar sayısı 6/12 oldu.
+- Başarılı ve ücretlendirilebilir sorgular ilgili güvenli katalog bedeliyle tahakkuk eder. Teknik hata nedeniyle tekrar sorgu davranışı FIN-C05 kararı beklediği için bu kararla varsayılmadı.
+- Vergi/muhasebe eşlemesi ve diğer ticari kararlar tamamlanmadığından pre-production kararı `NO_GO` kalır.
+- `scripts/Test-FinanceLocalAcceptance.ps1`: PASS, 95/95 checks, `LOCAL_ONLY`, `productionDataUsed: false`.
