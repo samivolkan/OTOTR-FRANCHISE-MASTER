@@ -3,6 +3,7 @@
   "module": "OTOTR_FRANCHISE_FINANCE",
   "projection": "COMMERCIAL_DECISION_STATUS_PUBLIC",
   "status": "PENDING_DECISIONS",
+  "currencyCode": "TRY",
   "productionValuesExposed": false,
   "approvalIdentitiesExposed": false,
   "evidenceMetadataExposed": false,

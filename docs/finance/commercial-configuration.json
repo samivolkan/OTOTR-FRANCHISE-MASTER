@@ -3,7 +3,7 @@
   "module": "OTOTR_FRANCHISE_FINANCE",
   "environment": "PREPRODUCTION_CANDIDATE",
   "status": "PENDING_DECISIONS",
-  "currencyCode": null,
+  "currencyCode": "TRY",
   "storageDecimalScale": 8,
   "documentDecimalScale": 2,
   "roundingMode": null,

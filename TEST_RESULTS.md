@@ -1599,3 +1599,10 @@ Sınırlar: otomatik fotogrametri, üretici model kütüphanesi, buluttan ses/vi
 - Güvenli public projeksiyon teknik eşlemeyi yayınlar fakat ticari tutar, onay kimliği veya kanıt metadatası açıklamaz. ERP ekranı yanlış veya eksik eşlemede fail-closed davranır.
 - Ticari yapılandırma testi ve tarayıcı E2E testi geçti.
 - `scripts/Test-FinanceLocalAcceptance.ps1`: PASS, 95/95 checks, `LOCAL_ONLY`, `productionDataUsed: false`.
+
+## 2026-11-10 — FIN-C01 varsayılan para birimi kararı
+
+- Kullanıcı `FIN-C01=EVET` kararıyla tüm finans sözleşmeleri ve bedelleri için varsayılan ana para birimini `TRY` olarak onayladı; cevaplanan ticari karar sayısı 3/12 oldu.
+- Ana ticari yapılandırma, güvenli public projeksiyon ve ERP finans arayüzü aynı `TRY` değerini fail-closed doğrular; anket ile yapılandırma arasındaki tutarsızlık kabul testini durdurur.
+- Bu karar vergi kodu, muhasebe hesapları, yuvarlama yöntemi, yabancı para/kur politikası veya Mali Müşavir onayı yerine geçmez. Vergi ve muhasebe paketi `PENDING_ADVISOR_APPROVAL`, pre-production kararı `NO_GO` kalır.
+- `scripts/Test-FinanceLocalAcceptance.ps1`: PASS, 95/95 checks, `LOCAL_ONLY`, `productionDataUsed: false`.

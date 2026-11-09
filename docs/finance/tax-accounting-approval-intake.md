@@ -9,7 +9,7 @@ Ana kayıt `tax-accounting-decision.json` dosyasıdır. Bu form Mali Müşavir v
 | Fatura/belge tipi | Bekleniyor | Mali Müşavir |
 | İade/mahsup belge tipi | Bekleniyor | Mali Müşavir |
 | Yuvarlama yöntemi | Bekleniyor | Mali Müşavir |
-| Ana para birimi | FIN-C01 kullanıcı kararı bekleniyor | Finans Direktörü + Mali Müşavir |
+| Ana para birimi | FIN-C01 kararıyla TRY onaylandı; Mali Müşavir hesap/vergi paketi onayı bekleniyor | Finans Direktörü + Mali Müşavir |
 | Faturayı düzenleyen | Genel merkez tüzel kişisi | Mali Müşavir + Finans Direktörü |
 | Fatura muhatabı | Şube ticari unvanı | Mali Müşavir + Finans Direktörü |
 | Belge numarası | Muhasebe sağlayıcısı callback'i | Finans Direktörü |

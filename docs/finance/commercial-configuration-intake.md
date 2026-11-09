@@ -12,7 +12,7 @@ ERP ve kullanıcı arayüzünde iş adı `DEDUCTION_CREDIT` olarak kullanılır.
 
 | Alan | Karar | Onaylayan | Geçerlilik başlangıcı |
 |---|---|---|---|
-| Varsayılan para birimi | Bekleniyor | Finans Direktörü | Bekleniyor |
+| Varsayılan para birimi | TRY (FIN-C01: EVET) | Finans Direktörü | Yeni sözleşme ve bedel yapılandırmaları; kur politikası ayrıca onaylanmadıkça yabancı para kullanılmaz |
 | Tutar hassasiyeti | 8 ondalık saklama, 2 ondalık belge gösterimi önerisi | Mali Müşavir | Bekleniyor |
 | Yuvarlama yöntemi | Bekleniyor | Mali Müşavir | Bekleniyor |
 | Varsayılan vade başlangıcı | Fatura tarihini izleyen takvim günü; Europe/Istanbul | Finans Direktörü | Şube kuralı aktivasyonu |

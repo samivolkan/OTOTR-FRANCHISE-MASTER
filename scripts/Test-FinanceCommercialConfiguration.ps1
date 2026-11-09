@@ -2,12 +2,17 @@
 param(
   [switch]$RequireApproved,
   [string]$ConfigurationFile = (Join-Path $PSScriptRoot '..\docs\finance\commercial-configuration.json'),
-  [string]$PublicProjectionFile = (Join-Path $PSScriptRoot '..\docs\finance\commercial-configuration-public.json')
+  [string]$PublicProjectionFile = (Join-Path $PSScriptRoot '..\docs\finance\commercial-configuration-public.json'),
+  [string]$QuestionnaireFile = (Join-Path $PSScriptRoot '..\docs\finance\commercial-decision-questionnaire.json')
 )
 $ErrorActionPreference = 'Stop'
 $root = (Resolve-Path (Join-Path $PSScriptRoot '..')).Path
 $d = Get-Content -Raw -LiteralPath (Resolve-Path $ConfigurationFile) | ConvertFrom-Json -Depth 30
 if ($d.schemaVersion -ne 1 -or $d.module -ne 'OTOTR_FRANCHISE_FINANCE' -or $d.environment -ne 'PREPRODUCTION_CANDIDATE') { throw 'Invalid commercial configuration identity.' }
+if ($d.currencyCode -ne 'TRY') { throw 'Confirmed FIN-C01 default currency decision must remain TRY.' }
+$questionnaire = Get-Content -Raw -LiteralPath (Resolve-Path $QuestionnaireFile) | ConvertFrom-Json -Depth 20
+$currencyDecision = @($questionnaire.questions | Where-Object id -eq 'FIN-C01')
+if ($currencyDecision.Count -ne 1 -or $currencyDecision[0].response -ne 'EVET' -or $currencyDecision[0].yesEffect -ne 'currencyCode=TRY') { throw 'FIN-C01 questionnaire decision and TRY configuration are inconsistent.' }
 if ($d.storageDecimalScale -ne 8 -or $d.documentDecimalScale -ne 2) { throw 'Finance decimal scale policy changed without review.' }
 $invoicePolicy=$d.invoicePresentationPolicy
 $invoiceFamilies=@('ROYALTY','ENTRY_FRANCHISE','PERIODIC_FRANCHISE','QUERY','EXTERNAL_SERVICE','OPTIONAL_PRODUCT_SERVICE','PASS_THROUGH_EXPENSE','DEDUCTION_CREDIT')
@@ -50,7 +55,7 @@ $deduction = $d.feeFamilies | Where-Object code -eq 'DEDUCTION_CREDIT'
 if ($deduction.directBalanceEditAllowed -ne $false) { throw 'Direct balance editing must remain forbidden.' }
 $publicRaw = Get-Content -Raw -LiteralPath (Resolve-Path $PublicProjectionFile)
 $public = $publicRaw | ConvertFrom-Json -Depth 20
-if ($public.schemaVersion -ne 1 -or $public.module -ne $d.module -or $public.projection -ne 'COMMERCIAL_DECISION_STATUS_PUBLIC' -or $public.productionValuesExposed -ne $false -or $public.approvalIdentitiesExposed -ne $false -or $public.evidenceMetadataExposed -ne $false) { throw 'Invalid commercial public projection identity.' }
+if ($public.schemaVersion -ne 1 -or $public.module -ne $d.module -or $public.projection -ne 'COMMERCIAL_DECISION_STATUS_PUBLIC' -or $public.currencyCode -ne 'TRY' -or $public.productionValuesExposed -ne $false -or $public.approvalIdentitiesExposed -ne $false -or $public.evidenceMetadataExposed -ne $false) { throw 'Invalid commercial public projection identity.' }
 if ($publicRaw -match 'financeDirector|financialAdvisor|franchiseManagement|evidencePath|evidenceSha256|signedAtUtc|ratePercent\s*"\s*:|amountOrRate\s*"\s*:|FINANCE_QUERY_|FINANCE_PASS_THROUGH_') { throw 'Commercial public projection exposes protected approval, evidence or production values.' }
 if (@($public.feeFamilies).Count -ne 8) { throw 'Commercial public projection fee family inventory is incomplete.' }
 if($public.invoicePresentation.mode-ne'SEPARATE_LINE_PER_FEE_FAMILY'-or(@($public.invoicePresentation.transparentFeeFamilies)-join',')-ne($invoiceFamilies-join',')-or(@($public.invoicePresentation.queryServiceLines)-join',')-ne'TRAMER_QUERY,KM_QUERY,TRAMER_360_QUERY'-or$public.invoicePresentation.aggregateDifferentFeeFamilies){throw'Commercial public invoice presentation is incomplete.'}

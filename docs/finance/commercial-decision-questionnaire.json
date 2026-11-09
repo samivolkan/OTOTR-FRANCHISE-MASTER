@@ -22,7 +22,7 @@
       "question": "Tüm finans sözleşmeleri ve bedelleri için ana para birimi TRY olsun mu?",
       "yesEffect": "currencyCode=TRY",
       "noEffect": "Alternatif para birimi ve kur politikası yorumda belirtilir.",
-      "response": null,
+      "response": "EVET",
       "comment": null
     },
     {
