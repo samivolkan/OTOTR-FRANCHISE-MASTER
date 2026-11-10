@@ -82,8 +82,8 @@
       "question": "Opsiyonel ürün ve hizmetler aktivasyon başına sabit fiyat kataloğundan tahakkuk etsin mi?",
       "yesEffect": "calculationMethod=FIXED_CATALOG_PER_ACTIVATION",
       "noEffect": "Oran veya kullanım bazlı yöntem yorumda belirtilir.",
-      "response": null,
-      "comment": null
+      "response": "YORUM",
+      "comment": "Opsiyonel ürün ve hizmetlerde maliyet kalemleri girilir. Bayiye kaynak maliyet üzerine yüzde 10 hizmet bedeli ve bu hizmet bedeline ayrıca KDV yansıtılır. Maliyet, hizmet bedeli ve KDV ayrı ve şeffaf gösterilir."
     },
     {
       "id": "FIN-C08",

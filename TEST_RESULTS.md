@@ -1634,3 +1634,10 @@ Sınırlar: otomatik fotogrametri, üretici model kütüphanesi, buluttan ses/vi
 - İstisna için orijinal sorgu bağlantısı, teknik hata kanıtı ve audit izi zorunludur. Normal kullanıcı tekrarı ücretsiz sayılmaz.
 - Vergi/muhasebe eşlemesi ve diğer ticari kararlar tamamlanmadığından pre-production kararı `NO_GO` kalır.
 - `scripts/Test-FinanceLocalAcceptance.ps1`: PASS, 95/95 checks, `LOCAL_ONLY`, `productionDataUsed: false`.
+
+## 2026-11-10 — FIN-C07 opsiyonel ürün/hizmet maliyet yansıtması
+
+- Kullanıcının yöntem açıklaması `FIN-C07=YORUM` olarak kaydedildi: girilen kaynak maliyet üzerine %10 hizmet bedeli ve bu hizmet bedeline ayrıca KDV uygulanır; cevaplanan ticari karar sayısı 8/12 oldu.
+- Kaynak maliyet, hizmet bedeli ve KDV ayrı gösterilir. %10 oranı public repoda tutulmaz; ayrı server secret adı tanımlandı ve hosted provisioning tamamlanana kadar kapı beklemede kalır.
+- KDV oranı/kodu, vade ve resmi fatura satır kodu Mali Müşavir/ticari onay beklediğinden pre-production kararı `NO_GO` kalır.
+- `scripts/Test-FinanceLocalAcceptance.ps1`: PASS, 95/95 checks, `LOCAL_ONLY`, `productionDataUsed: false`.

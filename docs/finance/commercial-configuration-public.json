@@ -123,11 +123,10 @@
     },
     {
       "code": "OPTIONAL_PRODUCT_SERVICE",
-      "decisionStatus": "PENDING",
-      "confirmedBehavior": "Ürün veya hizmet aktivasyonu tetikleyicisi tanımlı.",
+      "decisionStatus": "PARTIALLY_CONFIRMED",
+      "confirmedBehavior": "Opsiyonel ürün veya hizmette girilen kaynak maliyet üzerine kullanıcı tarafından onaylanan hizmet bedeli ve bu hizmet bedeline ayrıca KDV uygulanır. Oran güvenli sunucu yapılandırmasında tutulur; kaynak maliyet, hizmet bedeli ve KDV ayrı gösterilir. KDV oranı ve muhasebe kodu Mali Müşavir onayı bekler.",
       "pendingFields": [
-        "calculationMethod",
-        "amountOrRate",
+        "secureRateHostedConfiguration",
         "effectiveFrom",
         "dueRule",
         "taxCode",

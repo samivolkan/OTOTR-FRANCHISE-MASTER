@@ -13,7 +13,7 @@ $behaviors = [ordered]@{
   PERIODIC_FRANCHISE = 'Periyodik franchise bedeli varsayılan olarak kapalıdır; yalnız onaylı ve sürümlü sözleşme kuralıyla etkinleşebilir.'
   QUERY = 'Başarılı ve ücretlendirilebilir sorgu başına sabit tutar uygulanır. Sözleşme veya kampanya üzerinden ücretsiz sorgu hakkı tanımlanmaz. Orijinal sorguya bağlı ve teknik hata kanıtı bulunan tekrar ücretsizdir; normal kullanıcı tekrarı bu istisnaya girmez ve audit izi korunur. TRAMER, KM ve TRAMER 360 hizmet kodlarının kullanıcı tarafından kararlaştırılan tutarları yalnız güvenli backend yapılandırmasında tutulur; public projeksiyon ticari tutar açıklamaz.'
   EXTERNAL_SERVICE = 'Başarılı harici hizmet teslimi, sağlayıcı maliyeti artı yüzdesel hizmet bedeli ve ayrıca KDV yöntemiyle yansıtılır. Sağlayıcı maliyeti, hizmet bedeli ve vergi şubeye ayrı gösterilir; oran, yürürlük, KDV matrahı ve vergi kodu onayı beklenir.'
-  OPTIONAL_PRODUCT_SERVICE = 'Ürün veya hizmet aktivasyonu tetikleyicisi tanımlı.'
+  OPTIONAL_PRODUCT_SERVICE = 'Opsiyonel ürün veya hizmette girilen kaynak maliyet üzerine kullanıcı tarafından onaylanan hizmet bedeli ve bu hizmet bedeline ayrıca KDV uygulanır. Oran güvenli sunucu yapılandırmasında tutulur; kaynak maliyet, hizmet bedeli ve KDV ayrı gösterilir. KDV oranı ve muhasebe kodu Mali Müşavir onayı bekler.'
   PASS_THROUGH_EXPENSE = 'Onaylı genel merkez kaynak masrafına güvenli backend yapılandırmasındaki hizmet oranı ve ayrıca KDV uygulanır. Kaynak masraf, hizmet bedeli ve vergi şubeye ayrı ve izlenebilir gösterilir; belge izi ile maker-checker korunur.'
   DEDUCTION_CREDIT = 'Onaylı karar üzerinden kredi; doğrudan bakiye düzenleme yasak.'
 }
@@ -23,7 +23,7 @@ $decisionFields = [ordered]@{
   PERIODIC_FRANCHISE = @('calculationMethod','amountOrRate','billingFrequency','effectiveFrom','dueRule','taxCode','invoiceLineCode')
   QUERY = @('freeEntitlementPolicy','technicalRepeatPolicy','effectiveFrom','dueRule','taxCode','invoiceLineCode')
   EXTERNAL_SERVICE = @('calculationMethod','amountOrRate','providerMarginPolicy','effectiveFrom','dueRule','taxCode','invoiceLineCode')
-  OPTIONAL_PRODUCT_SERVICE = @('calculationMethod','amountOrRate','effectiveFrom','dueRule','taxCode','invoiceLineCode')
+  OPTIONAL_PRODUCT_SERVICE = @('secureRateHostedConfiguration','effectiveFrom','dueRule','taxCode','invoiceLineCode')
   PASS_THROUGH_EXPENSE = @('allocationPolicy','effectiveFrom','dueRule','taxCode','invoiceLineCode')
   DEDUCTION_CREDIT = @('calculationMethod','amountOrRate','effectiveFrom','taxCode','invoiceLineCode')
 }
