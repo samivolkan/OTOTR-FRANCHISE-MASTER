@@ -102,8 +102,8 @@
       "question": "Onaylanan itiraz ve kesintiler doğrudan bakiye düzenlemek yerine izlenebilir kredi belgesi olarak işlensin mi?",
       "yesEffect": "calculationMethod=APPROVED_CREDIT_DOCUMENT",
       "noEffect": "Alternatif kontrollü düzeltme yöntemi yorumda belirtilir; doğrudan bakiye düzenleme yine yasaktır.",
-      "response": null,
-      "comment": null
+      "response": "YORUM",
+      "comment": "Onaylanan itiraz ve kesinti tutarı ayrı kredi belgesi yerine şubenin cari ödemesinden mahsup edilebilir. Mahsup kaynak işlem ve onay referanslarıyla izlenebilir olmalı; sessiz veya doğrudan bakiye düzenlemesi yapılmamalıdır."
     },
     {
       "id": "FIN-C10",

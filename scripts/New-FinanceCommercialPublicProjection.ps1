@@ -15,7 +15,7 @@ $behaviors = [ordered]@{
   EXTERNAL_SERVICE = 'Başarılı harici hizmet teslimi, sağlayıcı maliyeti artı yüzdesel hizmet bedeli ve ayrıca KDV yöntemiyle yansıtılır. Sağlayıcı maliyeti, hizmet bedeli ve vergi şubeye ayrı gösterilir; oran, yürürlük, KDV matrahı ve vergi kodu onayı beklenir.'
   OPTIONAL_PRODUCT_SERVICE = 'Opsiyonel ürün veya hizmette girilen kaynak maliyet üzerine kullanıcı tarafından onaylanan hizmet bedeli ve bu hizmet bedeline ayrıca KDV uygulanır. Oran güvenli sunucu yapılandırmasında tutulur; kaynak maliyet, hizmet bedeli ve KDV ayrı gösterilir. KDV oranı ve muhasebe kodu Mali Müşavir onayı bekler.'
   PASS_THROUGH_EXPENSE = 'Onaylı genel merkez kaynak masrafına güvenli backend yapılandırmasındaki hizmet oranı ve ayrıca KDV uygulanır. Kaynak masraf, hizmet bedeli ve vergi şubeye ayrı ve izlenebilir gösterilir; belge izi ile maker-checker korunur.'
-  DEDUCTION_CREDIT = 'Onaylı karar üzerinden kredi; doğrudan bakiye düzenleme yasak.'
+  DEDUCTION_CREDIT = 'Onaylanan itiraz veya kesinti tutarı ayrı kredi belgesi yerine aynı şubenin mevcut cari ödemesinden mahsup edilebilir. Mahsup kaynak işlem ve onay referanslarıyla izlenir; maker-checker ve audit izi zorunludur. Sessiz doğrudan bakiye düzenleme ve şubeler arası mahsup yasaktır.'
 }
 $decisionFields = [ordered]@{
   ROYALTY = @('taxCode','refundCashPayoutPolicy')
@@ -25,7 +25,7 @@ $decisionFields = [ordered]@{
   EXTERNAL_SERVICE = @('calculationMethod','amountOrRate','providerMarginPolicy','effectiveFrom','dueRule','taxCode','invoiceLineCode')
   OPTIONAL_PRODUCT_SERVICE = @('secureRateHostedConfiguration','effectiveFrom','dueRule','taxCode','invoiceLineCode')
   PASS_THROUGH_EXPENSE = @('allocationPolicy','effectiveFrom','dueRule','taxCode','invoiceLineCode')
-  DEDUCTION_CREDIT = @('calculationMethod','amountOrRate','effectiveFrom','taxCode','invoiceLineCode')
+  DEDUCTION_CREDIT = @('amountOrRate','excessOffsetPolicy','effectiveFrom','taxCode','invoiceLineCode')
 }
 $families = foreach ($code in $codes) {
   $matches = @($source.feeFamilies | Where-Object code -eq $code)

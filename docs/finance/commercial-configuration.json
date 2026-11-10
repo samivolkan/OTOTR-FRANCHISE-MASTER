@@ -296,11 +296,21 @@
     },
     {
       "code": "DEDUCTION_CREDIT",
-      "decisionStatus": "PENDING",
+      "decisionStatus": "PARTIALLY_CONFIRMED",
       "trigger": "APPROVED_DISPUTE_OR_DECISION",
-      "calculationMethod": null,
+      "calculationMethod": "CURRENT_PAYMENT_OFFSET_WITH_LINKED_ADJUSTMENT",
       "amountOrRate": null,
       "directBalanceEditAllowed": false,
+      "offsetPolicy": {
+        "target": "BRANCH_CURRENT_PAYMENT",
+        "requiresAvailablePaymentAmount": true,
+        "requiresMakerCheckerApproval": true,
+        "preserveSourceTransactionReference": true,
+        "preserveApprovalReference": true,
+        "auditTraceRequired": true,
+        "crossBranchOffsetAllowed": false
+      },
+      "excessOffsetPolicy": null,
       "effectiveFrom": null,
       "taxCode": null,
       "invoiceLineCode": null

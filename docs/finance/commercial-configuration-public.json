@@ -147,11 +147,11 @@
     },
     {
       "code": "DEDUCTION_CREDIT",
-      "decisionStatus": "PENDING",
-      "confirmedBehavior": "Onaylı karar üzerinden kredi; doğrudan bakiye düzenleme yasak.",
+      "decisionStatus": "PARTIALLY_CONFIRMED",
+      "confirmedBehavior": "Onaylanan itiraz veya kesinti tutarı ayrı kredi belgesi yerine aynı şubenin mevcut cari ödemesinden mahsup edilebilir. Mahsup kaynak işlem ve onay referanslarıyla izlenir; maker-checker ve audit izi zorunludur. Sessiz doğrudan bakiye düzenleme ve şubeler arası mahsup yasaktır.",
       "pendingFields": [
-        "calculationMethod",
         "amountOrRate",
+        "excessOffsetPolicy",
         "effectiveFrom",
         "taxCode",
         "invoiceLineCode"

@@ -32,7 +32,7 @@ Her satır için `UYGULANMAZ` veya açık değer girilmelidir.
 | EXTERNAL_SERVICE | Başarılı hizmet kullanımı | Sağlayıcı maliyeti + yüzdesel hizmet bedeli + hizmet bedeline ayrıca KDV onaylandı; oran bekleniyor | Bekleniyor | Bekleniyor | Bekleniyor | Sağlayıcı iptal/iade kuralı bekleniyor | Bekleniyor |
 | OPTIONAL_PRODUCT_SERVICE | Satış/kullanım | Girilen kaynak maliyet + güvenli backend oranından %10 hizmet bedeli + hizmet bedeline ayrıca KDV; maliyet, hizmet bedeli ve vergi ayrı gösterilir | Hayır; KDV hizmet bedeline ayrı eklenir | KDV oranı/kodu Mali Müşavir onayı bekliyor | Bekleniyor | Kaynak maliyet izi korunarak ters kayıt | Bekleniyor |
 | PASS_THROUGH_EXPENSE | Onaylı kaynak masraf | Kaynak masraf + güvenli backend oranından hizmet bedeli + %20 KDV; kaynak, hizmet ve vergi şubeye ayrı gösterilir. Şubeler arası dağıtım anahtarı bekleniyor | Hayır; KDV hizmet bedeline ayrı eklenir | Oran %20 onaylandı; muhasebe vergi kodu bekleniyor | Bekleniyor | Belge ve maker-checker ile ters kayıt | Bekleniyor |
-| DEDUCTION/CREDIT | Onaylı itiraz/karar | Sabit veya bağlı kalem oranı bekleniyor | Bekleniyor | Bekleniyor | Bekleniyor | Doğrudan bakiye düzenleme yasak | Bekleniyor |
+| DEDUCTION/CREDIT | Onaylı itiraz/karar | Onaylı tutar şubenin mevcut cari ödemesinden, bağlı ve izlenebilir mahsup kaydıyla düşülür | Bekleniyor | Bekleniyor | Cari ödeme anında | Sessiz bakiye düzenleme yasak; kaynak işlem, onay ve audit izi korunur | Bekleniyor |
 
 ## 3. Royalty için zorunlu cevaplar
 

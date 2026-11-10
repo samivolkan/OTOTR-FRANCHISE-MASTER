@@ -1641,3 +1641,10 @@ Sınırlar: otomatik fotogrametri, üretici model kütüphanesi, buluttan ses/vi
 - Kaynak maliyet, hizmet bedeli ve KDV ayrı gösterilir. %10 oranı public repoda tutulmaz; ayrı server secret adı tanımlandı ve hosted provisioning tamamlanana kadar kapı beklemede kalır.
 - KDV oranı/kodu, vade ve resmi fatura satır kodu Mali Müşavir/ticari onay beklediğinden pre-production kararı `NO_GO` kalır.
 - `scripts/Test-FinanceLocalAcceptance.ps1`: PASS, 95/95 checks, `LOCAL_ONLY`, `productionDataUsed: false`.
+
+## 2026-11-10 — FIN-C09 cari ödemeden izlenebilir mahsup
+
+- Kullanıcının yöntem açıklaması `FIN-C09=YORUM` olarak kaydedildi: onaylanan itiraz/kesinti ayrı kredi belgesi yerine ilgili şubenin mevcut cari ödemesinden mahsup edilebilir; cevaplanan ticari karar sayısı 9/12 oldu.
+- Mahsup maker-checker onayı, kaynak işlem ve onay referansları ile audit izi gerektirir. Sessiz doğrudan bakiye düzenleme ve şubeler arası mahsup yasaktır.
+- Mahsup tutarı cari ödemeyi aşarsa kalan kısmın davranışı ayrıca karar bekler; vergi/muhasebe onayları tamamlanmadığından pre-production `NO_GO` kalır.
+- `scripts/Test-FinanceLocalAcceptance.ps1`: PASS, 95/95 checks, `LOCAL_ONLY`, `productionDataUsed: false`.
