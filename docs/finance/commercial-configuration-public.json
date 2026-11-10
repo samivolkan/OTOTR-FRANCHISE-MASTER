@@ -87,17 +87,9 @@
     },
     {
       "code": "PERIODIC_FRANCHISE",
-      "decisionStatus": "PENDING",
-      "confirmedBehavior": "Periyodik franchise bedeli varsayılan olarak kapalıdır; yalnız onaylı ve sürümlü sözleşme kuralıyla etkinleşebilir.",
-      "pendingFields": [
-        "calculationMethod",
-        "amountOrRate",
-        "billingFrequency",
-        "effectiveFrom",
-        "dueRule",
-        "taxCode",
-        "invoiceLineCode"
-      ]
+      "decisionStatus": "APPROVED",
+      "confirmedBehavior": "Ayrı periyodik franchise bedeli ticari kararla devre dışıdır. Yeni sözleşmelerde etkinleştirilemez ve yeni tahakkuk oluşturamaz; teknik aile yalnız geçmiş kayıt uyumluluğu için korunur.",
+      "pendingFields": []
     },
     {
       "code": "QUERY",

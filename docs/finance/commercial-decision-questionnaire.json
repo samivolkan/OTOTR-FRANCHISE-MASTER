@@ -132,7 +132,7 @@
       "question": "Royalty ve giriş bedelinden bağımsız periyodik franchise bedeli, yalnız sözleşmeyle etkinleştirilebilen ayrı bir bedel ailesi olarak desteklensin mi?",
       "yesEffect": "periodicFranchisePolicy=CONTRACT_RULE_OPT_IN",
       "noEffect": "PERIODIC_FRANCHISE devre dışı kalır.",
-      "response": null,
+      "response": "HAYIR",
       "comment": null
     }
   ],

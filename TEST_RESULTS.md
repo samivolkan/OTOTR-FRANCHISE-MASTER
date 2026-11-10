@@ -1655,3 +1655,10 @@ Sınırlar: otomatik fotogrametri, üretici model kütüphanesi, buluttan ses/vi
 - Geçmiş tahakkuklar otomatik yeniden hesaplanmaz. Düzeltme gerektiğinde orijinal referansları koruyan bağlı ters kayıt veya düzeltme kaydı kullanılır.
 - FIN-C08 ve FIN-C12 ile vergi/muhasebe onayları beklediğinden pre-production `NO_GO` kalır.
 - `scripts/Test-FinanceLocalAcceptance.ps1`: PASS, 95/95 checks, `LOCAL_ONLY`, `productionDataUsed: false`.
+
+## 2026-11-10 — FIN-C12 periyodik franchise bedeli kararı
+
+- Kullanıcı `FIN-C12=HAYIR` kararıyla royalty ve giriş bedelinden bağımsız periyodik franchise bedelini devre dışı bıraktı; cevaplanan ticari karar sayısı 11/12 oldu.
+- Yeni sözleşmeler bu aileyi etkinleştiremez ve yeni periyodik franchise tahakkuku oluşturulmaz. Teknik aile yalnız geçmiş kayıt ve entegrasyon uyumluluğu için korunur.
+- FIN-C08 ile vergi/muhasebe onayları beklediğinden pre-production `NO_GO` kalır.
+- `scripts/Test-FinanceLocalAcceptance.ps1`: PASS, 95/95 checks, `LOCAL_ONLY`, `productionDataUsed: false`.
