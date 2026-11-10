@@ -112,7 +112,7 @@
       "question": "Royalty dışındaki tüm ticari kural değişiklikleri de yalnız yürürlük tarihinden sonraki işlemlere uygulansın mı?",
       "yesEffect": "changePolicy=PROSPECTIVE_VERSION_ONLY",
       "noEffect": "Geriye dönük uygulanabilecek aileler ve sınırlar yorumda belirtilir.",
-      "response": null,
+      "response": "EVET",
       "comment": null
     },
     {

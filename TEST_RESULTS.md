@@ -1648,3 +1648,10 @@ Sınırlar: otomatik fotogrametri, üretici model kütüphanesi, buluttan ses/vi
 - Mahsup maker-checker onayı, kaynak işlem ve onay referansları ile audit izi gerektirir. Sessiz doğrudan bakiye düzenleme ve şubeler arası mahsup yasaktır.
 - Mahsup tutarı cari ödemeyi aşarsa kalan kısmın davranışı ayrıca karar bekler; vergi/muhasebe onayları tamamlanmadığından pre-production `NO_GO` kalır.
 - `scripts/Test-FinanceLocalAcceptance.ps1`: PASS, 95/95 checks, `LOCAL_ONLY`, `productionDataUsed: false`.
+
+## 2026-11-10 — FIN-C10 ileriye dönük ticari kural değişiklikleri
+
+- Kullanıcının “olur” yanıtı `FIN-C10=EVET` olarak kaydedildi; royalty dahil tüm bedel ailelerindeki ticari kural değişiklikleri yalnız yeni sürümün yürürlük tarihinden sonraki işlemlere uygulanır. Cevaplanan karar sayısı 10/12 oldu.
+- Geçmiş tahakkuklar otomatik yeniden hesaplanmaz. Düzeltme gerektiğinde orijinal referansları koruyan bağlı ters kayıt veya düzeltme kaydı kullanılır.
+- FIN-C08 ve FIN-C12 ile vergi/muhasebe onayları beklediğinden pre-production `NO_GO` kalır.
+- `scripts/Test-FinanceLocalAcceptance.ps1`: PASS, 95/95 checks, `LOCAL_ONLY`, `productionDataUsed: false`.

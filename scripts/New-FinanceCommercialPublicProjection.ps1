@@ -44,7 +44,7 @@ $invoicePresentation=[ordered]@{
   aggregateDifferentFeeFamilies=[bool]$source.invoicePresentationPolicy.aggregateDifferentFeeFamilies
 }
 $feeFamilyStorageMapping=@($source.feeFamilyStorageMapping|ForEach-Object{[ordered]@{businessCode=$_.businessCode;storageCode=$_.storageCode}})
-$projection = [ordered]@{schemaVersion=1;module='OTOTR_FRANCHISE_FINANCE';projection='COMMERCIAL_DECISION_STATUS_PUBLIC';status=$source.status;currencyCode=$source.currencyCode;productionValuesExposed=$false;approvalIdentitiesExposed=$false;evidenceMetadataExposed=$false;feeFamilyStorageMapping=$feeFamilyStorageMapping;invoicePresentation=$invoicePresentation;feeFamilies=$families}
+$projection = [ordered]@{schemaVersion=1;module='OTOTR_FRANCHISE_FINANCE';projection='COMMERCIAL_DECISION_STATUS_PUBLIC';status=$source.status;currencyCode=$source.currencyCode;changePolicy=$source.generalChangePolicy.mode;productionValuesExposed=$false;approvalIdentitiesExposed=$false;evidenceMetadataExposed=$false;feeFamilyStorageMapping=$feeFamilyStorageMapping;invoicePresentation=$invoicePresentation;feeFamilies=$families}
 $target = [IO.Path]::GetFullPath($OutputFile)
 $parent = Split-Path -Parent $target
 if (-not (Test-Path -LiteralPath $parent)) { throw 'Projection output directory does not exist.' }

@@ -16,6 +16,7 @@ ERP ve kullanıcı arayüzünde iş adı `DEDUCTION_CREDIT` olarak kullanılır.
 | Tutar hassasiyeti | 8 ondalık saklama, 2 ondalık belge gösterimi önerisi | Mali Müşavir | Bekleniyor |
 | Yuvarlama yöntemi | Bekleniyor | Mali Müşavir | Bekleniyor |
 | Varsayılan vade başlangıcı | Fatura tarihini izleyen takvim günü; Europe/Istanbul | Finans Direktörü | Şube kuralı aktivasyonu |
+| Ticari kural değişiklikleri | Tüm bedel ailelerinde yalnız ileri tarihli yeni sürüm; geçmiş otomatik yeniden hesaplanmaz | Finans Direktörü | Yeni sürümün yürürlük tarihi |
 | Tahsilat sıralama politikası | Bekleniyor | Finans Kontrol | Bekleniyor |
 | İtiraz süresi | Bekleniyor | Hukuk | Bekleniyor |
 

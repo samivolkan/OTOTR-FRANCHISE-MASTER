@@ -4,6 +4,7 @@
   "projection": "COMMERCIAL_DECISION_STATUS_PUBLIC",
   "status": "PENDING_DECISIONS",
   "currencyCode": "TRY",
+  "changePolicy": "PROSPECTIVE_VERSION_ONLY",
   "productionValuesExposed": false,
   "approvalIdentitiesExposed": false,
   "evidenceMetadataExposed": false,

@@ -7,6 +7,13 @@
   "storageDecimalScale": 8,
   "documentDecimalScale": 2,
   "roundingMode": null,
+  "generalChangePolicy": {
+    "mode": "PROSPECTIVE_VERSION_ONLY",
+    "appliesToAllFeeFamilies": true,
+    "retroactiveRecalculation": false,
+    "correctionsRequireLinkedReversalOrAdjustment": true,
+    "preserveOriginalReferences": true
+  },
   "feeFamilyStorageMapping": [
     {"businessCode":"ROYALTY","storageCode":"ROYALTY"},
     {"businessCode":"ENTRY_FRANCHISE","storageCode":"ENTRY_FRANCHISE"},
