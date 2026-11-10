@@ -211,7 +211,13 @@
         }
       ],
       "freeEntitlementPolicy": "DISABLED_ALL_SUCCESSFUL_CHARGEABLE_QUERIES_BILLED",
-      "technicalRepeatPolicy": null,
+      "technicalRepeatPolicy": {
+        "mode": "NO_CHARGE_WITH_LINKED_ORIGINAL",
+        "requiresOriginalQueryReference": true,
+        "requiresTechnicalFailureEvidence": true,
+        "ordinaryUserRepeatExcluded": true,
+        "auditTraceRequired": true
+      },
       "effectiveFrom": null,
       "dueRule": null,
       "taxCode": null,

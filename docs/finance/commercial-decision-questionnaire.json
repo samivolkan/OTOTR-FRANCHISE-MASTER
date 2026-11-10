@@ -62,7 +62,7 @@
       "question": "Teknik hata nedeniyle aynı işlem için tekrarlanan sorgular ücretsiz sayılsın mı?",
       "yesEffect": "technicalRepeatPolicy=NO_CHARGE_WITH_LINKED_ORIGINAL",
       "noEffect": "Her başarılı tekrar ücretlendirilir.",
-      "response": null,
+      "response": "EVET",
       "comment": null
     },
     {

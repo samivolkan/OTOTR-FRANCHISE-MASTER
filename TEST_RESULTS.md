@@ -1627,3 +1627,10 @@ Sınırlar: otomatik fotogrametri, üretici model kütüphanesi, buluttan ses/vi
 - Başarılı ve ücretlendirilebilir sorgular ilgili güvenli katalog bedeliyle tahakkuk eder. Teknik hata nedeniyle tekrar sorgu davranışı FIN-C05 kararı beklediği için bu kararla varsayılmadı.
 - Vergi/muhasebe eşlemesi ve diğer ticari kararlar tamamlanmadığından pre-production kararı `NO_GO` kalır.
 - `scripts/Test-FinanceLocalAcceptance.ps1`: PASS, 95/95 checks, `LOCAL_ONLY`, `productionDataUsed: false`.
+
+## 2026-11-10 — FIN-C05 teknik tekrar sorgusu kararı
+
+- Kullanıcı `FIN-C05=EVET` kararıyla aynı işlemde teknik hata nedeniyle tekrarlanan sorgunun ücretlendirilmemesini onayladı; cevaplanan ticari karar sayısı 7/12 oldu.
+- İstisna için orijinal sorgu bağlantısı, teknik hata kanıtı ve audit izi zorunludur. Normal kullanıcı tekrarı ücretsiz sayılmaz.
+- Vergi/muhasebe eşlemesi ve diğer ticari kararlar tamamlanmadığından pre-production kararı `NO_GO` kalır.
+- `scripts/Test-FinanceLocalAcceptance.ps1`: PASS, 95/95 checks, `LOCAL_ONLY`, `productionDataUsed: false`.
